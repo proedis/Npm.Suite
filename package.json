@@ -10,7 +10,8 @@
     "release:lint": "eslint ./packages",
     "release:version": "lerna version",
     "release:build": "lerna run build",
-    "release:publish": "lerna publish",
+    "release:publish": "lerna publish from-package --contents build",
+    "release": "yarn release:lint && yarn release:version && yarn release:build && yarn release:publish",
     "prepare": "husky install"
   },
   "devDependencies": {
