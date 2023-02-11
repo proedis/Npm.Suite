@@ -1,0 +1,33 @@
+{
+  "name": "@proedis/utils",
+  "version": "1.0.0",
+  "description": "Set of smart utilities and reusable shared functions",
+  "keywords": [
+    "proedis",
+    "typescript",
+    "javascript",
+    "utils"
+  ],
+  "main": "src/index.ts",
+  "license": "MIT",
+  "author": {
+    "name": "Marco Cavanna",
+    "email": "m.cavanna@proedis.net"
+  },
+  "homepage": "https://github.com/proedis/Npm.Suite",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/proedis/Npm.Suite.git",
+    "directory": "packages/utils"
+  },
+  "bugs": {
+    "url": "https://github.com/proedis/Npm.Suite/issues",
+    "email": "info@proedis.net"
+  },
+  "scripts": {
+    "build": "rollup --config ../../rollup.config.mjs"
+  },
+  "devDependencies": {
+    "@proedis/tsconfig": "*"
+  }
+}

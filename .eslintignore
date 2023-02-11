@@ -1,0 +1,5 @@
+/.git
+/.yarn
+/coverage
+build
+node_modules

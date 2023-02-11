@@ -1,0 +1,15 @@
+{
+  "extends": "@proedis/tsconfig/declaration",
+  "include": [
+    "./**/*.ts"
+  ],
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "build/types"
+  },
+  "references": [
+    {
+      "path": "../utils/tsconfig.declaration.json"
+    }
+  ]
+}

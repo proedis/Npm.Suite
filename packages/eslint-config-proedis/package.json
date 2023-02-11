@@ -1,0 +1,54 @@
+{
+  "name": "eslint-config-proedis",
+  "version": "1.0.0",
+  "description": "Proedis ESLint configuration with TypeScript and optionally NextJS support",
+  "keywords": [
+    "proedis",
+    "eslint",
+    "eslintconfig",
+    "config",
+    "javascript",
+    "typescript",
+    "styleguide"
+  ],
+  "main": "index.js",
+  "license": "MIT",
+  "author": {
+    "name": "Marco Cavanna",
+    "email": "m.cavanna@proedis.net"
+  },
+  "homepage": "https://github.com/proedis/Npm.Suite",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/proedis/Npm.Suite.git",
+    "directory": "packages/eslint-config-proedis"
+  },
+  "bugs": {
+    "url": "https://github.com/proedis/Npm.Suite/issues",
+    "email": "info@proedis.net"
+  },
+  "bin": {
+    "eslint-proedis-init": "./bin/init.js"
+  },
+  "dependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.51.0",
+    "@typescript-eslint/parser": "^5.51.0",
+    "eslint": "^8.2.0",
+    "eslint-config-airbnb-typescript": "^17.0.0",
+    "eslint-config-next": "^13.0.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.6.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "prebuild": "rimraf build",
+    "build": "mkdir build && cpy './**/*.*' '!build' '!node_modules' build"
+  },
+  "devDependencies": {
+    "cpy-cli": "^4.2.0",
+    "rimraf": "^4.1.2"
+  }
+}

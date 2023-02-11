@@ -1,0 +1,37 @@
+{
+  "name": "@proedis/tsconfig",
+  "version": "1.0.0",
+  "description": "Proedis TypeScript configuration files",
+  "keywords": [
+    "proedis",
+    "tsconfig",
+    "config",
+    "typescript"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "Marco Cavanna",
+    "email": "m.cavanna@proedis.net"
+  },
+  "homepage": "https://github.com/proedis/Npm.Suite",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/proedis/Npm.Suite.git",
+    "directory": "packages/tsconfig"
+  },
+  "bugs": {
+    "url": "https://github.com/proedis/Npm.Suite/issues",
+    "email": "info@proedis.net"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "prebuild": "rimraf build",
+    "build": "mkdir build && cpy './**/*.*' '!build' '!node_modules' build"
+  },
+  "devDependencies": {
+    "cpy-cli": "^4.2.0",
+    "rimraf": "^4.1.2"
+  }
+}
