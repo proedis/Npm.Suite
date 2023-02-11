@@ -11,8 +11,7 @@
   "command": {
     "version": {
       "message": "chore(release): publish",
-      "private": false,
-      "push": false
+      "private": false
     }
   }
 }
