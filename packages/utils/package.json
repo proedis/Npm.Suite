@@ -31,7 +31,11 @@
     "build": "rollup --config ../../rollup.config.mjs"
   },
   "devDependencies": {
-    "@proedis/tsconfig": "^1.0.1"
+    "@proedis/tsconfig": "^1.0.1",
+    "@types/get-value": "^3.0.3"
   },
-  "gitHead": "8cba9bf577350eaf9ee04be523bd47053c9e7495"
+  "gitHead": "8cba9bf577350eaf9ee04be523bd47053c9e7495",
+  "dependencies": {
+    "get-value": "^3.0.1"
+  }
 }
