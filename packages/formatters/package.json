@@ -1,6 +1,6 @@
 {
   "name": "@proedis/formatters",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Set of smart formatters to display data as string on user interface",
   "keywords": [
     "proedis",
@@ -33,6 +33,6 @@
     "build": "rollup --config ../../rollup.config.mjs"
   },
   "devDependencies": {
-    "@proedis/tsconfig": "^1.0.1"
+    "@proedis/tsconfig": "^1.0.2"
   }
 }

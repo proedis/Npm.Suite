@@ -1,6 +1,6 @@
 {
   "name": "@proedis/utils",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Set of smart utilities and reusable shared functions",
   "keywords": [
     "proedis",
@@ -31,7 +31,7 @@
     "build": "rollup --config ../../rollup.config.mjs"
   },
   "devDependencies": {
-    "@proedis/tsconfig": "^1.0.1",
+    "@proedis/tsconfig": "^1.0.2",
     "@types/get-value": "^3.0.3",
     "@types/natural-compare": "^1.4.1"
   },
