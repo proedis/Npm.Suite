@@ -1,6 +1,6 @@
 import type * as React from 'react';
 
-import type { AnyObject, KeysMatching } from '@proedis/types';
+import type { AnyObject } from '@proedis/types';
 
 
 /* --------
@@ -12,6 +12,8 @@ export type GetElementType<P extends {}> = ((props: P) => React.ElementType | un
 /* --------
  * Internal Types
  * -------- */
+type KeysMatching<T, V> = { [K in keyof T]: T[K] extends V ? K : never };
+
 interface ElementReliantProps extends AnyObject {
   /** Received props could have the as ElementType set */
   as?: React.ElementType;
