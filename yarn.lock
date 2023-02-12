@@ -1372,6 +1372,11 @@
   resolved "https://registry.yarnpkg.com/@types/minimist/-/minimist-1.2.2.tgz#ee771e2ba4b3dc5b372935d549fd9617bf345b8c"
   integrity sha512-jhuKLIRrhvCPLqwPcx6INqmKeiA5EWrsCOPhrlFSrbrmU4ZMPjj5Ul/oLCMDO98XRUIwVm78xICz4EPCektzeQ==
 
+"@types/natural-compare@^1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@types/natural-compare/-/natural-compare-1.4.1.tgz#fc2b11ea100d380b0de7af15768bef209157bfb9"
+  integrity sha512-9dr4UakpvN0QUvwNefk9+o14Sr1pPPIDWkgCxPkHcg3kyjtc9eKK1ng6dZ23vRwByloCqXYtZ1T5nJxkk3Ib3A==
+
 "@types/node@*":
   version "18.13.0"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-18.13.0.tgz#0400d1e6ce87e9d3032c19eb6c58205b0d3f7850"
