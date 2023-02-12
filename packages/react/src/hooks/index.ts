@@ -12,6 +12,10 @@ export * from './useEvent';
 
 export * from './useForkRef';
 
+export * from './useQueryString';
+
+export * from './useQueryStringValue';
+
 export * from './useSafeState';
 
 export * from './useSyncedRef';
