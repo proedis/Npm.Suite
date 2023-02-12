@@ -4,6 +4,7 @@ import { existsSync, readFileSync, writeFileSync } from 'fs';
 
 import { defineConfig } from 'rollup';
 
+import { nodeResolve } from '@rollup/plugin-node-resolve';
 import del from 'rollup-plugin-delete';
 import commonjs from '@rollup/plugin-commonjs';
 import typescript from 'rollup-plugin-typescript2';
@@ -91,6 +92,8 @@ const buildConfiguration = defineConfig({
     del({
       targets: `${OUTPUT_DIRECTORY}/*`
     }),
+    // Resolve node dependencies
+    nodeResolve(),
     // Compile using typescript
     typescript(),
     // Enable CommonJS output
