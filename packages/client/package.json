@@ -33,11 +33,11 @@
     "build": "rollup --config ../../rollup.config.mjs"
   },
   "devDependencies": {
-    "@proedis/tsconfig": "^1.0.2",
-    "@proedis/types": "^1.0.2",
-    "@proedis/utils": "^1.0.2"
+    "@proedis/tsconfig": "^1.0.2"
   },
   "dependencies": {
+    "@proedis/types": "^1.0.2",
+    "@proedis/utils": "^1.0.2",
     "axios": "^1.3.2",
     "eventemitter3": "^5.0.0",
     "logdown": "^3.3.1",
