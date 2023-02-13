@@ -91,6 +91,7 @@ export default class Logger implements LogdownLogger {
   private constructor(module: string, configuration?: LoggerOptions) {
     this._options = new Options(configuration);
     this._logdown = logdown(`Client :: ${module}`);
+    this._logdown.state.isEnabled = true;
   }
 
 
@@ -99,7 +100,7 @@ export default class Logger implements LogdownLogger {
   // ----
   private _couldLog(level: LogLevel): boolean {
     /** Check if logger is enabled */
-    if (!!this._options.get('enabled', 'boolean')) {
+    if (!this._options.get('enabled', 'boolean')) {
       return false;
     }
 
