@@ -9,6 +9,9 @@
   },
   "references": [
     {
+      "path": "../client/tsconfig.declaration.json"
+    },
+    {
       "path": "../react/tsconfig.declaration.json"
     },
     {
