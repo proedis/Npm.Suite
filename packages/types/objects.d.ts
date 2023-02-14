@@ -23,6 +23,17 @@ export type RecursivePartial<T> = {
 
 
 /* --------
+ * Serializable Objects
+ * -------- */
+
+type SerializableValue = string | number | boolean | null;
+
+export type Serializable = {
+  [key: string]: SerializableValue | SerializableValue[] | Serializable | Serializable[];
+};
+
+
+/* --------
  * Object Navigation
  * -------- */
 
