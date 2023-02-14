@@ -57,7 +57,7 @@ interface ClientRequestSettings<Tokens extends string> {
 }
 
 
-interface ServerData {
+export interface ServerData {
   /** Set the base URL */
   domain: string;
 
