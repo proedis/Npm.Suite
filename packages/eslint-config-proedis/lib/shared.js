@@ -33,12 +33,22 @@ module.exports = {
     '@typescript-eslint/brace-style'            : [ 'error', 'stroustrup' ],
     '@typescript-eslint/comma-dangle'           : [ 'off' ],
     '@typescript-eslint/consistent-type-imports': [ 'error' ],
-    '@typescript-eslint/indent'                 : [ 'error', 2 ],
     '@typescript-eslint/naming-convention'      : [ 'off' ],
     '@typescript-eslint/no-redeclare'           : [ 'error', { builtinGlobals: false } ],
     '@typescript-eslint/no-throw-literal'       : [ 'off' ],
     '@typescript-eslint/no-unused-vars'         : [ 'warn' ],
-    '@typescript-eslint/space-before-blocks'    : [ 'off' ]
+    '@typescript-eslint/space-before-blocks'    : [ 'off' ],
+    '@typescript-eslint/indent'                 : [
+      'error', 2, {
+        SwitchCase            : 1,
+        flatTernaryExpressions: false,
+        ignoredNodes          : [
+          'PropertyDefinition[decorators]',
+          'TSUnionType',
+          'FunctionExpression[params]:has(Identifier[decorators])'
+        ]
+      }
+    ]
   }
 
 };
