@@ -1,7 +1,7 @@
 import store from 'store2';
 import type { StoreBase } from 'store2';
 
-import type { AnyObject } from '@proedis/types';
+import type { Serializable } from '@proedis/types';
 
 import Logger from '../Logger/Logger';
 import Emitter from '../Emitter/Emitter';
@@ -9,12 +9,14 @@ import Emitter from '../Emitter/Emitter';
 import type { StorageEvents, StoragePersistency } from './Storage.types';
 
 
-export default class Storage<Data extends AnyObject> extends Emitter<StorageEvents<Data>> {
+export default class Storage<Data extends Serializable> extends Emitter<StorageEvents<Data>> {
 
   // ----
   // Constants
   // ----
   private static readonly _onValueChangeEventName: keyof StorageEvents<any> = 'onValueChange';
+
+  public static AppName: string = 'Unnamed';
 
 
   // ----
@@ -25,6 +27,11 @@ export default class Storage<Data extends AnyObject> extends Emitter<StorageEven
   private readonly _store: StoreBase;
 
   private _data: Data;
+
+
+  private get _key(): string {
+    return `${Storage.AppName}::AppClient::Storage::${this._namespace}`;
+  }
 
 
   // ----
@@ -38,10 +45,10 @@ export default class Storage<Data extends AnyObject> extends Emitter<StorageEven
     this._logger = Logger.forContext(`Storage::${this._namespace}`);
 
     /** Create the store content using requested persistency */
-    this._store = store[persistency].namespace(`Storage::${this._namespace}`);
+    this._store = store[persistency];
 
     /** Create the data proxy to handle property change */
-    this._data = this._initializeDataProxy(this._store.getAll(initialData) as Data);
+    this._data = this._initializeDataProxy(this._store.get(this._key, initialData) as Data);
   }
 
 
@@ -89,7 +96,7 @@ export default class Storage<Data extends AnyObject> extends Emitter<StorageEven
   private persist(): void {
     /** Save the current data into LocalStorage */
     this._logger.debug(`Saving storage '${this._namespace}'`, this._data);
-    this._store.setAll(this._data, true);
+    this._store.set(this._key, this._data, true);
   }
 
 

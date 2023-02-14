@@ -1,9 +1,10 @@
 import type { AxiosRequestConfig, Method as RequestMethod } from 'axios';
 
-import type { AnyObject } from '@proedis/types';
+import type { AnyObject, Serializable } from '@proedis/types';
 
 import type { LoggerOptions } from './lib/Logger/Logger.types';
 import type { EnvironmentDependentOptions } from './lib/Options/Options.types';
+import type { TokenHandshakeConfiguration, UseTokenTransporter } from './lib/TokenHandshake/TokenHandshake.types';
 
 import type Client from './Client';
 
@@ -11,27 +12,45 @@ import type Client from './Client';
 /* --------
  * Base Client instance Settings
  * -------- */
-export interface ClientSettings<TStorage extends AnyObject> {
+export interface ClientSettings<UserData extends Serializable, StoredData extends Serializable, Tokens extends string> {
   /** Default initial stored data for client */
-  initialStorage: TStorage;
+  initialStorage: StoredData;
+
+  /** Define common api endpoint to dialogate with authentication server */
+  api?: ClientApi<UserData, StoredData, Tokens>;
 
   /** Configure the Logger Library */
   logger?: LoggerOptions;
 
   /** Configure the Request base settings and server data */
-  requests: ClientRequestSettings;
+  requests: ClientRequestSettings<Tokens>;
+
+  /** Configure usable tokens while dialogate with API server */
+  tokens?: Record<Tokens, TokenHandshakeConfiguration<UserData, StoredData, Tokens>>;
+}
+
+
+/* --------
+ * Client Built In Api
+ * -------- */
+export interface ClientApi<UserData extends Serializable, StoredData extends Serializable, Tokens extends string> {
+  /** Get user data from endpoint server */
+  getUserData?: () => ClientRequest<UserData, StoredData, Tokens>;
+
+  /** Login using arbitrary data */
+  login?: (data: AnyObject) => ClientRequest<UserData, StoredData, Tokens>;
 }
 
 
 /* --------
  * Client Requests endpoint Settings
  * -------- */
-interface ClientRequestSettings {
+interface ClientRequestSettings<Tokens extends string> {
   /** Set default axios configuration */
   axiosConfig?: Partial<AxiosRequestConfig>;
 
   /** Set defaults request settings */
-  defaults?: ClientRequestConfig;
+  defaults?: ClientRequestConfig<Tokens>;
 
   /** Set server connection data */
   server: EnvironmentDependentOptions<ServerData>;
@@ -57,13 +76,43 @@ interface ServerData {
 
 
 /* --------
+ * Client State
+ * -------- */
+export type LoadingClientState = {
+  isLoaded: false;
+  isPerformingRequest: boolean;
+  hasAuth: false;
+  userData: null;
+};
+
+export type UnauthorizedClientState = {
+  isLoaded: true;
+  isPerformingRequest: boolean;
+  hasAuth: false;
+  userData: null;
+};
+
+export type AuthorizedClientState<UserData> = {
+  isLoaded: true;
+  isPerformingRequest: boolean;
+  hasAuth: true;
+  userData: UserData;
+};
+
+export type ClientState<UserData> =
+  | LoadingClientState
+  | UnauthorizedClientState
+  | AuthorizedClientState<UserData>;
+
+
+/* --------
  * Base client Request Configuration Object
  * -------- */
-export type ClientRequest<TStorage extends AnyObject> =
-  | ClientRequestConfig
-  | ((client: Client<TStorage>) => ClientRequestConfig);
+export type ClientRequest<UserData extends Serializable, StoredData extends Serializable, Tokens extends string> =
+  | ClientRequestConfig<Tokens>
+  | ((client: Client<UserData, StoredData, Tokens>) => ClientRequestConfig<Tokens>);
 
-export interface ClientRequestConfig {
+export interface ClientRequestConfig<Tokens extends string> {
   /** The endpoint url to call */
   url?: string;
 
@@ -77,5 +126,8 @@ export interface ClientRequestConfig {
   params?: { [key: string]: any };
 
   /** Override Axios Request config for this specific request */
-  requestConfig?: Omit<AxiosRequestConfig, Exclude<keyof ClientRequestConfig, 'requestConfig'>>;
+  requestConfig?: Omit<AxiosRequestConfig, Exclude<keyof ClientRequestConfig<Tokens>, 'requestConfig'>>;
+
+  /** Append token on request */
+  useTokens?: Partial<Record<Tokens, UseTokenTransporter>>;
 }

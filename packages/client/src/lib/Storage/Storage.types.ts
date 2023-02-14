@@ -1,4 +1,4 @@
-import type { AnyObject } from '@proedis/types';
+import type { Serializable } from '@proedis/types';
 
 import type { EventsDescription } from '../Emitter/Emitter.types';
 
@@ -12,10 +12,10 @@ export type StoragePersistency = 'local' | 'session' | 'page';
 // ----
 // Storage Events
 // ----
-export type OnStorageValueChangeHandler<Storage, Key extends keyof Storage> =
+export type OnStorageValueChangeHandler<Storage extends Serializable, Key extends keyof Storage> =
   (name: Key, value: Storage[Key], oldValue: Storage[Key]) => void;
 
-export interface StorageEvents<Storage extends AnyObject> extends EventsDescription {
+export interface StorageEvents<Storage extends Serializable> extends EventsDescription {
   /** Called every times a property value is changing */
   onValueChange: OnStorageValueChangeHandler<Storage, keyof Storage>;
 }
