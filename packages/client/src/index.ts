@@ -11,3 +11,7 @@ export type {
   LoadingClientState,
   UnauthorizedClientState
 } from './Client.types';
+
+export * from './lib/TokenHandshake/mixin/extractors';
+
+export * from './lib/TokenHandshake/mixin/transporters';
