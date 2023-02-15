@@ -79,23 +79,20 @@ export interface ServerData {
  * Client State
  * -------- */
 export type LoadingClientState = {
-  isLoaded: false;
-  isPerformingRequest: boolean;
   hasAuth: false;
+  isLoaded: false;
   userData: null;
 };
 
 export type UnauthorizedClientState = {
-  isLoaded: true;
-  isPerformingRequest: boolean;
   hasAuth: false;
+  isLoaded: true;
   userData: null;
 };
 
 export type AuthorizedClientState<UserData> = {
-  isLoaded: true;
-  isPerformingRequest: boolean;
   hasAuth: true;
+  isLoaded: true;
   userData: UserData;
 };
 

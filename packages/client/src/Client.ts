@@ -43,10 +43,9 @@ export default class Client<UserData extends Serializable, StoredData extends Se
   // Static constant properties
   // ----
   private static _defaultClientState: ClientState<any> = {
-    hasAuth            : false,
-    isLoaded           : false,
-    isPerformingRequest: false,
-    userData           : null
+    isLoaded: false,
+    hasAuth : false,
+    userData: null
   };
 
 
@@ -103,12 +102,62 @@ export default class Client<UserData extends Serializable, StoredData extends Se
 
     /** Save initial client state */
     this.state = new Storage<ClientState<UserData>>('State', 'page', Client._defaultClientState);
+
+    /** Initialize the client */
+    this._initializeClient()
+      .then((maybeUserData) => {
+        /** Set the new state, depending on the user data object */
+        this.state.transact(() => (
+          maybeUserData
+            ? {
+              isLoaded: true,
+              hasAuth : true,
+              userData: maybeUserData
+            }
+            : {
+              isLoaded: true,
+              hasAuth : false,
+              userData: null
+            }
+        ));
+      })
+      .catch((error) => {
+        this._initLogger.error('Unhandled exception occurred while initializing the Client', error);
+      });
   }
 
 
   // ----
   // Internal methods
   // ----
+
+  /**
+   * Complete initialization process for this client instance.
+   * The method will fail if the client has already been initialized,
+   * else, if the client has the authorization token requested by the
+   * getUserData api endpoint, it will try to load user data and return
+   * to the caller function
+   * @private
+   */
+  private async _initializeClient(): Promise<UserData | null> {
+    /** Assert the client is loading */
+    if (this.state.value.isLoaded) {
+      throw new Error('Client has already been initialized.');
+    }
+
+    /** Use built in api to get user data, wrap into safe request to avoid unhandled error */
+    const [ userDataError, userData ] = await will(this.getUserData());
+
+    /** Assert no error occurred */
+    if (userDataError) {
+      this._initLogger.warn('Could not load user data on initialization', userDataError);
+      return null;
+    }
+
+    /** Return loaded userdata */
+    return userData;
+  }
+
 
   /**
    * Use settings provided by 'requests' options key to build
@@ -374,6 +423,15 @@ export default class Client<UserData extends Serializable, StoredData extends Se
 
     /** Pass the auth response to token handshakes */
     await this._passAuthResponseToHandshakes(authResponse, 'login');
+  }
+
+
+  /**
+   * Perform the get user data internal api
+   */
+  public async getUserData(): Promise<UserData> {
+    /** Get the auth response using the api configuration */
+    return this.request<UserData>(this._builtInApi('getUserData')());
   }
 
 }
