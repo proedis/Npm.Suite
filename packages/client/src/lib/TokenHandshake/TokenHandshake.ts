@@ -4,7 +4,6 @@ import type { Serializable } from '@proedis/types';
 
 import type { AxiosRequestConfig } from 'axios';
 
-import Emitter from '../Emitter/Emitter';
 import Logger from '../../lib/Logger/Logger';
 import Options from '../Options/Options';
 import Storage from '../Storage/Storage';
@@ -16,7 +15,6 @@ import type {
   AuthAction,
   TokenAuthResponseExtractor,
   TokenSpecification,
-  TokenHandshakeEvents,
   TokenHandshakeConfiguration,
   TokenQueryParamExtractor,
   TokenTransporter,
@@ -27,7 +25,7 @@ import RequestError from '../../Client.RequestError';
 
 
 export default class TokenHandshake<UserData extends Serializable, StoreData extends Serializable, Tokens extends string>
-  extends Emitter<TokenHandshakeEvents> {
+  extends Storage<Partial<TokenSpecification>> {
 
   // ----
   // Internal static field
@@ -45,9 +43,7 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
 
   private readonly _configuration: Options<TokenHandshakeConfiguration<UserData, StoreData, Tokens>>;
 
-  private readonly _logger: Logger;
-
-  private readonly _storage: Storage<Partial<TokenSpecification>>;
+  private readonly _handshakeLogger: Logger;
 
   private _getDeferred: Deferred<TokenSpecification> | undefined;
 
@@ -60,27 +56,18 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
     configuration: TokenHandshakeConfiguration<UserData, StoreData, Tokens>,
     client: Client<UserData, StoreData, Tokens>
   ) {
-    super(`TokenHandshake::${_name}`);
+    super(`TokenHandshake::${_name}`, configuration.persistency ?? 'local', TokenHandshake._defaultTokenSpecification);
 
     /** Configure the module */
     this._configuration = new Options<TokenHandshakeConfiguration<UserData, StoreData, Tokens>>(configuration);
 
     /** Create the logger */
-    this._logger = Logger.forContext(`TokenHandshake::${_name}`);
-
-    this._logger.debug('Loading Module');
+    this._handshakeLogger = Logger.forContext(`TokenHandshake::${_name}`);
 
     /** Save Internal data */
     this._client = client;
 
-    /** Create the internal persisted storage */
-    this._storage = new Storage<Partial<TokenSpecification>>(
-      `TokenHandshake::${_name}`,
-      'local',
-      TokenHandshake._defaultTokenSpecification
-    );
-
-    this._logger.debug('Module Loaded');
+    this._handshakeLogger.debug('Module Loaded');
   }
 
 
@@ -97,7 +84,7 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
   private _initializeDeferredPromise() {
     /** Assert is not pending */
     if (!this._getDeferred?.isPending) {
-      this._logger.debug('Setting the Deferred promise to avoid multiple simultaneous requests');
+      this._handshakeLogger.debug('Setting the Deferred promise to avoid multiple simultaneous requests');
       this._getDeferred = new Deferred<TokenSpecification>();
     }
   }
@@ -110,10 +97,10 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
    * @private
    */
   private _consolidateToken(specification: TokenSpecification): TokenSpecification {
-    this._logger.debug('Consolidating Token');
+    this._handshakeLogger.debug('Consolidating Token');
 
     /** Save the newly loaded token into internal storage */
-    this._storage.transact(() => specification);
+    this.transact(() => specification);
 
     /** Check the pending deferred request to resolve it */
     if (this._getDeferred?.isPending) {
@@ -132,10 +119,10 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
    * @private
    */
   private _flushToken(error?: RequestError | null): RequestError {
-    this._logger.debug('Flushing Token');
+    this._handshakeLogger.debug('Flushing Token');
 
     /** Remove the internal stored token specification */
-    this._storage.transact(() => TokenHandshake._defaultTokenSpecification);
+    this.transact(() => TokenHandshake._defaultTokenSpecification);
 
     /** Check the pending deferred request to reject it */
     if (this._getDeferred?.isPending) {
@@ -165,9 +152,9 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
     // ----
     // Use token stored into local storage
     // ----
-    if (this.isValid(this._storage.data)) {
-      this._logger.debug('In Memory Token is valid');
-      return this._consolidateToken(this._storage.data);
+    if (this.isValid(this.value)) {
+      this._handshakeLogger.debug('In Memory Token is valid');
+      return this._consolidateToken(this.value);
     }
 
 
@@ -191,7 +178,7 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
 
       /** Check if exists */
       if (this.isValid(specification)) {
-        this._logger.debug('Token extracted from QueryParam key');
+        this._handshakeLogger.debug('Token extracted from QueryParam key');
 
         /** Consolidate the token in memory */
         const consolidatedToken = this._consolidateToken(specification);
@@ -215,7 +202,7 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
     );
 
     if (grantRequest) {
-      this._logger.debug('Using grant request to retrieve token');
+      this._handshakeLogger.debug('Using grant request to retrieve token');
 
       /** Compile the grant request before send to the client to remove the current token from request */
       const compiledRequest = this._client.compileRequest(grantRequest);
@@ -230,7 +217,7 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
 
       /** Throw if an invalid request has been made */
       if (grantTokenError || !this.isValid(tokenResponse)) {
-        this._logger.error('An error has been received from API when granting a new Token');
+        this._handshakeLogger.error('An error has been received from API when granting a new Token');
 
         /** Flush tokens */
         throw this._flushToken(grantTokenError);
@@ -288,19 +275,19 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
 
     /** If a custom function exists, use it to validate token */
     if (checkValidity) {
-      this._logger.debug('Using custom defined function to check token validity');
+      this._handshakeLogger.debug('Using custom defined function to check token validity');
       return checkValidity(specification, this._client);
     }
 
     /** Assert the token is a valid object */
     if (typeof specification !== 'object' || specification === null) {
-      this._logger.debug('Token seems not to be a valid object');
+      this._handshakeLogger.debug('Token seems not to be a valid object');
       return false;
     }
 
     /** Assert the token is a valid string */
     if (!isValidString(specification.token)) {
-      this._logger.debug('Token string field seems not to be a valid string');
+      this._handshakeLogger.debug('Token string field seems not to be a valid string');
       return false;
     }
 
@@ -313,15 +300,11 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
     const expireDate = new Date(specification.expiresAt);
 
     /** Check expiring value */
-    if ((expireDate.valueOf() - this._configuration.getOrDefault(
-      'validityThreshold',
-      'number',
-      0
-    )) > Date.now()) {
+    if ((expireDate.valueOf() - this._configuration.getOrDefault('validityThreshold', 'number', 0)) > Date.now()) {
       return true;
     }
 
-    this._logger.debug('Token is Expired');
+    this._handshakeLogger.debug('Token is Expired');
     return false;
   }
 
@@ -330,12 +313,12 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
    * Get a valid usable token using all methods
    * provided withing configuration
    */
-  public async get(): Promise<TokenSpecification> {
-    this._logger.info('Loading Token');
+  public async getSpecification(): Promise<TokenSpecification> {
+    this._handshakeLogger.info('Loading Token');
 
     /** Check if a deferred promise already exists, return the pending request */
     if (this._getDeferred && this._getDeferred.isPending) {
-      this._logger.info('A deferred request for the Token already exists. Wait for it');
+      this._handshakeLogger.info('A deferred request for the Token already exists. Wait for it');
     }
 
     /** Return the deferred function or the defaults retrieve token function */
@@ -356,7 +339,7 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
     if (!transporter) {
       /** Show error only if a transporter was requested */
       if (transporterType !== false) {
-        this._logger.error(
+        this._handshakeLogger.error(
           `Requested transporter '${(transporterType === true ? 'DefaultTransporter' : transporterType)}' was not found`
         );
 
@@ -366,18 +349,18 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
       return;
     }
 
-    this._logger.debug(`Using transporter '${transporter.type}' to append Token to Request`);
+    this._handshakeLogger.debug(`Using transporter '${transporter.type}' to append Token to Request`);
 
     /** Get the Token */
-    const [ tokenError, specification ] = await will(this.get());
+    const [ tokenError, specification ] = await will(this.getSpecification());
 
     if (tokenError) {
-      this._logger.error('Error while retrieving token to append', tokenError);
+      this._handshakeLogger.error('Error while retrieving token to append', tokenError);
       throw tokenError;
     }
 
     if (!specification) {
-      this._logger.error('Token has been get without errors, but no token exists');
+      this._handshakeLogger.error('Token has been get without errors, but no token exists');
       throw new Error('Invalid Token');
     }
 
@@ -408,7 +391,7 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
         break;
 
       default:
-        this._logger.error(`Invalid Transporter Type Found : ${(transporter as any).type}`);
+        this._handshakeLogger.error(`Invalid Transporter Type Found : ${(transporter as any).type}`);
     }
   }
 

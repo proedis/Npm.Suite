@@ -118,8 +118,6 @@ export default class Client<UserData extends Serializable, StoredData extends Se
    * @private
    */
   private _createAxiosInstance(settings: ClientSettings<UserData, StoredData, Tokens>['requests']): AxiosInstance {
-    this._initLogger.debug('Creating Axios Instance');
-
     /** Parse the server configuration settings */
     const serverSettings = new Options(settings.server);
 
@@ -362,7 +360,7 @@ export default class Client<UserData extends Serializable, StoredData extends Se
    * @param name
    */
   public async getToken(name: Tokens): Promise<TokenSpecification> {
-    return this._getTokenHandshake(name).get();
+    return this._getTokenHandshake(name).getSpecification();
   }
 
 

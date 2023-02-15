@@ -1,32 +1,47 @@
 import store from 'store2';
 import type { StoreBase } from 'store2';
 
+import merge from 'ts-deepmerge';
+
+import hasher from 'object-hash';
+
 import type { Serializable } from '@proedis/types';
 
+import ClientSubject from '../ClientSubject/ClientSubject';
 import Logger from '../Logger/Logger';
-import Emitter from '../Emitter/Emitter';
-
-import type { StorageEvents, StoragePersistency } from './Storage.types';
 
 
-export default class Storage<Data extends Serializable> extends Emitter<StorageEvents<Data>> {
+/* --------
+ * Internal Types
+ * -------- */
+export type StoragePersistency = 'local' | 'session' | 'page';
+
+
+/* --------
+ * Storage Definition
+ * -------- */
+export default class Storage<Data extends Serializable> extends ClientSubject<Data> {
 
   // ----
   // Constants
   // ----
-  private static readonly _onValueChangeEventName: keyof StorageEvents<any> = 'onValueChange';
-
   public static AppName: string = 'Unnamed';
+
+  private static Hash: ((obj: any) => string) = (obj) => (
+    hasher(obj, {
+      unorderedArrays : false,
+      unorderedSets   : false,
+      unorderedObjects: false
+    })
+  );
 
 
   // ----
   // Private instance fields
   // ----
-  private readonly _logger: Logger;
+  private readonly _storageLogger: Logger;
 
   private readonly _store: StoreBase;
-
-  private _data: Data;
 
 
   private get _key(): string {
@@ -42,69 +57,34 @@ export default class Storage<Data extends Serializable> extends Emitter<StorageE
     super(`Storage::${_namespace}`);
 
     /** Create the logger */
-    this._logger = Logger.forContext(`Storage::${this._namespace}`);
+    this._storageLogger = Logger.forContext(`Storage::${this._namespace}`);
 
     /** Create the store content using requested persistency */
     this._store = store[persistency];
 
-    /** Create the data proxy to handle property change */
-    this._data = this._initializeDataProxy(this._store.get(this._key, initialData) as Data);
-  }
-
-
-  // ----
-  // Internal Methods
-  // ----
-
-  /**
-   * Return a new Proxy for Data Object
-   * @param data
-   * @private
-   */
-  private _initializeDataProxy(data: Data): Data {
-    /** Initialize the Storage Object */
-    const self = this;
-    return new Proxy<Data>(data, {
-      /** Override the default setter to handle watch for property change */
-      set(target: Data, p: string | symbol, value: any): boolean {
-        /** Log the action */
-        self._logger.debug(`Changing '${String(p)}' value for storage ${self._namespace}`);
-        /** Save the current target property value */
-        const currentValue = target[p as keyof Data];
-        /** If property is not changing, abort */
-        if (currentValue === value) {
-          self._logger.debug(`No change were made to '${String(p)}' value because old and new value are the same`);
-          return true;
-        }
-        /** Set the property on storage */
-        target[p as keyof Data] = value;
-        /** Emit the change event */
-        self.dispatch(Storage._onValueChangeEventName, [ p as keyof Data, value, currentValue ]);
-        /** Save the storage */
-        self.persist();
-        /** Return boolean indicating property has been set */
-        return true;
-      }
-    });
+    /** Create the Subject, _data is a Proxy, must deconstruct it */
+    this._initializeSubject(this._store.get(this._key, initialData) as Data);
   }
 
 
   /**
-   * Save the current store into local storage
+   * Save the current store into local storage, and emit new data
+   * using the internal BehaviourSubject object.
+   * NewData and OldData will be compared using hash, if no changes have been made,
+   * no data will be emitted
    * @private
    */
-  private persist(): void {
+  private persist(newData: Data): void {
+    /** Save the storage, and emit next data only if it has change */
+    if (Storage.Hash(newData) == Storage.Hash(this.value)) {
+      this._storageLogger.debug('Old data and new data has same values, omit saving');
+      return;
+    }
+
     /** Save the current data into LocalStorage */
-    this._logger.debug(`Saving storage '${this._namespace}'`, this._data);
-    this._store.set(this._key, this._data, true);
-  }
-
-
-  // ----
-  // Public Fields
-  // ----
-  public get data(): Data {
-    return this._data;
+    this._storageLogger.debug(`Saving storage '${this._namespace}'`, newData);
+    this._store.set(this._key, newData, true);
+    this._next(newData);
   }
 
 
@@ -117,7 +97,7 @@ export default class Storage<Data extends Serializable> extends Emitter<StorageE
    * @param key
    */
   public get<Key extends keyof Data>(key: Key): Data[Key] {
-    return this._data[key];
+    return this.value[key];
   }
 
 
@@ -127,7 +107,10 @@ export default class Storage<Data extends Serializable> extends Emitter<StorageE
    * @param value
    */
   public set<Key extends keyof Data>(key: Key, value: Data[Key]) {
-    return this._data[key] = value;
+    this.persist({
+      ...this.value,
+      [key]: value
+    });
   }
 
 
@@ -137,27 +120,10 @@ export default class Storage<Data extends Serializable> extends Emitter<StorageE
    */
   public transact(updateFn: ((data: Data) => Data)) {
     /** Clone current data */
-    const clonedStoredData = { ...this._data };
-    /** Build the new data to store */
-    const newData = updateFn(clonedStoredData);
-
-    /** Dispatch the property change */
-    Object.keys(newData).forEach((newDataKey) => {
-      /** Get the new value */
-      const newValue = newData[newDataKey as keyof Data];
-      /** Get the old value */
-      const oldValue = clonedStoredData[newDataKey as keyof Data];
-      /** Check value is changed before dispatch */
-      if (newValue !== oldValue) {
-        this.dispatch(Storage._onValueChangeEventName, [ newDataKey as keyof Data, newValue, oldValue ]);
-      }
-    });
-
-    /** Replace the stored object */
-    this._data = this._initializeDataProxy(newData);
+    const deepDataCopy = merge({}, this.value) as Data;
 
     /** Save the new data after transaction */
-    this.persist();
+    this.persist(updateFn(deepDataCopy));
   }
 
 

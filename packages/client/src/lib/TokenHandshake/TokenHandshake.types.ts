@@ -3,7 +3,7 @@ import type { Serializable } from '@proedis/types';
 import type Client from '../../Client';
 import type { ClientRequest } from '../../Client.types';
 
-import type { EventsDescription } from '../Emitter/Emitter.types';
+import type { StoragePersistency } from '../Storage/Storage';
 
 
 // ----
@@ -28,6 +28,9 @@ export interface TokenHandshakeConfiguration<
 
   /** Set if client must invalidate auth on grant error */
   invalidateAuthOnGrantError?: boolean;
+
+  /** Set token persistency, default to `local` (localstorage) */
+  persistency?: StoragePersistency;
 
   /**
    * Configure the admitted transporters to send the token
@@ -110,19 +113,3 @@ export type TokenQueryParamExtractor = {
     expiresAt: string
   }
 };
-
-
-// ----
-// Events
-// ----
-export type OnTokenChangeHandler = (token: TokenSpecification) => void;
-
-export type OnTokenExtractedHandler = (token: TokenSpecification, type: TokenExtractor<any>['type']) => void;
-
-export interface TokenHandshakeEvents extends EventsDescription {
-  /** Called every times the token change */
-  onTokenChange: OnTokenChangeHandler;
-
-  /** Called every times the token has been extracted */
-  onTokenExtracted: OnTokenExtractedHandler;
-}
