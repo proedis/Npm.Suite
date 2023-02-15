@@ -424,7 +424,7 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
       .filter(e => e.type === 'auth-response');
 
     /** If any extractors exist, use to get the token from response */
-    (extractors as TokenAuthResponseExtractor[]).forEach((extractor) => {
+    (extractors as TokenAuthResponseExtractor<any>[]).forEach((extractor) => {
       /** Get the token specification from response */
       const tokenSpecification = extractor.extract(authResponse, authAction, this._client);
 

@@ -21,7 +21,7 @@ export interface TokenHandshakeConfiguration<
   ) => boolean;
 
   /** Set of extractors that could be used to get token */
-  extractors?: TokenExtractor[];
+  extractors?: TokenExtractor<any>[];
 
   /** Grant request configuration */
   grant?: ClientRequest<UserData, StoredData, Tokens>;
@@ -88,13 +88,19 @@ type TokenAsQueryParamsTransporter = { type: 'query', value: string };
 // A token extractor define how a token could be extracted from
 // a Server Response received by the client
 // ----
-export type TokenExtractor = TokenAuthResponseExtractor | TokenQueryParamExtractor;
+export type TokenExtractor<Response extends Serializable> =
+  TokenAuthResponseExtractor<Response>
+  | TokenQueryParamExtractor;
 
 export type AuthAction = 'login' | 'signup';
 
-export type TokenAuthResponseExtractor = {
+export type TokenAuthResponseExtractor<Response extends Serializable> = {
   type: 'auth-response',
-  extract: (authResponse: any, authAction: AuthAction, client: Client<any, any, any>) => TokenSpecification | undefined
+  extract: (
+    authResponse: Response,
+    authAction: AuthAction,
+    client: Client<any, any, any>
+  ) => TokenSpecification | undefined
 };
 
 export type TokenQueryParamExtractor = {
@@ -111,7 +117,7 @@ export type TokenQueryParamExtractor = {
 // ----
 export type OnTokenChangeHandler = (token: TokenSpecification) => void;
 
-export type OnTokenExtractedHandler = (token: TokenSpecification, type: TokenExtractor['type']) => void;
+export type OnTokenExtractedHandler = (token: TokenSpecification, type: TokenExtractor<any>['type']) => void;
 
 export interface TokenHandshakeEvents extends EventsDescription {
   /** Called every times the token change */
