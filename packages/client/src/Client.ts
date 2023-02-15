@@ -1,5 +1,7 @@
 import axios from 'axios';
-import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import type { AxiosInstance, AxiosRequestConfig, AxiosResponse, GenericAbortSignal } from 'axios';
+
+import { Observable } from 'rxjs';
 
 import merge from 'ts-deepmerge';
 
@@ -23,6 +25,7 @@ import type {
 } from './Client.types';
 
 import type { AuthAction, TokenSpecification } from './lib/TokenHandshake/TokenHandshake.types';
+import RequestSubscriber from './Client.RequestSubscriber';
 
 
 export default class Client<UserData extends Serializable, StoredData extends Serializable, Tokens extends string> {
@@ -208,7 +211,7 @@ export default class Client<UserData extends Serializable, StoredData extends Se
 
 
   // ----
-  // Public Methods
+  // Public Requests Methods
   // ----
 
   /**
@@ -229,10 +232,15 @@ export default class Client<UserData extends Serializable, StoredData extends Se
    * the complete configuration object.
    * Response will be returned as Promise resolution,
    * if an error occurs within the request, must be
-   * caught using try-catch statement
+   * caught using a try-catch statement.
+   * An abort Signal could be used to cancel request before completion
    * @param config
+   * @param abortSignal
    */
-  public async request<Response>(config: ClientRequest<UserData, StoredData, Tokens>): Promise<Response> {
+  public async request<Response>(
+    config: ClientRequest<UserData, StoredData, Tokens>,
+    abortSignal?: GenericAbortSignal
+  ): Promise<Response> {
     /** Assert the client has been loaded */
     if (!this._axios) {
       this._requestLogger.error('AxiosInstance is not ready. Check your configuration');
@@ -258,7 +266,8 @@ export default class Client<UserData extends Serializable, StoredData extends Se
       url,
       method,
       data,
-      params
+      params,
+      signal: abortSignal
     };
 
     this._requestLogger.debug('Created base AxiosRequestConfig from user request', compiledRequest);
@@ -300,18 +309,39 @@ export default class Client<UserData extends Serializable, StoredData extends Se
    * This async method will return an Array, with the
    * request error (if exists) at index 0, and the response
    * at index 1.
+   * An abort Signal could be used to cancel request before completion
    * @param config
+   * @param abortSignal
    */
   public async safeRequest<Response>(
-    config: ClientRequest<UserData, StoredData, Tokens>
+    config: ClientRequest<UserData, StoredData, Tokens>,
+    abortSignal?: GenericAbortSignal
   ): Promise<[ RequestError | null, Response ]> {
-    const [ error, response ] = await will(this.request<Response>(config));
+    const [ error, response ] = await will(this.request<Response>(config, abortSignal));
 
     if (error) {
       return [ RequestError.fromError(error), null as Response ];
     }
 
     return [ error, response ];
+  }
+
+
+  /* --------
+   * Public Observable Methods
+   * -------- */
+
+  /**
+   * Create an observable request and return the object
+   * that could be used to subscribe to the result
+   * @param config
+   */
+  public request$<Response>(config: ClientRequest<UserData, StoredData, Tokens>): Observable<Response> {
+    return new Observable<Response>((observer) => (
+      new RequestSubscriber<Response>(observer, (abortController) => (
+        this.request(config, abortController.signal)
+      ))
+    ));
   }
 
 
