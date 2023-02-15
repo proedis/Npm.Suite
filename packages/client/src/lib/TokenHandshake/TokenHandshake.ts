@@ -56,17 +56,17 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
   // TokenHandshake constructor
   // ----
   constructor(
-    name: Tokens,
+    private readonly _name: Tokens,
     configuration: TokenHandshakeConfiguration<UserData, StoreData, Tokens>,
     client: Client<UserData, StoreData, Tokens>
   ) {
-    super(`TokenHandshake::${name}`);
+    super(`TokenHandshake::${_name}`);
 
     /** Configure the module */
     this._configuration = new Options<TokenHandshakeConfiguration<UserData, StoreData, Tokens>>(configuration);
 
     /** Create the logger */
-    this._logger = Logger.forContext(`TokenHandshake::${name}`);
+    this._logger = Logger.forContext(`TokenHandshake::${_name}`);
 
     this._logger.debug('Loading Module');
 
@@ -75,7 +75,7 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
 
     /** Create the internal persisted storage */
     this._storage = new Storage<Partial<TokenSpecification>>(
-      `TokenHandshake::${name}`,
+      `TokenHandshake::${_name}`,
       'local',
       TokenHandshake._defaultTokenSpecification
     );
@@ -217,8 +217,16 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
     if (grantRequest) {
       this._logger.debug('Using grant request to retrieve token');
 
+      /** Compile the grant request before send to the client to remove the current token from request */
+      const compiledRequest = this._client.compileRequest(grantRequest);
+
+      /** Remove current token from useToken object */
+      if (isObject(compiledRequest.useTokens)) {
+        compiledRequest.useTokens[this._name] = false;
+      }
+
       /** Make the Request */
-      const [ grantTokenError, tokenResponse ] = await this._client.safeRequest<TokenSpecification>(grantRequest);
+      const [ grantTokenError, tokenResponse ] = await this._client.safeRequest<TokenSpecification>(compiledRequest);
 
       /** Throw if an invalid request has been made */
       if (grantTokenError || !this.isValid(tokenResponse)) {

@@ -212,6 +212,19 @@ export default class Client<UserData extends Serializable, StoredData extends Se
   // ----
 
   /**
+   * Compile the request if is a function, else return
+   * the request object if is plain
+   * @param config
+   */
+  public compileRequest(config: ClientRequest<UserData, StoredData, Tokens>): ClientRequestConfig<Tokens> {
+    return merge<ClientRequestConfig<Tokens>[]>(
+      this._defaultsRequestConfig || {},
+      typeof config === 'function' ? config(this) : config
+    ) as ClientRequestConfig<Tokens>;
+  }
+
+
+  /**
    * Perform a request to BackEnd Server providing
    * the complete configuration object.
    * Response will be returned as Promise resolution,
@@ -226,10 +239,9 @@ export default class Client<UserData extends Serializable, StoredData extends Se
       throw new Error('Client has not been initialized');
     }
 
-    /** Heads Up! UseTokens is an object, merging request must not override the default */
-    const userConfig = typeof config === 'function' ? config(this) : config;
-
     /** Build request config, checking if is a function */
+    const compiledRequest = this.compileRequest(config);
+
     const {
       url: initialUrl,
       method = 'GET',
@@ -237,10 +249,7 @@ export default class Client<UserData extends Serializable, StoredData extends Se
       params,
       requestConfig,
       useTokens
-    } = merge<ClientRequestConfig<Tokens>[]>(
-      this._defaultsRequestConfig || {},
-      userConfig
-    ) as ClientRequestConfig<Tokens>;
+    } = compiledRequest;
 
     /** Sanitize the URL and create the base AxiosRequestConfig */
     const url = Client.sanitizeUrl(initialUrl ?? '');
@@ -252,7 +261,7 @@ export default class Client<UserData extends Serializable, StoredData extends Se
       params
     };
 
-    this._requestLogger.debug('Created base AxiosRequestConfig', axiosRequestConfig);
+    this._requestLogger.debug('Created base AxiosRequestConfig from user request', compiledRequest);
 
     /** Use underlying axios instance to make the request */
     try {
