@@ -1,6 +1,8 @@
 import axios from 'axios';
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
+import merge from 'ts-deepmerge';
+
 import type { AnyObject, Serializable } from '@proedis/types';
 
 import { isObject, isValidString, will } from '@proedis/utils';
@@ -224,6 +226,9 @@ export default class Client<UserData extends Serializable, StoredData extends Se
       throw new Error('Client has not been initialized');
     }
 
+    /** Heads Up! UseTokens is an object, merging request must not override the default */
+    const userConfig = typeof config === 'function' ? config(this) : config;
+
     /** Build request config, checking if is a function */
     const {
       url: initialUrl,
@@ -232,10 +237,10 @@ export default class Client<UserData extends Serializable, StoredData extends Se
       params,
       requestConfig,
       useTokens
-    } = {
-      ...(this._defaultsRequestConfig || {}),
-      ...(typeof config === 'function' ? config(this) : config)
-    };
+    } = merge<ClientRequestConfig<Tokens>[]>(
+      this._defaultsRequestConfig || {},
+      userConfig
+    ) as ClientRequestConfig<Tokens>;
 
     /** Sanitize the URL and create the base AxiosRequestConfig */
     const url = Client.sanitizeUrl(initialUrl ?? '');
@@ -254,14 +259,11 @@ export default class Client<UserData extends Serializable, StoredData extends Se
       /** Check if some tokens must be appended to the request */
       if (isObject(useTokens)) {
         for (const tokenName of (Object.keys(useTokens) as Tokens[])) {
-          /** Check the tokens handshake instance exists */
-          const handshake = this._getTokenHandshake(tokenName);
-
           /** Get the transporter */
           const transporter = useTokens[tokenName];
 
           if (transporter) {
-            await handshake.appendToken(axiosRequestConfig, transporter);
+            await this._getTokenHandshake(tokenName).appendToken(axiosRequestConfig, transporter);
           }
         }
       }
