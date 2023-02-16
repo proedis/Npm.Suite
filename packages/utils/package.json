@@ -33,11 +33,14 @@
   "devDependencies": {
     "@proedis/tsconfig": "^1.0.2",
     "@types/get-value": "^3.0.3",
-    "@types/natural-compare": "^1.4.1"
+    "@types/natural-compare": "^1.4.1",
+    "@types/object-hash": "^3.0.2"
   },
   "gitHead": "8cba9bf577350eaf9ee04be523bd47053c9e7495",
   "dependencies": {
     "get-value": "^3.0.1",
-    "natural-compare": "^1.4.0"
+    "natural-compare": "^1.4.0",
+    "object-hash": "^3.0.0",
+    "ts-deepmerge": "^6.0.2"
   }
 }
