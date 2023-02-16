@@ -1,0 +1,54 @@
+{
+  "name": "@proedis/react-client",
+  "version": "1.0.3",
+  "description": "Wrapper for @proedis/client repository to use it with React",
+  "keywords": [
+    "proedis",
+    "react",
+    "hooks",
+    "webapp",
+    "client",
+    "authentication"
+  ],
+  "main": "src/index.ts",
+  "license": "MIT",
+  "author": {
+    "name": "Marco Cavanna",
+    "email": "m.cavanna@proedis.net"
+  },
+  "homepage": "https://github.com/proedis/Npm.Suite",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/proedis/Npm.Suite.git",
+    "directory": "packages/react-client"
+  },
+  "bugs": {
+    "url": "https://github.com/proedis/Npm.Suite/issues",
+    "email": "info@proedis.net"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "rollup --config ../../rollup.config.mjs"
+  },
+  "dependencies": {
+    "@proedis/client": "1.0.1-alpha.0",
+    "@proedis/react": "1.0.3",
+    "@proedis/types": "1.0.3",
+    "@proedis/utils": "1.0.3",
+    "@tanstack/react-query": "^4.24.6",
+    "@tanstack/react-query-devtools": "^4.24.6"
+  },
+  "devDependencies": {
+    "@proedis/tsconfig": "^1.0.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.8.1"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-router-dom": "^6.8.1"
+  },
+  "gitHead": "8cba9bf577350eaf9ee04be523bd47053c9e7495"
+}
