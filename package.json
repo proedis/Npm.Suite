@@ -21,6 +21,7 @@
     "@types/react": "^18.0.27",
     "@types/react-dom": "^18.0.10",
     "eslint-config-proedis": "*",
+    "fast-glob": "^3.2.12",
     "fs-extra": "^9.1.0",
     "husky": "^8.0.0",
     "lerna": "^6.4.1",

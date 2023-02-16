@@ -31,13 +31,12 @@
   },
   "dependencies": {
     "@proedis/utils": "^1.0.3",
+    "@proedis/types": "^1.0.3",
     "qs": "^6.11.0"
   },
   "devDependencies": {
     "@proedis/tsconfig": "^1.0.2",
-    "@proedis/types": "^1.0.3",
     "@types/qs": "^6.9.7",
-    "fast-glob": "^3.2.12",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.8.1"
