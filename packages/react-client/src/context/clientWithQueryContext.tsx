@@ -6,7 +6,7 @@ import type { Client } from '@proedis/client';
 import type { ClientRequestConfig, RequestError } from '@proedis/client';
 import type { Serializable } from '@proedis/types';
 
-import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, replaceEqualDeep, useQuery } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 import type { QueryClientConfig, QueryKey, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
@@ -59,7 +59,9 @@ export function createClientWithQueryContext<UD extends Serializable, SD extends
         refetchOnWindowFocus: true,
 
         /** Change the function to assert data is equal or not */
-        isDataEqual: hasEqualHash,
+        structuralSharing: (oldData, newData) => (
+          hasEqualHash(oldData, newData) ? oldData : replaceEqualDeep(oldData, newData)
+        ),
 
         /** Set the default query function to use client instance to perform request */
         queryFn: (ctx) => {
