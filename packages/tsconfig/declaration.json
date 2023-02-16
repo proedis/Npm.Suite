@@ -6,7 +6,8 @@
     "composite": true,
     "declaration": true,
     "noEmit": false,
-    "emitDeclarationOnly": true
+    "emitDeclarationOnly": true,
+    "jsx": "react-jsx"
   },
   "exclude": [
     "node_modules",
