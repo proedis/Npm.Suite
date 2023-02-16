@@ -1,6 +1,6 @@
 {
   "name": "@proedis/types",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A set of TypeScript base Types",
   "keywords": [
     "proedis",
@@ -32,7 +32,7 @@
     "build": "mkdir build && cpy './**/*.*' '!build' '!node_modules' '!tsconfig.*' build"
   },
   "devDependencies": {
-    "@proedis/tsconfig": "^1.0.2",
+    "@proedis/tsconfig": "^1.0.3",
     "cpy-cli": "^4.2.0",
     "rimraf": "^4.1.2"
   },
