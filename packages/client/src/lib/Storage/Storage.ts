@@ -1,9 +1,7 @@
 import store from 'store2';
 import type { StoreBase } from 'store2';
 
-import merge from 'ts-deepmerge';
-
-import { hasEqualHash } from '@proedis/utils';
+import { hasEqualHash, mergeObjects } from '@proedis/utils';
 import type { Serializable } from '@proedis/types';
 
 import ClientSubject from '../ClientSubject/ClientSubject';
@@ -111,7 +109,7 @@ export default class Storage<Data extends Serializable> extends ClientSubject<Da
    */
   public transact(updateFn: ((data: Data) => Data)) {
     /** Clone current data */
-    const deepDataCopy = merge({}, this.value) as Data;
+    const deepDataCopy = mergeObjects<Data>({}, this.value);
 
     /** Save the new data after transaction */
     this.persist(updateFn(deepDataCopy));
