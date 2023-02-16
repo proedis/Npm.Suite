@@ -11,6 +11,9 @@ import type { AnyObject } from '@proedis/types';
  * @param m
  */
 function getMergeDefault(m: any): typeof merge {
+  if (typeof m === 'function') {
+    return m;
+  }
   if (m && typeof m.default === 'function') {
     return m.default;
   }
