@@ -19,7 +19,8 @@ export default class Logger implements LogdownLogger {
       log  : 1,
       info : 2,
       warn : 3,
-      error: 4
+      error: 4,
+      none : 5
     } as Record<LogLevel, number>)[level];
   }
 

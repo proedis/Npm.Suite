@@ -17,4 +17,4 @@ interface BaseLoggerOptions {
 // ----
 // Utility Types
 // ----
-export type LogLevel = 'debug' | 'log' | 'info' | 'warn' | 'error';
+export type LogLevel = 'debug' | 'log' | 'info' | 'warn' | 'error' | 'none';
