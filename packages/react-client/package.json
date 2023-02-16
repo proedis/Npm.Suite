@@ -42,13 +42,10 @@
   },
   "devDependencies": {
     "@proedis/tsconfig": "^1.0.3",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.8.1"
+    "react": "^18.2.0"
   },
   "peerDependencies": {
-    "react": "^18.2.0",
-    "react-router-dom": "^6.8.1"
+    "react": "^18.2.0"
   },
   "gitHead": "8cba9bf577350eaf9ee04be523bd47053c9e7495"
 }
