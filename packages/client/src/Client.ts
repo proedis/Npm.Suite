@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 
 import type { AnyObject, Serializable } from '@proedis/types';
 
-import { hasEqualHash, isObject, isValidString, mergeObjects, will } from '@proedis/utils';
+import { Deferred, hasEqualHash, isObject, isValidString, mergeObjects, will } from '@proedis/utils';
 
 import Logger from './lib/Logger/Logger';
 import Options from './lib/Options/Options';
@@ -26,6 +26,9 @@ import type { AuthAction, TokenSpecification } from './lib/TokenHandshake/TokenH
 import RequestSubscriber from './Client.RequestSubscriber';
 
 
+/* --------
+ * Client definition
+ * -------- */
 export default class Client<UserData extends Serializable, StoredData extends Serializable, Tokens extends string> {
 
 
@@ -64,6 +67,8 @@ export default class Client<UserData extends Serializable, StoredData extends Se
   // Internal properties
   // ----
   private readonly _axios: AxiosInstance;
+
+  private _clientInitializationDeferred: Deferred<UserData | null> | undefined;
 
   private readonly _defaultsRequestConfig: ClientRequestConfig<Tokens> | undefined;
 
@@ -151,9 +156,17 @@ export default class Client<UserData extends Serializable, StoredData extends Se
    * @private
    */
   private async _initializeClient(): Promise<UserData | null> {
+    /** Check an initialization process is not running yet */
+    if (this._clientInitializationDeferred) {
+      return this._clientInitializationDeferred.promise;
+    }
+
+    /** Create the deferred promise to use to load user data */
+    this._clientInitializationDeferred = new Deferred<UserData | null>();
+
     /** Assert the client is loading */
     if (this.state.value.isLoaded) {
-      throw new Error('Client has already been initialized.');
+      return this.state.value.userData;
     }
 
     /** Use built in api to get user data, wrap into safe request to avoid unhandled error */
@@ -164,6 +177,9 @@ export default class Client<UserData extends Serializable, StoredData extends Se
       this._initLogger.warn('Could not load user data on initialization', userDataError);
       return null;
     }
+
+    /** Resolve the deferred promise */
+    this._clientInitializationDeferred.resolve(userData);
 
     /** Return loaded userdata */
     return userData;
