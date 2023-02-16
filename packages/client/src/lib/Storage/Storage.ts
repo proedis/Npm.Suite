@@ -3,8 +3,7 @@ import type { StoreBase } from 'store2';
 
 import merge from 'ts-deepmerge';
 
-import hasher from 'object-hash';
-
+import { hasEqualHash } from '@proedis/utils';
 import type { Serializable } from '@proedis/types';
 
 import ClientSubject from '../ClientSubject/ClientSubject';
@@ -26,14 +25,6 @@ export default class Storage<Data extends Serializable> extends ClientSubject<Da
   // Constants
   // ----
   public static AppName: string = 'Unnamed';
-
-  private static Hash: ((obj: any) => string) = (obj) => (
-    hasher(obj, {
-      unorderedArrays : false,
-      unorderedSets   : false,
-      unorderedObjects: false
-    })
-  );
 
 
   // ----
@@ -70,13 +61,13 @@ export default class Storage<Data extends Serializable> extends ClientSubject<Da
   /**
    * Save the current store into local storage, and emit new data
    * using the internal BehaviourSubject object.
-   * NewData and OldData will be compared using hash, if no changes have been made,
+   * NewData and OldData will be compared using hash if: no changes have been made,
    * no data will be emitted
    * @private
    */
   private persist(newData: Data): void {
     /** Save the storage, and emit next data only if it has change */
-    if (Storage.Hash(newData) == Storage.Hash(this.value)) {
+    if (hasEqualHash(this.value, newData)) {
       this._storageLogger.debug('Old data and new data has same values, omit saving');
       return;
     }

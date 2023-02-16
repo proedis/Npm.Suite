@@ -3,11 +3,9 @@ import type { AxiosInstance, AxiosRequestConfig, AxiosResponse, GenericAbortSign
 
 import { Observable } from 'rxjs';
 
-import merge from 'ts-deepmerge';
-
 import type { AnyObject, Serializable } from '@proedis/types';
 
-import { isObject, isValidString, will } from '@proedis/utils';
+import { hasEqualHash, isObject, isValidString, mergeObjects, will } from '@proedis/utils';
 
 import Logger from './lib/Logger/Logger';
 import Options from './lib/Options/Options';
@@ -36,6 +34,19 @@ export default class Client<UserData extends Serializable, StoredData extends Se
   // ----
   public static sanitizeUrl(url: string): string {
     return encodeURI(url.replace(/(^\/*)|(\/*$)/, ''));
+  }
+
+
+  /**
+   * Perform a hash check using oldData and newData to
+   * get if there are some changes between the two values.
+   * This method will simply expose the `hasEqualHash` method
+   * from `@proedis/utils` package using Client static method
+   * @param oldData
+   * @param newData
+   */
+  public static areDataEquals(oldData: any, newData: any): boolean {
+    return hasEqualHash(oldData, newData);
   }
 
 
@@ -267,10 +278,10 @@ export default class Client<UserData extends Serializable, StoredData extends Se
    * @param config
    */
   public compileRequest(config: ClientRequest<UserData, StoredData, Tokens>): ClientRequestConfig<Tokens> {
-    return merge<ClientRequestConfig<Tokens>[]>(
+    return mergeObjects<ClientRequestConfig<Tokens>>(
       this._defaultsRequestConfig || {},
       typeof config === 'function' ? config(this) : config
-    ) as ClientRequestConfig<Tokens>;
+    );
   }
 
 
