@@ -27,6 +27,16 @@ export interface ClientSettings<UserData extends Serializable, StoredData extend
 
   /** Configure usable tokens while dialogate with API server */
   tokens?: Record<Tokens, TokenHandshakeConfiguration<UserData, StoredData, Tokens>>;
+
+  /**
+   * Configure an extractor to load user data into client state.
+   * Having user data internally will consider the client as authenticated
+   */
+  userDataExtractor?: AuthAction<(
+    response: any,
+    authAction: AuthActionType,
+    client: Client<UserData, StoredData, Tokens>
+  ) => UserData>;
 }
 
 
@@ -39,6 +49,12 @@ export interface ClientApi<UserData extends Serializable, StoredData extends Ser
 
   /** Login using arbitrary data */
   login?: (data: AnyObject) => ClientRequest<UserData, StoredData, Tokens>;
+
+  /** Logout the client */
+  logout?: () => ClientRequest<UserData, StoredData, Tokens>;
+
+  /** Signup using arbitrary data */
+  signup?: (data: AnyObject) => ClientRequest<UserData, StoredData, Tokens>;
 }
 
 
@@ -73,6 +89,14 @@ export interface ServerData {
   /** Set the timeout */
   timeout?: number;
 }
+
+
+/* --------
+ * Client Auth Action Type Definition
+ * -------- */
+export type AuthActionType = 'login' | 'signup';
+
+export type AuthAction<T extends Function> = Partial<Record<AuthActionType, T>> | T;
 
 
 /* --------

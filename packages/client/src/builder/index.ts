@@ -3,7 +3,7 @@ import type { AxiosRequestConfig } from 'axios';
 import type { Serializable } from '@proedis/types';
 
 import Client from '../Client';
-import type { ClientApi, ClientRequestConfig, ServerData } from '../Client.types';
+import type { ClientApi, ClientRequestConfig, ServerData, ClientSettings } from '../Client.types';
 
 import type { LoggerOptions, LogLevel } from '../lib/Logger/Logger.types';
 import type { EnvironmentDependentOptions } from '../lib/Options/Options.types';
@@ -43,6 +43,8 @@ export default class ClientBuilder<
   private _defaultRequest: ClientRequestConfig<Tokens> | undefined;
 
   private _axiosConfig: Partial<AxiosRequestConfig> | undefined;
+
+  private _userDataExtractor: ClientSettings<UserData, StoredData, Tokens>['userDataExtractor'];
 
 
   // ----
@@ -97,8 +99,15 @@ export default class ClientBuilder<
    * Set the ClientBuilder UserData type.
    * This method is used to provide a shorthand
    * to change the current ClientBuilder generics type
+   * and to define an extractor for user data
+   * @param extractor
    */
-  public withUserData<T extends Serializable>(): ClientBuilder<T, StoredData, Tokens> {
+  public withUserData<T extends Serializable>(
+    extractor: ClientSettings<T, StoredData, Tokens>['userDataExtractor']
+  ): ClientBuilder<T, StoredData, Tokens> {
+    /** Save the extractor */
+    this._userDataExtractor = extractor;
+
     return this as any;
   }
 
@@ -226,15 +235,16 @@ export default class ClientBuilder<
 
     /** Create the client */
     return new Client<UserData, StoredData, Tokens>(this._appName, {
-      initialStorage: this._storedData as StoredData,
-      logger        : this._logger,
-      api           : this._api,
-      requests      : {
+      initialStorage   : this._storedData as StoredData,
+      logger           : this._logger,
+      api              : this._api,
+      requests         : {
         axiosConfig: this._axiosConfig,
         defaults   : this._defaultRequest,
         server     : this._server
       },
-      tokens        : tokens as Record<Tokens, TokenHandshakeConfiguration<UserData, StoredData, Tokens>>
+      tokens           : tokens as Record<Tokens, TokenHandshakeConfiguration<UserData, StoredData, Tokens>>,
+      userDataExtractor: this._userDataExtractor
     });
   }
 

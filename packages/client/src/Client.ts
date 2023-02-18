@@ -15,6 +15,7 @@ import TokenHandshake from './lib/TokenHandshake/TokenHandshake';
 import RequestError from './Client.RequestError';
 
 import type {
+  AuthActionType,
   ClientApi,
   ClientSettings,
   ClientState,
@@ -22,7 +23,7 @@ import type {
   ClientRequestConfig
 } from './Client.types';
 
-import type { AuthAction, TokenSpecification } from './lib/TokenHandshake/TokenHandshake.types';
+import type { TokenSpecification } from './lib/TokenHandshake/TokenHandshake.types';
 import RequestSubscriber from './Client.RequestSubscriber';
 
 
@@ -121,22 +122,7 @@ export default class Client<UserData extends Serializable, StoredData extends Se
 
     /** Initialize the client */
     this._initializeClient()
-      .then((maybeUserData) => {
-        /** Set the new state, depending on the user data object */
-        this.state.transact(() => (
-          maybeUserData
-            ? {
-              isLoaded: true,
-              hasAuth : true,
-              userData: maybeUserData
-            }
-            : {
-              isLoaded: true,
-              hasAuth : false,
-              userData: null
-            }
-        ));
-      })
+      .then(this._unconditionallySetState.bind(this))
       .catch((error) => {
         this._initLogger.error('Unhandled exception occurred while initializing the Client', error);
       });
@@ -170,7 +156,7 @@ export default class Client<UserData extends Serializable, StoredData extends Se
     }
 
     /** Use built in api to get user data, wrap into safe request to avoid unhandled error */
-    const [ userDataError, userData ] = await will(this.getUserData());
+    const [ userDataError, userData ] = await will(this.request<UserData>(this._builtInApi('getUserData')()));
 
     /** Assert no error occurred */
     if (userDataError) {
@@ -223,6 +209,30 @@ export default class Client<UserData extends Serializable, StoredData extends Se
 
 
   /**
+   * This method will unconditionally set the state as loaded,
+   * and based on the user data presence or not, will save
+   * if the auth has been granted or not
+   * @param userData
+   * @private
+   */
+  private _unconditionallySetState(userData: UserData | null) {
+    this.state.transact(() => (
+      userData
+        ? {
+          isLoaded: true,
+          hasAuth : true,
+          userData: userData
+        }
+        : {
+          isLoaded: true,
+          hasAuth : false,
+          userData: null
+        }
+    ));
+  }
+
+
+  /**
    * When a new AuthResponse has been received from any authentication method,
    * the response will be passed to child TokenHandshakes instance to load
    * the necessary data and token.
@@ -232,17 +242,39 @@ export default class Client<UserData extends Serializable, StoredData extends Se
    * @param authAction
    * @private
    */
-  private async _passAuthResponseToHandshakes(authResponse: any, authAction: AuthAction): Promise<void> {
-    /** Create a promise pool with all extractions */
-    const pool: Promise<void>[] = [];
-
+  private _passAuthResponseToHandshakes(authResponse: any, authAction: AuthActionType): void {
     /** Get all handshakes */
     this._tokensHandshake.forEach((handshake) => {
-      pool.push(handshake.extractTokenFromAuthResponse(authResponse, authAction));
+      handshake.extractTokenFromAuthResponse(authResponse, authAction);
     });
+  }
 
-    /** Await the resolution of all extractors */
-    await Promise.all(pool);
+
+  /**
+   * After performing and auth action like 'login' or 'signup', the received response
+   * will be passed to this method to extract the user data.
+   * Having user data saved internally is mandatory for a client to be authenticated
+   * or not
+   * @param authResponse
+   * @param authAction
+   * @private
+   */
+  private _extractUserData(authResponse: any, authAction: AuthActionType): UserData | null {
+    /** Get the extractor from settings */
+    const extract = !!this._settings.userDataExtractor
+      ? (typeof this._settings.userDataExtractor === 'function'
+        ? this._settings.userDataExtractor
+        : this._settings.userDataExtractor[authAction])
+      : undefined;
+
+    /** Assert the extractor has been defined */
+    if (!extract) {
+      this._initLogger.warn(`No user data extractor has been defined for '${authAction}' action`);
+      return null;
+    }
+
+    /** Return extracted data */
+    return extract(authResponse, authAction, this);
   }
 
 
@@ -423,16 +455,14 @@ export default class Client<UserData extends Serializable, StoredData extends Se
    * Remove all references to client authorization from current Client instance
    */
   public flushAuth() {
-    this.state.transact((curr) => ({
-      ...curr,
-      hasAuth : false,
-      userData: null
-    }));
+    this._unconditionallySetState(null);
   }
 
 
   /**
-   * Get a token from the requested Handshake
+   * Get a token from the requested Handshake.
+   * If the current internal stored token doesn't exist, this method
+   * will perform the entire chain to get a new valid token.
    * @param name
    */
   public async getToken(name: Tokens): Promise<TokenSpecification> {
@@ -441,7 +471,10 @@ export default class Client<UserData extends Serializable, StoredData extends Se
 
 
   /**
-   * Perform the login action
+   * Perform the login action.
+   * After login request has been resolved successfully, the client
+   * will try to extract tokens and user data from the response,
+   * after it will reload the state
    * @param data
    */
   public async login(data: AnyObject): Promise<void> {
@@ -449,16 +482,74 @@ export default class Client<UserData extends Serializable, StoredData extends Se
     const authResponse = await this.request(this._builtInApi('login')(data));
 
     /** Pass the auth response to token handshakes */
-    await this._passAuthResponseToHandshakes(authResponse, 'login');
+    this._passAuthResponseToHandshakes(authResponse, 'login');
+
+    /** Pass the auth response to user data extractor */
+    const userData = this._extractUserData(authResponse, 'login');
+
+    /** Update the client state */
+    this._unconditionallySetState(userData);
   }
 
 
   /**
-   * Perform the get user data internal api
+   * Perform the signup action.
+   * After signup request has been resolved successfully, the client
+   * will try to extract tokens and user data from the response,
+   * after it will reload the state
+   * @param data
+   */
+  public async signup(data: AnyObject): Promise<void> {
+    /** Get the auth response */
+    const authResponse = await this.request(this._builtInApi('signup')(data));
+
+    /** Pass the auth response to token handshakes */
+    this._passAuthResponseToHandshakes(authResponse, 'signup');
+
+    /** Pass the auth response to user data extractor */
+    const userData = this._extractUserData(authResponse, 'signup');
+
+    /** Update the client state */
+    this._unconditionallySetState(userData);
+  }
+
+
+  /**
+   * Perform the logout action.
+   * This method will try to call the logout built in api only if it exists,
+   * and after will flush all tokens and the internal authorization
+   */
+  public async logout(): Promise<void> {
+    /** Check if an api has been configured to be call on logout */
+    if (typeof this._settings.api?.logout === 'function') {
+      await this.request(this._builtInApi('logout')());
+    }
+
+    /** Flush the authorization and clear all tokens */
+    this._tokensHandshake.forEach((handshake) => {
+      handshake.clear();
+    });
+
+    /** Flush the client authorization */
+    this.flushAuth();
+  }
+
+
+  /**
+   * Use the internal built in api to reload user data
+   * from backend server, and the update the internal state.
+   * Pay attention, if the server responds with an error,
+   * or if the user data don't exist, the client will flush current authorization
    */
   public async getUserData(): Promise<UserData> {
     /** Get the auth response using the api configuration */
-    return this.request<UserData>(this._builtInApi('getUserData')());
+    const userData = await this.request<UserData>(this._builtInApi('getUserData')());
+
+    /** Update the client state */
+    this._unconditionallySetState(userData);
+
+    /** Return loaded user data */
+    return userData;
   }
 
 }

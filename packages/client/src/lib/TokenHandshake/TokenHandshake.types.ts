@@ -5,6 +5,8 @@ import type { ClientRequest } from '../../Client.types';
 
 import type { StoragePersistency } from '../Storage/Storage';
 
+import type { AuthAction, AuthActionType } from '../../Client.types';
+
 
 // ----
 // Token Handshake Configuration
@@ -95,15 +97,13 @@ export type TokenExtractor<Response extends Serializable> =
   TokenAuthResponseExtractor<Response>
   | TokenQueryParamExtractor;
 
-export type AuthAction = 'login' | 'signup';
-
 export type TokenAuthResponseExtractor<Response extends Serializable> = {
   type: 'auth-response',
-  extract: (
+  extract: AuthAction<(
     authResponse: Response,
-    authAction: AuthAction,
+    authAction: AuthActionType,
     client: Client<any, any, any>
-  ) => TokenSpecification | undefined
+  ) => TokenSpecification | undefined>
 };
 
 export type TokenQueryParamExtractor = {

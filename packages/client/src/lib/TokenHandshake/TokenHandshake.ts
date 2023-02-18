@@ -9,10 +9,9 @@ import Options from '../Options/Options';
 import Storage from '../Storage/Storage';
 
 import type Client from '../../Client';
-
+import type { AuthActionType } from '../../Client.types';
 
 import type {
-  AuthAction,
   TokenAuthResponseExtractor,
   TokenSpecification,
   TokenHandshakeConfiguration,
@@ -121,14 +120,8 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
   private _flushToken(error?: RequestError | null): RequestError {
     this._handshakeLogger.debug('Flushing Token');
 
-    /** Remove the internal stored token specification */
-    this.transact(() => TokenHandshake._defaultTokenSpecification);
-
-    /** Check the pending deferred request to reject it */
-    if (this._getDeferred?.isPending) {
-      this._getDeferred.reject(error);
-      this._getDeferred = undefined;
-    }
+    /** Clear the tokens */
+    this.clear();
 
     /** Flush client auth based on configuration */
     if (this._configuration.getOrDefault('invalidateAuthOnGrantError', 'boolean', true)) {
@@ -264,6 +257,24 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
   // ----
   // Public Methods
   // ----
+
+
+  /**
+   * Remove token stored internally and into local storage.
+   * Calling this api alone will only remove single handshake tokens,
+   * but won't flush the original client's authentication.
+   */
+  public clear() {
+    /** Remove the internal stored token specification */
+    this.transact(() => TokenHandshake._defaultTokenSpecification);
+
+    /** Check the pending deferred request to reject it */
+    if (this._getDeferred?.isPending) {
+      this._getDeferred.reject();
+      this._getDeferred = undefined;
+    }
+  }
+
 
   /**
    * Check the validity of a token specification object
@@ -401,15 +412,23 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
    * @param authResponse
    * @param authAction
    */
-  public async extractTokenFromAuthResponse(authResponse: any, authAction: AuthAction) {
+  public extractTokenFromAuthResponse(authResponse: any, authAction: AuthActionType) {
     /** Get all auth response extractor */
     const extractors = this._configuration.getOrDefault('extractors', 'array', [])
       .filter(e => e.type === 'auth-response');
 
     /** If any extractors exist, use to get the token from response */
     (extractors as TokenAuthResponseExtractor<any>[]).forEach((extractor) => {
+      /** Get the extractor configuration */
+      const extract = typeof extractor.extract === 'function' ? extractor.extract : extractor.extract[authAction];
+
+      /** Assert the extractor exists before use it */
+      if (typeof extract !== 'function') {
+        return;
+      }
+
       /** Get the token specification from response */
-      const tokenSpecification = extractor.extract(authResponse, authAction, this._client);
+      const tokenSpecification = extract(authResponse, authAction, this._client);
 
       if (this.isValid(tokenSpecification)) {
         this._consolidateToken(tokenSpecification);
