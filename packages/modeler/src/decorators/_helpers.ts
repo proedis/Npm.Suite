@@ -45,6 +45,17 @@ function getPropsMetadataOrDefault<T extends AnyObject>(
 /* --------
  * External Utilities
  * -------- */
-export function createPropDecorator<T extends AnyObject, TOut, TIn = TOut>(defaultOptions?: IPropOptions<T, TOut, TIn>) {
+export function createPropDecorator<T extends AnyObject, TOut, TIn = TOut>(
+  defaultOptions?: IPropOptions<T, TOut, TIn>
+): TPropDecorator<T, TOut> {
+  return function decorateProps(target, property, descriptor) {
+    /** Create the new metadata for props */
+    const metadata = {
+      ...getPropsMetadataOrDefault(target, property, descriptor),
+      ...defaultOptions
+    };
 
+    /** Store the new metadata to props storage */
+    storePropMetadata(target, property, metadata);
+  };
 }

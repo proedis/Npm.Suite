@@ -47,6 +47,9 @@ export interface IPropMetadata<T extends AnyObject, TOut, TIn = TOut>
 
   /** The property name to use while reflecting data */
   name: string;
+
+  /** Define the real type of the value for the prop */
+  type: Instantiable<any> | TForwardedInstantiable<any>;
 }
 
 
@@ -73,7 +76,4 @@ export interface IPropOptions<T extends AnyObject, TOut, TIn = TOut> {
 
   /** Define a custom setter function that will replace the default one */
   set?: (value: TOut) => TIn;
-
-  /** Define the real type of the value for the prop */
-  type: Instantiable<any> | TForwardedInstantiable<any>;
 }
