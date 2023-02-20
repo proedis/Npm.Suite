@@ -1,6 +1,6 @@
 import type { AnyObject, Instantiable } from '@proedis/types';
 
-import { getPropertyConstructor, getPropMetadata, setPropMetadata } from '../utils';
+import { getPropertyConstructor, getPropMetadata, storePropMetadata } from '../utils';
 
 import type { IPropMetadata, IPropOptions, TPropDecorator } from '../interfaces/props';
 
@@ -32,7 +32,7 @@ function getPropsMetadataOrDefault<T extends AnyObject>(
     const isArray = Object.getPrototypeOf(ctor) === Array;
 
     /** Return the default metadata */
-    return setPropMetadata(schema, property, {
+    return storePropMetadata(schema, property, {
       descriptor,
       isArray,
       name: property,

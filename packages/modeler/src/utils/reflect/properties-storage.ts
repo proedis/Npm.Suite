@@ -55,7 +55,7 @@ export function getPropMetadata<T extends AnyObject>(
  * @param property
  * @param metadata
  */
-export function setPropMetadata<T extends AnyObject, TOut, TIn>(
+export function storePropMetadata<T extends AnyObject, TOut, TIn>(
   schema: Instantiable<T>,
   property: string,
   metadata: IPropMetadata<T, TOut, TIn>
