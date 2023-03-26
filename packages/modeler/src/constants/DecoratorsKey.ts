@@ -2,10 +2,8 @@ export enum DecoratorKeys {
 
   Type = 'design:type',
 
-  SchemaMetadata = 'entity:schemaMetadata',
+  ReturnType = 'design:returntype',
 
-  IdentityMetadata = 'entity:identityMetadata',
-
-  PropsStorage = 'entity:props'
+  ModelMetadata = 'model:metadata'
 
 }

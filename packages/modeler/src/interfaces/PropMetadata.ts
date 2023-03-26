@@ -1,22 +1,7 @@
 import type { AnyObject, Instantiable } from '@proedis/types';
 
-import type { TForwardedInstantiable } from './generics';
-
-import type Document from '../Document';
-
-
-/**
- * Represent a property decorator function that
- * could be used to decorate schema internal properties
- */
-export type TPropDecorator<T extends AnyObject, TOut> = (
-  /** The target property */
-  target: Instantiable<T>,
-  /** The property name */
-  property: string,
-  /** The typed property descriptor */
-  descriptor: TypedPropertyDescriptor<TOut>
-) => void;
+import type { EntityType } from './Entity';
+import type { TForwarded } from './Forwarded';
 
 
 /**
@@ -31,25 +16,28 @@ export type TIdentityType = string | number;
  * into the prop storage of the object and has all the
  * key and the options relative to the prop
  */
-export interface IPropMetadata<T extends AnyObject, TOut, TIn = TOut>
+export interface IPropMetadata<T extends AnyObject, TOut = any, TIn = TOut>
   extends IPropOptions<T, TOut, TIn> {
   /** Typed descriptor retrieved by the decorator function */
-  descriptor: TypedPropertyDescriptor<TOut>;
+  descriptor: TypedPropertyDescriptor<TOut> | undefined;
 
   /** Indicate if the property is an Array of elements */
-  isArray?: boolean;
+  isArray: boolean;
 
-  /** Indicate if the property has to be considered the unique identifier of the model */
-  isIdentity?: boolean;
+  /** Indicate if a property has to be considered a method */
+  isMethod: boolean;
 
   /** Indicate if a property has to be considered a virtual property, doesn't be reflected from the original object */
-  isVirtual?: boolean;
+  isVirtual: boolean;
 
   /** The property name to use while reflecting data */
-  name: string;
+  name: Exclude<keyof T, number>;
+
+  /** When the property is defined as a Method, the return type represents the result of the function */
+  returnType: Instantiable<any> | undefined;
 
   /** Define the real type of the value for the prop */
-  type: Instantiable<any> | TForwardedInstantiable<any>;
+  type: Instantiable<any> | TForwarded;
 }
 
 
@@ -58,18 +46,18 @@ export interface IPropMetadata<T extends AnyObject, TOut, TIn = TOut>
  * function and that will extend the base prop metadata object
  * stored into the prop storage
  */
-export interface IPropOptions<T extends AnyObject, TOut, TIn = TOut> {
+export interface IPropOptions<T extends AnyObject, TOut = any, TIn = TOut> {
   /** Set an alias for the property name, used to reflect property value */
   alias?: string;
+
+  /** Optionally set a starting default value for the prop if incoming value is undefined */
+  default?: TOut | ((doc: EntityType<T>) => TOut);
 
   /** Define a custom getter function that will replace the default one */
   get?: (value: TIn) => TOut;
 
-  /** Optionally set a starting default value for the prop if incoming value is undefined */
-  default?: TOut | ((doc: Document<T>) => TOut);
-
-  /** Set if the property must be exposed while converting the document into an object, default to `true` */
-  expose?: boolean;
+  /** Define the Property as the identity of the Entity */
+  isIdentity?: boolean;
 
   /** Protect the property value from any type of change */
   protect?: boolean;

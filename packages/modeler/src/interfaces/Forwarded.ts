@@ -1,4 +1,4 @@
-import type { AnyObject, Instantiable } from '@proedis/types';
+import type { Instantiable } from '@proedis/types';
 
 import type { InstantiableType } from '../constants';
 
@@ -7,7 +7,7 @@ import type { InstantiableType } from '../constants';
  * On recursive schema, a forwarded instantiable type could
  * be defined. This type will be instantiated and loaded lazy
  */
-export type TForwardedInstantiable<T extends AnyObject> = {
+export type TForwarded = {
   type: InstantiableType.Forwarded,
-  constructor: () => Instantiable<T>
+  constructor: () => Instantiable<any>
 };
