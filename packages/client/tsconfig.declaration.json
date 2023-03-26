@@ -12,6 +12,9 @@
       "path": "../formatters/tsconfig.declaration.json"
     },
     {
+      "path": "../modeler/tsconfig.declaration.json"
+    },
+    {
       "path": "../react/tsconfig.declaration.json"
     },
     {
