@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 
 import type { AnyObject, Serializable } from '@proedis/types';
 
-import { Deferred, hasEqualHash, isObject, isValidString, mergeObjects, will } from '@proedis/utils';
+import { Deferred, hasEqualHash, isNil, isObject, isValidString, mergeObjects, will } from '@proedis/utils';
 
 import Logger from './lib/Logger/Logger';
 import Options from './lib/Options/Options';
@@ -313,6 +313,36 @@ export default class Client<UserData extends Serializable, StoredData extends Se
     }
 
     return this._settings.api[api] as Exclude<ClientApi<UserData, StoredData, Tokens>[K], undefined>;
+  }
+
+
+  // ----
+  // Public Reconfiguration Methods
+  // ----
+
+  /**
+   * Add (or remove) a default Header that will be used
+   * for each client request
+   * @param name
+   * @param value
+   */
+  public useHeader(
+    name: string,
+    value: string | string[] | number | boolean | null
+  ): Client<UserData, StoredData, Tokens> {
+    /** If a null value has been provided, remove the header */
+    if (isNil(value)) {
+      if (name in this._axios.defaults.headers) {
+        delete this._axios.defaults.headers[name];
+      }
+
+      return this;
+    }
+
+    /** Add the new header to defaults */
+    this._axios.defaults.headers[name] = value;
+
+    return this;
   }
 
 
