@@ -94,8 +94,9 @@ type TokenAsQueryParamsTransporter = { type: 'query', value: string };
 // a Server Response received by the client
 // ----
 export type TokenExtractor<Response extends Serializable> =
-  TokenAuthResponseExtractor<Response>
-  | TokenQueryParamExtractor;
+  | TokenAuthResponseExtractor<Response>
+  | TokenQueryParamExtractor
+  | TokenPlainExtractor;
 
 export type TokenAuthResponseExtractor<Response extends Serializable> = {
   type: 'auth-response',
@@ -112,4 +113,9 @@ export type TokenQueryParamExtractor = {
     token: string,
     expiresAt: string
   }
+};
+
+export type TokenPlainExtractor = {
+  type: 'plain',
+  extract: TokenSpecification | false
 };

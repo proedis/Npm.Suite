@@ -16,6 +16,7 @@ import type {
   TokenSpecification,
   TokenHandshakeConfiguration,
   TokenQueryParamExtractor,
+  TokenPlainExtractor,
   TokenTransporter,
   UseTokenTransporter
 } from './TokenHandshake.types';
@@ -152,10 +153,16 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
 
 
     // ----
+    // Get all Tokens defined Extractors
+    // ----
+    const tokenExtractors = this._configuration
+      .getOrDefault('extractors', 'array', []);
+
+
+    // ----
     // Extract the token from QueryParam of current Window Location URL
     // ----
-    const queryParamExtractor = this._configuration
-      .getOrDefault('extractors', 'array', [])
+    const queryParamExtractor = tokenExtractors
       .find((extractor) => extractor.type === 'query-param') as TokenQueryParamExtractor | undefined;
 
     if (queryParamExtractor && window.location.search) {
@@ -183,6 +190,20 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
         /** Return consolidated token */
         return consolidatedToken;
       }
+    }
+
+
+    // ----
+    // Use the plain extractor if exists
+    // ----
+    const plainExtractor = tokenExtractors
+      .find((extractor) => extractor.type === 'plain') as TokenPlainExtractor | undefined;
+
+    if (plainExtractor && plainExtractor.extract !== false) {
+      this._handshakeLogger.debug('Get token from the plain specification object');
+
+      /** Consolidate the token in memory and return it */
+      return this._consolidateToken(plainExtractor.extract);
     }
 
 
@@ -317,6 +338,15 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
 
     this._handshakeLogger.debug('Token is Expired');
     return false;
+  }
+
+
+  /**
+   * Explicit set a token to use, providing complete specification
+   * @param specification
+   */
+  public setExplicit(specification: TokenSpecification): TokenSpecification {
+    return this._consolidateToken(specification);
   }
 
 
