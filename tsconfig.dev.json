@@ -1,7 +1,7 @@
 {
   "extends": "@proedis/tsconfig/base",
   "include": [
-    "src"
+    "packages/**/*"
   ],
   "compilerOptions": {
     "module": "commonjs"
