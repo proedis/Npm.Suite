@@ -112,7 +112,8 @@ export type TokenQueryParamExtractor = {
   extract: {
     token: string,
     expiresAt: string
-  }
+  },
+  hideWhenExtracted?: boolean;
 };
 
 export type TokenPlainExtractor = {

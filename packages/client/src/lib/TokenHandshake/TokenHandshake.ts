@@ -183,9 +183,16 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
         /** Consolidate the token in memory */
         const consolidatedToken = this._consolidateToken(specification);
 
-        /** Remove the query params string and replace the search params */
-        urlSearchParams.delete(queryParamExtractor.extract.token);
-        window.location.search = urlSearchParams.toString();
+        /**
+         * Remove the query params string and replace the search params.
+         * This behaviour occurs only if the token must be kept 'private',
+         * this will not completely hide the token, but will be removed from
+         * query parameters
+         */
+        if (queryParamExtractor.hideWhenExtracted) {
+          urlSearchParams.delete(queryParamExtractor.extract.token);
+          window.location.search = urlSearchParams.toString();
+        }
 
         /** Return consolidated token */
         return consolidatedToken;
