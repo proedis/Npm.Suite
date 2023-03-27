@@ -17,3 +17,5 @@ export { default as ClientBuilder } from './builder';
 export * from './lib/TokenHandshake/mixin/extractors';
 
 export * from './lib/TokenHandshake/mixin/transporters';
+
+export type { TokenSpecification } from './lib/TokenHandshake/TokenHandshake.types';
