@@ -1,6 +1,6 @@
 {
   "name": "@proedis/react",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "A set of React Hooks, that add UI or Core functionality to your Apps",
   "keywords": [
     "proedis",
@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@proedis/types": "^1.0.5",
-    "@proedis/utils": "^1.0.7",
+    "@proedis/utils": "^1.0.8",
     "qs": "^6.11.0"
   },
   "devDependencies": {

@@ -1,6 +1,6 @@
 {
   "name": "@proedis/react-client",
-  "version": "1.0.1-alpha.5",
+  "version": "1.0.1-alpha.6",
   "description": "Wrapper for @proedis/client repository to use it with React",
   "keywords": [
     "proedis",
@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "@proedis/types": "^1.0.5",
-    "@proedis/utils": "^1.0.7",
+    "@proedis/utils": "^1.0.8",
     "@tanstack/react-query-devtools": "^4.24.6"
   },
   "devDependencies": {
