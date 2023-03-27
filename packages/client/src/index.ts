@@ -14,6 +14,8 @@ export type {
 
 export { default as ClientBuilder } from './builder';
 
+export * from './utils';
+
 export * from './lib/TokenHandshake/mixin/extractors';
 
 export * from './lib/TokenHandshake/mixin/transporters';
