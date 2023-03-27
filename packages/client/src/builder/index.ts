@@ -103,7 +103,7 @@ export default class ClientBuilder<
    * @param extractor
    */
   public withUserData<T extends Serializable>(
-    extractor: ClientSettings<T, StoredData, Tokens>['userDataExtractor']
+    extractor?: ClientSettings<T, StoredData, Tokens>['userDataExtractor']
   ): ClientBuilder<T, StoredData, Tokens> {
     /** Save the extractor */
     this._userDataExtractor = extractor;
