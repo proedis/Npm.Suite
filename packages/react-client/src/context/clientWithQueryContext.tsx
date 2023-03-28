@@ -1,5 +1,8 @@
 import * as React from 'react';
 
+import { plainToInstance } from 'class-transformer';
+import type { ClassConstructor } from 'class-transformer';
+
 import { hasEqualHash, mergeObjects } from '@proedis/utils';
 
 import type { Client } from '@proedis/client';
@@ -51,6 +54,7 @@ export interface ClientWithQueryContextTools<
 
   useClientQuery<R = unknown, QK extends QueryKey = QueryKey>(
     key: QK,
+    transformer?: ClassConstructor<R extends Array<infer U> ? U : R> | undefined,
     requestConfig?: Omit<ClientRequestConfig<T>, 'url'>,
     options?: Omit<UseQueryOptions<R, RequestError, R, QK>, 'queryKey' | 'queryFn' | 'meta'>
   ): UseQueryResult<R, RequestError>;
@@ -125,6 +129,9 @@ interface AsSuspendedComponentOptions<Result, Props extends {}, LoaderProps exte
 
   /** Query options */
   query?: Omit<UseQueryOptions<Result, RequestError, Result, QK>, 'queryKey' | 'queryFn' | 'meta'>;
+
+  /** Apply a transformer to the query result */
+  transformer?: ClassConstructor<Result extends Array<infer U> ? U : Result> | undefined,
 
   /** A wrapper component, used to wrap internal component */
   Wrapper?: SuspendedComponentWrapper<Result, Props>;
@@ -211,6 +218,7 @@ export function createClientWithQueryContext<
   // ----
   function useClientQuery<R = unknown, QK extends QueryKey = QueryKey>(
     key: QK,
+    transformer?: ClassConstructor<R extends Array<infer U> ? U : R> | undefined,
     requestConfig?: Omit<ClientRequestConfig<T>, 'url'>,
     options?: Omit<UseQueryOptions<R, RequestError, R, QK>, 'queryKey' | 'queryFn' | 'meta'>
   ): UseQueryResult<R, RequestError> {
@@ -218,7 +226,8 @@ export function createClientWithQueryContext<
       key,
       {
         ...options,
-        meta: requestConfig
+        meta  : requestConfig,
+        select: (data) => (transformer ? plainToInstance(transformer, data) : data) as R
       }
     );
   }
@@ -346,7 +355,7 @@ export function createClientWithQueryContext<
       const queryKey = typeof key === 'function' ? key(props) : key;
 
       /** Run the useQuery hook */
-      const queryState = useClientQuery(queryKey, requestConfig, options?.query);
+      const queryState = useClientQuery(queryKey, options?.transformer, requestConfig, options?.query);
 
 
       // ----
