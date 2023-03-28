@@ -1,6 +1,6 @@
 {
   "name": "@proedis/react",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "A set of React Hooks, that add UI or Core functionality to your Apps",
   "keywords": [
     "proedis",
