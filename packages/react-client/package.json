@@ -45,8 +45,8 @@
     "reflect-metadata": "^0.1.13"
   },
   "peerDependencies": {
-    "@proedis/client": "1.0.1-alpha.12",
-    "@proedis/react": "1.0.9",
+    "@proedis/client": "^1.0.1-alpha.12",
+    "@proedis/react": "^1.0.10",
     "@tanstack/react-query": "^4.24.6",
     "class-transformer": "^0.5.1",
     "react": "^18.2.0",
