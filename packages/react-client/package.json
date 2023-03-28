@@ -1,6 +1,6 @@
 {
   "name": "@proedis/react-client",
-  "version": "1.0.1-alpha.7",
+  "version": "1.0.1-alpha.8",
   "description": "Wrapper for @proedis/client repository to use it with React",
   "keywords": [
     "proedis",
@@ -41,16 +41,16 @@
     "@proedis/tsconfig": "^1.0.4",
     "@tanstack/react-query": "^4.28.0",
     "class-transformer": "^0.5.1",
-    "reflect-metadata": "^0.1.13",
-    "react": "^18.2.0"
+    "react": "^18.2.0",
+    "reflect-metadata": "^0.1.13"
   },
   "peerDependencies": {
     "@proedis/client": "1.0.1-alpha.12",
     "@proedis/react": "1.0.9",
     "@tanstack/react-query": "^4.24.6",
     "class-transformer": "^0.5.1",
-    "reflect-metadata": "^0.1.13",
-    "react": "^18.2.0"
+    "react": "^18.2.0",
+    "reflect-metadata": "^0.1.13"
   },
   "gitHead": "8cba9bf577350eaf9ee04be523bd47053c9e7495"
 }
