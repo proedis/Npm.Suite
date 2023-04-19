@@ -132,7 +132,7 @@ function createComponentShorthand<Props extends PartialComponentProps, V extends
   const valueIsPropObject = kind_of(value) === 'object';
   const valueIsPrimitiveValue = valueIsString || valueIsNumber || kind_of(value) === 'array';
 
-  /** Check validity of provided value, logging the error only in production */
+  /** Check the validity of provided value, logging the error only in production */
   if (!valueIsReactElement && !valueIsPrimitiveValue && !valueIsPropObject) {
     if (process.env.NODE_ENV !== 'production') {
       console.error(
@@ -224,11 +224,7 @@ function createComponentShorthand<Props extends PartialComponentProps, V extends
 
   /** If provided value is a valid React Element, wrap using Component */
   if (valueIsReactElement) {
-    return (
-      <Component {...props}>
-        {value}
-      </Component>
-    );
+    return React.cloneElement(value as React.ReactElement, props);
   }
 
   /** If the value is a primitive value, or a plain props object, use base Component */
