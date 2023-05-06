@@ -1,6 +1,6 @@
 import naturalCompare from 'natural-compare';
 
-import type { GenericObject } from '@proedis/types';
+import type { AnyObject } from '@proedis/types';
 
 import { getValueAt } from '../../object';
 
@@ -9,7 +9,7 @@ import type ArraySorter from './ArraySorter';
 import type { Comparer, SortDirection, SortOptions } from './types';
 
 
-export default class ArraySorterStep<T extends GenericObject> {
+export default class ArraySorterStep<T extends AnyObject> {
 
   /**
    * When sorting by multiple fields and property, save each
@@ -97,8 +97,11 @@ export default class ArraySorterStep<T extends GenericObject> {
 
     /** Natural string comparing */
     return compareStringCase === 'insensitive'
-      ? naturalCompare(firstItemValue.toString().toLocaleLowerCase(), nextItemValue.toString().toLocaleLowerCase())
-      : naturalCompare(firstItemValue.toString(), nextItemValue.toString());
+      ? naturalCompare(
+        (firstItemValue as string).toString().toLocaleLowerCase(),
+        (nextItemValue as string).toString().toLocaleLowerCase()
+      )
+      : naturalCompare((firstItemValue as string).toString(), (nextItemValue as string).toString());
   }
 
 

@@ -4,8 +4,6 @@
 
 type ObjectKey = string | number | symbol;
 
-export type GenericObject = Record<ObjectKey, unknown>;
-
 export type AnyObject = { [key: string]: any };
 
 

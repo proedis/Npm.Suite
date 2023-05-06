@@ -1,4 +1,4 @@
-import type { GenericObject } from '@proedis/types';
+import type { AnyObject } from '@proedis/types';
 
 import ArraySorterStep from './ArraySorterStep';
 
@@ -10,7 +10,7 @@ import type { Comparer, SortDirection, SortOptions } from './types';
  * class that will enable multiple sorting function
  * for an array of primitive/objects
  */
-export default class ArraySorter<T extends GenericObject> {
+export default class ArraySorter<T extends AnyObject> {
 
 
   /**
