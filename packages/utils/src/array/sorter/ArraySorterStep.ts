@@ -50,8 +50,8 @@ export default class ArraySorterStep<T extends GenericObject> {
     /** Get item value using comparer accessor function */
     const firstItemValue = typeof this._comparer === 'string' ? getValueAt(firstItem, this._comparer) : this._comparer(
       firstItem);
-    const nextItemValue = typeof this._comparer === 'string' ? getValueAt(firstItem, this._comparer) : this._comparer(
-      firstItem);
+    const nextItemValue = typeof this._comparer === 'string' ? getValueAt(nextItem, this._comparer) : this._comparer(
+      nextItem);
     const allNil = firstItemValue == null && nextItemValue == null;
     const anyNil = firstItemValue == null || nextItemValue == null;
 
