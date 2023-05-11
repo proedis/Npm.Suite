@@ -21,9 +21,9 @@ export type ShorthandCollection<Props extends {}> = ShorthandItem<Props & { key:
 
 
 /** A React Component with the create shorthand function */
-export type CreatableComponent<Props extends {}> =
+export type CreatableComponent<Props extends {}, V> =
   & React.FunctionComponent<Props>
-  & { create: CreateComponent<Props> };
+  & { create: CreateComponent<Props, V> };
 
 
 /* --------
@@ -39,8 +39,8 @@ type KeyComputer<Props extends {}> = (props: Props) => React.Key;
 
 
 /** The function that could be used to create the Component */
-type CreateComponent<Props extends {}> = (
-  value: UseShorthandValue<Props>,
+type CreateComponent<Props extends {}, V> = (
+  value: V | UseShorthandValue<Props>,
   options: UseShorthandOptions<Props>
 ) => React.ReactElement<Props> | null;
 
@@ -255,7 +255,7 @@ export function createShorthandFactory<Props extends {}, V extends UseShorthandV
   Component: ShorthandedComponent<Props>,
   mapValueToProps: ShorthandFactoryPropsMapper<Props, V>,
   computeComponentKey?: KeyComputer<Props>
-): CreateComponent<Props> {
+): CreateComponent<Props, V> {
   return function createComponent(value: UseShorthandValue<Props>, options: UseShorthandOptions<Props>) {
     return createComponentShorthand(Component, mapValueToProps, computeComponentKey, value, options);
   };
@@ -274,13 +274,13 @@ export function creatableComponent<Props extends {}, V extends UseShorthandValue
   Component: React.FunctionComponent<Props>,
   mapValueToProps: ShorthandFactoryPropsMapper<Props, V>,
   computeComponentKey?: KeyComputer<Props>
-): CreatableComponent<Props> {
+): CreatableComponent<Props, V> {
 
   /** Attach create method to the provided Component function */
-  (Component as CreatableComponent<Props>).create =
+  (Component as CreatableComponent<Props, V>).create =
     createShorthandFactory<Props, V>(Component, mapValueToProps, computeComponentKey);
 
   /** Return the Component */
-  return Component as CreatableComponent<Props>;
+  return Component as CreatableComponent<Props, V>;
 
 }
