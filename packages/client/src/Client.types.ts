@@ -19,6 +19,9 @@ export interface ClientSettings<UserData extends Serializable, StoredData extend
   /** Define common api endpoint to dialogate with authentication server */
   api?: ClientApi<UserData, StoredData, Tokens>;
 
+  /** Set of extra settings that does not belong to any primary client configuration sections */
+  extras?: ClientExtras<UserData, StoredData, Tokens>;
+
   /** Configure the Logger Library */
   logger?: LoggerOptions;
 
@@ -37,6 +40,18 @@ export interface ClientSettings<UserData extends Serializable, StoredData extend
     authAction: AuthActionType,
     client: Client<UserData, StoredData, Tokens>
   ) => UserData>;
+}
+
+
+/* --------
+ * Initialization Properties
+ * -------- */
+export interface ClientExtras<UserData extends Serializable, StoredData extends Serializable, Tokens extends string> {
+  /**
+   * A function that will be executed before the first client initialization
+   * flow to check if current authentication must be invalidated
+   */
+  invalidateExistingAuth?: (client: Client<UserData, StoredData, Tokens>) => boolean;
 }
 
 

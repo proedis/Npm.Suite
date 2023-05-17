@@ -150,6 +150,13 @@ export default class Client<UserData extends Serializable, StoredData extends Se
     /** Create the deferred promise to use to load user data */
     this._clientInitializationDeferred = new Deferred<UserData | null>();
 
+    /** Check if current auth and state must be invalidated, using initialization defined function */
+    if (typeof this._settings.extras?.invalidateExistingAuth === 'function') {
+      if (this._settings.extras.invalidateExistingAuth(this)) {
+        this.flushAuth();
+      }
+    }
+
     /** Assert the client is loading */
     if (this.state.value.isLoaded) {
       return this.state.value.userData;
@@ -308,7 +315,7 @@ export default class Client<UserData extends Serializable, StoredData extends Se
     /** Assert the Api has been defined */
     if (!this._settings.api?.[api]) {
       throw new Error(
-        'Could not use login without configuring the API in \'config.api.login\' field'
+        `Could not use '${api}' without configuring the API in 'config.api.${api}' field`
       );
     }
 
