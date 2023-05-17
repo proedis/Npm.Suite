@@ -2,10 +2,10 @@ import get from 'get-value';
 
 import isObject from './isObject';
 
-import type { GenericObject, ObjectPath, ValueAtPath } from '@proedis/types';
+import type { AnyObject, ObjectPath, ValueAtPath } from '@proedis/types';
 
 
-export default function getValueAt<Values extends GenericObject, Path extends ObjectPath<Values> = ObjectPath<Values>>(
+export default function getValueAt<Values extends AnyObject, Path extends ObjectPath<Values> = ObjectPath<Values>>(
   values: Values,
   path: Path
 ): ValueAtPath<Values, Path> | null {
