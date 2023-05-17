@@ -482,9 +482,16 @@ export default class Client<UserData extends Serializable, StoredData extends Se
 
 
   /**
-   * Remove all references to client authorization from current Client instance
+   * Remove all references to client authorization from the current Client instance,
+   * and additionally remove all the tokens loaded
    */
   public flushAuth() {
+    /** Flush the authorization and clear all tokens */
+    this._tokensHandshake.forEach((handshake) => {
+      handshake.clear();
+    });
+
+    /** Remove user data object from current client state */
     this._unconditionallySetState(null);
   }
 
@@ -502,7 +509,7 @@ export default class Client<UserData extends Serializable, StoredData extends Se
 
   /**
    * Perform the login action.
-   * After login request has been resolved successfully, the client
+   * After a login request has been resolved successfully, the client
    * will try to extract tokens and user data from the response,
    * after it will reload the state
    * @param data
@@ -524,7 +531,7 @@ export default class Client<UserData extends Serializable, StoredData extends Se
 
   /**
    * Perform the signup action.
-   * After signup request has been resolved successfully, the client
+   * After a signup request has been resolved successfully, the client
    * will try to extract tokens and user data from the response,
    * after it will reload the state
    * @param data
@@ -555,18 +562,13 @@ export default class Client<UserData extends Serializable, StoredData extends Se
       await this.request(this._builtInApi('logout')());
     }
 
-    /** Flush the authorization and clear all tokens */
-    this._tokensHandshake.forEach((handshake) => {
-      handshake.clear();
-    });
-
     /** Flush the client authorization */
     this.flushAuth();
   }
 
 
   /**
-   * Use the internal built in api to reload user data
+   * Use the internal built-in api to reload user data
    * from backend server, and the update the internal state.
    * Pay attention, if the server responds with an error,
    * or if the user data don't exist, the client will flush current authorization

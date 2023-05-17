@@ -121,12 +121,13 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
   private _flushToken(error?: RequestError | null): RequestError {
     this._handshakeLogger.debug('Flushing Token');
 
-    /** Clear the tokens */
-    this.clear();
-
-    /** Flush client auth based on configuration */
+    /** If the current token must invalidate the entire client authentication, call parent function */
     if (this._configuration.getOrDefault('invalidateAuthOnGrantError', 'boolean', true)) {
       this._client.flushAuth();
+    }
+    /** Else, clear only current token */
+    else {
+      this.clear();
     }
 
     /** Return error that could be thrown */
@@ -185,7 +186,7 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
 
         /**
          * Remove the query params string and replace the search params.
-         * This behaviour occurs only if the token must be kept 'private',
+         * This behavior occurs only if the token must be kept 'private',
          * this will not completely hide the token, but will be removed from
          * query parameters
          */
@@ -314,7 +315,7 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
 
     /** If a custom function exists, use it to validate token */
     if (checkValidity) {
-      this._handshakeLogger.debug('Using custom defined function to check token validity');
+      this._handshakeLogger.debug('Using the custom function to check token validity');
       return checkValidity(specification, this._client);
     }
 
