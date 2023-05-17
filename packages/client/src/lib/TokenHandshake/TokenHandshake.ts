@@ -1,4 +1,4 @@
-import { Deferred, isObject, isValidString, will } from '@proedis/utils';
+import { Deferred, isBrowser, isObject, isValidString, will } from '@proedis/utils';
 
 import type { Serializable } from '@proedis/types';
 
@@ -166,7 +166,7 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
     const queryParamExtractor = tokenExtractors
       .find((extractor) => extractor.type === 'query-param') as TokenQueryParamExtractor | undefined;
 
-    if (queryParamExtractor && window.location.search) {
+    if (queryParamExtractor && isBrowser) {
       /** Transform current search into URLSearchParams instance and get value */
       const urlSearchParams = new URLSearchParams(window.location.search);
 
