@@ -1,5 +1,7 @@
 import ClientBuilder from '../../builder';
 
+import { isBrowser, isValidString } from '@proedis/utils';
+
 import {
   bearerTransporter,
   headerTransporter,
@@ -95,6 +97,20 @@ export default function GeaAuthenticatedClient(name: string) {
     .withDefaults({
       useTokens: {
         accessToken: true
+      }
+    })
+
+    .withExtras({
+      invalidateExistingAuth: () => {
+        /** Invalidating Client Auth must be evaluated only if it is running in browser */
+        if (!isBrowser) {
+          return false;
+        }
+
+        /** The client must invalidate current auth if the gea_ticket query parameters is present */
+        const urlSearchParams = !!window.location.search && new URLSearchParams(window.location.search);
+
+        return urlSearchParams && urlSearchParams.has('gea_ticket') && isValidString(urlSearchParams.get('gea_ticket'));
       }
     });
 }

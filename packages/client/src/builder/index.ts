@@ -3,7 +3,7 @@ import type { AxiosRequestConfig } from 'axios';
 import type { Serializable } from '@proedis/types';
 
 import Client from '../Client';
-import type { ClientApi, ClientRequestConfig, ServerData, ClientSettings } from '../Client.types';
+import type { ClientApi, ClientRequestConfig, ServerData, ClientSettings, ClientExtras } from '../Client.types';
 
 import type { LoggerOptions, LogLevel } from '../lib/Logger/Logger.types';
 import type { EnvironmentDependentOptions } from '../lib/Options/Options.types';
@@ -45,6 +45,8 @@ export default class ClientBuilder<
   private _axiosConfig: Partial<AxiosRequestConfig> | undefined;
 
   private _userDataExtractor: ClientSettings<UserData, StoredData, Tokens>['userDataExtractor'];
+
+  private _extras: ClientExtras<UserData, StoredData, Tokens> | undefined;
 
 
   // ----
@@ -213,6 +215,17 @@ export default class ClientBuilder<
     configure: Builder<Partial<AxiosRequestConfig> | undefined>
   ): ClientBuilder<UserData, StoredData, Tokens> {
     this._axiosConfig = typeof configure === 'function' ? configure(this._axiosConfig) : configure;
+    return this;
+  }
+
+
+  /**
+   * Set the Client Extras object
+   * @param extras
+   */
+  public withExtras(extras: ClientExtras<UserData, StoredData, Tokens> | undefined): ClientBuilder<UserData, StoredData, Tokens> {
+    /** Replace the internal extras object with new one */
+    this._extras = extras;
     return this;
   }
 
