@@ -1,7 +1,7 @@
 import type { Serializable } from '@proedis/types';
 
 import type Client from '../../Client';
-import type { ClientRequest } from '../../Client.types';
+import type { NonTransformableClientRequest } from '../../Client.types';
 
 import type { StoragePersistency } from '../Storage/Storage';
 
@@ -26,7 +26,7 @@ export interface TokenHandshakeConfiguration<
   extractors?: TokenExtractor<any>[];
 
   /** Grant request configuration */
-  grant?: ClientRequest<UserData, StoredData, Tokens>;
+  grant?: NonTransformableClientRequest<UserData, StoredData, Tokens>;
 
   /** Set if client must invalidate auth on grant error */
   invalidateAuthOnGrantError?: boolean;

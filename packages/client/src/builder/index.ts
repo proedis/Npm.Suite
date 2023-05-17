@@ -3,7 +3,13 @@ import type { AxiosRequestConfig } from 'axios';
 import type { Serializable } from '@proedis/types';
 
 import Client from '../Client';
-import type { ClientApi, ClientRequestConfig, ServerData, ClientSettings, ClientExtras } from '../Client.types';
+import type {
+  ClientApi,
+  NonTransformableClientRequestConfig,
+  ServerData,
+  ClientSettings,
+  ClientExtras
+} from '../Client.types';
 
 import type { LoggerOptions, LogLevel } from '../lib/Logger/Logger.types';
 import type { EnvironmentDependentOptions } from '../lib/Options/Options.types';
@@ -40,7 +46,7 @@ export default class ClientBuilder<
 
   private _api: ClientApi<UserData, StoredData, Tokens> = {};
 
-  private _defaultRequest: ClientRequestConfig<Tokens> | undefined;
+  private _defaultRequest: NonTransformableClientRequestConfig<Tokens> | undefined;
 
   private _axiosConfig: Partial<AxiosRequestConfig> | undefined;
 
@@ -195,11 +201,13 @@ export default class ClientBuilder<
 
   /**
    * Set the client defaults param.
-   * If defaults params have already been set, they will be
+   * If default params have already been set, they will be
    * passed to the option function to let the user edit them
    * @param configure
    */
-  public withDefaults(configure: Builder<ClientRequestConfig<Tokens> | undefined>): ClientBuilder<UserData, StoredData, Tokens> {
+  public withDefaults(
+    configure: Builder<NonTransformableClientRequestConfig<Tokens> | undefined>
+  ): ClientBuilder<UserData, StoredData, Tokens> {
     this._defaultRequest = typeof configure === 'function' ? configure(this._defaultRequest) : configure;
     return this;
   }
@@ -207,7 +215,7 @@ export default class ClientBuilder<
 
   /**
    * Set the Axios defaults param.
-   * If defaults params have already been set, they will be
+   * If default params have already been set, they will be
    * passed to the option function to let the user edit them
    * @param configure
    */

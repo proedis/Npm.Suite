@@ -1,8 +1,5 @@
 import * as React from 'react';
 
-import { plainToInstance } from 'class-transformer';
-import type { ClassConstructor } from 'class-transformer';
-
 import { hasEqualHash, mergeObjects } from '@proedis/utils';
 
 import type { Client } from '@proedis/client';
@@ -44,15 +41,14 @@ export interface ClientWithQueryContextTools<
 
   useClientQuery<R = unknown>(
     key: QueryClientKey,
-    transformer?: ClassConstructor<R extends Array<infer U> ? U : R> | undefined,
-    requestConfig?: Omit<ClientRequestConfig<T>, 'url'>,
+    requestConfig?: Omit<ClientRequestConfig<T, R>, 'url'>,
     options?: Omit<UseQueryOptions<R, RequestError, R, QueryClientKey>, 'queryKey' | 'queryFn' | 'meta'>
   ): UseQueryResult<R, RequestError>;
 
   useClientMutation<D extends { [key: string]: any } = any, R = void, MK extends MutationKey = MutationKey>(
     key: MK,
-    method: ClientRequestConfig<T>['method'] | ((variables: D) => ClientRequestConfig<T>['method']),
-    requestConfig?: (variables: D) => Omit<ClientRequestConfig<T>, 'url' | 'method'>,
+    method: ClientRequestConfig<T, R>['method'] | ((variables: D) => ClientRequestConfig<T, R>['method']),
+    requestConfig?: (variables: D) => Omit<ClientRequestConfig<T, R>, 'url' | 'method'>,
     options?: Omit<UseMutationOptions<R, RequestError, D, MK>, 'mutationKey' | 'mutationFn'>
   ): UseMutationResult<R, RequestError, D, MK>;
 
@@ -148,19 +144,17 @@ export function createClientWithQueryContext<UD extends Serializable, SD extends
   /* eslint-disable @typescript-eslint/indent */
   function useClientQuery<R = unknown>(
     key: (string | number)[],
-    transformer?: ClassConstructor<R extends Array<infer U> ? U : R> | undefined,
-    requestConfig?: Omit<ClientRequestConfig<T>, 'url'>,
+    requestConfig?: Omit<ClientRequestConfig<T, R>, 'url'>,
     options?: Omit<UseQueryOptions<R, RequestError, R, (string | number)[]>, 'queryKey' | 'queryFn' | 'meta'>
   ): UseQueryResult<R, RequestError> {
     return useQuery<R, RequestError, R, (string | number)[]>(
       [ ...key, requestConfig as any ],
       {
         ...options,
-        meta  : {
+        meta: {
           url: key.join('/'),
           ...requestConfig
-        },
-        select: (data) => (transformer ? plainToInstance(transformer, data) : data) as R
+        }
       }
     );
   }
@@ -173,8 +167,8 @@ export function createClientWithQueryContext<UD extends Serializable, SD extends
   // ----
   function useClientMutation<D extends { [key: string]: any } = any, R = void, MK extends MutationKey = MutationKey>(
     key: MK,
-    method: ClientRequestConfig<T>['method'] | ((variables: D) => ClientRequestConfig<T>['method']),
-    requestConfig?: (variables: D) => Omit<ClientRequestConfig<T>, 'url' | 'method'>,
+    method: ClientRequestConfig<T, R>['method'] | ((variables: D) => ClientRequestConfig<T, R>['method']),
+    requestConfig?: (variables: D) => Omit<ClientRequestConfig<T, R>, 'url' | 'method'>,
     options?: Omit<UseMutationOptions<R, RequestError, D, MK>, 'mutationKey' | 'mutationFn'>
   ): UseMutationResult<R, RequestError, D, MK> {
     return useMutation<R, RequestError, D, MK>({
@@ -182,7 +176,7 @@ export function createClientWithQueryContext<UD extends Serializable, SD extends
       mutationKey: key,
       mutationFn : (variables) => {
         /** Build the client request config to use with this mutation */
-        const clientRequestConfig: ClientRequestConfig<T> = {
+        const clientRequestConfig: ClientRequestConfig<T, R> = {
           data: variables,
           ...(typeof requestConfig === 'function' ? requestConfig(variables) : {}),
           url   : key.join('/'),

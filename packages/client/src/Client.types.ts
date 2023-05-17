@@ -1,5 +1,7 @@
 import type { AxiosRequestConfig, Method as RequestMethod } from 'axios';
 
+import type { ClassConstructor } from 'class-transformer';
+
 import type { AnyObject, Serializable } from '@proedis/types';
 
 import type { LoggerOptions } from './lib/Logger/Logger.types';
@@ -60,16 +62,16 @@ export interface ClientExtras<UserData extends Serializable, StoredData extends 
  * -------- */
 export interface ClientApi<UserData extends Serializable, StoredData extends Serializable, Tokens extends string> {
   /** Get user data from endpoint server */
-  getUserData?: () => ClientRequest<UserData, StoredData, Tokens>;
+  getUserData?: <Response>() => ClientRequest<UserData, StoredData, Tokens, Response>;
 
   /** Login using arbitrary data */
-  login?: (data: AnyObject) => ClientRequest<UserData, StoredData, Tokens>;
+  login?: <Response>(data: AnyObject) => ClientRequest<UserData, StoredData, Tokens, Response>;
 
   /** Logout the client */
-  logout?: () => ClientRequest<UserData, StoredData, Tokens>;
+  logout?: <Response>() => ClientRequest<UserData, StoredData, Tokens, Response>;
 
   /** Signup using arbitrary data */
-  signup?: (data: AnyObject) => ClientRequest<UserData, StoredData, Tokens>;
+  signup?: <Response>(data: AnyObject) => ClientRequest<UserData, StoredData, Tokens, Response>;
 }
 
 
@@ -81,7 +83,7 @@ interface ClientRequestSettings<Tokens extends string> {
   axiosConfig?: Partial<AxiosRequestConfig>;
 
   /** Set defaults request settings */
-  defaults?: ClientRequestConfig<Tokens>;
+  defaults?: NonTransformableClientRequestConfig<Tokens>;
 
   /** Set server connection data */
   server: EnvironmentDependentOptions<ServerData>;
@@ -144,11 +146,32 @@ export type ClientState<UserData> =
 /* --------
  * Base client Request Configuration Object
  * -------- */
-export type ClientRequest<UserData extends Serializable, StoredData extends Serializable, Tokens extends string> =
-  | ClientRequestConfig<Tokens>
-  | ((client: Client<UserData, StoredData, Tokens>) => ClientRequestConfig<Tokens>);
+export type ClientRequest<
+  UserData extends Serializable,
+  StoredData extends Serializable,
+  Tokens extends string,
+  Response
+> =
+  | ClientRequestConfig<Tokens, Response>
+  | ((client: Client<UserData, StoredData, Tokens>) => ClientRequestConfig<Tokens, Response>);
 
-export interface ClientRequestConfig<Tokens extends string> {
+
+export type NonTransformableClientRequest<
+  UserData extends Serializable,
+  StoredData extends Serializable,
+  Tokens extends string
+> =
+  | NonTransformableClientRequestConfig<Tokens>
+  | ((client: Client<UserData, StoredData, Tokens>) => NonTransformableClientRequestConfig<Tokens>);
+
+
+export interface ClientRequestConfig<Tokens extends string, Response> extends NonTransformableClientRequestConfig<Tokens> {
+  /** Class constructor to use to transform response into instance using class-transformer */
+  transformer?: ClassConstructor<Response extends Array<infer U> ? U : Response>;
+}
+
+
+export interface NonTransformableClientRequestConfig<Tokens extends string> {
   /** The endpoint url to call */
   url?: string;
 
@@ -162,7 +185,7 @@ export interface ClientRequestConfig<Tokens extends string> {
   params?: { [key: string]: any };
 
   /** Override Axios Request config for this specific request */
-  requestConfig?: Omit<AxiosRequestConfig, Exclude<keyof ClientRequestConfig<Tokens>, 'requestConfig'>>;
+  requestConfig?: Omit<AxiosRequestConfig, Exclude<keyof ClientRequestConfig<Tokens, Response>, 'requestConfig'>>;
 
   /** Append token on request */
   useTokens?: Partial<Record<Tokens, UseTokenTransporter>>;

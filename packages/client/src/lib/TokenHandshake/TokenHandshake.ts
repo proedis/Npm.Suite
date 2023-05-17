@@ -227,7 +227,7 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
       this._handshakeLogger.debug('Using grant request to retrieve token');
 
       /** Compile the grant request before send to the client to remove the current token from request */
-      const compiledRequest = this._client.compileRequest(grantRequest);
+      const compiledRequest = this._client.compileRequest<TokenSpecification>(grantRequest);
 
       /** Remove current token from useToken object */
       if (isObject(compiledRequest.useTokens)) {

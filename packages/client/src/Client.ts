@@ -1,6 +1,8 @@
 import axios from 'axios';
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse, GenericAbortSignal } from 'axios';
 
+import { plainToInstance } from 'class-transformer';
+
 import { Observable } from 'rxjs';
 
 import type { AnyObject, Serializable } from '@proedis/types';
@@ -20,7 +22,8 @@ import type {
   ClientSettings,
   ClientState,
   ClientRequest,
-  ClientRequestConfig
+  ClientRequestConfig,
+  NonTransformableClientRequestConfig
 } from './Client.types';
 
 import type { TokenSpecification } from './lib/TokenHandshake/TokenHandshake.types';
@@ -71,7 +74,7 @@ export default class Client<UserData extends Serializable, StoredData extends Se
 
   private _clientInitializationDeferred: Deferred<UserData | null> | undefined;
 
-  private readonly _defaultsRequestConfig: ClientRequestConfig<Tokens> | undefined;
+  private readonly _defaultsRequestConfig: NonTransformableClientRequestConfig<Tokens> | undefined;
 
   private readonly _initLogger: Logger;
 
@@ -362,8 +365,8 @@ export default class Client<UserData extends Serializable, StoredData extends Se
    * the request object if is plain
    * @param config
    */
-  public compileRequest(config: ClientRequest<UserData, StoredData, Tokens>): ClientRequestConfig<Tokens> {
-    return mergeObjects<ClientRequestConfig<Tokens>>(
+  public compileRequest<R>(config: ClientRequest<UserData, StoredData, Tokens, R>): ClientRequestConfig<Tokens, R> {
+    return mergeObjects<ClientRequestConfig<Tokens, R>>(
       this._defaultsRequestConfig || {},
       typeof config === 'function' ? config(this) : config
     );
@@ -381,7 +384,7 @@ export default class Client<UserData extends Serializable, StoredData extends Se
    * @param abortSignal
    */
   public async request<Response>(
-    config: ClientRequest<UserData, StoredData, Tokens>,
+    config: ClientRequest<UserData, StoredData, Tokens, Response>,
     abortSignal?: GenericAbortSignal
   ): Promise<Response> {
     /** Assert the client has been loaded */
@@ -399,6 +402,7 @@ export default class Client<UserData extends Serializable, StoredData extends Se
       data,
       params,
       requestConfig,
+      transformer,
       useTokens
     } = compiledRequest;
 
@@ -437,7 +441,9 @@ export default class Client<UserData extends Serializable, StoredData extends Se
 
       this._requestLogger.debug(`Received response from ${url}`, response);
 
-      return response.data;
+      return transformer
+        ? plainToInstance(transformer, response.data) as Response
+        : response.data;
     }
     catch (error) {
       this._requestLogger.error(`Error received from ${url}`, error);
@@ -457,7 +463,7 @@ export default class Client<UserData extends Serializable, StoredData extends Se
    * @param abortSignal
    */
   public async safeRequest<Response>(
-    config: ClientRequest<UserData, StoredData, Tokens>,
+    config: ClientRequest<UserData, StoredData, Tokens, Response>,
     abortSignal?: GenericAbortSignal
   ): Promise<[ RequestError | null, Response ]> {
     const [ error, response ] = await will(this.request<Response>(config, abortSignal));
@@ -479,7 +485,7 @@ export default class Client<UserData extends Serializable, StoredData extends Se
    * that could be used to subscribe to the result
    * @param config
    */
-  public request$<Response>(config: ClientRequest<UserData, StoredData, Tokens>): Observable<Response> {
+  public request$<Response>(config: ClientRequest<UserData, StoredData, Tokens, Response>): Observable<Response> {
     return new Observable<Response>((observer) => (
       new RequestSubscriber<Response>(observer, (abortController) => (
         this.request(config, abortController.signal)
