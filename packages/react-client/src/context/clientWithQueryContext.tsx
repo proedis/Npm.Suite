@@ -1,6 +1,8 @@
 import * as React from 'react';
 
-import { hasEqualHash, mergeObjects } from '@proedis/utils';
+import { contextBuilder } from '@proedis/react';
+
+import { hasEqualHash, mergeObjects, isBrowser } from '@proedis/utils';
 
 import type { Client } from '@proedis/client';
 import type { ClientRequestConfig, RequestError } from '@proedis/client';
@@ -31,14 +33,7 @@ import type { ClientContextTools } from './clientContext';
 /* --------
  * Exporting Types
  * -------- */
-export interface ClientWithQueryContextTools<
-  UD extends Serializable,
-  SD extends Serializable,
-  T extends string
-> extends ClientContextTools<UD, SD, T> {
-
-  ClientWithQueryProvider: React.FunctionComponent<React.PropsWithChildren>;
-
+export interface ClientQueryHooks<T extends string> extends Pick<ClientContextTools<any, any, T>, 'useClient'> {
   useClientQuery<R = unknown>(
     key: QueryClientKey,
     requestConfig?: Omit<ClientRequestConfig<T, R>, 'url'>,
@@ -51,7 +46,14 @@ export interface ClientWithQueryContextTools<
     requestConfig?: (variables: D) => Omit<ClientRequestConfig<T, R>, 'url' | 'method'>,
     options?: Omit<UseMutationOptions<R, RequestError, D, MK>, 'mutationKey' | 'mutationFn'>
   ): UseMutationResult<R, RequestError, D, MK>;
+}
 
+export interface ClientWithQueryContextTools<
+  UD extends Serializable,
+  SD extends Serializable,
+  T extends string
+> extends ClientContextTools<UD, SD, T>, Omit<ClientQueryHooks<T>, 'useClient'> {
+  ClientWithQueryProvider: React.FunctionComponent<React.PropsWithChildren>;
 }
 
 
@@ -67,6 +69,15 @@ interface ClientWithQueryContextConfiguration {
 
 /** The client query type restricted to string | number array */
 type QueryClientKey = (string | number)[];
+
+
+/* --------
+ * Client Hooks Provider
+ * -------- */
+const {
+  useClientQueryHooks,
+  ClientQueryHooksProvider
+} = contextBuilder<ClientQueryHooks<any>, 'ClientQueryHooks'>('ClientQueryHooks');
 
 
 /* --------
@@ -121,24 +132,6 @@ export function createClientWithQueryContext<UD extends Serializable, SD extends
 
 
   // ----
-  // Create the ClientWithQueryProvider
-  // ----
-  const ClientWithQueryProvider: React.FunctionComponent<React.PropsWithChildren> = (props) => {
-
-    /** Extract children from provided props */
-    const { children } = props;
-
-    /** Wrap the query provider using custom query client */
-    return (
-      <QueryClientProvider client={queryClient}>
-        {children}
-        <ReactQueryDevtools position={'bottom-right'} />
-      </QueryClientProvider>
-    );
-  };
-
-
-  // ----
   // Create the useClientQuery helper
   // ----
   /* eslint-disable @typescript-eslint/indent */
@@ -190,6 +183,31 @@ export function createClientWithQueryContext<UD extends Serializable, SD extends
 
 
   // ----
+  // Create the ClientWithQueryProvider
+  // ----
+  const ClientWithQueryProvider: React.FunctionComponent<React.PropsWithChildren> = (props) => {
+
+    /** Extract the base Context Provider */
+    const { ClientProvider } = baseContext;
+
+    /** Extract children from provided props */
+    const { children } = props;
+
+    /** Wrap the query provider using custom query client */
+    return (
+      <ClientProvider>
+        <QueryClientProvider client={queryClient}>
+          <ClientQueryHooksProvider value={{ useClientQuery, useClientMutation, useClient: baseContext.useClient }}>
+            {children}
+          </ClientQueryHooksProvider>
+          {isBrowser && <ReactQueryDevtools position={'bottom-right'} />}
+        </QueryClientProvider>
+      </ClientProvider>
+    );
+  };
+
+
+  // ----
   // Return built context
   // ----
   return {
@@ -200,3 +218,5 @@ export function createClientWithQueryContext<UD extends Serializable, SD extends
   };
 
 }
+
+export { useClientQueryHooks };

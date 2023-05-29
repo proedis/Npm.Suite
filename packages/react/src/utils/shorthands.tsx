@@ -16,6 +16,7 @@ import { isNil } from '@proedis/utils';
  * This type could be used in type declaration
  * to set a prop as an item shorthand generator
  */
+export type ShorthandContent = React.ReactNode;
 export type ShorthandItem<Props extends {}> = React.ReactNode | Props;
 export type ShorthandCollection<Props extends {}> = ShorthandItem<Props & { key: React.Key }>[];
 
@@ -50,7 +51,7 @@ type UseShorthandValue<Props extends {}> = React.ReactNode | Props;
 
 
 /** Set of options that could be used while using the 'create' shorthand method */
-interface UseShorthandOptions<Props extends {}> {
+export interface UseShorthandOptions<Props extends {}> {
   /** Choose if method should auto generate the component key in iteration */
   autoGenerateKey: boolean;
 
@@ -283,4 +284,21 @@ export function creatableComponent<Props extends {}, V extends UseShorthandValue
   /** Return the Component */
   return Component as CreatableComponent<Props, V>;
 
+}
+
+
+/* --------
+ * Render Shorthand Content
+ * -------- */
+export function renderShorthandContent({ children, content }: {
+  children?: React.ReactNode,
+  content?: ShorthandContent
+}) {
+  /** Render children if defined */
+  if (!isNil(children) && Array.isArray(children) && children.length > 0) {
+    return children;
+  }
+
+  /** Fallback to content */
+  return content;
 }

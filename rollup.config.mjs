@@ -8,6 +8,7 @@ import { nodeResolve } from '@rollup/plugin-node-resolve';
 import del from 'rollup-plugin-delete';
 import commonjs from '@rollup/plugin-commonjs';
 import typescript from 'rollup-plugin-typescript2';
+import json from '@rollup/plugin-json';
 
 import glob from 'fast-glob';
 
@@ -96,6 +97,8 @@ const buildConfiguration = defineConfig({
     nodeResolve(),
     // Compile using typescript
     typescript(),
+    // Enable the JSON Plugin
+    json(),
     // Enable CommonJS output
     commonjs(),
     // Build the types
