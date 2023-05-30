@@ -33,9 +33,9 @@
   "dependencies": {
     "@fortawesome/fontawesome-common-types": "^6.4.0",
     "@fortawesome/react-fontawesome": "^0.2.0",
-    "@proedis/react": "1.1.3",
+    "@proedis/react": "1.1.4",
     "@proedis/types": "1.0.6",
-    "@proedis/utils": "1.1.2",
+    "@proedis/utils": "1.1.3",
     "@types/react-beautiful-dnd": "^13.1.4",
     "@types/react-window": "^1.8.5",
     "@types/rfdc": "^1.2.0",
