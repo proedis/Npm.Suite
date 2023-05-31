@@ -208,8 +208,16 @@ export default class Client<UserData extends Serializable, StoredData extends Se
 
     this._initLogger.info(`AxiosInstance will be created using BaseURL ${urlParts}`);
 
+    /**
+     * In some system, the Axios module will be imported using 'default', try to assert the create function exists
+     * Take this code as an experimental work-around
+     */
+    const createAxios = typeof (axios as unknown as { default?: typeof axios }).default?.create === 'function'
+      ? (axios as unknown as { default?: typeof axios }).default!.create
+      : axios.create;
+
     /** Return the Axios Instance */
-    return axios.create({
+    return createAxios({
       ...settings.axiosConfig,
       baseURL       : urlParts,
       timeout       : serverSettings.getOrDefault('timeout', 'number', 30_000),
