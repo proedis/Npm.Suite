@@ -56,8 +56,12 @@ export default class Storage<Data extends Serializable> extends ClientSubject<Da
 
     /** Create the initial function to resolve the deferred object and complete the process */
     const initAndResolve = (data: Data): Data => {
-      this._initDeferred?.resolve(data);
-      this._initDeferred = undefined;
+      /** Resolve the initDeferred object */
+      if (this._initDeferred) {
+        this._initDeferred.resolve(data);
+        this._initDeferred = undefined;
+      }
+      /** Complete the initialization process of the Subject */
       this._initializeSubject(data);
       return data;
     };
