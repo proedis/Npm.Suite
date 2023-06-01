@@ -1,6 +1,6 @@
 {
   "name": "@proedis/mantine",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A set of Utilities / Components and Functions to use with Mantine UI",
   "keywords": [
     "proedis",
@@ -33,9 +33,9 @@
   "dependencies": {
     "@fortawesome/fontawesome-common-types": "^6.4.0",
     "@fortawesome/react-fontawesome": "^0.2.0",
-    "@proedis/react": "1.1.5",
+    "@proedis/react": "1.1.6",
     "@proedis/types": "1.0.7",
-    "@proedis/utils": "1.1.4",
+    "@proedis/utils": "1.1.5",
     "@types/react-beautiful-dnd": "^13.1.4",
     "@types/react-window": "^1.8.5",
     "@types/rfdc": "^1.2.0",
