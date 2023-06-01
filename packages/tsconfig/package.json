@@ -1,6 +1,6 @@
 {
   "name": "@proedis/tsconfig",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "description": "Proedis TypeScript configuration files",
   "keywords": [
     "proedis",
