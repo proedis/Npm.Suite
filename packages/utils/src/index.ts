@@ -6,6 +6,8 @@ export * from './generics';
 
 export * from './guard';
 
+export * from './modules';
+
 export * from './object';
 
 export * from './promise';
