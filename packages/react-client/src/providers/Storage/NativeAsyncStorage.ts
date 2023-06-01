@@ -1,19 +1,8 @@
-import AsyncStorageModule from '@react-native-async-storage/async-storage';
+import type AsyncStorageModule from '@react-native-async-storage/async-storage';
 
 import { isValidString } from '@proedis/utils';
 
 import type { StorageApi } from '@proedis/client';
-
-
-/**
- * In some system, the AsyncStorage module will be imported using 'default', try to assert the create function exists
- * Take this code as an experimental work-around
- */
-const AsyncStorage = typeof (AsyncStorageModule as {
-  default?: typeof AsyncStorageModule
-}).default?.getItem === 'function'
-  ? (AsyncStorageModule as unknown as { default: typeof AsyncStorageModule }).default
-  : AsyncStorageModule;
 
 
 /**
@@ -27,6 +16,20 @@ export default class NativeAsyncStorage implements StorageApi {
   public name: string = 'ReactNativeStorage';
 
 
+  public asyncStorage: typeof AsyncStorageModule = (() => {
+    /** Load the Module using the Require function */
+    const ASM = require('@react-native-async-storage/async-storage');
+
+    /**
+     * In some system, the AsyncStorage module will be imported using 'default', try to assert the create function exists
+     * Take this code as an experimental work-around
+     */
+    return typeof (ASM as { default?: typeof AsyncStorageModule }).default?.getItem === 'function'
+      ? (ASM as unknown as { default: typeof AsyncStorageModule }).default
+      : ASM;
+  })();
+
+
   private getKey(key: string): string {
     return key.charAt(0) === '@' ? key : `@${key}`;
   }
@@ -34,7 +37,7 @@ export default class NativeAsyncStorage implements StorageApi {
 
   public async get<T>(key: string, alternative?: any): Promise<T> {
     /** Load data from AsyncStorage */
-    const data = await AsyncStorage.getItem(this.getKey(key));
+    const data = await this.asyncStorage.getItem(this.getKey(key));
 
     /** If retrieved data is not a valid string, return alternative */
     if (!isValidString(data)) {
@@ -64,12 +67,12 @@ export default class NativeAsyncStorage implements StorageApi {
 
     /** If no data exists, clear the value */
     if (data == null) {
-      await AsyncStorage.removeItem(storageKey);
+      await this.asyncStorage.removeItem(storageKey);
       return;
     }
 
     /** Store the new value */
-    await AsyncStorage.setItem(storageKey, JSON.stringify(data));
+    await this.asyncStorage.setItem(storageKey, JSON.stringify(data));
   }
 
 }
