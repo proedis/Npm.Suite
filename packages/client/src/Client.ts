@@ -14,6 +14,8 @@ import Options from './lib/Options/Options';
 import Storage from './lib/Storage/Storage';
 import TokenHandshake from './lib/TokenHandshake/TokenHandshake';
 
+import { BrowserStorageProvider } from './providers';
+
 import RequestError from './Client.RequestError';
 
 import type {
@@ -23,6 +25,7 @@ import type {
   ClientState,
   ClientRequest,
   ClientRequestConfig,
+  ClientProviders,
   NonTransformableClientRequestConfig
 } from './Client.types';
 
@@ -80,6 +83,8 @@ export default class Client<UserData extends Serializable, StoredData extends Se
 
   private readonly _requestLogger: Logger;
 
+  private readonly _providers: ClientProviders;
+
   private readonly _tokensHandshake = new Map<Tokens, TokenHandshake<UserData, StoredData, Tokens>>();
 
   public readonly state: Storage<ClientState<UserData>>;
@@ -105,8 +110,18 @@ export default class Client<UserData extends Serializable, StoredData extends Se
     this._initLogger = Logger.forContext('Initializing');
     this._requestLogger = Logger.forContext('Requests');
 
+    /** Save defined providers */
+    this._providers = {
+      storage: this._settings.providers?.storage || BrowserStorageProvider()
+    };
+
     /** Create the internal persistent storage for the client */
-    this.storage = new Storage<StoredData>('ClientStore', 'local', _settings.initialStorage);
+    this.storage = new Storage<StoredData>(
+      'ClientStore',
+      'local',
+      _settings.initialStorage,
+      this._providers.storage
+    );
 
     /** Create TokenHandshake for all requested tokens */
     if (isObject(_settings.tokens)) {
@@ -121,7 +136,12 @@ export default class Client<UserData extends Serializable, StoredData extends Se
     this._defaultsRequestConfig = _settings.requests.defaults;
 
     /** Save initial client state */
-    this.state = new Storage<ClientState<UserData>>('State', 'page', Client._defaultClientState);
+    this.state = new Storage<ClientState<UserData>>(
+      'State',
+      'page',
+      Client._defaultClientState,
+      this._providers.storage
+    );
 
     /** Initialize the client */
     this._initializeClient()
@@ -153,16 +173,28 @@ export default class Client<UserData extends Serializable, StoredData extends Se
     /** Create the deferred promise to use to load user data */
     this._clientInitializationDeferred = new Deferred<UserData | null>();
 
+    /** Build an internal function to return and resolve initialization defer */
+    const returnAndResolve = (result: UserData | null): UserData | null => {
+      this._clientInitializationDeferred?.resolve(result);
+      this._clientInitializationDeferred = undefined;
+      return result;
+    };
+
     /** Check if current auth and state must be invalidated, using initialization defined function */
     if (typeof this._settings.extras?.invalidateExistingAuth === 'function') {
       if (this._settings.extras.invalidateExistingAuth(this)) {
-        this.flushAuth();
+        await this.flushAuth();
       }
     }
 
+    /** Await the initialization of all the storage module */
+    await this.state.isInitialized();
+    await this.storage.isInitialized();
+    await Promise.all(Array.from(this._tokensHandshake.values()).map(t => t.isInitialized()));
+
     /** Assert the client is loading */
     if (this.state.value.isLoaded) {
-      return this.state.value.userData;
+      return returnAndResolve(this.state.value.userData);
     }
 
     /** Use built in api to get user data, wrap into safe request to avoid unhandled error */
@@ -170,15 +202,11 @@ export default class Client<UserData extends Serializable, StoredData extends Se
 
     /** Assert no error occurred */
     if (userDataError) {
-      this._initLogger.warn('Could not load user data on initialization', userDataError);
-      return null;
+      return returnAndResolve(null);
     }
 
-    /** Resolve the deferred promise */
-    this._clientInitializationDeferred.resolve(userData);
-
     /** Return loaded userdata */
-    return userData;
+    return returnAndResolve(userData);
   }
 
 
@@ -233,8 +261,8 @@ export default class Client<UserData extends Serializable, StoredData extends Se
    * @param userData
    * @private
    */
-  private _unconditionallySetState(userData: UserData | null) {
-    this.state.transact(() => (
+  private async _unconditionallySetState(userData: UserData | null) {
+    return this.state.transact(() => (
       userData
         ? {
           isLoaded: true,
@@ -361,6 +389,52 @@ export default class Client<UserData extends Serializable, StoredData extends Se
     this._axios.defaults.headers[name] = value;
 
     return this;
+  }
+
+
+  /**
+   * Manual and explicit set a token
+   * @param name
+   * @param specification
+   */
+  public useToken(name: Tokens, specification: TokenSpecification): Client<UserData, StoredData, Tokens> {
+    /** Get the requested token handshake from the pool */
+    this._getTokenHandshake(name).setExplicit(specification);
+    /** Return to use the current client instance */
+    return this;
+  }
+
+
+  /**
+   * Force the reload of the current Client instance
+   */
+  public async forceReload(): Promise<UserData | null> {
+    /** Restore the client state, removing saved user data and setting starting state */
+    await this.state.transact(() => Client._defaultClientState);
+
+    /** Restart the Client Initialization Process */
+    const [ initializeError, userData ] = await will(this._initializeClient());
+
+    /** If an error occurred has to be considered an Unhandled exception */
+    if (initializeError) {
+      this._initLogger.error('Unhandled exception occurred while reloading the Client', initializeError);
+      return null;
+    }
+
+    /** Save the new state with loaded user data */
+    await this._unconditionallySetState(userData);
+
+    /** Return loaded user data */
+    return userData;
+  }
+
+
+  /**
+   * Get one of the Client Providers
+   * @param provider
+   */
+  public getProvider<T extends keyof ClientProviders>(provider: T): ClientProviders[T] {
+    return this._providers[provider];
   }
 
 
@@ -506,14 +580,14 @@ export default class Client<UserData extends Serializable, StoredData extends Se
    * Remove all references to client authorization from the current Client instance,
    * and additionally remove all the tokens loaded
    */
-  public flushAuth() {
+  public async flushAuth() {
     /** Flush the authorization and clear all tokens */
     this._tokensHandshake.forEach((handshake) => {
       handshake.clear();
     });
 
     /** Remove user data object from current client state */
-    this._unconditionallySetState(null);
+    await this._unconditionallySetState(null);
   }
 
 
@@ -546,7 +620,7 @@ export default class Client<UserData extends Serializable, StoredData extends Se
     const userData = this._extractUserData(authResponse, 'login');
 
     /** Update the client state */
-    this._unconditionallySetState(userData);
+    await this._unconditionallySetState(userData);
   }
 
 
@@ -568,7 +642,7 @@ export default class Client<UserData extends Serializable, StoredData extends Se
     const userData = this._extractUserData(authResponse, 'signup');
 
     /** Update the client state */
-    this._unconditionallySetState(userData);
+    await this._unconditionallySetState(userData);
   }
 
 
@@ -584,7 +658,7 @@ export default class Client<UserData extends Serializable, StoredData extends Se
     }
 
     /** Flush the client authorization */
-    this.flushAuth();
+    await this.flushAuth();
   }
 
 
@@ -599,7 +673,7 @@ export default class Client<UserData extends Serializable, StoredData extends Se
     const userData = await this.request<UserData>(this._builtInApi('getUserData')());
 
     /** Update the client state */
-    this._unconditionallySetState(userData);
+    await this._unconditionallySetState(userData);
 
     /** Return loaded user data */
     return userData;

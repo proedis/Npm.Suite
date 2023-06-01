@@ -6,6 +6,7 @@ import type { AnyObject, Serializable } from '@proedis/types';
 
 import type { LoggerOptions } from './lib/Logger/Logger.types';
 import type { EnvironmentDependentOptions } from './lib/Options/Options.types';
+import type { StorageProvider } from './lib/Storage/Storage.types';
 import type { TokenHandshakeConfiguration, UseTokenTransporter } from './lib/TokenHandshake/TokenHandshake.types';
 
 import type Client from './Client';
@@ -29,6 +30,9 @@ export interface ClientSettings<UserData extends Serializable, StoredData extend
 
   /** Configure the Request base settings and server data */
   requests: ClientRequestSettings<Tokens>;
+
+  /** Customize providers for internal Client Module */
+  providers?: Partial<ClientProviders>;
 
   /** Configure usable tokens while dialogate with API server */
   tokens?: Record<Tokens, TokenHandshakeConfiguration<UserData, StoredData, Tokens>>;
@@ -72,6 +76,15 @@ export interface ClientApi<UserData extends Serializable, StoredData extends Ser
 
   /** Signup using arbitrary data */
   signup?: <Response>(data: AnyObject) => ClientRequest<UserData, StoredData, Tokens, Response>;
+}
+
+
+/* --------
+ * Client Providers for internal Module
+ * -------- */
+export interface ClientProviders {
+  /** Storage Provider */
+  storage: StorageProvider;
 }
 
 

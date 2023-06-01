@@ -56,7 +56,12 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
     configuration: TokenHandshakeConfiguration<UserData, StoreData, Tokens>,
     client: Client<UserData, StoreData, Tokens>
   ) {
-    super(`TokenHandshake::${_name}`, configuration.persistency ?? 'local', TokenHandshake._defaultTokenSpecification);
+    super(
+      `TokenHandshake::${_name}`,
+      configuration.persistency ?? 'local',
+      TokenHandshake._defaultTokenSpecification,
+      client.getProvider('storage')
+    );
 
     /** Configure the module */
     this._configuration = new Options<TokenHandshakeConfiguration<UserData, StoreData, Tokens>>(configuration);
@@ -99,7 +104,8 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
   private _consolidateToken(specification: TokenSpecification): TokenSpecification {
     this._handshakeLogger.debug('Consolidating Token');
 
-    /** Save the newly loaded token into internal storage */
+    // noinspection JSIgnoredPromiseFromCall
+    /** Save the newly loaded token into internal storage, there is no reason to await for the transact result */
     this.transact(() => specification);
 
     /** Check the pending deferred request to resolve it */
@@ -118,12 +124,12 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
    * @param error
    * @private
    */
-  private _flushToken(error?: RequestError | null): RequestError {
+  private async _flushToken(error?: RequestError | null): Promise<RequestError> {
     this._handshakeLogger.debug('Flushing Token');
 
     /** If the current token must invalidate the entire client authentication, call parent function */
     if (this._configuration.getOrDefault('invalidateAuthOnGrantError', 'boolean', true)) {
-      this._client.flushAuth();
+      await this._client.flushAuth();
     }
     /** Else, clear only current token */
     else {
@@ -156,8 +162,7 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
     // ----
     // Get all Tokens defined Extractors
     // ----
-    const tokenExtractors = this._configuration
-      .getOrDefault('extractors', 'array', []);
+    const tokenExtractors = this._configuration.getOrDefault('extractors', 'array', []);
 
 
     // ----
@@ -242,7 +247,7 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
         this._handshakeLogger.error('An error has been received from API when granting a new Token');
 
         /** Flush tokens */
-        throw this._flushToken(grantTokenError);
+        throw await this._flushToken(grantTokenError);
       }
 
       /** Assert token response is valid */
@@ -255,7 +260,7 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
     // ----
     // Reject as no able to load token
     // ----
-    throw this._flushToken();
+    throw await this._flushToken();
   }
 
 
@@ -294,7 +299,8 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
    * but won't flush the original client's authentication.
    */
   public clear() {
-    /** Remove the internal stored token specification */
+    // noinspection JSIgnoredPromiseFromCall
+    /** Remove the internal stored token specification, there is no reason to await for the transact result */
     this.transact(() => TokenHandshake._defaultTokenSpecification);
 
     /** Check the pending deferred request to reject it */

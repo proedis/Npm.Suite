@@ -3,7 +3,7 @@ import type { Serializable } from '@proedis/types';
 import type Client from '../../Client';
 import type { NonTransformableClientRequest } from '../../Client.types';
 
-import type { StoragePersistency } from '../Storage/Storage';
+import type { StoragePersistency } from '../Storage/Storage.types';
 
 import type { AuthAction, AuthActionType } from '../../Client.types';
 

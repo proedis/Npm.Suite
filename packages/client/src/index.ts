@@ -14,6 +14,8 @@ export type {
 
 export { default as ClientBuilder } from './builder';
 
+export * from './providers';
+
 export * from './utils';
 
 export * from './variants';
@@ -23,3 +25,5 @@ export * from './lib/TokenHandshake/mixin/extractors';
 export * from './lib/TokenHandshake/mixin/transporters';
 
 export type { TokenSpecification } from './lib/TokenHandshake/TokenHandshake.types';
+
+export type { StorageProvider, StorageApi, StoragePersistency } from './lib/Storage/Storage.types';

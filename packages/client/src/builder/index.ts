@@ -8,7 +8,8 @@ import type {
   NonTransformableClientRequestConfig,
   ServerData,
   ClientSettings,
-  ClientExtras
+  ClientExtras,
+  ClientProviders
 } from '../Client.types';
 
 import type { LoggerOptions, LogLevel } from '../lib/Logger/Logger.types';
@@ -53,6 +54,8 @@ export default class ClientBuilder<
   private _userDataExtractor: ClientSettings<UserData, StoredData, Tokens>['userDataExtractor'];
 
   private _extras: ClientExtras<UserData, StoredData, Tokens> | undefined;
+
+  private readonly _providers: Partial<ClientProviders> = {};
 
 
   // ----
@@ -238,6 +241,15 @@ export default class ClientBuilder<
   }
 
 
+  public useProvider<T extends keyof ClientProviders>(
+    name: T,
+    provider: ClientProviders[T] | undefined
+  ): ClientBuilder<UserData, StoredData, Tokens> {
+    this._providers[name] = provider;
+    return this;
+  }
+
+
   // ----
   // Client Builder
   // ----
@@ -264,6 +276,7 @@ export default class ClientBuilder<
         defaults   : this._defaultRequest,
         server     : this._server
       },
+      providers        : this._providers,
       tokens           : tokens as Record<Tokens, TokenHandshakeConfiguration<UserData, StoredData, Tokens>>,
       userDataExtractor: this._userDataExtractor
     });
