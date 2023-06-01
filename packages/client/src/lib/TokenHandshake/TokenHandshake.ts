@@ -101,12 +101,11 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
    * @param specification
    * @private
    */
-  private _consolidateToken(specification: TokenSpecification): TokenSpecification {
+  private async _consolidateToken(specification: TokenSpecification): Promise<TokenSpecification> {
     this._handshakeLogger.debug('Consolidating Token');
 
-    // noinspection JSIgnoredPromiseFromCall
-    /** Save the newly loaded token into internal storage, there is no reason to await for the transact result */
-    this.transact(() => specification);
+    /** Save the newly loaded token into internal storage */
+    await this.transact(() => specification);
 
     /** Check the pending deferred request to resolve it */
     if (this._getDeferred?.isPending) {
@@ -133,7 +132,7 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
     }
     /** Else, clear only current token */
     else {
-      this.clear();
+      await this.clear();
     }
 
     /** Return error that could be thrown */
@@ -187,7 +186,7 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
         this._handshakeLogger.debug('Token extracted from QueryParam key');
 
         /** Consolidate the token in memory */
-        const consolidatedToken = this._consolidateToken(specification);
+        const consolidatedToken = await this._consolidateToken(specification);
 
         /**
          * Remove the query params string and replace the search params.
@@ -298,10 +297,9 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
    * Calling this api alone will only remove single handshake tokens,
    * but won't flush the original client's authentication.
    */
-  public clear() {
-    // noinspection JSIgnoredPromiseFromCall
-    /** Remove the internal stored token specification, there is no reason to await for the transact result */
-    this.transact(() => TokenHandshake._defaultTokenSpecification);
+  public async clear() {
+    /** Remove the internal stored token specification */
+    await this.transact(() => TokenHandshake._defaultTokenSpecification);
 
     /** Check the pending deferred request to reject it */
     if (this._getDeferred?.isPending) {
@@ -359,7 +357,7 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
    * Explicit set a token to use, providing complete specification
    * @param specification
    */
-  public setExplicit(specification: TokenSpecification): TokenSpecification {
+  public async setExplicit(specification: TokenSpecification): Promise<TokenSpecification> {
     return this._consolidateToken(specification);
   }
 
@@ -456,13 +454,13 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
    * @param authResponse
    * @param authAction
    */
-  public extractTokenFromAuthResponse(authResponse: any, authAction: AuthActionType) {
+  public async extractTokenFromAuthResponse(authResponse: any, authAction: AuthActionType) {
     /** Get all auth response extractor */
     const extractors = this._configuration.getOrDefault('extractors', 'array', [])
-      .filter(e => e.type === 'auth-response');
+      .filter(e => e.type === 'auth-response') as TokenAuthResponseExtractor<any>[];
 
     /** If any extractors exist, use to get the token from response */
-    (extractors as TokenAuthResponseExtractor<any>[]).forEach((extractor) => {
+    const extractorsPromises = extractors.map(async (extractor) => {
       /** Get the extractor configuration */
       const extract = typeof extractor.extract === 'function' ? extractor.extract : extractor.extract[authAction];
 
@@ -475,9 +473,12 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
       const tokenSpecification = extract(authResponse, authAction, this._client);
 
       if (this.isValid(tokenSpecification)) {
-        this._consolidateToken(tokenSpecification);
+        await this._consolidateToken(tokenSpecification);
       }
     });
+
+    /** Await resolution of all promises */
+    await Promise.all(extractorsPromises);
   }
 
 }

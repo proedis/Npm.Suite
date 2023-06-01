@@ -288,11 +288,11 @@ export default class Client<UserData extends Serializable, StoredData extends Se
    * @param authAction
    * @private
    */
-  private _passAuthResponseToHandshakes(authResponse: any, authAction: AuthActionType): void {
-    /** Get all handshakes */
-    this._tokensHandshake.forEach((handshake) => {
-      handshake.extractTokenFromAuthResponse(authResponse, authAction);
-    });
+  private async _passAuthResponseToHandshakes(authResponse: any, authAction: AuthActionType): Promise<void> {
+    /** Complete process for all TokenHandshake */
+    await Promise.all(Array.from(this._tokensHandshake.values()).map(t => (
+      t.extractTokenFromAuthResponse(authResponse, authAction)
+    )));
   }
 
 
@@ -397,11 +397,9 @@ export default class Client<UserData extends Serializable, StoredData extends Se
    * @param name
    * @param specification
    */
-  public useToken(name: Tokens, specification: TokenSpecification): Client<UserData, StoredData, Tokens> {
+  public async setToken(name: Tokens, specification: TokenSpecification): Promise<void> {
     /** Get the requested token handshake from the pool */
-    this._getTokenHandshake(name).setExplicit(specification);
-    /** Return to use the current client instance */
-    return this;
+    await this._getTokenHandshake(name).setExplicit(specification);
   }
 
 
@@ -582,9 +580,7 @@ export default class Client<UserData extends Serializable, StoredData extends Se
    */
   public async flushAuth() {
     /** Flush the authorization and clear all tokens */
-    this._tokensHandshake.forEach((handshake) => {
-      handshake.clear();
-    });
+    await Promise.all(Array.from(this._tokensHandshake.values()).map(t => t.clear()));
 
     /** Remove user data object from current client state */
     await this._unconditionallySetState(null);
@@ -614,7 +610,7 @@ export default class Client<UserData extends Serializable, StoredData extends Se
     const authResponse = await this.request(this._builtInApi('login')(data));
 
     /** Pass the auth response to token handshakes */
-    this._passAuthResponseToHandshakes(authResponse, 'login');
+    await this._passAuthResponseToHandshakes(authResponse, 'login');
 
     /** Pass the auth response to user data extractor */
     const userData = this._extractUserData(authResponse, 'login');
@@ -636,7 +632,7 @@ export default class Client<UserData extends Serializable, StoredData extends Se
     const authResponse = await this.request(this._builtInApi('signup')(data));
 
     /** Pass the auth response to token handshakes */
-    this._passAuthResponseToHandshakes(authResponse, 'signup');
+    await this._passAuthResponseToHandshakes(authResponse, 'signup');
 
     /** Pass the auth response to user data extractor */
     const userData = this._extractUserData(authResponse, 'signup');
