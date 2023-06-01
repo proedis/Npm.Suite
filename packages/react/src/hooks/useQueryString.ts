@@ -1,12 +1,19 @@
 import * as React from 'react';
 
-import { useSearchParams } from 'react-router-dom';
-import type { NavigateOptions } from 'react-router-dom';
+import type { NavigateOptions, useSearchParams as UseSearchParamsType } from 'react-router-dom';
 
 import * as qs from 'qs';
 import type { IParseOptions, IStringifyOptions, ParsedQs } from 'qs';
 
+import { peerRequire } from '@proedis/utils';
+
 import type { AnyObject } from '@proedis/types';
+
+
+/* --------
+ * Peer Dependencies Import
+ * -------- */
+const reactRouterDom = peerRequire('react-router-dom');
 
 
 /* --------
@@ -73,6 +80,7 @@ export function useQueryString<Data extends ParsedQs>(options?: UseQueryStringOp
   // ----
   // Internal hooks
   // ----
+  const useSearchParams = reactRouterDom.useSearchParams as typeof UseSearchParamsType;
   const [ urlSearchParams, setUrlSearchParams ] = useSearchParams(location.search);
   const parsingOptionsRef = React.useRef(parsing);
   const stringifyOptionRef = React.useRef(stringify);
