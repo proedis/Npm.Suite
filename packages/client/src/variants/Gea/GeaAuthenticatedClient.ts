@@ -23,11 +23,11 @@ import type {
 /* --------
  * Gea Authorized Client Builder
  * -------- */
-export default function GeaAuthenticatedClient(name: string) {
+export default function GeaAuthenticatedClient(name: string, geaApplicationId: string) {
   return new ClientBuilder(name)
     /** Set the main Gea ApplicationId */
     .withToken('geaApplicationId', {
-      extractors  : [ plainTokenExtractor('5978604A-4F9C-41C9-AA76-228A975BD7BB') ],
+      extractors  : [ plainTokenExtractor(geaApplicationId) ],
       transporters: [ headerTransporter('X-Gea-ApplicationId') ]
     })
 
