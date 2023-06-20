@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { contextBuilder } from '@proedis/react';
 
-import type { Client, ClientState } from '@proedis/client';
+import type { Client, ClientState, TokenSpecification } from '@proedis/client';
 import type { Serializable } from '@proedis/types';
 
 
@@ -19,12 +19,23 @@ export interface ClientContextTools<UD extends Serializable, SD extends Serializ
 
   useClientState: UseClientStateHook<UD>;
 
+  useClientStorage: UseClientStorageHook<SD>;
+
+  useClientToken: UseClientTokenHook<T>;
+
 }
 
 export type UseClientHook<UD extends Serializable, SD extends Serializable, T extends string> =
   () => Client<UD, SD, T>;
 
 export type UseClientStateHook<UD extends Serializable> = () => ClientState<UD>;
+
+export type UseClientStorageHook<SD extends Serializable> = () => ([
+  SD,
+  (<K extends keyof SD>(key: K, value: SD[K]) => Promise<void>)
+]);
+
+export type UseClientTokenHook<T extends string> = (token: T) => Partial<TokenSpecification>;
 
 
 /* --------
@@ -57,7 +68,7 @@ export function createClientContext<UD extends Serializable, SD extends Serializ
   // ----
   // Return the useClientState hook
   // ----
-  function useClientState(): ClientState<UD> {
+  function useClientState(): ReturnType<UseClientStateHook<UD>> {
     /** Create the internal state */
     const [ currentState, setCurrentState ] = React.useState<ClientState<UD>>(() => client.state.value);
 
@@ -77,11 +88,59 @@ export function createClientContext<UD extends Serializable, SD extends Serializ
 
 
   // ----
+  // Return the useClientStore hook
+  // ----
+  function useClientStorage(): ReturnType<UseClientStorageHook<SD>> {
+    /** Create the internal state */
+    const [ currentStorage, setStorage ] = React.useState(() => client.storage.value);
+
+    /** Subscribe to client storage change using effect */
+    React.useEffect(
+      () => {
+        const subscription = client.storage.subscribe(setStorage);
+
+        return () => subscription.unsubscribe();
+      },
+      []
+    );
+
+    /** Return the storage */
+    return [ currentStorage, client.storage.set ];
+  }
+
+
+  // ----
+  // Return the useClientToken hook
+  // ----
+  function useClientToken(token: T): ReturnType<UseClientTokenHook<T>> {
+    /** Create the internal state */
+    const [ currentSpecification, setSpecification ] = React.useState(
+      () => client.getTokenHandshake(token).value
+    );
+
+    /** Subscribe to handshake change */
+    React.useEffect(
+      () => {
+        const subscription = client.getTokenHandshake(token).subscribe(setSpecification);
+
+        return () => subscription.unsubscribe();
+      },
+      [ token ]
+    );
+
+    /** Return the Token Specification */
+    return currentSpecification;
+  }
+
+
+  // ----
   // Client context return
   // ----
   return {
     useClient,
     useClientState,
+    useClientStorage,
+    useClientToken,
     ClientConsumer,
     ClientProvider
   };

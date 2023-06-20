@@ -436,6 +436,23 @@ export default class Client<UserData extends Serializable, StoredData extends Se
   }
 
 
+  /**
+   * Return an instantiated TokenHandshake
+   * @param token
+   */
+  public getTokenHandshake(token: Tokens): TokenHandshake<UserData, StoredData, Tokens> {
+    /** Load the Handshake from Map */
+    const handshake = this._tokensHandshake.get(token);
+
+    /** Assert it exists before return */
+    if (!handshake) {
+      throw new Error(`Requested TokenHandshake '${token}' does not exists`);
+    }
+
+    return handshake;
+  }
+
+
   // ----
   // Public Requests Methods
   // ----
