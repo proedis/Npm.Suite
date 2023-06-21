@@ -114,8 +114,19 @@ export function createClientContext<UD extends Serializable, SD extends Serializ
   // ----
   function useClientToken(token: T): ReturnType<UseClientTokenHook<T>> {
     /** Create the internal state */
-    const [ currentSpecification, setSpecification ] = React.useState(
-      () => client.getTokenHandshake(token).value
+    const [ tokenHandshake ] = React.useState(() => client.getTokenHandshake(token));
+    const [ currentSpecification, setSpecification ] = React.useState<Partial<TokenSpecification>>(
+      () => {
+        try {
+          return tokenHandshake.value;
+        }
+        catch {
+          return {
+            token    : undefined,
+            expiresAt: undefined
+          };
+        }
+      }
     );
 
     /** Subscribe to handshake change */
