@@ -18,7 +18,7 @@ import type {
   TokenQueryParamExtractor,
   TokenPlainExtractor,
   TokenTransporter,
-  UseTokenTransporter
+  UseTokenTransporter, TokenExtractor
 } from './TokenHandshake.types';
 
 import RequestError from '../../Client.RequestError';
@@ -72,13 +72,44 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
     /** Save Internal data */
     this._client = client;
 
-    this._handshakeLogger.debug('Module Loaded');
+    /** Preload plain token */
+    this._preloadPlainToken()
+      .then(() => {
+        this._handshakeLogger.debug('Module Loaded');
+      });
   }
 
 
   // ----
   // Private Methods
   // ----
+
+  private _getTokenExtractors(): TokenExtractor<any>[] {
+    return this._configuration.getOrDefault('extractors', 'array', []);
+  }
+
+
+  /**
+   * Try to preload a token using a plain extractor
+   * if has been defined ad if is valid
+   * @private
+   */
+  private async _preloadPlainToken() {
+    /** Get token plain extractors */
+    const plainExtractor = this._getTokenExtractors()
+      .find((extractor) => extractor.type === 'plain') as TokenPlainExtractor | undefined;
+
+    /** Check the extractor exists before continue */
+    if (!plainExtractor || plainExtractor.extract === false) {
+      return;
+    }
+
+    /** Preload the token */
+    this._handshakeLogger.debug('Preloading token using plain extractor');
+
+    return this._consolidateToken(plainExtractor.extract);
+  }
+
 
   /**
    * Initialize the Deferred instance object that could be used
@@ -161,7 +192,7 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
     // ----
     // Get all Tokens defined Extractors
     // ----
-    const tokenExtractors = this._configuration.getOrDefault('extractors', 'array', []);
+    const tokenExtractors = this._getTokenExtractors();
 
 
     // ----
@@ -456,7 +487,7 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
    */
   public async extractTokenFromAuthResponse(authResponse: any, authAction: AuthActionType) {
     /** Get all auth response extractor */
-    const extractors = this._configuration.getOrDefault('extractors', 'array', [])
+    const extractors = this._getTokenExtractors()
       .filter(e => e.type === 'auth-response') as TokenAuthResponseExtractor<any>[];
 
     /** If any extractors exist, use to get the token from response */
