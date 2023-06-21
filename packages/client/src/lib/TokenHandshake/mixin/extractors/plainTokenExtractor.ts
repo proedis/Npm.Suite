@@ -1,12 +1,13 @@
+import { isValidString } from '@proedis/utils';
+
 import type { TokenPlainExtractor } from '../../TokenHandshake.types';
 
 
-export default function plainTokenExtractor(token: string): TokenPlainExtractor {
+export default function plainTokenExtractor(token: string | undefined): TokenPlainExtractor {
   return {
     type   : 'plain',
-    extract: {
-      token,
-      expiresAt: undefined
-    }
+    extract: isValidString(token)
+      ? { token, expiresAt: undefined }
+      : false
   };
 }

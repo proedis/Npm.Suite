@@ -23,7 +23,7 @@ import type {
 /* --------
  * Gea Authorized Client Builder
  * -------- */
-export default function GeaAuthenticatedClient(name: string, geaApplicationId: string) {
+export default function GeaAuthenticatedClient(name: string, geaApplicationId: string | undefined) {
   return new ClientBuilder(name)
     /** Set the main Gea ApplicationId */
     .withToken('geaApplicationId', {
