@@ -130,11 +130,11 @@ export function createClientContext<UD extends Serializable, SD extends Serializ
     /** Subscribe to handshake change */
     React.useEffect(
       () => {
-        const subscription = client.getTokenHandshake(token).subscribe(setSpecification);
+        const subscription = tokenHandshake.subscribe(setSpecification);
 
         return () => subscription.unsubscribe();
       },
-      [ token ]
+      [ token, tokenHandshake ]
     );
 
     /** Return the Token Specification */
