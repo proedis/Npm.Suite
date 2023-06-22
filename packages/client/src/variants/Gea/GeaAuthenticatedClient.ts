@@ -27,8 +27,9 @@ export default function GeaAuthenticatedClient(name: string, geaApplicationId: s
   return new ClientBuilder(name)
     /** Set the main Gea ApplicationId */
     .withToken('geaApplicationId', {
-      extractors  : [ plainTokenExtractor(geaApplicationId) ],
-      transporters: [ headerTransporter('X-Gea-ApplicationId') ]
+      extractors          : [ plainTokenExtractor(geaApplicationId) ],
+      transporters        : [ headerTransporter('X-Gea-ApplicationId') ],
+      isManuallyControlled: true
     })
 
     /** Set options to use and extract Gea Ticket */

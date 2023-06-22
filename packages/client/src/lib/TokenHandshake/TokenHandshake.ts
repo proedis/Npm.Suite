@@ -84,6 +84,10 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
   // Private Methods
   // ----
 
+  /**
+   * Get all token extractors
+   * @private
+   */
   private _getTokenExtractors(): TokenExtractor<any>[] {
     return this._configuration.getOrDefault('extractors', 'array', []);
   }
@@ -329,8 +333,10 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
    * but won't flush the original client's authentication.
    */
   public async clear() {
-    /** Remove the internal stored token specification */
-    await this.transact(() => TokenHandshake._defaultTokenSpecification);
+    /** Remove the internal stored token specification, only if is not manually controlled */
+    if (!this._configuration.getOrDefault('isManuallyControlled', 'boolean', false)) {
+      await this.transact(() => TokenHandshake._defaultTokenSpecification);
+    }
 
     /** Check the pending deferred request to reject it */
     if (this._getDeferred?.isPending) {

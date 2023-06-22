@@ -31,6 +31,12 @@ export interface TokenHandshakeConfiguration<
   /** Set if client must invalidate auth on grant error */
   invalidateAuthOnGrantError?: boolean;
 
+  /**
+   * Set the token has manually controlled,
+   * this will prevent the clear of the token and other automatism
+   */
+  isManuallyControlled?: boolean;
+
   /** Set token persistency, default to `local` (localstorage) */
   persistency?: StoragePersistency;
 
