@@ -9,6 +9,14 @@ import type { Serializable } from '@proedis/types';
 /* --------
  * Internal Types
  * -------- */
+export interface ClientProviderProps {
+  /** Tell the provider to render children components even if the client is not ready */
+  renderEvenIfUnready?: boolean;
+
+  /** Suspense Element to render while the client is not ready to be used */
+  suspense?: React.ReactElement;
+}
+
 export interface ClientContextTools<UD extends Serializable, SD extends Serializable, T extends string> {
 
   ClientConsumer: React.Consumer<Client<UD, SD, T>>;
@@ -53,16 +61,6 @@ export function createClientContext<UD extends Serializable, SD extends Serializ
     ClientProvider: ClientProviderBase,
     ClientConsumer
   } = contextBuilder('Client', client);
-
-
-  // ----
-  // Create the Provider
-  // ----
-  const ClientProvider: React.FunctionComponent<React.PropsWithChildren> = ({ children }) => (
-    <ClientProviderBase value={client}>
-      {children}
-    </ClientProviderBase>
-  );
 
 
   // ----
@@ -142,6 +140,50 @@ export function createClientContext<UD extends Serializable, SD extends Serializ
     /** Return the Token Specification */
     return currentSpecification;
   }
+
+
+  // ----
+  // Create the Provider
+  // ----
+  const ClientProvider: React.FunctionComponent<React.PropsWithChildren<ClientProviderProps>> = (props) => {
+
+    // ----
+    // Props Deconstruct
+    // ----
+    const {
+      children,
+      renderEvenIfUnready,
+      suspense
+    } = props;
+
+
+    // ----
+    // Internal Hooks
+    // ----
+    const { isReady } = useClientState();
+
+
+    // ----
+    // Check if the client is Ready to be used and if children must be hide while client is initially loading
+    // ----
+    if (!renderEvenIfUnready && !isReady) {
+      return (
+        <React.Fragment>
+          {suspense || <React.Fragment />}
+        </React.Fragment>
+      );
+    }
+
+
+    // ----
+    // Component Render
+    // ----
+    return (
+      <ClientProviderBase value={client}>
+        {children}
+      </ClientProviderBase>
+    );
+  };
 
 
   // ----
