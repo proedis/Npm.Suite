@@ -103,7 +103,7 @@ export function createClientContext<UD extends Serializable, SD extends Serializ
     );
 
     /** Return the storage */
-    return [ currentStorage, client.storage.set ];
+    return [ currentStorage, client.storage.set.bind(client) ];
   }
 
 
