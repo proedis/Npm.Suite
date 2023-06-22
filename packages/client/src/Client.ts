@@ -64,6 +64,7 @@ export default class Client<UserData extends Serializable, StoredData extends Se
   // Static constant properties
   // ----
   private static _defaultClientState: ClientState<any> = {
+    isReady : false,
     isLoaded: false,
     hasAuth : false,
     userData: null
@@ -145,7 +146,7 @@ export default class Client<UserData extends Serializable, StoredData extends Se
 
     /** Initialize the client */
     this._initializeClient()
-      .then(this._unconditionallySetState.bind(this))
+      .then(this._updateUserData.bind(this))
       .catch((error) => {
         this._initLogger.error('Unhandled exception occurred while initializing the Client', error);
       });
@@ -191,6 +192,9 @@ export default class Client<UserData extends Serializable, StoredData extends Se
     await this.state.isInitialized();
     await this.storage.isInitialized();
     await Promise.all(Array.from(this._tokensHandshake.values()).map(t => t.isInitialized()));
+
+    /** Set the client as ready to be used */
+    await this.state.set('isReady', true);
 
     /** Assert the client is loading */
     if (this.state.value.isLoaded) {
@@ -261,15 +265,17 @@ export default class Client<UserData extends Serializable, StoredData extends Se
    * @param userData
    * @private
    */
-  private async _unconditionallySetState(userData: UserData | null) {
-    return this.state.transact(() => (
+  private async _updateUserData(userData: UserData | null) {
+    return this.state.transact((curr) => (
       userData
         ? {
+          isReady : curr.isReady,
           isLoaded: true,
           hasAuth : true,
           userData: userData
         }
         : {
+          isReady : curr.isReady,
           isLoaded: true,
           hasAuth : false,
           userData: null
@@ -408,7 +414,10 @@ export default class Client<UserData extends Serializable, StoredData extends Se
    */
   public async forceReload(): Promise<UserData | null> {
     /** Restore the client state, removing saved user data and setting starting state */
-    await this.state.transact(() => Client._defaultClientState);
+    await this.state.transact((curr) => ({
+      ...Client._defaultClientState,
+      isReady: curr.isReady
+    }));
 
     /** Restart the Client Initialization Process */
     const [ initializeError, userData ] = await will(this._initializeClient());
@@ -420,7 +429,7 @@ export default class Client<UserData extends Serializable, StoredData extends Se
     }
 
     /** Save the new state with loaded user data */
-    await this._unconditionallySetState(userData);
+    await this._updateUserData(userData);
 
     /** Return loaded user data */
     return userData;
@@ -600,7 +609,7 @@ export default class Client<UserData extends Serializable, StoredData extends Se
     await Promise.all(Array.from(this._tokensHandshake.values()).map(t => t.clear()));
 
     /** Remove user data object from current client state */
-    await this._unconditionallySetState(null);
+    await this._updateUserData(null);
   }
 
 
@@ -633,7 +642,7 @@ export default class Client<UserData extends Serializable, StoredData extends Se
     const userData = this._extractUserData(authResponse, 'login');
 
     /** Update the client state */
-    await this._unconditionallySetState(userData);
+    await this._updateUserData(userData);
   }
 
 
@@ -655,7 +664,7 @@ export default class Client<UserData extends Serializable, StoredData extends Se
     const userData = this._extractUserData(authResponse, 'signup');
 
     /** Update the client state */
-    await this._unconditionallySetState(userData);
+    await this._updateUserData(userData);
   }
 
 
@@ -686,7 +695,7 @@ export default class Client<UserData extends Serializable, StoredData extends Se
     const userData = await this.request<UserData>(this._builtInApi('getUserData')());
 
     /** Update the client state */
-    await this._unconditionallySetState(userData);
+    await this._updateUserData(userData);
 
     /** Return loaded user data */
     return userData;

@@ -151,9 +151,10 @@ export type AuthorizedClientState<UserData> = {
 };
 
 export type ClientState<UserData> =
-  | LoadingClientState
+  { isReady: boolean }
+  & (LoadingClientState
   | UnauthorizedClientState
-  | AuthorizedClientState<UserData>;
+  | AuthorizedClientState<UserData>);
 
 
 /* --------
