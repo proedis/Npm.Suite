@@ -1,6 +1,0 @@
-{
-  "extends": "@proedis/tsconfig/base",
-  "include": [
-    "src"
-  ]
-}
