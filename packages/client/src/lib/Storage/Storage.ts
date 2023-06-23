@@ -149,6 +149,9 @@ export default class Storage<Data extends Serializable> extends ClientSubject<Da
    * @param updateFn
    */
   public async transact(updateFn: ((data: Data) => Data)) {
+    /** Await the module is initialized */
+    await this.isInitialized();
+
     /** Clone current data */
     const deepDataCopy = mergeObjects<Data>({}, this.value);
 
