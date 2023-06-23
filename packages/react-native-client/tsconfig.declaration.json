@@ -24,7 +24,7 @@
       "path": "../react/tsconfig.declaration.json"
     },
     {
-      "path": "../react-native-client/tsconfig.declaration.json"
+      "path": "../react-client/tsconfig.declaration.json"
     },
     {
       "path": "../types/tsconfig.declaration.json"

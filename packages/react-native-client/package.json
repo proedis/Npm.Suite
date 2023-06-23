@@ -1,14 +1,15 @@
 {
-  "name": "@proedis/react-client",
-  "version": "1.4.6",
-  "description": "Wrapper for @proedis/client repository to use it with React",
+  "name": "@proedis/react-native-client",
+  "version": "1.0.0",
+  "description": "Dedicated Package and Utility to use @proedis/client on react-native",
   "keywords": [
     "proedis",
     "react",
     "hooks",
     "webapp",
     "client",
-    "authentication"
+    "authentication",
+    "react-native"
   ],
   "main": "src/index.ts",
   "license": "MIT",
@@ -20,7 +21,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/proedis/Npm.Suite.git",
-    "directory": "packages/react-client"
+    "directory": "packages/react-native-client"
   },
   "bugs": {
     "url": "https://github.com/proedis/Npm.Suite/issues",
@@ -33,20 +34,13 @@
     "build": "rollup --config ../../rollup.config.mjs"
   },
   "dependencies": {
-    "@proedis/client": "1.4.5",
-    "@proedis/react": "1.1.6",
-    "@proedis/types": "1.0.7",
-    "@proedis/utils": "1.1.5",
-    "@tanstack/react-query-devtools": "^4.24.6"
+    "@react-native-async-storage/async-storage": "1.17.11",
+    "@proedis/utils": "^1.1.5"
   },
   "devDependencies": {
-    "@proedis/tsconfig": "1.1.0",
-    "@tanstack/react-query": "^4.28.0",
-    "react": "^18.2.0"
+    "@proedis/tsconfig": "1.1.0"
   },
   "peerDependencies": {
-    "@tanstack/react-query": "^4.24.6",
-    "react": "^18.2.0"
-  },
-  "gitHead": "8cba9bf577350eaf9ee04be523bd47053c9e7495"
+    "@proedis/client": "^1.4.5"
+  }
 }

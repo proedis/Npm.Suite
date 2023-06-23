@@ -1,4 +1,4 @@
-import type AsyncStorageModule from '@react-native-async-storage/async-storage';
+import AsyncStorageModule from '@react-native-async-storage/async-storage';
 
 import { isValidString } from '@proedis/utils';
 
@@ -17,16 +17,13 @@ export default class NativeAsyncStorage implements StorageApi {
 
 
   public asyncStorage: typeof AsyncStorageModule = (() => {
-    /** Load the Module using the Require function */
-    const ASM = require('@react-native-async-storage/async-storage');
-
     /**
      * In some system, the AsyncStorage module will be imported using 'default', try to assert the create function exists
      * Take this code as an experimental work-around
      */
-    return typeof (ASM as { default?: typeof AsyncStorageModule }).default?.getItem === 'function'
-      ? (ASM as unknown as { default: typeof AsyncStorageModule }).default
-      : ASM;
+    return typeof (AsyncStorageModule as { default?: typeof AsyncStorageModule }).default?.getItem === 'function'
+      ? (AsyncStorageModule as unknown as { default: typeof AsyncStorageModule }).default
+      : AsyncStorageModule;
   })();
 
 
