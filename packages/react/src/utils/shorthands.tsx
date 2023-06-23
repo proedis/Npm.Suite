@@ -295,10 +295,10 @@ export function renderShorthandContent({ children, content }: {
   content?: ShorthandContent
 }) {
   /** Render children if defined */
-  if (!isNil(children) && Array.isArray(children) && children.length > 0) {
-    return children;
+  if (children === null || children === undefined || (Array.isArray(children) && children.length === 0)) {
+    return content;
   }
 
   /** Fallback to content */
-  return content;
+  return children;
 }
