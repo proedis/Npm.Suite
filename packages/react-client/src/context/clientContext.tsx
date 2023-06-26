@@ -65,7 +65,11 @@ export function useClientState(): UseClientStateReturn {
 export function useClientStorage(): UseClientStorageReturn {
   const client = useClient();
   const storage = useClientSubject(client.storage);
-  return [ storage, client.storage.set.bind(client) ];
+  const setStorageBind = React.useMemo(
+    () => client.storage.set.bind(client),
+    [ client ]
+  );
+  return [ storage, setStorageBind ];
 }
 
 
