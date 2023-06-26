@@ -14,6 +14,8 @@ import Options from './lib/Options/Options';
 import Storage from './lib/Storage/Storage';
 import TokenHandshake from './lib/TokenHandshake/TokenHandshake';
 
+import type { LoggerOptions } from './lib/Logger/Logger.types';
+
 import { BrowserStorageProvider } from './providers';
 
 import RequestError from './Client.RequestError';
@@ -70,6 +72,19 @@ export default class Client<UserData extends Serializable, StoredData extends Se
     userData: null
   };
 
+  private static _defaultLoggingOptions: LoggerOptions = {
+    enabled    : {
+      development: true,
+      staging    : true,
+      production : false
+    },
+    minLogLevel: {
+      development: 'warn',
+      staging    : 'warn',
+      production : 'none'
+    }
+  };
+
 
   // ----
   // Internal properties
@@ -101,7 +116,7 @@ export default class Client<UserData extends Serializable, StoredData extends Se
     Storage.AppName = appName;
 
     /** Reconfigure the Logger */
-    const loggerSettings = new Options(_settings.logger);
+    const loggerSettings = new Options(_settings.logger || Client._defaultLoggingOptions);
     Logger.configure({
       enabled    : loggerSettings.getOrDefault('enabled', 'boolean', true),
       minLogLevel: loggerSettings.getOrDefault('minLogLevel', 'string', 'warn')
