@@ -1,15 +1,88 @@
 import * as React from 'react';
 
+import type { Client, ClientSubject } from '@proedis/client';
+
 import { contextBuilder } from '@proedis/react';
 
-import type { Client, ClientState, TokenSpecification } from '@proedis/client';
-import type { Serializable } from '@proedis/types';
+import type {
+  ClientTokens,
+  ContextClient,
+  UseClientStateReturn,
+  UseClientStorageReturn,
+  UseClientTokenReturn
+} from './clientContext.types';
 
 
 /* --------
- * Internal Types
+ * Main Context Builder
  * -------- */
+const {
+  useClient,
+  ClientContext
+} = contextBuilder<ContextClient>('Client');
+
+export { useClient };
+
+
+/* --------
+ * Hook Definitions
+ * -------- */
+
+/**
+ * Unified Hook to easily return the value of a ClientSubject instance.
+ * This hook will fire every once the value changes
+ * @param subject
+ */
+function useClientSubject<T>(subject: ClientSubject<T>): T {
+  /** Create the internal subject value observer */
+  const [ value, setValue ] = React.useState(
+    () => subject.value
+  );
+
+  /** Use the Effect to subscribe and unsubscribe to value change */
+  React.useEffect(
+    () => {
+      /** Open the subscription to subject value */
+      const subscription = subject.subscribe(setValue);
+
+      /** Clear the subscription on effect clean up */
+      return () => subscription.unsubscribe();
+    },
+    [ subject ]
+  );
+
+  /** Return the current value of the subject */
+  return value;
+}
+
+
+export function useClientState(): UseClientStateReturn {
+  const client = useClient();
+  return useClientSubject(client.state);
+}
+
+
+export function useClientStorage(): UseClientStorageReturn {
+  const client = useClient();
+  const storage = useClientSubject(client.storage);
+  return [ storage, client.storage.set.bind(client) ];
+}
+
+
+export function useClientToken(token: ClientTokens): UseClientTokenReturn {
+  const client = useClient();
+  return useClientSubject(client.getTokenHandshake(token));
+}
+
+
+/* --------
+ * Client Provider
+ * -------- */
+
 export interface ClientProviderProps {
+  /** The client to use within provider */
+  client: Client<any, any, any>;
+
   /** Tell the provider to render children components even if the client is not ready */
   renderEvenIfUnready?: boolean;
 
@@ -17,185 +90,46 @@ export interface ClientProviderProps {
   suspense?: React.ReactElement;
 }
 
-export interface ClientContextTools<UD extends Serializable, SD extends Serializable, T extends string> {
-
-  ClientConsumer: React.Consumer<Client<UD, SD, T>>;
-
-  ClientProvider: React.FunctionComponent<React.PropsWithChildren>;
-
-  useClient: UseClientHook<UD, SD, T>;
-
-  useClientState: UseClientStateHook<UD>;
-
-  useClientStorage: UseClientStorageHook<SD>;
-
-  useClientToken: UseClientTokenHook<T>;
-
-}
-
-export type UseClientHook<UD extends Serializable, SD extends Serializable, T extends string> =
-  () => Client<UD, SD, T>;
-
-export type UseClientStateHook<UD extends Serializable> = () => ClientState<UD>;
-
-export type UseClientStorageHook<SD extends Serializable> = () => ([
-  SD,
-  (<K extends keyof SD>(key: K, value: SD[K]) => Promise<void>)
-]);
-
-export type UseClientTokenHook<T extends string> = (token: T) => Partial<TokenSpecification>;
-
-
-/* --------
- * Context Builder Definition
- * -------- */
-export function createClientContext<UD extends Serializable, SD extends Serializable, T extends string>(
-  client: Client<UD, SD, T>
-): ClientContextTools<UD, SD, T> {
+export const ClientProvider: React.FunctionComponent<React.PropsWithChildren<ClientProviderProps>> = (props) => {
 
   // ----
-  // Create base Context
+  // Props Deconstruct
   // ----
   const {
-    useClient,
-    ClientProvider: ClientProviderBase,
-    ClientConsumer
-  } = contextBuilder('Client', client);
+    client,
+    children,
+    renderEvenIfUnready,
+    suspense
+  } = props;
 
 
   // ----
-  // Return the useClientState hook
+  // Listen for isReady state change
   // ----
-  function useClientState(): ReturnType<UseClientStateHook<UD>> {
-    /** Create the internal state */
-    const [ currentState, setCurrentState ] = React.useState<ClientState<UD>>(() => client.state.value);
-
-    /** Subscribe to client state change using effect */
-    React.useEffect(
-      () => {
-        const subscription = client.state.subscribe(setCurrentState);
-
-        return () => subscription.unsubscribe();
-      },
-      []
-    );
-
-    /** Return state */
-    return currentState;
-  }
+  const { isReady } = useClientSubject(client.state);
 
 
   // ----
-  // Return the useClientStore hook
+  // Check if the client is Ready to be used and if children must be hide while client is initially loading
   // ----
-  function useClientStorage(): ReturnType<UseClientStorageHook<SD>> {
-    /** Create the internal state */
-    const [ currentStorage, setStorage ] = React.useState(() => client.storage.value);
-
-    /** Subscribe to client storage change using effect */
-    React.useEffect(
-      () => {
-        const subscription = client.storage.subscribe(setStorage);
-
-        return () => subscription.unsubscribe();
-      },
-      []
-    );
-
-    /** Return the storage */
-    return [ currentStorage, client.storage.set.bind(client) ];
-  }
-
-
-  // ----
-  // Return the useClientToken hook
-  // ----
-  function useClientToken(token: T): ReturnType<UseClientTokenHook<T>> {
-    /** Create the internal state */
-    const [ tokenHandshake ] = React.useState(() => client.getTokenHandshake(token));
-    const [ currentSpecification, setSpecification ] = React.useState<Partial<TokenSpecification>>(
-      () => {
-        try {
-          return tokenHandshake.value;
-        }
-        catch {
-          return {
-            token    : undefined,
-            expiresAt: undefined
-          };
-        }
-      }
-    );
-
-    /** Subscribe to handshake change */
-    React.useEffect(
-      () => {
-        const subscription = tokenHandshake.subscribe(setSpecification);
-
-        return () => subscription.unsubscribe();
-      },
-      [ token, tokenHandshake ]
-    );
-
-    /** Return the Token Specification */
-    return currentSpecification;
-  }
-
-
-  // ----
-  // Create the Provider
-  // ----
-  const ClientProvider: React.FunctionComponent<React.PropsWithChildren<ClientProviderProps>> = (props) => {
-
-    // ----
-    // Props Deconstruct
-    // ----
-    const {
-      children,
-      renderEvenIfUnready,
-      suspense
-    } = props;
-
-
-    // ----
-    // Internal Hooks
-    // ----
-    const { isReady } = useClientState();
-
-
-    // ----
-    // Check if the client is Ready to be used and if children must be hide while client is initially loading
-    // ----
-    if (!renderEvenIfUnready && !isReady) {
-      return (
-        <React.Fragment>
-          {suspense || <React.Fragment />}
-        </React.Fragment>
-      );
-    }
-
-
-    // ----
-    // Component Render
-    // ----
+  if (!renderEvenIfUnready && !isReady) {
     return (
-      <ClientProviderBase value={client}>
-        {children}
-      </ClientProviderBase>
+      <React.Fragment>
+        {suspense || <React.Fragment />}
+      </React.Fragment>
     );
-  };
+  }
 
 
   // ----
-  // Client context return
+  // Component Render
   // ----
-  return {
-    useClient,
-    useClientState,
-    useClientStorage,
-    useClientToken,
-    ClientConsumer,
-    ClientProvider
-  };
+  return (
+    <ClientContext.Provider value={client}>
+      {children}
+    </ClientContext.Provider>
+  );
 
-}
+};
+
+ClientProvider.displayName = 'ClientProvider';

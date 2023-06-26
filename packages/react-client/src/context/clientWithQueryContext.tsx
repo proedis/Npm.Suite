@@ -1,222 +1,198 @@
 import * as React from 'react';
 
-import { contextBuilder } from '@proedis/react';
-
-import { hasEqualHash, mergeObjects, isBrowser } from '@proedis/utils';
-
-import type { Client } from '@proedis/client';
 import type { ClientRequestConfig, RequestError } from '@proedis/client';
-import type { Serializable } from '@proedis/types';
 
-import {
-  QueryClient,
-  QueryClientProvider,
-  replaceEqualDeep,
-  useMutation,
-  useQuery
-} from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { hasEqualHash, mergeObjects } from '@proedis/utils';
 
+import { QueryClient, QueryClientProvider, replaceEqualDeep, useMutation, useQuery } from '@tanstack/react-query';
 import type {
   QueryClientConfig,
-  UseQueryOptions,
-  UseQueryResult,
-  MutationKey,
   UseMutationOptions,
-  UseMutationResult
+  UseMutationResult,
+  UseQueryOptions,
+  UseQueryResult
 } from '@tanstack/react-query';
 
-import { createClientContext } from './clientContext';
-import type { ClientContextTools } from './clientContext';
+import { ClientProvider, useClient } from './clientContext';
+import type { ClientProviderProps } from './clientContext';
+
+import type { ClientTokens } from './clientContext.types';
 
 
 /* --------
- * Exporting Types
- * -------- */
-export interface ClientQueryHooks<T extends string> extends Pick<ClientContextTools<any, any, T>, 'useClient'> {
-  useClientQuery<R = unknown>(
-    key: QueryClientKey,
-    requestConfig?: Omit<ClientRequestConfig<T, R>, 'url'>,
-    options?: Omit<UseQueryOptions<R, RequestError, R, QueryClientKey>, 'queryKey' | 'queryFn' | 'meta'>
-  ): UseQueryResult<R, RequestError>;
-
-  useClientMutation<D extends { [key: string]: any } = any, R = void, MK extends MutationKey = MutationKey>(
-    key: MK,
-    method: ClientRequestConfig<T, R>['method'] | ((variables: D) => ClientRequestConfig<T, R>['method']),
-    requestConfig?: (variables: D) => Omit<ClientRequestConfig<T, R>, 'url' | 'method'>,
-    options?: Omit<UseMutationOptions<R, RequestError, D, MK>, 'mutationKey' | 'mutationFn'>
-  ): UseMutationResult<R, RequestError, D, MK>;
-}
-
-export interface ClientWithQueryContextTools<
-  UD extends Serializable,
-  SD extends Serializable,
-  T extends string
-> extends ClientContextTools<UD, SD, T>, Omit<ClientQueryHooks<T>, 'useClient'> {
-  ClientWithQueryProvider: React.FunctionComponent<React.PropsWithChildren>;
-}
-
-
-/* --------
- * Internal Types
+ * Hook Definition
  * -------- */
 
-/** Options defined while creating the Client Context */
-interface ClientWithQueryContextConfiguration {
-  /** Default options for QueryClient */
-  queryClientConfig?: QueryClientConfig;
-}
-
-/** The client query type restricted to string | number array */
-type QueryClientKey = (string | number)[];
-
-
-/* --------
- * Client Hooks Provider
- * -------- */
-const {
-  useClientQueryHooks,
-  ClientQueryHooksProvider
-} = contextBuilder<ClientQueryHooks<any>, 'ClientQueryHooks'>('ClientQueryHooks');
-
-
-/* --------
- * Component Definition
- * -------- */
-export function createClientWithQueryContext<UD extends Serializable, SD extends Serializable, T extends string>(
-  client: Client<UD, SD, T>,
-  config?: ClientWithQueryContextConfiguration
-): ClientWithQueryContextTools<UD, SD, T> {
-
-  // ----
-  // Create the base ClientContext
-  // ----
-  const baseContext = createClientContext(client);
-
-
-  // ----
-  // Create the QueryClient
-  // ----
-  const defaultQueryClientConfiguration: QueryClientConfig = {
-    defaultOptions: {
-      /** Set default options for query */
-      queries: {
-        /** Enable by default the refetch options */
-        refetchOnMount      : true,
-        refetchOnReconnect  : true,
-        refetchOnWindowFocus: true,
-
-        /** Change the function to assert data is equal or not */
-        structuralSharing: (oldData, newData) => (
-          hasEqualHash(oldData, newData) ? oldData : replaceEqualDeep(oldData, newData)
-        ),
-
-        /** Set the default query function to use client instance to perform request */
-        queryFn: (ctx) => {
-          /** Get current key and query meta */
-          const { meta: requestConfig } = ctx;
-          /** Use the base client request method to fetch data */
-          return client.request({
-            method: 'GET',
-            ...requestConfig
-          });
-        }
+/**
+ * @name useClientQuery
+ * Special hook that wraps the original useQuery hook from @tanstack/react-query library.
+ *
+ * The logic behind this hook is that the query keys defined as an array of string and number
+ * will be used, joined by a '/' char to build the full endpoint to call and to download data.
+ *
+ * If the request must be optimized with extra params, the second argument will be used
+ * to enrich the underlying client request.
+ *
+ * Use the generic definition <R> to set the expected response type.
+ *
+ * @example
+ *  // Using this will perform an API call to <client-base-url>/projects/5
+ *  const data = useClientQuery(['projects', 5]);
+ *
+ *  // Using this will perform an API call to <client-base-url>/projects?search=my-client
+ *  const data = useClientQuery(['projects'], { params: { search: 'my-client' } });
+ *
+ * @param key An array of string/number used to build the endpoint url
+ * @param requestConfig Client request config enrich
+ * @param options Optional options passed to underlying useQuery hook
+ */
+export function useClientQuery<R = unknown>(
+  key: (string | number)[],
+  requestConfig?: Omit<ClientRequestConfig<ClientTokens, R>, 'url'>,
+  options?: Omit<UseQueryOptions<R, RequestError, R>, 'queryKey' | 'queryFn' | 'meta'>
+): UseQueryResult<R, RequestError> {
+  return useQuery<R, RequestError, R>(
+    [ ...key, requestConfig ],
+    {
+      ...options,
+      meta: {
+        url: key.join('/'),
+        ...requestConfig
       }
     }
-  };
-
-  const queryClient = new QueryClient(mergeObjects<QueryClientConfig>(
-    defaultQueryClientConfiguration,
-    config?.queryClientConfig ?? {}
-  ));
+  );
+}
 
 
-  // ----
-  // Create the useClientQuery helper
-  // ----
-  /* eslint-disable @typescript-eslint/indent */
-  function useClientQuery<R = unknown>(
-    key: (string | number)[],
-    requestConfig?: Omit<ClientRequestConfig<T, R>, 'url'>,
-    options?: Omit<UseQueryOptions<R, RequestError, R, (string | number)[]>, 'queryKey' | 'queryFn' | 'meta'>
-  ): UseQueryResult<R, RequestError> {
-    return useQuery<R, RequestError, R, (string | number)[]>(
-      [ ...key, requestConfig as any ],
-      {
-        ...options,
-        meta: {
-          url: key.join('/'),
-          ...requestConfig
-        }
-      }
-    );
-  }
+/**
+ * @name useClientMutation
+ * Special hook that wraps the original useMutation hook from @tanstack/react-query library.
+ *
+ * The logic behind this hook is that the query keys defined as an array of string and number
+ * will be used, joined by a '/' char to build the full endpoint to call and to download data.
+ *
+ * The method of the mutation must be declared, and could be a plain string or a function that
+ * will return the right method to use when the mutation is fired.
+ *
+ * If the request must be optimized with extra params, the third argument will be used
+ * to enrich the underlying client request.
+ * This argument must be a function that will be invoked passing as first argument the provided data to send
+ *
+ * Use the generic definition <D> to explicitly set the type of data that will be sent to server
+ * and the generic <R> to set the expected response type.
+ *
+ * @param key An array of string/number used to build the endpoint url
+ * @param method
+ * @param requestConfig
+ * @param options
+ */
+export function useClientMutation<D extends ({ [key: string]: any } | undefined) = any, R = unknown>(
+  key: (string | number)[],
+  method: ClientRequestConfig<ClientTokens, R>['method'] | ((data: D) => ClientRequestConfig<ClientTokens, R>['method']),
+  requestConfig?: (data: D) => Omit<ClientRequestConfig<ClientTokens, R>, 'url' | 'method'>,
+  options?: Omit<UseMutationOptions<R, RequestError, D>, 'mutationKey' | 'mutationFn'>
+): UseMutationResult<R, RequestError, D> {
+  /** Get the client using internal hook */
+  const client = useClient();
+  /** Return the result of the mutation hook */
+  return useMutation<R, RequestError, D>({
+    ...options,
+    mutationKey: key,
+    mutationFn : (data) => {
+      /** Create the ClientRequestConfig to pass to client request method */
+      const clientRequestConfig: ClientRequestConfig<ClientTokens, R> = {
+        ...(typeof requestConfig === 'function' ? requestConfig(data) : {}),
+        data,
+        url   : key.join('/'),
+        method: typeof method === 'function' ? method(data) : method
+      };
+      /** Return the result of the request */
+      return client.request<R>(clientRequestConfig);
+    }
+  });
+}
 
-  /* eslint-enable */
+
+/* --------
+ * Client with Query Provider
+ * -------- */
+
+interface ClientWithQueryProviderProps extends ClientProviderProps {
+  /** Add extra configuration to QueryClient */
+  queryClientConfig?: Partial<QueryClientConfig>;
+}
+
+export const ClientWithQueryProvider: React.FunctionComponent<React.PropsWithChildren<ClientWithQueryProviderProps>> = (
+  (props) => {
+
+    // ----
+    // Props Deconstruct
+    // ----
+    const {
+      children,
+
+      client,
+      queryClientConfig: userDefinedQueryClientConfig,
+
+      ...clientProviderProps
+    } = props;
 
 
-  // ----
-  // Crate the useClientMutation helper
-  // ----
-  function useClientMutation<D extends { [key: string]: any } = any, R = void, MK extends MutationKey = MutationKey>(
-    key: MK,
-    method: ClientRequestConfig<T, R>['method'] | ((variables: D) => ClientRequestConfig<T, R>['method']),
-    requestConfig?: (variables: D) => Omit<ClientRequestConfig<T, R>, 'url' | 'method'>,
-    options?: Omit<UseMutationOptions<R, RequestError, D, MK>, 'mutationKey' | 'mutationFn'>
-  ): UseMutationResult<R, RequestError, D, MK> {
-    return useMutation<R, RequestError, D, MK>({
-      ...options,
-      mutationKey: key,
-      mutationFn : (variables) => {
-        /** Build the client request config to use with this mutation */
-        const clientRequestConfig: ClientRequestConfig<T, R> = {
-          data: variables,
-          ...(typeof requestConfig === 'function' ? requestConfig(variables) : {}),
-          url   : key.join('/'),
-          method: typeof method === 'function' ? method(variables) : method
+    // ----
+    // Build Default Props
+    // ----
+    const queryClient = React.useMemo<QueryClient>(
+      () => {
+        /** Store the DefaultConfiguration to use */
+        const defaultConfiguration: QueryClientConfig = {
+          defaultOptions: {
+            /** Set default options for query */
+            queries: {
+              /** Enable by default the refetch options */
+              refetchOnMount      : true,
+              refetchOnReconnect  : true,
+              refetchOnWindowFocus: true,
+
+              /** Change the function to assert data is equal or not */
+              structuralSharing: (oldData, newData) => (
+                hasEqualHash(oldData, newData) ? oldData : replaceEqualDeep(oldData, newData)
+              ),
+
+              /** Set the default query function to use client instance to perform request */
+              queryFn: (ctx) => {
+                /** Get current key and query meta */
+                const { meta: requestConfig } = ctx;
+                /** Use the base client request method to fetch data */
+                return client.request({
+                  method: 'GET',
+                  ...requestConfig
+                });
+              }
+            }
+          }
         };
-        /** Return the result of the config */
-        return client.request<R>(clientRequestConfig);
-      }
-    });
-  }
+
+        /** Merge between default and user defined */
+        const config = mergeObjects<QueryClientConfig>(defaultConfiguration, userDefinedQueryClientConfig || {});
+
+        /** Return a new QueryClient */
+        return new QueryClient(config);
+      },
+      [ client, userDefinedQueryClientConfig ]
+    );
 
 
-  // ----
-  // Create the ClientWithQueryProvider
-  // ----
-  const ClientWithQueryProvider: React.FunctionComponent<React.PropsWithChildren> = (props) => {
-
-    /** Extract the base Context Provider */
-    const { ClientProvider } = baseContext;
-
-    /** Extract children from provided props */
-    const { children } = props;
-
-    /** Wrap the query provider using custom query client */
+    // ----
+    // Render the Provider
+    // ----
     return (
-      <ClientProvider>
+      <ClientProvider client={client} {...clientProviderProps}>
         <QueryClientProvider client={queryClient}>
-          <ClientQueryHooksProvider value={{ useClientQuery, useClientMutation, useClient: baseContext.useClient }}>
-            {children}
-          </ClientQueryHooksProvider>
-          {isBrowser && <ReactQueryDevtools position={'bottom-right'} />}
+          {children}
         </QueryClientProvider>
       </ClientProvider>
     );
-  };
+  }
+);
 
-
-  // ----
-  // Return built context
-  // ----
-  return {
-    ...baseContext,
-    ClientWithQueryProvider,
-    useClientQuery,
-    useClientMutation
-  };
-
-}
-
-export { useClientQueryHooks };
+ClientWithQueryProvider.displayName = 'ClientWithQueryProvider';
