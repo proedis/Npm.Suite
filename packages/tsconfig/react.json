@@ -5,8 +5,11 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "lib": [
-      "ES2015",
-      "dom"
-    ]
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "noEmit": true,
+    "target": "ESNext"
   }
 }

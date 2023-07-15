@@ -1,15 +1,9 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "display": "Proedis - React Native Configuration",
-  "extends": "./base.json",
+  "extends": "./react.json",
   "compilerOptions": {
-    "jsx": "react-native",
-    "lib": [
-      "DOM",
-      "ESNext"
-    ],
-    "noEmit": true,
-    "target": "ESNext"
+    "jsx": "react-native"
   },
   "exclude": [
     "node_modules",
