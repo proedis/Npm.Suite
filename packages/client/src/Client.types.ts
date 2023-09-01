@@ -179,21 +179,25 @@ export type NonTransformableClientRequest<
   | ((client: Client<UserData, StoredData, Tokens>) => NonTransformableClientRequestConfig<Tokens>);
 
 
-export interface ClientRequestConfig<Tokens extends string, Response> extends NonTransformableClientRequestConfig<Tokens> {
-  /** Class constructor to use to transform response into instance using class-transformer */
-  transformer?: ClassConstructor<Response extends Array<infer U> ? U : Response>;
-}
+export type ClientRequestConfig<Tokens extends string, Response> =
+  & NonTransformableClientRequestConfig<Tokens>
+  & { transformer?: ClassConstructor<Response extends Array<infer U> ? U : Response> };
 
 
-export interface NonTransformableClientRequestConfig<Tokens extends string> {
+export type NonTransformableClientRequestConfig<Tokens extends string> =
+  & BaseClientRequestConfig<Tokens>
+  & RequestType;
+
+
+interface BaseClientRequestConfig<Tokens extends string> {
   /** The endpoint url to call */
   url?: string;
 
-  /** The HTTP Method to use */
-  method?: RequestMethod;
-
-  /** Data to send through body */
-  data?: { [key: string]: any };
+  // /** The HTTP Method to use */
+  // method?: RequestMethod;
+  //
+  // /** Data to send through body */
+  // data?: { [key: string]: any };
 
   /** Request params to append to search string */
   params?: { [key: string]: any };
@@ -203,4 +207,50 @@ export interface NonTransformableClientRequestConfig<Tokens extends string> {
 
   /** Append token on request */
   useTokens?: Partial<Record<Tokens, UseTokenTransporter>>;
+}
+
+
+/* --------
+ * Method Dependent Request
+ * -------- */
+type RequestType = GetRequestType | DataSendRequestType;
+
+interface GetRequestType {
+  /** The HTTP Method to use */
+  method?: 'GET';
+}
+
+interface DataSendRequestType {
+  /** The HTTP Method to use */
+  method?: Exclude<RequestMethod, 'get' | 'GET'>;
+
+  /** Data to send through body */
+  data?: { [key: string]: any } | FormData;
+
+  /** List of files to append to request */
+  files?: { [key: string]: Blob | FileDescriptor | (Blob | FileDescriptor)[] };
+}
+
+
+/* --------
+ * Files Types and Interfaces
+ * -------- */
+export type FileDescriptor = FileDescriptorData & (Base64FileDescriptor | FSFileDescriptor);
+
+interface Base64FileDescriptor {
+  /** Base64 file */
+  base64: string;
+}
+
+interface FSFileDescriptor {
+  /** The local file system uri */
+  uri: string;
+}
+
+interface FileDescriptorData {
+  /** The name of the file to send */
+  name?: string;
+
+  /** The mime file type */
+  type: string;
 }

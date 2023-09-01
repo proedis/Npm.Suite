@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 
 import type { AnyObject, Serializable } from '@proedis/types';
 
-import { Deferred, hasEqualHash, isNil, isObject, isValidString, mergeObjects, will } from '@proedis/utils';
+import { Deferred, hasEqualHash, isNil, isObject, isValidString, mergeObjects, will, isBrowser } from '@proedis/utils';
 
 import Logger from './lib/Logger/Logger';
 import Options from './lib/Options/Options';
@@ -59,6 +59,68 @@ export default class Client<UserData extends Serializable, StoredData extends Se
    */
   public static areDataEquals(oldData: any, newData: any): boolean {
     return hasEqualHash(oldData, newData);
+  }
+
+
+  /**
+   * Convert a base64 string into a Blob file.
+   * This utility function could be used in browser only
+   * @param base64Data Complete Base64 string, could contain data uri information
+   * @param contentType The content type of the file, if not provided, it will be extracted from base64 is present
+   * @param sliceSize Slice size used to aggregate bytes
+   */
+  public static blobFromBase64(base64Data: string, contentType: string | null, sliceSize: number = 512): Blob {
+    /** Check code is running on browser */
+    if (!isBrowser) {
+      throw new Error('Client.blobFromBase64 method could be used only on Browser');
+    }
+
+    /**
+     * Safe convert the base64Data, extracting information from string.
+     * A data URI base64 contains information like 'data:image/png;base64,'
+     * The real content of the Base64 type is placed after the comma.
+     */
+    const [ dataUri, content ] = base64Data.indexOf(',') !== -1
+      ? base64Data.split(',')
+      : [ undefined, base64Data ];
+
+    /** Compute the content type, if not provided */
+    const fileContentType = (() => {
+      /** Use the user-defined content type if provided */
+      if (typeof contentType === 'string') {
+        return contentType;
+      }
+
+      /** Extract the content type from match */
+      const matches = (dataUri || '').match(/:(.*);/);
+
+      if (matches) {
+        return matches[1];
+      }
+
+      /** Fallback to the generic type */
+      return 'application/octet-stream';
+    })();
+
+    /** Create the blob from content */
+    const binaryString = window.atob(content);
+
+    /** Create the blob using right ContentType */
+    const byteArrays = [];
+
+    for (let offset = 0; offset < binaryString.length; offset += sliceSize) {
+      const slice = binaryString.slice(offset, offset + sliceSize);
+
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+
+    return new Blob(byteArrays, { type: fileContentType });
   }
 
 
@@ -520,7 +582,6 @@ export default class Client<UserData extends Serializable, StoredData extends Se
     const {
       url: initialUrl,
       method = 'GET',
-      data,
       params,
       requestConfig,
       transformer,
@@ -533,10 +594,62 @@ export default class Client<UserData extends Serializable, StoredData extends Se
       ...requestConfig,
       url,
       method,
-      data,
       params,
       signal: abortSignal
     };
+
+    /** Compile the data to send if the request differs from 'GET' */
+    if (method.toUpperCase() !== 'GET' && ('data' in compiledRequest || 'files' in compiledRequest)) {
+      /** Extract the data and the file object from config */
+      const { data, files } = compiledRequest;
+
+      /** If the file object is empty, place the data in the AxiosRequestConfig */
+      if (isNil(files)) {
+        /** Add data to request */
+        axiosRequestConfig.data = data;
+      }
+      /** If a file object exists, must append files to data before send it */
+      else {
+        /** Create the form data objects */
+        const formData = data && data instanceof FormData ? data : new FormData();
+
+        /** If data is not a FormData object, add all keys to the new object */
+        if (data && !(data instanceof FormData)) {
+          Object.keys(data).forEach((key) => {
+            formData.append(key, JSON.stringify(data[key]));
+          });
+        }
+
+        /** Compile the file to upload within the FormData */
+        Object.entries(files || {}).forEach(([ field, filesEntry ]) => {
+          (Array.isArray(filesEntry) ? filesEntry : [ filesEntry ]).forEach((file) => {
+            /** Append to form data if file is already a blob */
+            if (file instanceof Blob) {
+              formData.append(field, file, field);
+            }
+            /** Else, if file is an uri referred file, append as is */
+            else if ('uri' in file) {
+              formData.append(field, file as any, file.name || field);
+            }
+            /** Else, if a base64 string exists, convert to blob */
+            else if ('base64' in file) {
+              formData.append(field, Client.blobFromBase64(file.base64, file.type), file.name || field);
+            }
+          });
+        });
+
+        /** Add the new form data to axios request config */
+        axiosRequestConfig.data = formData;
+      }
+    }
+
+    /** Set the right header while sending data as FormData */
+    if (axiosRequestConfig.data && axiosRequestConfig.data instanceof FormData && !(axiosRequestConfig.headers?.['Content-Type'])) {
+      axiosRequestConfig.headers = {
+        ...axiosRequestConfig.headers,
+        ['Content-Type']: 'multipart/form-data'
+      };
+    }
 
     this._requestLogger.debug('Created base AxiosRequestConfig from user request', compiledRequest);
 
