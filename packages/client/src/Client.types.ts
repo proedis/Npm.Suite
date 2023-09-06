@@ -235,22 +235,22 @@ interface DataSendRequestType {
 /* --------
  * Files Types and Interfaces
  * -------- */
-export type FileDescriptor = FileDescriptorData & (Base64FileDescriptor | FSFileDescriptor);
+export type FileDescriptor = FileDescriptorData & (Base64FileDescriptor | ReactNativeFileDescriptor);
 
 interface Base64FileDescriptor {
   /** Base64 file */
   base64: string;
 }
 
-interface FSFileDescriptor {
+interface ReactNativeFileDescriptor {
   /** The local file system uri */
   uri: string;
 }
 
 interface FileDescriptorData {
-  /** The name of the file to send */
-  name?: string;
-
   /** The mime file type */
   type: string;
+
+  /** The name of the file to send */
+  name: string;
 }

@@ -124,6 +124,77 @@ export default class Client<UserData extends Serializable, StoredData extends Se
   }
 
 
+  /**
+   * Easily transform any plain JavaScript object into a FormData instance.
+   * If existing form data is provided through arguments, new data will be
+   * appended to existing form data instead of creating a new one
+   */
+  public static toFormData(object: any, formData: FormData = new FormData(), parentKey?: string): FormData {
+    /** Initialize a checker to get if function is executing on ReactNative platform */
+    const isReactNative = typeof (formData as any).getParts === 'function';
+
+    /** Initialize a function to check if a value is a Blob */
+    const isBlob = (value: any) => (
+      isReactNative
+        ? (isObject(value) && value.uri !== undefined)
+        : (isObject(value) && value instanceof Blob)
+    );
+
+    /** Undefined object will be skipped */
+    if (object === undefined) {
+      return formData;
+    }
+
+    /** Null objects are treated as empty data */
+    if (object === null) {
+      if (typeof parentKey === 'string') {
+        formData.append(parentKey, '');
+      }
+      return formData;
+    }
+
+    /** Boolean value will be converted to string */
+    if (typeof object === 'boolean' && typeof parentKey === 'string') {
+      formData.append(parentKey, object.toString());
+      return formData;
+    }
+
+    /** If the object is an Array, loop through each value */
+    if (Array.isArray(object) && typeof parentKey === 'string') {
+      if (!!object.length) {
+        object.forEach((item, index) => {
+          /** Create the key based on item index */
+          const key = `${parentKey}[${index}]`;
+          /** Serialize entire item using recursion */
+          Client.toFormData(item, formData, key);
+        });
+      }
+      return formData;
+    }
+
+    /** Update date transforming into conventional ISO string */
+    if (object instanceof Date && typeof parentKey === 'string') {
+      formData.append(parentKey, object.toISOString());
+      return formData;
+    }
+
+    /** Serialize nested objects, only if not Blob file */
+    if (isObject(object) && !isBlob(object)) {
+      Object.keys(object).forEach((key) => {
+        Client.toFormData(object[key], formData, typeof parentKey === 'string' ? `${parentKey}.${key}` : key);
+      });
+      return formData;
+    }
+
+    /** Append the value as is and return */
+    if (typeof parentKey === 'string') {
+      formData.append(parentKey, object);
+    }
+
+    return formData;
+  }
+
+
   // ----
   // Static constant properties
   // ----
@@ -615,9 +686,7 @@ export default class Client<UserData extends Serializable, StoredData extends Se
 
         /** If data is not a FormData object, add all keys to the new object */
         if (data && !(data instanceof FormData)) {
-          Object.keys(data).forEach((key) => {
-            formData.append(key, JSON.stringify(data[key]));
-          });
+          Client.toFormData(data, formData);
         }
 
         /** Compile the file to upload within the FormData */
