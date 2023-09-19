@@ -66,7 +66,7 @@ export function useClientStorage(): UseClientStorageReturn {
   const client = useClient();
   const storage = useClientSubject(client.storage);
   const setStorageBind = React.useMemo(
-    () => client.storage.set.bind(client),
+    () => client.storage.set.bind(client.storage),
     [ client ]
   );
   return [ storage, setStorageBind ];
