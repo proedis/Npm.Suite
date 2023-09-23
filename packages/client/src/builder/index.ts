@@ -128,7 +128,6 @@ export default class ClientBuilder<
    * This method could be used to provide initial data for Client instance
    * and at the same time infer the type of the StoredData
    * @param initialData
-   * @param version
    */
   public withStoredData<T extends Serializable>(initialData: T): ClientBuilder<UserData, T, Tokens> {
     this._storedData = initialData;
