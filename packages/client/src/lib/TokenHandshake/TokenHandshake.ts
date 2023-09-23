@@ -271,8 +271,14 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
          * query parameters
          */
         if (queryParamExtractor.hideWhenExtracted) {
+          /** Remove the token from the UrlSearchParams collection */
           urlSearchParams.delete(queryParamExtractor.extract.token);
-          window.location.search = urlSearchParams.toString();
+          /** Replace the history, removing search param without reloading the browser */
+          window.history.replaceState(
+            null,
+            '',
+            [ window.location.pathname, urlSearchParams.toString() ].filter(Boolean).join('?')
+          );
         }
 
         /** Return consolidated token */
