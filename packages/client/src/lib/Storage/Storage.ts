@@ -1,4 +1,4 @@
-import { Deferred, hasEqualHash, mergeObjects, will } from '@proedis/utils';
+import { Deferred, hasEqualHash, isNil, mergeObjects, will } from '@proedis/utils';
 import type { Serializable } from '@proedis/types';
 
 import ClientSubject from '../ClientSubject/ClientSubject';
@@ -47,7 +47,7 @@ export default class Storage<Data extends Serializable> extends ClientSubject<Da
     persistency: StoragePersistency,
     initialData: Data,
     storage: StorageProvider,
-    private readonly _version: number = 1
+    version?: number
   ) {
     /** Init the parent emitter */
     super(`Storage::${_namespace}`);
@@ -75,14 +75,21 @@ export default class Storage<Data extends Serializable> extends ClientSubject<Da
     /** Await the get of stored data and complete initialization */
     this._store.get<Stored<Data>>(this._key)
       .then((data) => {
-        /** If data has not been found, or the version is the same, initialize with default data */
-        if (!data || data.__version === this._version) {
-          initAndResolve({ ...data, __version: this._version } as Stored<Data>);
+        /**
+         * If no data has been found on local storage,
+         * or the version has been disabled (passing a nil value)
+         * or the version differs between stored data and new data
+         */
+        if (!data || typeof version !== 'number' || data.__version === version) {
+          initAndResolve(data ?? initialData);
           return;
         }
-        this._storageLogger.warn('Upgrading the Storage');
+
+        this._storageLogger.warn(`Upgrading the Storage from version ${data.__version ?? 'none'} to version ${version}`);
+
         /** Merge the original data with new storage */
-        const upgradedStore: Serializable = { __version: this._version };
+        const upgradedStore: Serializable = { __version: version };
+
         /** Produce a shallow merge between the two objects */
         Object.keys(initialData).forEach((storeKey) => {
           /** If the store key doesn't exist in original data, add to upgraded store */
@@ -91,7 +98,7 @@ export default class Storage<Data extends Serializable> extends ClientSubject<Da
             upgradedStore[storeKey] = initialData[storeKey];
           }
           /** If the type differs between objects use initial data */
-          else if (typeof initialData[storeKey] !== typeof data[storeKey]) {
+          else if (!isNil(initialData[storeKey]) && typeof initialData[storeKey] !== typeof data[storeKey]) {
             this._storageLogger.warn(
               `Type of stored key ${storeKey} differs from new one, replace ` +
               `[${typeof initialData[storeKey]} !== ${typeof data[storeKey]}}]`
