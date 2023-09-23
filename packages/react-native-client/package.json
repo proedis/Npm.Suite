@@ -1,6 +1,6 @@
 {
   "name": "@proedis/react-native-client",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Dedicated Package and Utility to use @proedis/client on react-native",
   "keywords": [
     "proedis",
@@ -34,7 +34,7 @@
     "build": "rollup --config ../../rollup.config.mjs"
   },
   "dependencies": {
-    "@proedis/utils": "1.1.7",
+    "@proedis/utils": "1.2.0",
     "@react-native-async-storage/async-storage": "1.17.11"
   },
   "devDependencies": {
