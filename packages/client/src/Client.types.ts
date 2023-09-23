@@ -132,29 +132,19 @@ export type AuthAction<T extends Function> = Partial<Record<AuthActionType, T>> 
 /* --------
  * Client State
  * -------- */
-export type LoadingClientState = {
-  hasAuth: false;
-  isLoaded: false;
-  userData: null;
-};
-
 export type UnauthorizedClientState = {
   hasAuth: false;
-  isLoaded: true;
   userData: null;
 };
 
 export type AuthorizedClientState<UserData> = {
   hasAuth: true;
-  isLoaded: true;
   userData: UserData;
 };
 
 export type ClientState<UserData> =
-  { isReady: boolean }
-  & (LoadingClientState
-  | UnauthorizedClientState
-  | AuthorizedClientState<UserData>);
+  { isReady: boolean, isLoaded: boolean }
+  & (UnauthorizedClientState | AuthorizedClientState<UserData>);
 
 
 /* --------

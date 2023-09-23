@@ -294,10 +294,13 @@ export default class Client<UserData extends Serializable, StoredData extends Se
 
     /** Initialize the client */
     this._initializeClient()
-      .then(this._updateUserData.bind(this))
+      .then((userData) => {
+        return this._updateUserData(userData);
+      })
       .catch((error) => {
         this._initLogger.error('Unhandled exception occurred while initializing the Client', error);
-      });
+      })
+      .finally(() => this.state.set('isLoaded', true));
   }
 
 
@@ -417,14 +420,12 @@ export default class Client<UserData extends Serializable, StoredData extends Se
     return this.state.transact((curr) => (
       userData
         ? {
-          isReady : curr.isReady,
-          isLoaded: true,
+          ...curr,
           hasAuth : true,
           userData: userData
         }
         : {
-          isReady : curr.isReady,
-          isLoaded: true,
+          ...curr,
           hasAuth : false,
           userData: null
         }
