@@ -1,6 +1,6 @@
 {
   "name": "@proedis/utils",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Set of smart utilities and reusable shared functions",
   "keywords": [
     "proedis",
