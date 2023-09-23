@@ -136,10 +136,12 @@ export default class Storage<Data extends Serializable> extends ClientSubject<Da
    * @param key
    * @param value
    */
-  public async set<Key extends keyof Data>(key: Key, value: Data[Key] | ((current: Data[Key]) => Data[Key])) {
+  public async set<Key extends keyof Data>(key: Key, value: (Data[Key] | ((current: Data[Key]) => Data[Key]))) {
     await this.persist({
       ...this.value,
-      [key]: value
+      [key]: typeof value === 'function'
+        ? (value as ((current: Data[Key]) => Data[Key]))(this.value[key])
+        : value
     });
   }
 
