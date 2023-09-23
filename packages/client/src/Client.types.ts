@@ -34,6 +34,13 @@ export interface ClientSettings<UserData extends Serializable, StoredData extend
   /** Customize providers for internal Client Module */
   providers?: Partial<ClientProviders>;
 
+  /**
+   * Set the storage version.
+   * If the version doesn't match with storage saved version, the storage
+   * will be rebuilt, merging old storage into new storage
+   */
+  storageVersion?: number;
+
   /** Configure usable tokens while dialogate with API server */
   tokens?: Record<Tokens, TokenHandshakeConfiguration<UserData, StoredData, Tokens>>;
 

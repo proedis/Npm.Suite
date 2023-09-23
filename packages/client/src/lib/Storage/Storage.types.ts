@@ -17,6 +17,8 @@ export interface StorageApi {
 
   name: string;
 
+  get<T>(key: string): Promise<T | null>;
+
   get<T>(key: string, alternative?: any): Promise<T>;
 
   set(key: string, data: any, overwrite?: boolean): Promise<void>;
