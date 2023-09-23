@@ -125,7 +125,51 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
     /** Assert is not pending */
     if (!this._getDeferred?.isPending) {
       this._handshakeLogger.debug('Setting the Deferred promise to avoid multiple simultaneous requests');
+      /** Create the new Deferred Object */
       this._getDeferred = new Deferred<TokenSpecification>();
+      /** Attach a catcher to ensure at least one observer has been set and avoid Uncaught errors */
+      this._getDeferred.promise.catch(() => {
+        this._handshakeLogger.debug('Rejected Promise');
+      });
+    }
+  }
+
+
+  /**
+   * If a deferred promise exists, and is still waiting for the resolution resolve it and unload
+   * @param specification
+   * @private
+   */
+  private _resolveDeferredPromise(specification: TokenSpecification) {
+    /** Assert the deferred object exists */
+    if (this._getDeferred) {
+      /** Resolve if it is pending */
+      if (this._getDeferred.isPending) {
+        this._handshakeLogger.debug('Resolving the Deferred promise to fulfill all simultaneous requests');
+        this._getDeferred.resolve(specification);
+      }
+      /** Unload the deferred promise */
+      this._handshakeLogger.debug('Unloading the Deferred promise');
+      this._getDeferred = undefined;
+    }
+  }
+
+
+  /**
+   * If a deferred promise exists, and is still waiting for the resolution reject it and unload
+   * @private
+   */
+  private _rejectDeferredPromise() {
+    /** Assert the deferred object exists */
+    if (this._getDeferred) {
+      /** Resolve if it is pending */
+      if (this._getDeferred.isPending) {
+        this._handshakeLogger.debug('Rejecting the Deferred promise to abort all simultaneous requests');
+        this._getDeferred.reject();
+      }
+      /** Unload the deferred promise */
+      this._handshakeLogger.debug('Unloading the Deferred promise');
+      this._getDeferred = undefined;
     }
   }
 
@@ -143,10 +187,7 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
     await this.transact(() => specification);
 
     /** Check the pending deferred request to resolve it */
-    if (this._getDeferred?.isPending) {
-      this._getDeferred.resolve(specification);
-      this._getDeferred = undefined;
-    }
+    this._resolveDeferredPromise(specification);
 
     /** Return the consolidated token */
     return specification;
@@ -339,10 +380,7 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
     }
 
     /** Check the pending deferred request to reject it */
-    if (this._getDeferred?.isPending) {
-      this._getDeferred.reject();
-      this._getDeferred = undefined;
-    }
+    this._rejectDeferredPromise();
   }
 
 
