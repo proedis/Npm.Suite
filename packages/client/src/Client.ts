@@ -353,10 +353,11 @@ export default class Client<UserData extends Serializable, StoredData extends Se
     }
 
     /** Use built in api to get user data, wrap into safe request to avoid unhandled error */
-    const [ userDataError, userData ] = await will(this.request<UserData>(this._builtInApi('getUserData')()));
+    const [ userDataError, userData ] = await this.safeRequest<UserData>(this._builtInApi('getUserData')());
 
     /** Assert no error occurred */
     if (userDataError) {
+      this._initLogger.error('UserData could not be loaded, assuming client is unauthenticated', userDataError);
       return returnAndResolve(null);
     }
 
@@ -750,8 +751,12 @@ export default class Client<UserData extends Serializable, StoredData extends Se
         : response.data;
     }
     catch (error) {
-      this._requestLogger.error(`Error received from ${url}`, error);
+      /** Error message will be showed only once client is fully loaded */
+      if (this.state.value.isLoaded) {
+        this._requestLogger.error(`Error received from ${url}`, error);
+      }
 
+      /** Throw the error as RequestError object */
       throw RequestError.fromError(error);
     }
   }

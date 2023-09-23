@@ -319,8 +319,6 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
 
       /** Throw if an invalid request has been made */
       if (grantTokenError || !this.isValid(tokenResponse)) {
-        this._handshakeLogger.error('An error has been received from API when granting a new Token');
-
         /** Flush tokens */
         throw await this._flushToken(grantTokenError);
       }
@@ -467,11 +465,9 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
     if (!transporter) {
       /** Show error only if a transporter was requested */
       if (transporterType !== false) {
-        this._handshakeLogger.error(
+        throw new Error(
           `Requested transporter '${(transporterType === true ? 'DefaultTransporter' : transporterType)}' was not found`
         );
-
-        throw new Error('Invalid Token');
       }
 
       return;
@@ -483,13 +479,11 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
     const [ tokenError, specification ] = await will(this.getSpecification());
 
     if (tokenError) {
-      this._handshakeLogger.error('Error while retrieving token to append', tokenError);
       throw tokenError;
     }
 
     if (!specification) {
-      this._handshakeLogger.error('Token has been get without errors, but no token exists');
-      throw new Error('Invalid Token');
+      throw new Error('Token has been get without errors, but no token exists');
     }
 
     /** Append the Token */
@@ -519,7 +513,7 @@ export default class TokenHandshake<UserData extends Serializable, StoreData ext
         break;
 
       default:
-        this._handshakeLogger.error(`Invalid Transporter Type Found : ${(transporter as any).type}`);
+        throw new Error(`Invalid Transporter Type Found : ${(transporter as any).type}`);
     }
   }
 
