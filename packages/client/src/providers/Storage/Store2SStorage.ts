@@ -18,7 +18,6 @@ export default class Store2SStorage implements StorageApi {
   }
 
 
-  public get<T>(key: any): Promise<T | null>;
   public get<T>(key: any, alternative?: any): Promise<T> {
     const result = this._store.get(key, alternative);
     return Promise.resolve(result as T);

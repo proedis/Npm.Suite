@@ -1,16 +1,10 @@
-import { Deferred, hasEqualHash, isNil, mergeObjects, will } from '@proedis/utils';
+import { Deferred, hasEqualHash, mergeObjects, will } from '@proedis/utils';
 import type { Serializable } from '@proedis/types';
 
 import ClientSubject from '../ClientSubject/ClientSubject';
 import Logger from '../Logger/Logger';
 
 import type { StorageApi, StorageProvider, StoragePersistency } from './Storage.types';
-
-
-/* --------
- * Internal Types
- * -------- */
-type Stored<T extends Serializable> = T & { __version?: number };
 
 
 /* --------
@@ -46,8 +40,7 @@ export default class Storage<Data extends Serializable> extends ClientSubject<Da
     private readonly _namespace: string,
     persistency: StoragePersistency,
     initialData: Data,
-    storage: StorageProvider,
-    version?: number
+    storage: StorageProvider
   ) {
     /** Init the parent emitter */
     super(`Storage::${_namespace}`);
@@ -62,57 +55,21 @@ export default class Storage<Data extends Serializable> extends ClientSubject<Da
     this._initDeferred = new Deferred<void>();
 
     /** Create the initial function to resolve the deferred object and complete the process */
-    const initAndResolve = (data: Stored<Data>): void => {
+    const initAndResolve = (data: Data): Data => {
       /** Resolve the initDeferred object */
       if (this._initDeferred) {
-        this._initDeferred.resolve();
+        this._initDeferred.resolve(data);
         this._initDeferred = undefined;
       }
       /** Complete the initialization process of the Subject */
       this._initializeSubject(data);
+      return data;
     };
 
     /** Await the get of stored data and complete initialization */
-    this._store.get<Stored<Data>>(this._key)
+    this._store.get<Data>(this._key, initialData)
       .then((data) => {
-        /**
-         * If no data has been found on local storage,
-         * or the version has been disabled (passing a nil value)
-         * or the version differs between stored data and new data
-         */
-        if (!data || typeof version !== 'number' || data.__version === version) {
-          initAndResolve(data ?? initialData);
-          return;
-        }
-
-        this._storageLogger.warn(`Upgrading the Storage from version ${data.__version ?? 'none'} to version ${version}`);
-
-        /** Merge the original data with new storage */
-        const upgradedStore: Serializable = { __version: version };
-
-        /** Produce a shallow merge between the two objects */
-        Object.keys(initialData).forEach((storeKey) => {
-          /** If the store key doesn't exist in original data, add to upgraded store */
-          if (!(storeKey in data)) {
-            this._storageLogger.warn(`Creating new key ${storeKey}`);
-            upgradedStore[storeKey] = initialData[storeKey];
-          }
-          /** If the type differs between objects use initial data */
-          else if (!isNil(initialData[storeKey]) && typeof initialData[storeKey] !== typeof data[storeKey]) {
-            this._storageLogger.warn(
-              `Type of stored key ${storeKey} differs from new one, replace ` +
-              `[${typeof initialData[storeKey]} !== ${typeof data[storeKey]}}]`
-            );
-            upgradedStore[storeKey] = initialData[storeKey];
-          }
-          /** Else, clone original value */
-          else {
-            this._storageLogger.warn(`Original key ${storeKey} has been kept`);
-            upgradedStore[storeKey] = data[storeKey];
-          }
-        });
-        /** Save upgraded store */
-        initAndResolve(upgradedStore as Stored<Data>);
+        initAndResolve(data);
       })
       .catch((error) => {
         this._storageLogger.error('An error occurred while initializing the Storage, restore to initial data', error);

@@ -39,8 +39,6 @@ export default class ClientBuilder<
 
   private _storedData: Serializable = {};
 
-  private _storageVersion: number = 1;
-
   private _logger: LoggerOptions | undefined;
 
   private _server: EnvironmentDependentOptions<ServerData> | undefined;
@@ -132,12 +130,8 @@ export default class ClientBuilder<
    * @param initialData
    * @param version
    */
-  public withStoredData<T extends Serializable>(initialData: T, version?: number): ClientBuilder<UserData, T, Tokens> {
+  public withStoredData<T extends Serializable>(initialData: T): ClientBuilder<UserData, T, Tokens> {
     this._storedData = initialData;
-
-    if (typeof version === 'number') {
-      this._storageVersion = version;
-    }
 
     return this as any;
   }
@@ -277,7 +271,6 @@ export default class ClientBuilder<
     /** Create the client */
     return new Client<UserData, StoredData, Tokens>(this._appName, {
       initialStorage   : this._storedData as StoredData,
-      storageVersion   : this._storageVersion,
       logger           : this._logger,
       api              : this._api,
       extras           : this._extras,

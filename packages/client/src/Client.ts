@@ -269,8 +269,7 @@ export default class Client<UserData extends Serializable, StoredData extends Se
       'ClientStore',
       'local',
       _settings.initialStorage,
-      this._providers.storage,
-      _settings.storageVersion
+      this._providers.storage
     );
 
     /** Create TokenHandshake for all requested tokens */
