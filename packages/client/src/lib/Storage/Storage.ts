@@ -1,4 +1,4 @@
-import { Deferred, hasEqualHash, mergeObjects, will } from '@proedis/utils';
+import { Deferred, hasEqualHash, deepClone, will } from '@proedis/utils';
 import type { Serializable } from '@proedis/types';
 
 import ClientSubject from '../ClientSubject/ClientSubject';
@@ -155,7 +155,7 @@ export default class Storage<Data extends Serializable> extends ClientSubject<Da
     await this.isInitialized();
 
     /** Clone current data */
-    const deepDataCopy = mergeObjects<Data>({}, this.value);
+    const deepDataCopy = deepClone<Data>(this.value);
 
     /** Save the new data after transaction */
     await this.persist(updateFn(deepDataCopy));
