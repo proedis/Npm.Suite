@@ -24,9 +24,13 @@ export type ClientTokens = ContextClient extends Client<any, any, infer T> ? T :
  * -------- */
 export type UseClientStateReturn = ClientState<ClientUserData>;
 
+type ClientStorageUpdater<K extends keyof ClientStorageData> =
+  | ClientStorageData[K]
+  | ((current: ClientStorageData[K]) => ClientStorageData[K]);
+
 export type UseClientStorageReturn = [
   ClientStorageData,
-  <K extends keyof ClientStorageData>(key: K, value: ClientStorageData[K]) => Promise<void>
+  <K extends keyof ClientStorageData>(key: K, value: ClientStorageUpdater<K>) => Promise<void>
 ];
 
 export type UseClientTokenReturn = Partial<TokenSpecification>;
