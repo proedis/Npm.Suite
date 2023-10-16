@@ -8,7 +8,6 @@ export type {
   ClientRequest,
   ClientRequestConfig,
   ClientState,
-  LoadingClientState,
   UnauthorizedClientState
 } from './Client.types';
 
