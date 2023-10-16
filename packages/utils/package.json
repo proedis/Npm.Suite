@@ -1,6 +1,6 @@
 {
   "name": "@proedis/utils",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Set of smart utilities and reusable shared functions",
   "keywords": [
     "proedis",
@@ -40,7 +40,7 @@
   },
   "gitHead": "8cba9bf577350eaf9ee04be523bd47053c9e7495",
   "dependencies": {
-    "@proedis/types": "1.0.8",
+    "@proedis/types": "1.0.9",
     "clone-deep": "^4.0.1",
     "get-value": "^3.0.1",
     "natural-compare": "^1.4.0",

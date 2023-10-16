@@ -1,6 +1,6 @@
 {
   "name": "@proedis/types",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "A set of TypeScript base Types",
   "keywords": [
     "proedis",
