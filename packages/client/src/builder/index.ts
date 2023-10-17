@@ -1,6 +1,6 @@
 import type { AxiosRequestConfig } from 'axios';
 
-import type { Serializable } from '@proedis/types';
+import type { AnyObject } from '@proedis/types';
 
 import Client from '../Client';
 import type {
@@ -27,8 +27,8 @@ type Builder<T, A = T> = T | ((current: A | undefined) => T);
  * Client Builder Definition
  * -------- */
 export default class ClientBuilder<
-  UserData extends Serializable = {},
-  StoredData extends Serializable = {},
+  UserData extends AnyObject = {},
+  StoredData extends AnyObject = {},
   Tokens extends string = never
 > {
 
@@ -37,7 +37,7 @@ export default class ClientBuilder<
   // Private properties
   // ----
 
-  private _storedData: Serializable = {};
+  private _storedData: AnyObject = {};
 
   private _logger: LoggerOptions | undefined;
 
@@ -113,11 +113,11 @@ export default class ClientBuilder<
    * and to define an extractor for user data
    * @param extractor
    */
-  public withUserData<T extends Serializable>(
+  public withUserData<T extends AnyObject>(
     extractor?: ClientSettings<T, StoredData, Tokens>['userDataExtractor']
   ): ClientBuilder<T, StoredData, Tokens> {
     /** Save the extractor */
-    this._userDataExtractor = extractor;
+    this._userDataExtractor = extractor as any;
 
     return this as any;
   }
@@ -129,7 +129,7 @@ export default class ClientBuilder<
    * and at the same time infer the type of the StoredData
    * @param initialData
    */
-  public withStoredData<T extends Serializable>(initialData: T): ClientBuilder<UserData, T, Tokens> {
+  public withStoredData<T extends AnyObject>(initialData: T): ClientBuilder<UserData, T, Tokens> {
     this._storedData = initialData;
 
     return this as any;

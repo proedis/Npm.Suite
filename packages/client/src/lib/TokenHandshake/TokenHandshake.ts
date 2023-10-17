@@ -1,6 +1,6 @@
 import { Deferred, isBrowser, isObject, isValidString, will } from '@proedis/utils';
 
-import type { Serializable } from '@proedis/types';
+import type { AnyObject } from '@proedis/types';
 
 import type { AxiosRequestConfig } from 'axios';
 
@@ -24,7 +24,7 @@ import type {
 import RequestError from '../../Client.RequestError';
 
 
-export default class TokenHandshake<UserData extends Serializable, StoreData extends Serializable, Tokens extends string>
+export default class TokenHandshake<UserData extends AnyObject, StoreData extends AnyObject, Tokens extends string>
   extends Storage<Partial<TokenSpecification>> {
 
   // ----

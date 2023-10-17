@@ -1,4 +1,4 @@
-import type { Serializable } from '@proedis/types';
+import type { AnyObject } from '@proedis/types';
 
 import type Client from '../../Client';
 import type { NonTransformableClientRequest } from '../../Client.types';
@@ -12,8 +12,8 @@ import type { AuthAction, AuthActionType } from '../../Client.types';
 // Token Handshake Configuration
 // ----
 export interface TokenHandshakeConfiguration<
-  UserData extends Serializable,
-  StoredData extends Serializable,
+  UserData extends AnyObject,
+  StoredData extends AnyObject,
   Tokens extends string
 > {
   /** User defined function to check if a token is valid or not */
@@ -99,12 +99,12 @@ type TokenAsQueryParamsTransporter = { type: 'query', value: string };
 // A token extractor define how a token could be extracted from
 // a Server Response received by the client
 // ----
-export type TokenExtractor<Response extends Serializable> =
+export type TokenExtractor<Response extends AnyObject> =
   | TokenAuthResponseExtractor<Response>
   | TokenQueryParamExtractor
   | TokenPlainExtractor;
 
-export type TokenAuthResponseExtractor<Response extends Serializable> = {
+export type TokenAuthResponseExtractor<Response extends AnyObject> = {
   type: 'auth-response',
   extract: AuthAction<(
     authResponse: Response,

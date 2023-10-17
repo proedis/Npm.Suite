@@ -1,5 +1,5 @@
 import { Deferred, hasEqualHash, deepClone, will } from '@proedis/utils';
-import type { Serializable } from '@proedis/types';
+import type { AnyObject } from '@proedis/types';
 
 import ClientSubject from '../ClientSubject/ClientSubject';
 import Logger from '../Logger/Logger';
@@ -10,7 +10,7 @@ import type { StorageApi, StorageProvider, StoragePersistency } from './Storage.
 /* --------
  * Storage Definition
  * -------- */
-export default class Storage<Data extends Serializable> extends ClientSubject<Data> {
+export default class Storage<Data extends AnyObject> extends ClientSubject<Data> {
 
   // ----
   // Constants
@@ -21,7 +21,7 @@ export default class Storage<Data extends Serializable> extends ClientSubject<Da
   // ----
   // Private instance fields
   // ----
-  private _initDeferred: Deferred<void> | undefined;
+  private _initDeferred: Deferred<Data> | undefined;
 
   private readonly _storageLogger: Logger;
 
@@ -52,7 +52,7 @@ export default class Storage<Data extends Serializable> extends ClientSubject<Da
     this._store = storage[persistency];
 
     /** Initialize the Deferred object */
-    this._initDeferred = new Deferred<void>();
+    this._initDeferred = new Deferred<Data>();
 
     /** Create the initial function to resolve the deferred object and complete the process */
     const initAndResolve = (data: Data): Data => {
@@ -114,11 +114,14 @@ export default class Storage<Data extends Serializable> extends ClientSubject<Da
   // Public Methods
   // ----
 
-  public async isInitialized(): Promise<void> {
+  public async isInitialized(): Promise<Data> {
     /** If the deferred initialization object exists, return that */
     if (this._initDeferred) {
       return this._initDeferred.promise;
     }
+
+    /** Return a default promise resolved with data */
+    return Promise.resolve(this.value);
   }
 
 

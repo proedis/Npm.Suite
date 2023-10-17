@@ -5,7 +5,7 @@ import { plainToInstance } from 'class-transformer';
 
 import { Observable } from 'rxjs';
 
-import type { AnyObject, Serializable } from '@proedis/types';
+import type { AnyObject } from '@proedis/types';
 
 import { Deferred, hasEqualHash, isNil, isObject, isValidString, mergeObjects, will, isBrowser } from '@proedis/utils';
 
@@ -38,7 +38,7 @@ import RequestSubscriber from './Client.RequestSubscriber';
 /* --------
  * Client definition
  * -------- */
-export default class Client<UserData extends Serializable, StoredData extends Serializable, Tokens extends string> {
+export default class Client<UserData extends AnyObject, StoredData extends AnyObject, Tokens extends string> {
 
 
   // ----

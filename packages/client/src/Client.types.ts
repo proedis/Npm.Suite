@@ -2,7 +2,7 @@ import type { AxiosRequestConfig, Method as RequestMethod } from 'axios';
 
 import type { ClassConstructor } from 'class-transformer';
 
-import type { AnyObject, Serializable } from '@proedis/types';
+import type { AnyObject } from '@proedis/types';
 
 import type { LoggerOptions } from './lib/Logger/Logger.types';
 import type { EnvironmentDependentOptions } from './lib/Options/Options.types';
@@ -15,7 +15,7 @@ import type Client from './Client';
 /* --------
  * Base Client instance Settings
  * -------- */
-export interface ClientSettings<UserData extends Serializable, StoredData extends Serializable, Tokens extends string> {
+export interface ClientSettings<UserData extends AnyObject, StoredData extends AnyObject, Tokens extends string> {
   /** Default initial stored data for client */
   initialStorage: StoredData;
 
@@ -52,7 +52,7 @@ export interface ClientSettings<UserData extends Serializable, StoredData extend
 /* --------
  * Initialization Properties
  * -------- */
-export interface ClientExtras<UserData extends Serializable, StoredData extends Serializable, Tokens extends string> {
+export interface ClientExtras<UserData extends AnyObject, StoredData extends AnyObject, Tokens extends string> {
   /**
    * A function that will be executed before the first client initialization
    * flow to check if current authentication must be invalidated
@@ -64,7 +64,7 @@ export interface ClientExtras<UserData extends Serializable, StoredData extends 
 /* --------
  * Client Built In Api
  * -------- */
-export interface ClientApi<UserData extends Serializable, StoredData extends Serializable, Tokens extends string> {
+export interface ClientApi<UserData extends AnyObject, StoredData extends AnyObject, Tokens extends string> {
   /** Get user data from endpoint server */
   getUserData?: <Response>() => ClientRequest<UserData, StoredData, Tokens, Response>;
 
@@ -137,13 +137,16 @@ export type UnauthorizedClientState = {
   userData: null;
 };
 
-export type AuthorizedClientState<UserData> = {
+export type AuthorizedClientState<UserData extends AnyObject> = {
   hasAuth: true;
   userData: UserData;
 };
 
-export type ClientState<UserData> =
-  { isReady: boolean, isLoaded: boolean }
+export type ClientState<UserData extends AnyObject> =
+  {
+    isReady: boolean,
+    isLoaded: boolean
+  }
   & (UnauthorizedClientState | AuthorizedClientState<UserData>);
 
 
@@ -151,8 +154,8 @@ export type ClientState<UserData> =
  * Base client Request Configuration Object
  * -------- */
 export type ClientRequest<
-  UserData extends Serializable,
-  StoredData extends Serializable,
+  UserData extends AnyObject,
+  StoredData extends AnyObject,
   Tokens extends string,
   Response
 > =
@@ -161,8 +164,8 @@ export type ClientRequest<
 
 
 export type NonTransformableClientRequest<
-  UserData extends Serializable,
-  StoredData extends Serializable,
+  UserData extends AnyObject,
+  StoredData extends AnyObject,
   Tokens extends string
 > =
   | NonTransformableClientRequestConfig<Tokens>
@@ -190,7 +193,9 @@ interface BaseClientRequestConfig<Tokens extends string> {
   // data?: { [key: string]: any };
 
   /** Request params to append to search string */
-  params?: { [key: string]: any };
+  params?: {
+    [key: string]: any
+  };
 
   /** Override Axios Request config for this specific request */
   requestConfig?: Omit<AxiosRequestConfig, Exclude<keyof ClientRequestConfig<Tokens, Response>, 'requestConfig'>>;
@@ -215,10 +220,14 @@ interface DataSendRequestType {
   method?: Exclude<RequestMethod, 'get' | 'GET'>;
 
   /** Data to send through body */
-  data?: { [key: string]: any } | FormData;
+  data?: {
+    [key: string]: any
+  } | FormData;
 
   /** List of files to append to request */
-  files?: { [key: string]: Blob | FileDescriptor | (Blob | FileDescriptor)[] };
+  files?: {
+    [key: string]: Blob | FileDescriptor | (Blob | FileDescriptor)[]
+  };
 }
 
 

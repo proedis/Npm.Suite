@@ -21,16 +21,6 @@ export type RecursivePartial<T> = {
 
 
 /* --------
- * Serializable Objects
- * -------- */
-
-type SerializableValue = string | number | boolean | null | undefined;
-type SerializableObject = Record<string, SerializableValue>;
-
-export type Serializable = Record<string, SerializableValue | SerializableValue[] | SerializableObject | SerializableObject[]>;
-
-
-/* --------
  * Object Navigation
  * -------- */
 
