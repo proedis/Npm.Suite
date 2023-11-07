@@ -1,0 +1,48 @@
+{
+  "name": "@proedis/cli",
+  "version": "1.0.0",
+  "main": "./index.js",
+  "private": true,
+  "bin": {
+    "proedis": "./index.js"
+  },
+  "scripts": {
+    "dev": "ts-node --project tsconfig.scripts.json src/index.ts"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Marco Cavanna",
+    "email": "m.cavanna@proedis.net",
+    "url": "https://proedis.net"
+  },
+  "homepage": "https://github.com/proedis/Yard4.Web",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/proedis/Yard4.Web.git"
+  },
+  "bugs": {
+    "url": "https://github.com/proedis/Yard4.Web/issues",
+    "email": "info@proedis.net"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "chalk": "4.1.2",
+    "commander": "11.1.0",
+    "eta": "3.1.1",
+    "inquirer": "8.2.6",
+    "node-fetch": "2.7.0",
+    "ora": "5.4.1",
+    "package-json": "6.5.0",
+    "pretty-error": "^4.0.0",
+    "semver": "7.5.4"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^9.0.4",
+    "@types/node-fetch": "2.6.4",
+    "cpy-cli": "5.0.0",
+    "type-fest": "4.6.0"
+  },
+  "peerDependencies": {}
+}
