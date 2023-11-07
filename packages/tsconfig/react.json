@@ -1,14 +1,9 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "display": "Proedis - React Configuration",
-  "extends": "./base.json",
+  "extends": "./web.json",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
     "noEmit": true,
     "target": "ESNext"
   }
