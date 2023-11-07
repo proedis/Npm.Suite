@@ -27,9 +27,6 @@
     "url": "https://github.com/proedis/Npm.Suite/issues",
     "email": "info@proedis.net"
   },
-  "bin": {
-    "eslint-proedis-init": "./bin/init.js"
-  },
   "peerDependencies": {
     "@typescript-eslint/eslint-plugin": "6.10.0",
     "@typescript-eslint/parser": "6.10.0",
