@@ -1,14 +1,30 @@
 import console from 'node:console';
 
 import chalk from 'chalk';
+import * as inquirer from 'inquirer';
 import ora from 'ora';
-
-import packageJson from 'package-json';
 
 import type { AbstractRunner } from '../runners/abstract.runner';
 import type { PackageManagerCommands } from './package-manager.commands';
 
 
+/* --------
+ * Internal Types
+ * -------- */
+export interface Dependency {
+  name: string;
+
+  modifier?: '^' | '~';
+
+  version?: string;
+}
+
+export type DependencyType = 'production' | 'development';
+
+
+/* --------
+ * Package Manager Abstraction
+ * -------- */
 export abstract class AbstractPackageManager {
 
   constructor(
@@ -20,24 +36,46 @@ export abstract class AbstractPackageManager {
   // ----
   // Project Dependencies Add
   // ----
-  public async addProduction(dependencies: string[]) {
-    const deps = dependencies.join(' ');
-    const command = `${this.cli.add} ${this.cli.saveFlag} ${deps}`;
-    await this.run(command, `Installing ${deps}`);
-  }
+  public async add(dependencies: (string | Dependency)[], type: DependencyType): Promise<boolean> {
+    /** Normalize dependency list to be a valid Dependency array */
+    const normalizedDependencies = dependencies.map<Dependency>((dep) => (
+      typeof dep === 'string' ? { name: dep } : dep
+    ));
 
+    console.info();
+    console.info(`Some dependencies will be installed for ${type === 'production' ? 'Production' : 'Development'}`);
+    for (const dep of normalizedDependencies) {
+      console.info([
+        '  ',
+        chalk.blue(dep.name),
+        chalk.blueBright([ '@', dep.modifier, dep.version || 'latest' ].filter(Boolean).join(''))
+      ].join(''));
+    }
+    console.info();
 
-  public async addDevelopment(dependencies: string[]) {
-    const deps = dependencies.join(' ');
-    const command = `${this.cli.add} ${this.cli.saveDevFlag} ${deps}`;
-    await this.run(command, `Installing ${deps}`);
-  }
+    const prompt = inquirer.createPromptModule();
+    const answers = await prompt<{ confirmed: boolean }>([
+      {
+        type   : 'confirm',
+        name   : 'confirmed',
+        message: 'Do you want to continue?'
+      }
+    ]);
 
+    if (!answers.confirmed) {
+      return false;
+    }
 
-  public async addChain(dependency: string, version?: string) {
-    /** Search for the package on registry */
-    const pack = await packageJson(dependency);
-    console.log(pack);
+    /** Create the command to continue */
+    const command = [
+      this.cli.add,
+      type === 'development' ? this.cli.saveDevFlag : this.cli.saveFlag,
+      ...normalizedDependencies.map((dep) => (
+        dep.version ? `${dep.name}@${dep.modifier || ''}${dep.version}` : dep.name
+      ))
+    ].filter(Boolean).join(' ');
+
+    return this.run(command, 'Installing Dependencies');
   }
 
 
@@ -54,16 +92,13 @@ export abstract class AbstractPackageManager {
   // ----
   // Project Dependencies Deleting
   // ----
-  public async deleteProduction(dependencies: string[]) {
+  public async delete(dependencies: string[], type: DependencyType) {
     const deps = dependencies.join(' ');
-    const command = `${this.cli.remove} ${this.cli.saveFlag} ${deps}`;
-    await this.run(command, `Removing ${deps}`);
-  }
-
-
-  public async deleteDevelopment(dependencies: string[]) {
-    const deps = dependencies.join(' ');
-    const command = `${this.cli.remove} ${this.cli.saveDevFlag} ${deps}`;
+    const command = [
+      this.cli.remove,
+      type === 'development' ? this.cli.saveDevFlag : this.cli.saveFlag,
+      deps
+    ].filter(Boolean).join(' ');
     await this.run(command, `Removing ${deps}`);
   }
 
@@ -79,21 +114,15 @@ export abstract class AbstractPackageManager {
   // ----
   // Main Run Command
   // ----
-  private async run(command: string, message: string) {
+  private async run(command: string, message: string): Promise<boolean> {
     /** Create and start the Spinner to provide User Feedback */
-    const spinner = ora({
-      spinner: {
-        interval: 120,
-        frames  : [ '▹▹▹▹▹', '▸▹▹▹▹', '▹▸▹▹▹', '▹▹▸▹▹', '▹▹▹▸▹', '▹▹▹▹▸' ]
-      },
-      text   : message
-    });
-    spinner.start();
+    const spinner = ora(message).start();
 
     /** Try to execute the command using default runner */
     try {
       await this.runner.run(command, true);
       spinner.succeed();
+      return true;
     }
     catch {
       spinner.fail();
@@ -104,6 +133,7 @@ export abstract class AbstractPackageManager {
           to see more details on why it errored out.`
         )
       );
+      return false;
     }
   }
 

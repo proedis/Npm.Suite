@@ -1,4 +1,6 @@
 import { readdirSync } from 'node:fs';
+import { sep as pathSeparator } from 'node:path';
+import { cwd } from 'node:process';
 
 import type { AbstractPackageManager } from './abstract.package-manager';
 
@@ -26,8 +28,11 @@ export class PackageManagerFactory {
   public static find(): AbstractPackageManager {
     const DEFAULT_PACKAGE_MANAGER = PackageManager.NPM;
 
-    try {
-      const files = readdirSync(process.cwd());
+    /** Get current working directory path parts */
+    const cwdPathParts = cwd().split(pathSeparator);
+
+    while (!!cwdPathParts.length) {
+      const files = readdirSync(cwdPathParts.join(pathSeparator));
 
       const hasYarnLockFile = files.includes('yarn.lock');
       if (hasYarnLockFile) {
@@ -39,10 +44,9 @@ export class PackageManagerFactory {
         return this.create(PackageManager.PNPM);
       }
 
-      return this.create(DEFAULT_PACKAGE_MANAGER);
+      cwdPathParts.pop();
     }
-    catch (error) {
-      return this.create(DEFAULT_PACKAGE_MANAGER);
-    }
+
+    return this.create(DEFAULT_PACKAGE_MANAGER);
   }
 }

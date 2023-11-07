@@ -5,12 +5,19 @@ import { cwd } from 'node:process';
 
 import chalk from 'chalk';
 
+import latestVersion from 'latest-version';
+import packageJson from 'package-json';
+import semver from 'semver';
+
 import type { PackageJson } from 'type-fest';
 
+import type { AbstractPackageManager, Dependency, DependencyType } from './package-managers';
 import { PackageManagerFactory } from './package-managers';
-import type { AbstractPackageManager } from './package-managers';
 
 
+/* --------
+ * Project Controller
+ * -------- */
 export class Project {
 
   // ----
@@ -24,7 +31,6 @@ export class Project {
    * If no directory could be found, it will be optionally created and returned.
    * @param name The name of the element to search to
    * @param type The type of the element to search to
-   * @param [createIfMissing] Create the directory in current work
    * @private
    */
   private static getFirstPathFor(name: string, type: 'file'): string | null;
@@ -73,10 +79,29 @@ export class Project {
 
 
   // ----
+  // Folders and Directories
+  // ----
+
+  private _rootDirectory: string | undefined;
+
+  public get rootDirectory(): string {
+    if (this._rootDirectory) {
+      return this._rootDirectory;
+    }
+
+    const srcPath = Project.getFirstPathFor('src', 'directory');
+
+    this._rootDirectory = !!srcPath ? resolve(srcPath, '..') : cwd();
+
+    return this._rootDirectory;
+  }
+
+
+  // ----
   // Package Json Fields
   // ----
 
-  private _packageJson: undefined | PackageJson;
+  private _packageJson: PackageJson | undefined;
 
   public get packageJson(): PackageJson {
     /** If package json has already been loaded, return it */
@@ -97,6 +122,37 @@ export class Project {
   }
 
 
+  public isDependencySatisfied(name: string, versionRange: string, type: DependencyType): boolean {
+    /** Get the string representation of the version */
+    const version = this.getDependencyVersion(name, type);
+    /** Assert version is a valid string */
+    if (!version) {
+      return false;
+    }
+    /** Parse the version, getting the lower acceptable by the semver string */
+    const parsedVersion = semver.minVersion(version);
+    /** Assert the version has been parsed */
+    if (!parsedVersion) {
+      return false;
+    }
+    return semver.satisfies(parsedVersion, versionRange);
+  }
+
+
+  public getDependencyVersion(name: string, type: DependencyType): string | null {
+    /** Get the right pool */
+    const pool = type === 'production' ? this.packageJson.dependencies : this.packageJson.devDependencies;
+
+    /** Assert the package exists in pool */
+    if (!pool || !(name in pool) || !pool[name]) {
+      return null;
+    }
+
+    /** Return cleaned version of the dependency */
+    return semver.clean(pool[name] as string);
+  }
+
+
   // ----
   // Package Manager Reference
   // ----
@@ -113,6 +169,87 @@ export class Project {
     this._manager = PackageManagerFactory.find();
 
     return this._manager;
+  }
+
+
+  // ----
+  // Dependency Installation
+  // ----
+
+  public async addDependencyChain(dependency: string, type: DependencyType): Promise<boolean> {
+    try {
+      /** Get package metadata from registry */
+      const metadata = await packageJson(dependency, { fullMetadata: true });
+
+      /** Extract useful data */
+      const { version, peerDependencies } = metadata;
+
+      /** Assert the version exists in returned metadata */
+      if (typeof version !== 'string') {
+        console.error(chalk.red('Invalid version found in metadata'));
+        return false;
+      }
+
+      /** Create the dependencies array to install */
+      const dependencies: Dependency[] = [];
+
+      /** Check if the main dependencies is satisfied or not */
+      if (!this.isDependencySatisfied(dependency, version, type)) {
+        dependencies.push({
+          name: dependency,
+          version
+        });
+      }
+
+      /** Add all peer dependencies to  */
+      if (peerDependencies) {
+        const promises = Object.keys(peerDependencies as PackageJson.Dependency).map((dep) => (
+          new Promise<void>(async (resolveDependency, reject) => {
+            /** Extract the requested version from metadata */
+            const requestedVersion = (peerDependencies as PackageJson.Dependency)[dep];
+
+            /** Assert the version exists */
+            if (!requestedVersion) {
+              console.error(chalk.red(`Could not extract requested version/range for ${dep} dependency`));
+              return reject();
+            }
+
+            /** Check if the dependency is satisfied before install it */
+            if (this.isDependencySatisfied(dep, requestedVersion, type)) {
+              return resolveDependency();
+            }
+
+            /** Get the latest version of the dependency from the registry */
+            try {
+              const latestDependencyVersion = await latestVersion(dep, { version: requestedVersion });
+              dependencies.push({ name: dep, version: latestDependencyVersion });
+              return resolveDependency();
+            }
+            catch {
+              console.error(chalk.red(`Error while resolving latest version for ${dep}, requested range ${requestedVersion}`));
+              return reject();
+            }
+          })
+        ));
+
+        await Promise.all(promises);
+      }
+
+      /** If no dependencies have to be installed, skip */
+      if (!dependencies) {
+        return true;
+      }
+
+      return await this.manager.add(dependencies, type);
+    }
+    catch {
+      console.error(
+        chalk.red(
+          `An error occurred while installing ${dependency} package chain`
+        )
+      );
+      return false;
+    }
   }
 
 }

@@ -1,7 +1,12 @@
+import console from 'node:console';
+import { resolve } from 'node:path';
+
+import chalk from 'chalk';
+
 import { AbstractAction } from './lib';
 import type { ActionInputs } from './lib';
 
-import { Project } from '../lib/project';
+import { Project, TemplateCompiler } from '../lib';
 
 
 /* --------
@@ -10,9 +15,6 @@ import { Project } from '../lib/project';
 export interface InitActionInput {
   /** The module to initialize */
   module: 'eslint' | 'tsconfig';
-
-  /** Skip packages install using package manager */
-  skipInstall?: boolean;
 }
 
 
@@ -32,6 +34,7 @@ export class InitAction extends AbstractAction<InitActionInput> {
     /** Use switch case to use the right initializer */
     switch (inputs.getOption('module')) {
       case 'eslint':
+        return this.initializeEsLint(inputs, project);
 
       case 'tsconfig':
         return this.initializeTsConfig(inputs, project);
@@ -39,12 +42,6 @@ export class InitAction extends AbstractAction<InitActionInput> {
       default:
         throw new Error(`Invalid Initializer found ${inputs.getOption('module')}`);
     }
-
-    // const p = new Project();
-    //
-    // await p.manager.addChain('eslint-config-proedis');
-    //
-    // return Promise.resolve(undefined);
   }
 
 
@@ -52,6 +49,23 @@ export class InitAction extends AbstractAction<InitActionInput> {
   // TSConfig Initialization
   // ----
   private async initializeTsConfig(inputs: ActionInputs<InitActionInput>, project: Project): Promise<void> {
+    const completed = await project.addDependencyChain('@proedis/tsconfig', 'development');
+
+    if (!completed) {
+      console.error(chalk.red('Could not continue initializing tsconfig without installing necessary packages.'));
+      return;
+    }
+
+    const templateCompiler = new TemplateCompiler(resolve(__dirname, 'templates', 'init', 'tsconfig'));
+
+    await templateCompiler.save(
+      resolve(project.rootDirectory, 'tsconfig.json'),
+      'tsconfig.template.ejs',
+      {
+        type: 'json'
+      }
+    );
+
     return Promise.resolve();
   }
 
@@ -60,6 +74,31 @@ export class InitAction extends AbstractAction<InitActionInput> {
   // ESLint Initialization
   // ----
   private async initializeEsLint(inputs: ActionInputs<InitActionInput>, project: Project): Promise<void> {
+    const completed = await project.addDependencyChain('eslint-config-proedis', 'development');
+
+    if (!completed) {
+      console.error(chalk.red('Could not continue initializing eslint without installing necessary packages.'));
+      return;
+    }
+
+    const templateCompiler = new TemplateCompiler(resolve(__dirname, 'templates', 'init', 'eslint'));
+
+    await templateCompiler.save(
+      resolve(project.rootDirectory, '.eslintrc.js'),
+      'eslintrc.template.ejs',
+      {
+        type: 'babel'
+      }
+    );
+
+    await templateCompiler.save(
+      resolve(project.rootDirectory, 'tsconfig.eslint.json'),
+      'tsconfig.eslint.template.ejs',
+      {
+        type: 'json'
+      }
+    );
+
     return Promise.resolve();
   }
 
