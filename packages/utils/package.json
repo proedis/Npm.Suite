@@ -38,7 +38,7 @@
     "@types/object-hash": "^3.0.2",
     "@types/set-value": "^4.0.1"
   },
-  "gitHead": "8cba9bf577350eaf9ee04be523bd47053c9e7495",
+  "gitHead": "e5cd5bc288cc6ba93f716278a9401c9a45abc0e8",
   "dependencies": {
     "@proedis/types": "1.0.11",
     "clone-deep": "^4.0.1",

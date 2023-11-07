@@ -48,5 +48,6 @@
   "peerDependencies": {
     "class-transformer": "^0.5.1",
     "reflect-metadata": "^0.1.13"
-  }
+  },
+  "gitHead": "e5cd5bc288cc6ba93f716278a9401c9a45abc0e8"
 }

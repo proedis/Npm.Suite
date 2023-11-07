@@ -42,5 +42,6 @@
   },
   "peerDependencies": {
     "@proedis/client": "^1.4.5"
-  }
+  },
+  "gitHead": "e5cd5bc288cc6ba93f716278a9401c9a45abc0e8"
 }
