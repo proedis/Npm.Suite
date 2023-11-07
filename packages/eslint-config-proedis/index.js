@@ -6,6 +6,12 @@ module.exports = {
     './lib/shared.js'
   ],
 
+  settings: {
+    react: {
+      version: 'detect'
+    }
+  },
+
   plugins: [
     'react',
     'react-hooks'
