@@ -11,42 +11,26 @@
     "authentication"
   ],
   "main": "src/index.ts",
-  "license": "MIT",
-  "author": {
-    "name": "Marco Cavanna",
-    "email": "m.cavanna@proedis.net"
-  },
-  "homepage": "https://github.com/proedis/Npm.Suite",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/proedis/Npm.Suite.git",
-    "directory": "packages/react-client"
-  },
-  "bugs": {
-    "url": "https://github.com/proedis/Npm.Suite/issues",
-    "email": "info@proedis.net"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
   "scripts": {
     "build": "rollup --config ../../rollup.config.mjs"
   },
   "dependencies": {
-    "@proedis/client": "1.6.10",
-    "@proedis/react": "1.2.4",
     "@proedis/types": "1.0.11",
-    "@proedis/utils": "1.2.4",
-    "@tanstack/react-query-devtools": "^4.24.6"
+    "@proedis/utils": "1.2.4"
   },
   "devDependencies": {
-    "@proedis/tsconfig": "1.2.0",
-    "@tanstack/react-query": "^4.28.0",
-    "react": "^18.2.0"
+    "@proedis/client": "1.6.10",
+    "@proedis/react": "1.2.4",
+    "@proedis/tsconfig": "1.2.0"
   },
-  "peerDependencies": {
-    "@tanstack/react-query": "^4.24.6",
-    "react": "^18.2.0"
+  "proedisMetadata": {
+    "reflectPeerDependencies": [
+      "@proedis/client",
+      "@proedis/react",
+      "root:@tanstack/react-query",
+      "root:react",
+      "root:react-dom"
+    ]
   },
   "gitHead": "e5cd5bc288cc6ba93f716278a9401c9a45abc0e8"
 }

@@ -8,34 +8,14 @@
     "config",
     "typescript"
   ],
-  "license": "MIT",
-  "author": {
-    "name": "Marco Cavanna",
-    "email": "m.cavanna@proedis.net"
-  },
-  "homepage": "https://github.com/proedis/Npm.Suite",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/proedis/Npm.Suite.git",
-    "directory": "packages/tsconfig"
-  },
-  "bugs": {
-    "url": "https://github.com/proedis/Npm.Suite/issues",
-    "email": "info@proedis.net"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
   "scripts": {
-    "prebuild": "rimraf build",
-    "build": "mkdir build && cpy './**/*.*' '!build' '!node_modules' build"
+    "build": "node ../../scripts/compile-plain.js"
   },
-  "devDependencies": {
-    "cpy-cli": "^4.2.0",
-    "rimraf": "^4.1.2"
-  },
-  "peerDependencies": {
-    "typescript": "5.2.2"
+  "proedisMetadata": {
+    "reflectPeerDependencies": [
+      "root:typescript"
+    ],
+    "noMain": true
   },
   "gitHead": "e5cd5bc288cc6ba93f716278a9401c9a45abc0e8"
 }

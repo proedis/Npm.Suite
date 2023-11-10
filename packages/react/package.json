@@ -8,24 +8,6 @@
     "hooks"
   ],
   "main": "src/index.ts",
-  "license": "MIT",
-  "author": {
-    "name": "Marco Cavanna",
-    "email": "m.cavanna@proedis.net"
-  },
-  "homepage": "https://github.com/proedis/Npm.Suite",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/proedis/Npm.Suite.git",
-    "directory": "packages/react-hooks"
-  },
-  "bugs": {
-    "url": "https://github.com/proedis/Npm.Suite/issues",
-    "email": "info@proedis.net"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
   "scripts": {
     "build": "rollup --config ../../rollup.config.mjs"
   },
@@ -33,19 +15,16 @@
     "@proedis/types": "1.0.11",
     "@proedis/utils": "1.2.4",
     "clsx": "^1.2.1",
-    "kind-of": "^6.0.3",
-    "qs": "^6.11.0"
+    "kind-of": "^6.0.3"
   },
   "devDependencies": {
     "@proedis/tsconfig": "1.2.0",
-    "@types/kind-of": "^6.0.0",
-    "@types/qs": "^6.9.7",
-    "react": "^18.2.0",
-    "react-router-dom": "^6.8.1"
+    "@types/kind-of": "^6.0.0"
   },
-  "peerDependencies": {
-    "react": "^18.2.0",
-    "react-router-dom": "^6.8.1"
+  "proedisMetadata": {
+    "reflectPeerDependencies": [
+      "root:react"
+    ]
   },
   "gitHead": "e5cd5bc288cc6ba93f716278a9401c9a45abc0e8"
 }

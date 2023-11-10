@@ -11,43 +11,25 @@
     "api"
   ],
   "main": "src/index.ts",
-  "license": "MIT",
-  "author": {
-    "name": "Marco Cavanna",
-    "email": "m.cavanna@proedis.net"
-  },
-  "homepage": "https://github.com/proedis/Npm.Suite",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/proedis/Npm.Suite.git",
-    "directory": "packages/client"
-  },
-  "bugs": {
-    "url": "https://github.com/proedis/Npm.Suite/issues",
-    "email": "info@proedis.net"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
   "scripts": {
     "build": "rollup --config ../../rollup.config.mjs"
   },
   "devDependencies": {
-    "@proedis/tsconfig": "1.2.0",
-    "class-transformer": "^0.5.1",
-    "reflect-metadata": "^0.1.13"
+    "@proedis/tsconfig": "1.2.0"
   },
   "dependencies": {
     "@proedis/types": "1.0.11",
     "@proedis/utils": "1.2.4",
-    "axios": "^1.3.2",
-    "logdown": "^3.3.1",
-    "rxjs": "^7.8.0",
-    "store2": "^2.14.2"
+    "axios": "1.6.1",
+    "logdown": "3.3.1",
+    "store2": "2.14.2"
   },
-  "peerDependencies": {
-    "class-transformer": "^0.5.1",
-    "reflect-metadata": "^0.1.13"
+  "proedisMetadata": {
+    "reflectPeerDependencies": [
+      "root:class-transformer",
+      "root:reflect-metadata",
+      "root:rxjs"
+    ]
   },
   "gitHead": "e5cd5bc288cc6ba93f716278a9401c9a45abc0e8"
 }

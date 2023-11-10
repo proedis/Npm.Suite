@@ -18,8 +18,11 @@ export default function getExternalDependenciesFromPackage() {
     /** Get dependencies array */
     const dependencies = [
       ...Object.keys(parsedPkg.peerDependencies || {}),
-      ...Object.keys(parsedPkg.dependencies || {})
+      ...Object.keys(parsedPkg.dependencies || {}),
+      ...(parsedPkg.proedisMetadata?.reflectPeerDependencies?.map((dep) => dep.replace(/^root:/, '')) || [])
     ];
+
+    console.log(dependencies);
 
     /** Return direct package and all specific import */
     return [

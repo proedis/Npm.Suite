@@ -9,6 +9,7 @@ import del from 'rollup-plugin-delete';
 import commonjs from '@rollup/plugin-commonjs';
 import typescript from 'rollup-plugin-typescript2';
 import json from '@rollup/plugin-json';
+import hashbang from 'rollup-plugin-hashbang';
 
 import glob from 'fast-glob';
 
@@ -87,6 +88,22 @@ const buildConfiguration = defineConfig({
     preserveModules: true
   })),
 
+  // Strip useless warnings
+  onwarn: (warning, defaultHandler) => {
+    if (
+      warning.code === 'MODULE_LEVEL_DIRECTIVE' &&
+      warning.message.includes(`"use client"`)
+    ) {
+      return;
+    }
+
+    if (warning.code === 'THIS_IS_UNDEFINED') {
+      return;
+    }
+
+    defaultHandler(warning);
+  },
+
   // Import rollup plugins
   plugins: [
     // Clean output directory
@@ -94,7 +111,11 @@ const buildConfiguration = defineConfig({
       targets: `${OUTPUT_DIRECTORY}/*`
     }),
     // Resolve node dependencies
-    nodeResolve(),
+    nodeResolve({
+      preferBuiltins: true
+    }),
+    // Preserve the Hashbang
+    hashbang.default(),
     // Compile using typescript
     typescript(),
     // Enable the JSON Plugin
