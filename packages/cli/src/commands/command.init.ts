@@ -31,7 +31,7 @@ export class InitCommand extends AbstractCommand<InitActionInput> {
     program
       .command('init')
       .addArgument(
-        new Argument('<module>', 'The module to initialize').argRequired()
+        new Argument('<module>', 'The module to initialize').argRequired().choices(MODULES)
       )
       .option('-s, --skip-install', 'Skip packages installation')
       .option('-y, --yes', 'Auto confirm initial prompt')
