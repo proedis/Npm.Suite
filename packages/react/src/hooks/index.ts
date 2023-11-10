@@ -20,10 +20,6 @@ export * from './useInputValue';
 
 export * from './useObjectState';
 
-export * from './useQueryString';
-
-export * from './useQueryStringValue';
-
 export * from './useSafeState';
 
 export * from './useSyncedRef';
