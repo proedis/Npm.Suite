@@ -22,8 +22,6 @@ export default function getExternalDependenciesFromPackage() {
       ...(parsedPkg.proedisMetadata?.reflectPeerDependencies?.map((dep) => dep.replace(/^root:/, '')) || [])
     ];
 
-    console.log(dependencies);
-
     /** Return direct package and all specific import */
     return [
       ...dependencies,
