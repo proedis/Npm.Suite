@@ -25,6 +25,9 @@
     },
     {
       "path": "../types/tsconfig.declaration.json"
+    },
+    {
+      "path": "../utils/tsconfig.declaration.json"
     }
   ]
 }
