@@ -55,6 +55,9 @@ interface ClientPromptAnswers {
   /** The id of the GeaApplication to use */
   geaApplicationId?: string;
 
+  /** Enable the usage of class-transformer */
+  useClassTransformer: boolean;
+
   /** Initialize the client with react */
   withReact: boolean;
 }
@@ -205,6 +208,11 @@ export class InitAction extends AbstractAction<InitActionInput> {
         name    : 'applicationName',
         default : this.project.packageJson.name,
         validate: (input) => !!input
+      },
+      {
+        type   : 'confirm',
+        message: 'Are you planning to use \'class-transformer\' to transform client response?',
+        name   : 'useClassTransformer'
       },
       {
         type   : 'confirm',
