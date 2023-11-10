@@ -1,0 +1,74 @@
+<% if (withReact) { %>
+import '@proedis/react-client';
+
+<% } %>
+<% if (asGeaClient) { %>
+import { GeaAuthenticatedClient, RequestError } from '@proedis/client';
+
+<% } else { %>
+import { ClientBuilder, RequestError } from '@proedis/client';
+
+<% } %>
+
+/* --------
+ * Internal Types
+ * -------- */
+interface ClientStorage {
+
+}
+
+interface AccountData {
+
+}
+
+
+/* --------
+ * Client Instance Builder
+ * -------- */
+<% if (asGeaClient) { %>
+export const client = GeaAuthenticatedClient('<%- applicationName %>', '<%- geaApplicationId %>')
+<% } else { %>
+export const client = new ClientBuilder('<%- applicationName %>')
+<% } %>
+  /* eslint-disable @typescript-eslint/indent */
+  /** Define the storage with default data */
+  .withStoredData<%- '<ClientStorage>' %>({})
+  /* eslint-enable @typescript-eslint/indent */
+
+  /** Replace the UserData with interface */
+  .withUserData<%- '<AccountData>' %>()
+
+  /** Define options to dialogate with API Server */
+  .withServer({
+    domain   : {
+      development: '__server-development-url__',
+      staging    : '__server-staging-url__',
+      production : '__server-production-url__'
+    },
+    namespace: 'v1',
+    secure   : true,
+    timeout  : {
+      development: 120_000,
+      production : 30_000
+    }
+  })
+
+  .build();
+
+
+<% if (withReact) { %>
+/* --------
+ * Declaration of Client Type
+ * -------- */
+declare module '@proedis/react-client' {
+  export interface ContextClientOverride {
+    client: typeof client;
+  }
+}
+
+
+<% } %>
+/* --------
+ * Module Exports
+ * -------- */
+export { RequestError };

@@ -1,33 +1,44 @@
 import console from 'node:console';
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { resolve, relative } from 'node:path';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { basename, dirname, extname, resolve, relative, sep as pathSeparator } from 'node:path';
 import { cwd } from 'node:process';
 
 import chalk from 'chalk';
+import ora from 'ora';
 
 import * as ejs from 'ejs';
 import * as prettier from 'prettier';
+
+import { globSync } from 'glob';
+
+import type { Linter } from 'eslint';
+import type { BuiltInParserName, Options } from 'prettier';
+
+import { askForConfirmation } from '../ui';
 
 
 /* --------
  * Internal Types
  * -------- */
 interface CompileOptions {
+  /** Override default eslint options */
+  eslintOptions?: Partial<Linter.Config>;
+
   /** A model passed down to compiler */
   model?: any;
 
   /** Override default prettier options */
-  prettierOptions?: Exclude<prettier.Options, 'parser'>;
+  prettierOptions?: Exclude<Options, 'parser'>;
 
   /** Print the disclaimer on top of produced output */
   printDisclaimer?: boolean;
-
-  /** Set the type of the file, use this option to enable prettier */
-  type?: prettier.BuiltInParserName;
-
-  /** Optionally override the root path */
-  root?: string;
 }
+
+
+/* --------
+ * Internal Constant
+ * -------- */
+const UNFIXABLE_PARSERS: BuiltInParserName[] = [ 'css', 'less', 'scss', 'json' ];
 
 
 /* --------
@@ -36,11 +47,35 @@ interface CompileOptions {
 export class TemplateCompiler {
 
   /**
+   * The template suffix to use while searching for templates
+   * @private
+   */
+  private static readonly _templateSuffix: string = '.template.ejs';
+
+
+  private static readonly _parserExtensionMapper: Record<string, BuiltInParserName> = {
+    '.js'  : 'babel',
+    '.jsx' : 'babel',
+    '.ts'  : 'typescript',
+    '.tsx' : 'typescript',
+    '.json': 'json',
+    '.css' : 'css',
+    '.scss': 'scss',
+    '.less': 'less',
+    '.md'  : 'markdown',
+    '.mdx' : 'mdx',
+    '.yml' : 'yaml',
+    '.html': 'html',
+    '.htm' : 'html'
+  };
+
+
+  /**
    * Default prettier options used to format file
    * when saved to destination location
    * @private
    */
-  private static readonly _defaultPrettierOptions: prettier.Options = {
+  private static readonly _defaultPrettierOptions: Options = {
     /** Use semicolons at the ends of statements */
     semi: true,
     /** Always use single quote instead of double quotes */
@@ -59,6 +94,18 @@ export class TemplateCompiler {
     tabWidth: 2,
     /** Disable the usage of tabs */
     useTabs: false
+  };
+
+
+  /**
+   * Default eslint options used to run --fix to file
+   * @private
+   */
+  private static readonly _defaultEslintOptions: Linter.Config = {
+    extends      : [ 'proedis' ],
+    parserOptions: {
+      ecmaVersion: 7
+    }
   };
 
 
@@ -102,53 +149,211 @@ export class TemplateCompiler {
   }
 
 
-  public async compile(file: string, options?: CompileOptions): Promise<string> {
-    /** Extract options */
-    const {
-      model,
-      prettierOptions,
-      printDisclaimer,
-      type,
-      root
-    } = options || {};
-
-    /** Build the template path */
-    const path = resolve(root || this.root, file);
-
-    /** Load the template resolving the path */
-    if (!existsSync(path)) {
-      throw new Error(`Invalid template ${file} in ${root || this.root} folder`);
-    }
-
-    const template = readFileSync(path, 'utf-8');
-    const renderedTemplate = ejs.render(template, model);
-
-    /** Beautify using prettier if defined */
-    const fileContent = typeof type === 'string'
-      ? await prettier.format(renderedTemplate, {
-        ...TemplateCompiler._defaultPrettierOptions,
-        ...prettierOptions,
-        parser: type
-      })
-      : renderedTemplate;
-
-    /** Produce the file content */
-    return [
-      printDisclaimer && `${TemplateCompiler.getDisclaimer()}\n\n`,
-      fileContent
-    ].filter(Boolean).join('').replace(/(\n)+$/, '\n');
+  /**
+   * Change the root path of the TemplateCompiler.
+   * The path will be resolved starting from defined root.
+   * This method will return a new TemplateCompiler
+   * @param paths
+   */
+  public forPath(...paths: string[]): TemplateCompiler {
+    return new TemplateCompiler(resolve(this.root, ...paths));
   }
 
 
-  public async save(path: string, file: string, options?: CompileOptions): Promise<void> {
-    /** Get the file rendered */
-    const fileContent = await this.compile(file, options);
+  /**
+   * Completely set a new Root for the TemplateCompiler
+   * @param root
+   */
+  public forRoot(root: string): TemplateCompiler {
+    return new TemplateCompiler(root);
+  }
 
-    /** Save the file into desired path */
-    writeFileSync(path, fileContent, 'utf-8');
 
+  /**
+   * Use the template suffix to build template name
+   * for desired name
+   * @param name
+   */
+  public getTemplateName(name: string): string {
+    return `${name}${TemplateCompiler._templateSuffix}`;
+  }
+
+
+  /**
+   * Return a usable prettier parser based on template name
+   * @param name
+   */
+  public getTemplateParser(name: string): BuiltInParserName | null {
+    const extension = extname(name);
+    return TemplateCompiler._parserExtensionMapper[extension] || null;
+  }
+
+
+  /**
+   * Get a template file in current root
+   * @param name The template name, without the suffix
+   */
+  public getTemplate(name: string): string {
+    const templateName = this.getTemplateName(name);
+    const templatePath = resolve(this.root, templateName);
+
+    if (!existsSync(templatePath)) {
+      throw new Error(`No template named ${templateName} has been found in ${this.root} folder`);
+    }
+
+    return readFileSync(templatePath, 'utf-8');
+  }
+
+
+  /**
+   * Return all templates in all directories
+   */
+  public getAllTemplates(): string[] {
+    /** Search for all template files */
+    return globSync(`**/*${TemplateCompiler._templateSuffix}`, {
+      cwd          : this.root,
+      dot          : true,
+      nodir        : true,
+      withFileTypes: false
+    });
+  }
+
+
+  /**
+   * TODO: Check if the template could be fixed using eslint instance
+   * @private
+   */
+  private couldFixUsingEslint(): boolean {
+    return false;
+  }
+
+
+  /**
+   * Compile a template file
+   * @param name
+   * @param options
+   */
+  public async compile(name: string, options?: CompileOptions): Promise<string> {
+    /** Extract options */
+    const {
+      model,
+      eslintOptions,
+      prettierOptions,
+      printDisclaimer
+    } = options || {};
+
+    /** Get the template from current root directory */
+    const template = this.getTemplate(name);
+
+    /** Render the template */
+    const compiledTemplate = [
+      printDisclaimer && `${TemplateCompiler.getDisclaimer()}\n\n`,
+      ejs.render(template, model)
+    ].filter(Boolean).join('');
+
+    /** Get the prettier parser for requested template */
+    const parser = this.getTemplateParser(name);
+
+    /** If no parser could be inferred, return the compiled template */
+    if (!parser) {
+      return compiledTemplate;
+    }
+
+    /** Prettify the template using the parser */
+    const prettifiedTemplate = await prettier.format(compiledTemplate, {
+      ...TemplateCompiler._defaultPrettierOptions,
+      ...prettierOptions,
+      parser
+    });
+
+    /** If Eslint is not usable to fix the file, return the prettified text only */
+    if (UNFIXABLE_PARSERS.includes(parser) || !this.couldFixUsingEslint()) {
+      return prettifiedTemplate;
+    }
+
+    throw new Error('EsLint Fixing is not available yet');
+  }
+
+
+  /**
+   * Compile a template by name and save into desired path
+   * @param name
+   * @param path
+   * @param options
+   */
+  public async save(name: string, path: string, options?: CompileOptions): Promise<void> {
+    /** Get the file content compiling the requested template */
+    const file = await this.compile(name, options);
+
+    /** Set the file output name */
+    const outputPath = resolve(path, name);
+
+    /** Check if a file already exists with same name */
+    const fileExists = existsSync(outputPath);
+    const saveFile = fileExists
+      ? await askForConfirmation(`${name} already exists in output path. Do you want to override it?`)
+      : true;
+
+    /** Save the file if requested */
+    if (saveFile) {
+      this.writeFile(outputPath, file, fileExists);
+    }
+  }
+
+
+  public async saveAll(root: string, options?: CompileOptions): Promise<void> {
+    const templates = this.getAllTemplates();
+
+    if (!templates.length) {
+      return;
+    }
+
+    const templatesDescriptor = templates.map((template) => {
+      const templateName = basename(template, TemplateCompiler._templateSuffix);
+      const templatePath = dirname(template).replace(/^\./, '');
+
+      return {
+        name: templateName,
+        path: templatePath ? templatePath.split(pathSeparator) : null
+      };
+    });
+
+    ora('Generating files...').succeed();
+    const templatesPromises = templatesDescriptor.map((descriptor) => (
+      new Promise<void>(async (resolveTemplate) => {
+        const compiler = descriptor.path ? this.forPath(...descriptor.path) : this;
+        const file = await compiler.compile(descriptor.name, options);
+        const outputPath = resolve(root, ...(descriptor.path || []), descriptor.name);
+        this.writeFile(outputPath, file);
+        return resolveTemplate();
+      })
+    ));
+
+    await Promise.all(templatesPromises);
+  }
+
+
+  private writeFile(path: string, file: string, modified?: boolean) {
+    /** Template will be saved only if contains at least one char */
+    if (!/[A-Za-z]/.test(file)) {
+      return;
+    }
+
+    /** Assert the parent folder exists */
+    const parent = dirname(path);
+    if (!existsSync(parent)) {
+      mkdirSync(parent, { recursive: true });
+    }
+
+    /** Check if file is modified or not */
+    const isFileModified = modified ?? existsSync(path);
+
+    /** Write the file and show feedback to user */
+    writeFileSync(path, file, 'utf-8');
     console.log(
-      chalk.green(`  [A] ${relative(cwd(), path)}`)
+      isFileModified
+        ? chalk.yellow(`  M ${relative(cwd(), path)}`)
+        : chalk.green(`  A ${relative(cwd(), path)}`)
     );
   }
 

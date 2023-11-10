@@ -10,7 +10,7 @@
     "dev": "ts-node --project tsconfig.scripts.json src/index.ts",
     "build:clean": "rimraf dist",
     "build:compile": "tsc",
-    "build:copy-files": "cp package.json ./dist && cpy 'src/**/*.eta' dist",
+    "build:copy-files": "cp package.json ./build && cpy 'src/**/*.ejs' build",
     "build": "yarn run build:clean && yarn run build:compile && yarn run build:copy-files"
   },
   "license": "MIT",
@@ -32,10 +32,17 @@
     "access": "public"
   },
   "dependencies": {
+    "@typescript-eslint/eslint-plugin": "6.10.0",
+    "@typescript-eslint/parser": "6.10.0",
     "chalk": "4.1.2",
     "commander": "11.1.0",
+    "eslint": "8.53.0",
+    "eslint-config-airbnb-typescript": "17.1.0",
+    "eslint-plugin-import": "2.29.0",
+    "eslint-plugin-react": "7.33.2",
+    "eslint-plugin-react-hooks": "4.6.0",
     "ejs": "3.1.9",
-    "eslint-config-proedis": "2.0.0",
+    "glob": "10.3.10",
     "inquirer": "8.2.6",
     "latest-version": "5.1.0",
     "node-fetch": "2.7.0",
@@ -46,6 +53,7 @@
     "semver": "7.5.4"
   },
   "devDependencies": {
+    "@types/eslint": "8.44.7",
     "@types/ejs": "3.1.5",
     "@types/inquirer": "9.0.6",
     "@types/node-fetch": "2.6.4",

@@ -1,0 +1,36 @@
+<% if (withReact) { %>
+import * as React from 'react';
+
+import { ClientWithQueryProvider } from '@proedis/react-client';
+
+import { client } from '../../client';
+
+
+/* --------
+ * Main App Provider
+ * -------- */
+const ClientProvider: React.FunctionComponent<%- '<React.PropsWithChildren>' %> = (props) => {
+
+  // ----
+  // Props Deconstruct
+  // ----
+  const {
+    children
+  } = props;
+
+
+  // ----
+  // Provider Render
+  // ----
+  return (
+    <%- '<ClientWithQueryProvider client={client}>' %>
+      {children}
+    <%- '</ClientWithQueryProvider>' %>
+  );
+
+};
+
+ClientProvider.displayName = 'ClientProvider';
+
+export default ClientProvider;
+<% } %>

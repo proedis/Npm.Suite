@@ -1,3 +1,5 @@
+import console from 'node:console';
+
 import chalk from 'chalk';
 
 import { Argument } from 'commander';
@@ -12,7 +14,12 @@ import type { InitActionInput } from '../actions';
 /* --------
  * Constants
  * -------- */
-const MODULES: InitActionInput['module'][] = [ 'eslint', 'tsconfig' ];
+const MODULES: InitActionInput['module'][] = [
+  'eslint',
+  'tsconfig',
+  'mantine',
+  'client'
+];
 
 
 /* --------
@@ -27,11 +34,12 @@ export class InitCommand extends AbstractCommand<InitActionInput> {
         new Argument('<module>', 'The module to initialize').argRequired()
       )
       .option('-s, --skip-install', 'Skip packages installation')
+      .option('-y, --yes', 'Auto confirm initial prompt')
       .description('Initialize a specific package bundle from Proedis environment')
       .action(async (module: InitActionInput['module'], options: any) => {
         /** Assert desired module is valid */
         if (!MODULES.includes(module)) {
-          globalThis.console.log(
+          console.info(
             chalk.red(
               `value '${chalk.bold(module)}' is invalid for argument 'module'. Allowed choices are ${MODULES.join(', ')}`
             )

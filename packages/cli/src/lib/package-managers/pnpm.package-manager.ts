@@ -1,3 +1,5 @@
+import type { PackageJson } from 'type-fest';
+
 import { Runner, RunnerFactory } from '../runners';
 import { AbstractPackageManager } from './abstract.package-manager';
 import { PackageManager } from './package-manager';
@@ -7,8 +9,10 @@ import type { PackageManagerCommands } from './package-manager.commands';
 
 
 export class PnpmPackageManager extends AbstractPackageManager {
-  constructor() {
-    super(RunnerFactory.create(Runner.PNPM) as PnpmRunner);
+  constructor(
+    packageJson: PackageJson
+  ) {
+    super(RunnerFactory.create(Runner.PNPM) as PnpmRunner, packageJson);
   }
 
 

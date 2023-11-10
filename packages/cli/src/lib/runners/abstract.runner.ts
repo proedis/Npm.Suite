@@ -33,11 +33,12 @@ export abstract class AbstractRunner {
     return new Promise<string | null>((resolve, reject) => {
       /** Spawn the child process and attach to events */
       const child: ChildProcess = spawn(this.binary, [ ...this.args, ...args ], options);
+      const allData: string[] = [];
 
       /** If data collect has been enabled, attach to data event to resolve the promise with result */
       if (collect) {
         child.stdout!.on('data', (data) => (
-          resolve(data.toString().replace(/\r\n|\n/, ''))
+          allData.push(data.toString())
         ));
       }
 
@@ -45,7 +46,7 @@ export abstract class AbstractRunner {
       child.on('close', (code) => {
         /** Resolve dependent of code */
         if (code === 0) {
-          resolve(null);
+          resolve(collect ? allData.join('\n') : null);
         }
         else {
           console.log(
@@ -53,6 +54,15 @@ export abstract class AbstractRunner {
           );
           reject();
         }
+      });
+
+      /** Attach to the error event to reject the run method */
+      child.on('error', (error) => {
+        console.log(
+          chalk.red(`An error occurred while performing operation: ${error.message}`),
+          error
+        );
+        reject(error);
       });
     });
   }
