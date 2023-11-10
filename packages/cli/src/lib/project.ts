@@ -63,13 +63,13 @@ export class Project {
     if (createIfMissing && type === 'directory') {
       const newDirectoryPath = resolve(cwd(), name);
       mkdirSync(newDirectoryPath, { recursive: true });
-      console.log(
+      console.info(
         chalk.green(`${name} element missing, created ad ${relative(cwd(), newDirectoryPath)}`)
       );
       return newDirectoryPath;
     }
 
-    console.log(
+    console.info(
       chalk.yellow(`Search for '${name}' element produced no results.`)
     );
 

@@ -1,4 +1,5 @@
 #! /usr/bin/env node
+import console from 'node:console';
 import { argv, exit } from 'node:process';
 
 import * as commander from 'commander';
@@ -48,11 +49,9 @@ const bootstrap = async () => {
 bootstrap()
   .catch((exception) => {
     if (exception && exception instanceof Error) {
-      // eslint-disable-next-line no-console
-      console.log(pe.render(exception));
+      console.info(pe.render(exception));
     }
     else {
-      // eslint-disable-next-line no-console
-      console.log(pe.render(new Error('Unhandled Error Occurred')));
+      console.info(pe.render(new Error('Unhandled Error Occurred')));
     }
   });

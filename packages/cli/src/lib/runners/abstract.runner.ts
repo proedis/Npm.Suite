@@ -49,7 +49,7 @@ export abstract class AbstractRunner {
           resolve(collect ? allData.join('\n') : null);
         }
         else {
-          console.log(
+          console.info(
             chalk.red(`\nFailed to execute command ${this.binary} ${command}`)
           );
           reject();
@@ -58,7 +58,7 @@ export abstract class AbstractRunner {
 
       /** Attach to the error event to reject the run method */
       child.on('error', (error) => {
-        console.log(
+        console.info(
           chalk.red(`An error occurred while performing operation: ${error.message}`),
           error
         );

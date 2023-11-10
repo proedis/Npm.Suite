@@ -350,7 +350,7 @@ export class TemplateCompiler {
 
     /** Write the file and show feedback to user */
     writeFileSync(path, file, 'utf-8');
-    console.log(
+    console.info(
       isFileModified
         ? chalk.yellow(`  M ${relative(cwd(), path)}`)
         : chalk.green(`  A ${relative(cwd(), path)}`)
