@@ -1,6 +1,6 @@
 {
   "name": "eslint-config-proedis",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Proedis ESLint configuration with TypeScript and optionally NextJS support",
   "keywords": [
     "proedis",
