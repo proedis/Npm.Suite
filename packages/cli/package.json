@@ -7,6 +7,7 @@
     "proedis": "./cjs/index.js"
   },
   "scripts": {
+    "dev": "ts-node --project tsconfig.scripts.json src/index.ts",
     "build": "rollup --config ../../rollup.config.mjs",
     "postbuild": "cpy 'src/**/*.ejs' build/esm && cpy 'src/**/*.ejs' build/cjs"
   },
