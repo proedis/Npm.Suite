@@ -235,7 +235,7 @@ export abstract class AbstractPackageManager {
 
             /** If peerDependency is already satisfied, abort */
             if (this.isDependencySatisfied({ name: peerDependencyName, version: requiredVersion })) {
-              return;
+              return resolve();
             }
 
             /** Get the latest version for the peerDependency */
