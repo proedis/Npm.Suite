@@ -2,6 +2,7 @@ import console from 'node:console';
 import { cwd as currentWorkingDirectory } from 'node:process';
 
 import chalk from 'chalk';
+import type ora from 'ora';
 
 import { spawn } from 'child_process';
 import type { ChildProcess, SpawnOptions } from 'child_process';
@@ -16,9 +17,14 @@ export abstract class AbstractRunner {
   }
 
 
-  public async run(command: string, collect?: false, cwd?: string): Promise<null>;
-  public async run(command: string, collect?: true, cwd?: string): Promise<string>;
-  public async run(command: string, collect = false, cwd: string = currentWorkingDirectory()): Promise<string | null> {
+  public async run(command: string, collect?: false, spinner?: ora.Ora, cwd?: string): Promise<null>;
+  public async run(command: string, collect?: true, spinner?: ora.Ora, cwd?: string): Promise<string>;
+  public async run(
+    command: string,
+    collect = false,
+    spinner?: ora.Ora,
+    cwd: string = currentWorkingDirectory()
+  ): Promise<string | null> {
     /** Create the args array to send to binary */
     const args: string[] = [ command ];
 
@@ -37,9 +43,16 @@ export abstract class AbstractRunner {
 
       /** If data collect has been enabled, attach to data event to resolve the promise with result */
       if (collect) {
-        child.stdout!.on('data', (data) => (
-          allData.push(data.toString())
-        ));
+        child.stdout!.on('data', (data) => {
+          if (data && typeof data.toString === 'function') {
+            const dataLine = data.toString();
+            allData.push(dataLine);
+
+            if (spinner) {
+              spinner.text = dataLine;
+            }
+          }
+        });
       }
 
       /** Attach to the close event to resolve/reject the promise */

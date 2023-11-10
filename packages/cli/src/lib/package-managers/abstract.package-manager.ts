@@ -420,7 +420,7 @@ export abstract class AbstractPackageManager {
 
     /** Try to execute the command using default runner */
     try {
-      await this.runner.run(command, true);
+      await this.runner.run(command, true, spinner);
       spinner.succeed();
       return true;
     }
