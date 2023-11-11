@@ -1,17 +1,9 @@
-<% if (useClassTransformer) { %>
-import 'reflect-metadata';
-
-<% } %>
-<% if (withReact) { %>
-import '@proedis/react-client';
-
-<% } %>
+<% if (useClassTransformer) { %> import 'reflect-metadata'; <% } %>
+<% if (withReact) { %> import '@proedis/react-client'; <% } %>
 <% if (asGeaClient) { %>
 import { GeaAuthenticatedClient, RequestError } from '@proedis/client';
-
 <% } else { %>
 import { ClientBuilder, RequestError } from '@proedis/client';
-
 <% } %>
 
 /* --------

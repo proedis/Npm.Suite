@@ -113,6 +113,15 @@ export class Project {
 
 
   // ----
+  // Utilities
+  // ----
+
+  public hasRootFile(name: string): boolean {
+    return existsSync(resolve(this.rootDirectory, name));
+  }
+
+
+  // ----
   // Package Json Fields
   // ----
 

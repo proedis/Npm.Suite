@@ -15,7 +15,7 @@ export abstract class AbstractAction<Schema extends AnyObject> {
 
 
   protected constructor(private readonly name: string) {
-    this.compiler = new TemplateCompiler(resolve(__dirname, '..', 'templates', name));
+    this.compiler = new TemplateCompiler(resolve(__dirname, '..', 'templates', name), this.project);
   }
 
 

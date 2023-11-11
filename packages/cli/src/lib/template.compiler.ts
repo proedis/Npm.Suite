@@ -7,12 +7,12 @@ import chalk from 'chalk';
 import ora from 'ora';
 
 import * as ejs from 'ejs';
-import * as prettier from 'prettier';
 
 import { globSync } from 'glob';
 
-import type { Linter } from 'eslint';
-import type { BuiltInParserName, Options } from 'prettier';
+import { ESLint } from 'eslint';
+
+import type { Project } from './project';
 
 import { askForConfirmation } from '../ui';
 
@@ -21,14 +21,8 @@ import { askForConfirmation } from '../ui';
  * Internal Types
  * -------- */
 interface CompileOptions {
-  /** Override default eslint options */
-  eslintOptions?: Partial<Linter.Config>;
-
   /** A model passed down to compiler */
   model?: any;
-
-  /** Override default prettier options */
-  prettierOptions?: Exclude<Options, 'parser'>;
 
   /** Print the disclaimer on top of produced output */
   printDisclaimer?: boolean;
@@ -38,7 +32,7 @@ interface CompileOptions {
 /* --------
  * Internal Constant
  * -------- */
-const UNFIXABLE_PARSERS: BuiltInParserName[] = [ 'css', 'less', 'scss', 'json' ];
+const FIXABLE_EXTENSIONS: string[] = [ '.js', '.jsx', '.ts', '.tsx' ];
 
 
 /* --------
@@ -51,62 +45,6 @@ export class TemplateCompiler {
    * @private
    */
   private static readonly _templateSuffix: string = '.template.ejs';
-
-
-  private static readonly _parserExtensionMapper: Record<string, BuiltInParserName> = {
-    '.js'  : 'babel',
-    '.jsx' : 'babel',
-    '.ts'  : 'typescript',
-    '.tsx' : 'typescript',
-    '.json': 'json',
-    '.css' : 'css',
-    '.scss': 'scss',
-    '.less': 'less',
-    '.md'  : 'markdown',
-    '.mdx' : 'mdx',
-    '.yml' : 'yaml',
-    '.html': 'html',
-    '.htm' : 'html'
-  };
-
-
-  /**
-   * Default prettier options used to format file
-   * when saved to destination location
-   * @private
-   */
-  private static readonly _defaultPrettierOptions: Options = {
-    /** Use semicolons at the ends of statements */
-    semi: true,
-    /** Always use single quote instead of double quotes */
-    singleQuote: true,
-    /** Never use trailing commas */
-    trailingComma: 'none',
-    /** Print a space between objects brackets */
-    bracketSpacing: true,
-    /** Multi line element > position */
-    bracketSameLine: false,
-    /** Include parentheses around a sole arrow function parameter. */
-    arrowParens: 'always',
-    /** Set the max width of files */
-    printWidth: 120,
-    /** Specify tab width */
-    tabWidth: 2,
-    /** Disable the usage of tabs */
-    useTabs: false
-  };
-
-
-  /**
-   * Default eslint options used to run --fix to file
-   * @private
-   */
-  private static readonly _defaultEslintOptions: Linter.Config = {
-    extends      : [ 'proedis' ],
-    parserOptions: {
-      ecmaVersion: 7
-    }
-  };
 
 
   /**
@@ -141,9 +79,11 @@ export class TemplateCompiler {
    * Initialize a new TemplateCompiler setting the root
    * of the project to resolve files relative
    * @param root
+   * @param project
    */
   constructor(
-    private readonly root: string
+    private readonly root: string,
+    private readonly project: Project
   ) {
 
   }
@@ -156,7 +96,7 @@ export class TemplateCompiler {
    * @param paths
    */
   public forPath(...paths: string[]): TemplateCompiler {
-    return new TemplateCompiler(resolve(this.root, ...paths));
+    return new TemplateCompiler(resolve(this.root, ...paths), this.project);
   }
 
 
@@ -165,7 +105,7 @@ export class TemplateCompiler {
    * @param root
    */
   public forRoot(root: string): TemplateCompiler {
-    return new TemplateCompiler(root);
+    return new TemplateCompiler(root, this.project);
   }
 
 
@@ -176,16 +116,6 @@ export class TemplateCompiler {
    */
   public getTemplateName(name: string): string {
     return `${name}${TemplateCompiler._templateSuffix}`;
-  }
-
-
-  /**
-   * Return a usable prettier parser based on template name
-   * @param name
-   */
-  public getTemplateParser(name: string): BuiltInParserName | null {
-    const extension = extname(name);
-    return TemplateCompiler._parserExtensionMapper[extension] || null;
   }
 
 
@@ -220,15 +150,6 @@ export class TemplateCompiler {
 
 
   /**
-   * TODO: Check if the template could be fixed using eslint instance
-   * @private
-   */
-  private couldFixUsingEslint(): boolean {
-    return false;
-  }
-
-
-  /**
    * Compile a template file
    * @param name
    * @param options
@@ -237,8 +158,6 @@ export class TemplateCompiler {
     /** Extract options */
     const {
       model,
-      eslintOptions,
-      prettierOptions,
       printDisclaimer
     } = options || {};
 
@@ -246,32 +165,13 @@ export class TemplateCompiler {
     const template = this.getTemplate(name);
 
     /** Render the template */
-    const compiledTemplate = [
+    return [
       printDisclaimer && `${TemplateCompiler.getDisclaimer()}\n\n`,
       ejs.render(template, model)
-    ].filter(Boolean).join('');
-
-    /** Get the prettier parser for requested template */
-    const parser = this.getTemplateParser(name);
-
-    /** If no parser could be inferred, return the compiled template */
-    if (!parser) {
-      return compiledTemplate;
-    }
-
-    /** Prettify the template using the parser */
-    const prettifiedTemplate = await prettier.format(compiledTemplate, {
-      ...TemplateCompiler._defaultPrettierOptions,
-      ...prettierOptions,
-      parser
-    });
-
-    /** If Eslint is not usable to fix the file, return the prettified text only */
-    if (UNFIXABLE_PARSERS.includes(parser) || !this.couldFixUsingEslint()) {
-      return prettifiedTemplate;
-    }
-
-    throw new Error('EsLint Fixing is not available yet');
+    ]
+      .filter(Boolean)
+      .join('')
+      .replace(/(^\n)|(\n$)/gi, '');
   }
 
 
@@ -294,13 +194,23 @@ export class TemplateCompiler {
       ? await askForConfirmation(`${name} already exists in output path. Do you want to override it?`)
       : true;
 
-    /** Save the file if requested */
-    if (saveFile) {
-      this.writeFile(outputPath, file, fileExists);
+    /** Abort if saving is not requested */
+    if (!saveFile) {
+      return;
     }
+
+    const savedFilePath = this.writeFile(outputPath, file, fileExists);
+
+    /** Lint and fix all files */
+    await this.lintAndFixFiles([ savedFilePath ]);
   }
 
 
+  /**
+   * Compile all templates and save preserving directory structure
+   * @param root
+   * @param options
+   */
   public async saveAll(root: string, options?: CompileOptions): Promise<void> {
     const templates = this.getAllTemplates();
 
@@ -320,23 +230,31 @@ export class TemplateCompiler {
 
     ora('Generating files...').succeed();
     const templatesPromises = templatesDescriptor.map((descriptor) => (
-      new Promise<void>(async (resolveTemplate) => {
+      new Promise<string | null>(async (resolveTemplate) => {
         const compiler = descriptor.path ? this.forPath(...descriptor.path) : this;
         const file = await compiler.compile(descriptor.name, options);
         const outputPath = resolve(root, ...(descriptor.path || []), descriptor.name);
-        this.writeFile(outputPath, file);
-        return resolveTemplate();
+        return resolveTemplate(this.writeFile(outputPath, file));
       })
     ));
 
-    await Promise.all(templatesPromises);
+    const savedFiles = await Promise.all(templatesPromises);
+
+    await this.lintAndFixFiles(savedFiles);
   }
 
 
-  private writeFile(path: string, file: string, modified?: boolean) {
+  /**
+   * Write the file
+   * @param path
+   * @param file
+   * @param modified
+   * @private
+   */
+  private writeFile(path: string, file: string, modified?: boolean): string | null {
     /** Template will be saved only if contains at least one char */
     if (!/[A-Za-z]/.test(file)) {
-      return;
+      return null;
     }
 
     /** Assert the parent folder exists */
@@ -355,6 +273,65 @@ export class TemplateCompiler {
         ? chalk.yellow(`  M ${relative(cwd(), path)}`)
         : chalk.green(`  A ${relative(cwd(), path)}`)
     );
+
+    return path;
+  }
+
+
+  public async lintAndFixFiles(paths: (string | null)[]) {
+    /** Filter keeping only valid paths */
+    const fixablePaths = paths.filter((path) => (
+      typeof path === 'string' && FIXABLE_EXTENSIONS.includes(extname(path)))
+    ) as string[];
+
+    /** Assert at least one file exist */
+    if (!fixablePaths.length) {
+      return;
+    }
+
+    /** Check if necessary dependencies to use eslint have been installed */
+    const manager = await this.project.manager();
+    if (!manager.areDependenciesInstalled({ name: 'eslint' }, { name: 'eslint-config-proedis' })) {
+      console.info(
+        chalk.yellow(
+          'To enable instant fix for template files, the eslint and eslint-config-proedis packages must be installed'
+        )
+      );
+      return;
+    }
+
+    /** Check if a valid .eslintrc file exists */
+    if (!this.project.hasRootFile('eslint.config.js') && !this.project.hasRootFile('.eslintrc.js')) {
+      console.info(
+        chalk.yellow(
+          'To enable instant fix for template files, a valid configuration file for ESLint must exists'
+        )
+      );
+      return;
+    }
+
+    /** Check if the tsconfig json file exists */
+    if (!this.project.hasRootFile('tsconfig.eslint.json')) {
+      console.info(
+        chalk.yellow(
+          'To enable instant fix for template files, the tsconfig.eslint.json file must exist in project root directory'
+        )
+      );
+      return;
+    }
+
+    /** Create the new eslint instance */
+    const eslint = new ESLint({
+      useEslintrc: true,
+      cwd        : this.project.rootDirectory,
+      fix        : true
+    });
+
+    /** Lint all files */
+    const results = await eslint.lintFiles(fixablePaths);
+
+    /** Produce the fixing */
+    await ESLint.outputFixes(results);
   }
 
 }

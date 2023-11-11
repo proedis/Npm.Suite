@@ -114,6 +114,24 @@ export abstract class AbstractPackageManager {
 
 
   /**
+   * Check if a dependency is installed in current project
+   * @param dependency
+   */
+  public isDependencyInstalled(dependency: Dependency): boolean {
+    return typeof this.getInstalledDependencyVersion(dependency.name) === 'string';
+  }
+
+
+  /**
+   * Check if all required dependencies have been installed in current project
+   * @param dependencies
+   */
+  public areDependenciesInstalled(...dependencies: Dependency[]): boolean {
+    return dependencies.reduce((isInstalled, next) => isInstalled && this.isDependencyInstalled(next), true);
+  }
+
+
+  /**
    * Check if an installed dependency satisfy the requested version range or not
    * @param dependency
    */
