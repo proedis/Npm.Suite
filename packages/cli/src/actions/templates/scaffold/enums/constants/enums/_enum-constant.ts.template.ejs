@@ -1,0 +1,31 @@
+import type { SharedObject } from '../../interfaces/shared-objects';
+import type { <%- name %>Enum } from '../../interfaces/enums';
+
+
+/* --------
+ * Internal Types
+ * -------- */
+type <%- name %>Collection =
+  ReadonlyArray<%- '<SharedObject<' + name + 'Enum>>' %>;
+
+
+/* --------
+ * Enum Constant Definition
+ * -------- */
+const <%- name %>: <%- name %>Collection = [
+<% values.forEach(function (s) { %>
+  {
+    intValue: <%- s.value %>,
+    label   : '<%- s.label.replace(/'/ig, '\\\'') %>',
+    value   : '<%- s.name.replace(/'/ig, '\\\'') %>'
+  },
+<% }) %>
+];
+
+
+/* --------
+ * Freezing Object and Export
+ * -------- */
+<%- name %>.map((el) => Object.freeze(el));
+
+export default Object.freeze(<%- name %>);

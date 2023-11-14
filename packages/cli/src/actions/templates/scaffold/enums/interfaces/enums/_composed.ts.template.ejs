@@ -1,0 +1,8 @@
+<% names.forEach(function (name) { %>import type { <%-name%>Enum } from './<%-name%>';
+<% }) %>
+
+export interface ComposedSharedObjects {
+  <% names.forEach(function (name) { %>
+  <%-name%>: <%-name%>Enum;
+  <% }) %>
+}

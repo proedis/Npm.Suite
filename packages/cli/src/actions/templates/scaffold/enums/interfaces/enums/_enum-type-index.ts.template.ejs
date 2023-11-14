@@ -1,0 +1,4 @@
+export type { ComposedSharedObjects } from './_composed';
+<% names.forEach(function (name) { %>
+export type { <%-name%>Enum } from './<%-name%>';
+<% }) %>

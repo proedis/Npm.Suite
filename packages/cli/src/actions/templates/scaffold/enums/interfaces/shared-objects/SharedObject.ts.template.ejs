@@ -1,0 +1,10 @@
+export interface SharedObject<%-'<TValue extends string = string>'%> {
+  /** The enumerator system int value */
+  intValue: number;
+
+  /** The SharedObject Label to Display */
+  label: string;
+
+  /** The enumerator value to pass to API endpoint */
+  value: TValue;
+}

@@ -1,9 +1,11 @@
 import console from 'node:console';
-import { existsSync, mkdirSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { relative, resolve, sep as pathSeparator } from 'node:path';
 import { cwd } from 'node:process';
 
 import chalk from 'chalk';
+import * as inquirer from 'inquirer';
+import * as yaml from 'yaml';
 
 import type { PackageJson } from 'type-fest';
 
@@ -192,6 +194,56 @@ export class Project {
 
     /** Install all required dependency */
     return manager.add(dependencies, type);
+  }
+
+
+  // ----
+  // Prompts
+  // ----
+
+  public async getPromptWithCachedDefaults<T extends inquirer.Answers>(
+    promptName: string,
+    questions: Array<inquirer.DistinctQuestion<T>>
+  ): Promise<T> {
+    /** Try to load the initial cached settings */
+    const cachedSettingsPath = resolve(this.rootDirectory, '.proedis.yml');
+    let cachedSettings: Record<string, any> = {};
+
+    try {
+      const cachedSettingsFileContent = existsSync(cachedSettingsPath)
+        ? readFileSync(cachedSettingsPath, 'utf-8')
+        : null;
+
+      if (cachedSettingsFileContent) {
+        cachedSettings = yaml.parse(cachedSettingsFileContent);
+      }
+    }
+    catch {
+      // Ignored
+    }
+
+    /** Extract the defaults from settings */
+    const _defaults = cachedSettings[promptName] || {};
+
+    /** Create the inquirer prompt */
+    const prompt = inquirer.createPromptModule();
+
+    /** Get the answers */
+    const answers = await prompt<T>(
+      questions.map((q) => ({
+        ...q,
+        default: _defaults[q.name] || q.default
+      }))
+    );
+
+    /** Update the cached settings file */
+    cachedSettings[promptName] = answers;
+
+    /** Save the file to be reused */
+    writeFileSync(cachedSettingsPath, yaml.stringify(cachedSettings), 'utf-8');
+
+    /** Return user answers */
+    return answers;
   }
 
 }

@@ -24,9 +24,20 @@ interface CompileOptions {
   /** A model passed down to compiler */
   model?: any;
 
+  /** Disallow linting for the file */
+  noLint?: boolean;
+
+  /** Disable overriding file */
+  noOverride?: boolean;
+
   /** Print the disclaimer on top of produced output */
   printDisclaimer?: boolean;
+
+  /** Rename the template when saving compiled file */
+  rename?: string;
 }
+
+export type SavedFile = string | null;
 
 
 /* --------
@@ -76,6 +87,14 @@ export class TemplateCompiler {
 
 
   /**
+   * Default compiler options to use while
+   * saving templates
+   * @private
+   */
+  private _defaultCompilerOptions: Partial<CompileOptions> = {};
+
+
+  /**
    * Initialize a new TemplateCompiler setting the root
    * of the project to resolve files relative
    * @param root
@@ -86,6 +105,16 @@ export class TemplateCompiler {
     private readonly project: Project
   ) {
 
+  }
+
+
+  /**
+   * Update the defaults compiler options for this instance
+   * @param defaults
+   */
+  public defaults(defaults: Partial<CompileOptions>): this {
+    this._defaultCompilerOptions = defaults;
+    return this;
   }
 
 
@@ -145,7 +174,7 @@ export class TemplateCompiler {
       dot          : true,
       nodir        : true,
       withFileTypes: false
-    });
+    }).filter((t) => !basename(t).startsWith('_'));
   }
 
 
@@ -159,7 +188,10 @@ export class TemplateCompiler {
     const {
       model,
       printDisclaimer
-    } = options || {};
+    } = {
+      ...this._defaultCompilerOptions,
+      ...options
+    };
 
     /** Get the template from current root directory */
     const template = this.getTemplate(name);
@@ -179,44 +211,66 @@ export class TemplateCompiler {
    * Compile a template by name and save into desired path
    * @param name
    * @param path
-   * @param options
+   * @param _options
    */
-  public async save(name: string, path: string, options?: CompileOptions): Promise<void> {
+  public async save(name: string, path: string, _options?: CompileOptions): Promise<SavedFile> {
+    const options = {
+      ...this._defaultCompilerOptions,
+      ..._options
+    };
+
     /** Get the file content compiling the requested template */
     const file = await this.compile(name, options);
 
     /** Set the file output name */
-    const outputPath = resolve(path, name);
+    const outputFilename = options?.rename || name;
+    const outputPath = resolve(path, outputFilename);
 
     /** Check if a file already exists with same name */
     const fileExists = existsSync(outputPath);
+
     const saveFile = fileExists
       ? await askForConfirmation(`${name} already exists in output path. Do you want to override it?`)
       : true;
 
     /** Abort if saving is not requested */
     if (!saveFile) {
-      return;
+      return null;
     }
 
-    const savedFilePath = this.writeFile(outputPath, file, fileExists);
+    const savedFilePath = this.writeFile(outputPath, file, fileExists, !options.noOverride);
 
-    /** Lint and fix all files */
-    await this.lintAndFixFiles([ savedFilePath ]);
+    /** Lint and fix all files, if not omitted */
+    if (!options?.noLint) {
+      await this.lintAndFixFiles([ savedFilePath ]);
+    }
+
+    /** Return the path of the saved file */
+    return savedFilePath;
   }
 
 
   /**
    * Compile all templates and save preserving directory structure
    * @param root
-   * @param options
+   * @param _options
+   * @param silent
    */
-  public async saveAll(root: string, options?: CompileOptions): Promise<void> {
+  public async saveAll(
+    root: string,
+    _options?: Exclude<CompileOptions, 'rename'>,
+    silent?: boolean
+  ): Promise<SavedFile[]> {
     const templates = this.getAllTemplates();
 
     if (!templates.length) {
-      return;
+      return [];
     }
+
+    const options = {
+      ...this._defaultCompilerOptions,
+      ..._options
+    };
 
     const templatesDescriptor = templates.map((template) => {
       const templateName = basename(template, TemplateCompiler._templateSuffix);
@@ -228,19 +282,26 @@ export class TemplateCompiler {
       };
     });
 
-    ora('Generating files...').succeed();
+    if (!silent) {
+      ora('Generating files...').succeed();
+    }
+
     const templatesPromises = templatesDescriptor.map((descriptor) => (
-      new Promise<string | null>(async (resolveTemplate) => {
+      new Promise<SavedFile>(async (resolveTemplate) => {
         const compiler = descriptor.path ? this.forPath(...descriptor.path) : this;
         const file = await compiler.compile(descriptor.name, options);
         const outputPath = resolve(root, ...(descriptor.path || []), descriptor.name);
-        return resolveTemplate(this.writeFile(outputPath, file));
+        return resolveTemplate(this.writeFile(outputPath, file, undefined, !options.noOverride));
       })
     ));
 
     const savedFiles = await Promise.all(templatesPromises);
 
-    await this.lintAndFixFiles(savedFiles);
+    if (!options?.noLint) {
+      await this.lintAndFixFiles(savedFiles);
+    }
+
+    return savedFiles.filter(Boolean);
   }
 
 
@@ -249,9 +310,10 @@ export class TemplateCompiler {
    * @param path
    * @param file
    * @param modified
+   * @param override
    * @private
    */
-  private writeFile(path: string, file: string, modified?: boolean): string | null {
+  private writeFile(path: string, file: string, modified?: boolean, override?: boolean): SavedFile {
     /** Template will be saved only if contains at least one char */
     if (!/[A-Za-z]/.test(file)) {
       return null;
@@ -266,6 +328,17 @@ export class TemplateCompiler {
     /** Check if file is modified or not */
     const isFileModified = modified ?? existsSync(path);
 
+    /** Check if file must be overridden */
+    if (isFileModified && !override) {
+      console.info(
+        chalk.yellow(
+          `File ${path} already exists and won\'t be overridden`
+        )
+      );
+
+      return null;
+    }
+
     /** Write the file and show feedback to user */
     writeFileSync(path, file, 'utf-8');
     console.info(
@@ -278,7 +351,7 @@ export class TemplateCompiler {
   }
 
 
-  public async lintAndFixFiles(paths: (string | null)[]) {
+  public async lintAndFixFiles(paths: SavedFile[]) {
     /** Filter keeping only valid paths */
     const fixablePaths = paths.filter((path) => (
       typeof path === 'string' && FIXABLE_EXTENSIONS.includes(extname(path)))

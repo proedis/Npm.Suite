@@ -1,3 +1,5 @@
+export * from './scaffolders';
+
 export * from './package-managers';
 
 export * from './runners';

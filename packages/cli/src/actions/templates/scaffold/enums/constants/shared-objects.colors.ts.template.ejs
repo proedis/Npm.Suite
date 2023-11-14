@@ -1,0 +1,26 @@
+import type { MantineColor } from '@mantine/core';
+
+import type { ComposedSharedObjects } from '../interfaces/enums';
+
+
+/* --------
+ * Internal Types
+ * -------- */
+type SharedObjectsColors = {
+  [K in keyof ComposedSharedObjects]: Record<%- '<ComposedSharedObjects[K], MantineColor>'%>
+};
+
+
+/* --------
+ * Exports
+ * -------- */
+const sharedObjectsColors: SharedObjectsColors = {
+<% sharedObjects.forEach(function (s) { %>
+  <%- s.name %>: {
+  <% s.values.forEach(function (value) { %>
+    <%= value %>: 'danger.4',<% }) %>
+  },
+<% }) %>
+};
+
+export default sharedObjectsColors;

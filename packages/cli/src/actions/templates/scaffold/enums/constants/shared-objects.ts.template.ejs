@@ -1,0 +1,237 @@
+import { AugmentedMap, isValidString, sorter } from '@proedis/utils';
+
+import { z } from 'zod';
+
+import type { ComboboxItem } from '@mantine/core';
+
+import * as sharedObjectsCollection from './enums';
+
+import type { SharedObject } from '../interfaces/shared-objects';
+import type { SharedObjectName } from '../interfaces/shared-objects';
+import type { ComposedSharedObjects } from '../interfaces/enums';
+
+
+/* --------
+ * Internal Types
+ * -------- */
+type SharedObjectSort = 'label' | 'value' | '-label' | '-value';
+
+
+/* --------
+ * Internal Utilities
+ * -------- */
+function createKey(...values: (string | undefined)[]): string {
+  return values.map((v) => v || 'nd').join('--');
+}
+
+function isSharedObjectSort(value: any): value is SharedObjectSort {
+  return isValidString(value) && (/^.?(value|label)/.test(value));
+}
+
+function getIntValue(data: SharedObject[], value: string, def: number): number {
+  return data.find(s => s.value === value)?.intValue ?? def;
+}
+
+
+/* --------
+ * Caching Maps
+ * -------- */
+const sharedObjectsCache = new AugmentedMap<%- '<string, SharedObject<any>[]>' %>();
+
+
+/* --------
+ * Shared Object Builder
+ * -------- */
+function getSharedObjects<%- '<T extends SharedObjectName>(name: T): SharedObject<ComposedSharedObjects[T]>[]' %>;
+function getSharedObjects<%- '<T extends SharedObjectName>' %>(
+  name: T,
+  sort: SharedObjectSort
+): SharedObject<%- '<ComposedSharedObjects[T]>' %>[];
+function getSharedObjects<%- '<T extends SharedObjectName>' %>(
+  name: T,
+  max: ComposedSharedObjects[T],
+  sort: SharedObjectSort
+): SharedObject<%- '<ComposedSharedObjects[T]>' %>[];
+function getSharedObjects<%- '<T extends SharedObjectName>' %>(
+  name: T,
+  max: ComposedSharedObjects[T],
+  min: ComposedSharedObjects[T],
+  sort: SharedObjectSort
+): SharedObject<%- '<ComposedSharedObjects[T]>' %>[];
+function getSharedObjects<%- '<T extends SharedObjectName>' %>(
+  name: T,
+  maxOrSort?: SharedObjectSort | ComposedSharedObjects[T],
+  minOrSort?: SharedObjectSort | ComposedSharedObjects[T],
+  requestedSort?: SharedObjectSort
+): SharedObject<%- '<ComposedSharedObjects[T]>' %>[] {
+
+  /** Create the key to use to cache results */
+  const key = createKey(name, maxOrSort, minOrSort, requestedSort);
+
+  /** Use the augmented map to get or compute the result and cache it */
+  return sharedObjectsCache.getOrAdd(key, () => {
+    /** Build real arguments using overloads */
+    const sort: SharedObjectSort = isSharedObjectSort(maxOrSort) ? maxOrSort
+      : isSharedObjectSort(minOrSort) ? minOrSort
+        : isSharedObjectSort(requestedSort) ? requestedSort
+          : 'value';
+
+    /** Build real sort property and check if it must be descending */
+    const isDescending = sort.charAt(0) === '-';
+    const realSort = sort.replace(/^-/, '') as 'label' | 'value';
+
+    /** Assert requested key exists in shared objects sources */
+    if (!(name in sharedObjectsCollection)) {
+      throw new Error(`Invalid ${name} used for SharedObject, it does not exist`);
+    }
+
+    /** Get the Array from exported data */
+    const sourceArray = sharedObjectsCollection[name] as SharedObject<%- '<ComposedSharedObjects[T]>' %>[];
+
+    /** Get the int and max value for filter data */
+    const max = isValidString(maxOrSort) && !isSharedObjectSort(maxOrSort)
+      ? getIntValue(sourceArray, maxOrSort, Number.MAX_SAFE_INTEGER)
+      : Number.MAX_SAFE_INTEGER;
+    const min = isValidString(minOrSort) && !isSharedObjectSort(minOrSort)
+      ? getIntValue(sourceArray, minOrSort, Number.MIN_SAFE_INTEGER)
+      : Number.MIN_SAFE_INTEGER;
+
+    /** Filter the array using requested min/max value */
+    const data = sourceArray.filter((s) => s.intValue >= min && s.intValue <= max);
+
+    const dataSorter = sorter<%- '<SharedObject<ComposedSharedObjects[T]>>' %>(data);
+
+    /** Return sorted data */
+    return isDescending
+      ? dataSorter.orderByDescending(s => realSort === 'value' ? s.intValue : s.label).sort()
+      : dataSorter.orderBy(s => realSort === 'value' ? s.intValue : s.label).sort();
+  });
+
+}
+
+
+/* --------
+ * Shared Object Accessor
+ * -------- */
+function getSharedObject<%- '<T extends SharedObjectName>' %>(
+  name: T,
+  value: ComposedSharedObjects[T] | null
+): null | SharedObject<%- '<ComposedSharedObjects[T]>' %>;
+function getSharedObject<%- '<T extends SharedObjectName>' %>(
+  name: T,
+  value: ComposedSharedObjects[T][]
+): SharedObject<%- '<ComposedSharedObjects[T]>' %>[];
+function getSharedObject<%- '<T extends SharedObjectName>' %>(
+  name: T,
+  value?: ComposedSharedObjects[T] | ComposedSharedObjects[T][] | null
+): null | SharedObject<%- '<ComposedSharedObjects[T]>' %> | SharedObject<%- '<ComposedSharedObjects[T]>' %>[] {
+  /** If no value exists, return null */
+  if (!value) {
+    return null;
+  }
+
+  /** Assert requested key exists in shared objects sources */
+  if (!(name in sharedObjectsCollection)) {
+    throw new Error(`Invalid ${name} used for SharedObject, it does not exist`);
+  }
+
+  /** If value is a plain string, return single string value */
+  if (typeof value === 'string') {
+    // @ts-ignore
+    return (sharedObjectsCollection[name].find(s => s.value === value) ?? null) as null | SharedObject<%- '<ComposedSharedObjects[T]>' %>;
+  }
+
+  /** Return an array of values */
+  return value.map(v => getSharedObject(name, v)).filter(Boolean) as SharedObject<%- '<ComposedSharedObjects[T]>' %>[];
+}
+
+
+/* --------
+ * Shared Object Label
+ * -------- */
+function getSharedObjectLabel<%- '<T extends SharedObjectName>' %>(name: T, value: ComposedSharedObjects[T] | null): string;
+function getSharedObjectLabel<%- '<T extends SharedObjectName>' %>(name: T, value: ComposedSharedObjects[T][]): string[];
+function getSharedObjectLabel<%- '<T extends SharedObjectName>' %>(
+  name: T,
+  value?: ComposedSharedObjects[T] | ComposedSharedObjects[T][] | null
+): string | string[] {
+  /** If no value, return empty string */
+  if (!value) {
+    return '';
+  }
+
+  /** Assert requested key exists in shared objects sources */
+  if (!(name in sharedObjectsCollection)) {
+    throw new Error(`Invalid ${name} used for SharedObject, it does not exist`);
+  }
+
+  /** If value is a plain string, return single string value */
+  if (typeof value === 'string') {
+    // @ts-ignore
+    return sharedObjectsCollection[name].find(s => s.value === value)?.label ?? '';
+  }
+
+  /** Return an array of values */
+  return value.map(v => getSharedObjectLabel(name, v)).filter(Boolean);
+}
+
+
+/* --------
+ * Zod Enum Builder
+ * -------- */
+type ZodSharedObject<%- '<T extends SharedObjectName>' %> =
+  & z.ZodEnum<[ ComposedSharedObjects[T], ...ComposedSharedObjects[T][] ]>
+  & { data: SharedObject<%- '<ComposedSharedObjects[T]>' %>[] };
+
+function zodSharedObject<%- '<T extends SharedObjectName>' %>(
+  name: T
+): ZodSharedObject<%- '<T>' %>;
+function zodSharedObject<%- '<T extends SharedObjectName>' %>(
+  name: T,
+  sort: SharedObjectSort
+): ZodSharedObject<%- '<T>' %>;
+function zodSharedObject<%- '<T extends SharedObjectName>' %>(
+  name: T,
+  max: ComposedSharedObjects[T],
+  sort: SharedObjectSort
+): ZodSharedObject<%- '<T>' %>;
+function zodSharedObject<%- '<T extends SharedObjectName>' %>(
+  name: T,
+  max: ComposedSharedObjects[T],
+  min: ComposedSharedObjects[T],
+  sort: SharedObjectSort
+): ZodSharedObject<%- '<T>' %>;
+function zodSharedObject<%- '<T extends SharedObjectName>' %>(
+  name: T,
+  maxOrSort?: SharedObjectSort | ComposedSharedObjects[T],
+  minOrSort?: SharedObjectSort | ComposedSharedObjects[T],
+  requestedSort?: SharedObjectSort
+): ZodSharedObject<%- '<T>' %> {
+  /** Get the enum using the main function */
+  const sharedObject = getSharedObjects(
+    name,
+    maxOrSort as ComposedSharedObjects[T],
+    minOrSort as ComposedSharedObjects[T],
+    requestedSort as SharedObjectSort
+  );
+
+  /** Create the ZodEnum */
+  const zodEnum: z.ZodEnum<[ ComposedSharedObjects[T], ...ComposedSharedObjects[T][] ]> = z.enum(
+    sharedObject.map(s => s.value) as [ ComposedSharedObjects[T], ...ComposedSharedObjects[T][] ]
+  );
+
+  Object.defineProperty(zodEnum, 'data', {
+    get(): ComboboxItem[] {
+      return sharedObject.map(({ label, value }) => (
+        { label, value }
+      ));
+    }
+  });
+  return zodEnum as ZodSharedObject<%- '<T>' %>;
+}
+
+
+/* --------
+ * Library Export
+ * -------- */
+export { getSharedObjects, zodSharedObject, getSharedObject, getSharedObjectLabel };
