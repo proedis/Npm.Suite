@@ -519,6 +519,25 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
 
 
   // ----
+  // Public Getters
+  // ----
+
+  /**
+   * Return the baseUrl used by the internal axios instance
+   * to perform http requests
+   */
+  public get baseUrl(): string {
+    const { baseURL } = this._axios.defaults;
+
+    if (!baseURL) {
+      throw new Error('client.baseUrl is unusable because no URL has been set.');
+    }
+
+    return baseURL;
+  }
+
+
+  // ----
   // Public Reconfiguration Methods
   // ----
 
@@ -626,6 +645,34 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
       this._defaultsRequestConfig || {},
       typeof config === 'function' ? config(this) : config
     );
+  }
+
+
+  /**
+   * Using a request configuration, compile and return the url to call
+   * @param config
+   */
+  public createUrl(config: ClientRequest<UserData, StoredData, Tokens, any>): string {
+    /** Compile the request to create the url */
+    const compiledRequest = this.compileRequest(config);
+
+    /** Extract useful data */
+    const {
+      url: initialUrl,
+      params
+    } = compiledRequest;
+
+    /** Create the base url */
+    const url = `${this.baseUrl}/${Client.sanitizeUrl(initialUrl || '')}`;
+
+    if (!params) {
+      return url.toString();
+    }
+
+    /** Create the search params */
+    const searchParams = new URLSearchParams(params);
+
+    return `${url}?${searchParams}`;
   }
 
 
