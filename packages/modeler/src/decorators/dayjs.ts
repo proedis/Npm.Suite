@@ -23,12 +23,16 @@ export function AsDayJs(options?: DecoratorOptions) {
     Type(() => Date),
     /** When transforming to instance, use dayjs */
     Transform(
-      ({ value }) => !isNil(value) ? dayjs(value) : value,
+      ({ value }) => !isNil(value) ? Array.isArray(value) ? value.map((v) => dayjs(v)) : dayjs(value) : value,
       { toClassOnly: true, ...options }
     ),
     /** Return a date when cast to plain object */
     Transform(
-      ({ value }) => !isNil(value) && dayjs.isDayjs(value) ? value.toDate() : null,
+      ({ value }) => (
+        Array.isArray(value)
+          ? value.map((v) => !isNil(v) && dayjs.isDayjs(v) ? v.toDate() : undefined).filter(Boolean)
+          : !isNil(value) && dayjs.isDayjs(value) ? value.toDate() : null
+      ),
       { toPlainOnly: true, ...options }
     )
   );
