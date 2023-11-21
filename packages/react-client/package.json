@@ -1,6 +1,6 @@
 {
   "name": "@proedis/react-client",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "Wrapper for @proedis/client repository to use it with React",
   "keywords": [
     "proedis",
@@ -16,11 +16,11 @@
   },
   "dependencies": {
     "@proedis/types": "1.1.0",
-    "@proedis/utils": "1.3.0"
+    "@proedis/utils": "1.3.1"
   },
   "devDependencies": {
-    "@proedis/client": "1.7.0",
-    "@proedis/react": "1.3.0",
+    "@proedis/client": "1.7.1",
+    "@proedis/react": "1.3.1",
     "@proedis/tsconfig": "1.3.0"
   },
   "proedisMetadata": {
