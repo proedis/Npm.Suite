@@ -1,3 +1,27 @@
+import type { ComposedSharedObjects } from '../../interfaces/enums';
+import type { SharedObjectName, SharedObject } from '../../interfaces/shared-objects';
+
 <% names.forEach(function (name) { %>
-export { default as <%-name%> } from './<%-name%>';
+import <%-name%> from './<%-name%>';
 <% }) %>
+
+/* --------
+ * Setup the Collection of all Shared Objects
+ * -------- */
+export type GenericSharedObject = SharedObject<%- '<ComposedSharedObjects[keyof ComposedSharedObjects]>' %>;
+
+export const sharedObjectsCollections: Record<%- '<SharedObjectName, Readonly<GenericSharedObject[]>>' %> = {
+<% names.forEach(function (name) { %>
+  <%-name%>: <%-name%>,
+<% }) %>
+};
+
+
+/* --------
+ * Single Shared Objects Exports
+ * -------- */
+export {
+<% names.forEach(function (name) { %>
+  <%-name%>,
+<% }) %>
+};
