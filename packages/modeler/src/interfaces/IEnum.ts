@@ -4,7 +4,7 @@ import type { IconName } from '@fortawesome/fontawesome-common-types';
 import type { EnumName, EnumValue } from '../types';
 
 
-export interface IEnum<C extends EnumName, V extends EnumValue<C>> {
+export interface IEnum<C extends EnumName, V extends EnumValue<C> = EnumValue<C>> {
   readonly value: V;
 
   readonly label: string;

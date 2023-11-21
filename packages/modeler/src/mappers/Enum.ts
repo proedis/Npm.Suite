@@ -11,7 +11,7 @@ import type { IEnum } from '../interfaces';
 /* --------
  * Class Definition
  * -------- */
-export class Enum<C extends EnumName, V extends EnumValue<C>> implements IEnum<C, V> {
+export class Enum<C extends EnumName, V extends EnumValue<C> = EnumValue<C>> implements IEnum<C, V> {
 
   // ----
   // Static Properties & Methods
