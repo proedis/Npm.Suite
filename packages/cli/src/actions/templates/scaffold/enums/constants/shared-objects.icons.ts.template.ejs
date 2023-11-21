@@ -14,7 +14,7 @@ type SharedObjectsIcons = {
 /* --------
  * Exports
  * -------- */
-const sharedObjectsColors: SharedObjectsIcons = {
+const sharedObjectsIcons: SharedObjectsIcons = {
 <% sharedObjects.forEach(function (s) { %>
   <%- s.name %>: {
   <% s.values.forEach(function (value) { %>
@@ -23,4 +23,4 @@ const sharedObjectsColors: SharedObjectsIcons = {
 <% }) %>
 };
 
-export default sharedObjectsColors;
+export default sharedObjectsIcons;
