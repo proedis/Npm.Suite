@@ -48,7 +48,7 @@ export type EnumValue<E extends EnumName> = ComposedEnums[E];
 
 export type EnumsOf<E extends EnumName> = EnumDescriptor<EnumValue<E>>[];
 
-export type EnumsCollections = Record<EnumName, EnumsOf<EnumName>>;
+export type EnumsCollections = Record<EnumName, Readonly<EnumsOf<EnumName>>>;
 
 export type EnumSource<E extends EnumName, V extends EnumValue<E> = EnumValue<E>> = EnumDescriptor<V>;
 
