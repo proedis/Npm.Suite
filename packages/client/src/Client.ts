@@ -600,6 +600,9 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
     /** Save the new state with loaded user data */
     await this._updateUserData(userData);
 
+    /** Change the isLoaded state to be true */
+    await this.state.set('isLoaded', true);
+
     /** Return loaded user data */
     return userData;
   }
