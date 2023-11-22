@@ -32,5 +32,10 @@
       "root:react-dom"
     ]
   },
+  "peerDependenciesMeta": {
+    "react-dom": {
+      "optional": true
+    }
+  },
   "gitHead": "e5cd5bc288cc6ba93f716278a9401c9a45abc0e8"
 }
