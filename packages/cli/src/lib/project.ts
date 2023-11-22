@@ -71,10 +71,6 @@ export class Project {
       return newDirectoryPath;
     }
 
-    console.info(
-      chalk.yellow(`Search for '${name}' element produced no results.`)
-    );
-
     return null;
   }
 
@@ -117,6 +113,10 @@ export class Project {
   // ----
   // Utilities
   // ----
+  public couldResolveFile(name: string): boolean {
+    return Project.getFirstPathFor(name, 'file') !== null;
+  }
+
 
   public hasRootFile(name: string): boolean {
     return existsSync(resolve(this.rootDirectory, name));

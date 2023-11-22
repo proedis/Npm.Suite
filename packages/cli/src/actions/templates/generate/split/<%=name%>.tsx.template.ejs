@@ -1,0 +1,51 @@
+import * as React from 'react';
+<% if (children) { %>
+import { renderShorthandContent } from '@proedis/react';
+<% } %>
+import type { <%- name %>Props } from './<%- name %>.types';
+
+
+/* --------
+ * Component Definition
+ * -------- */
+const <%- name %>: React.FunctionComponent<%- '<' + name + 'Props>' %> = (props) => {
+
+  // ----
+  // Props Deconstruct
+  // ----
+  <% if (children) { %>
+  const {
+    // Component Content
+    children,
+    content,
+
+    // Component classes
+    className,
+
+    // All other Props
+    ...rest
+  } = props;
+  <% } else { %>
+  const {
+    // Component classes
+    className,
+
+    // All other Props
+    ...rest
+  } = props;
+  <% } %>
+
+  // ----
+  // Component Render
+  // ----
+  return (
+    <%- '<div {...rest} className={className}>' %>
+    <%- children ? '  {renderShorthandContent({ children, content })}' : '' %>
+    <%- '</div>' %>
+  );
+
+};
+
+<%- name %>.displayName = '<%- name %>';
+
+export default <%- name %>;

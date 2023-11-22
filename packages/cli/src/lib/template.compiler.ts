@@ -223,7 +223,7 @@ export class TemplateCompiler {
     const file = await this.compile(name, options);
 
     /** Set the file output name */
-    const outputFilename = options?.rename || name;
+    const outputFilename = ejs.render(options.rename || name, options.model);
     const outputPath = resolve(path, outputFilename);
 
     /** Check if a file already exists with same name */
@@ -288,9 +288,15 @@ export class TemplateCompiler {
 
     const templatesPromises = templatesDescriptor.map((descriptor) => (
       new Promise<SavedFile>(async (resolveTemplate) => {
+        /** Create or use the current compiler */
         const compiler = descriptor.path ? this.forPath(...descriptor.path) : this;
+        /** Compile the file */
         const file = await compiler.compile(descriptor.name, options);
-        const outputPath = resolve(root, ...(descriptor.path || []), descriptor.name);
+        /** Create the output name */
+        const outputName = ejs.render(descriptor.name, options.model);
+        /** Create the output path */
+        const outputPath = resolve(root, ...(descriptor.path || []), outputName);
+        /** Write the file */
         return resolveTemplate(this.writeFile(outputPath, file, undefined, !options.noOverride));
       })
     ));
@@ -364,7 +370,10 @@ export class TemplateCompiler {
 
     /** Check if necessary dependencies to use eslint have been installed */
     const manager = await this.project.manager();
-    if (!manager.areDependenciesInstalled({ name: 'eslint' }, { name: 'eslint-config-proedis' })) {
+    if (!manager.areDependenciesInstalled(
+      { name: 'eslint', global: true },
+      { name: 'eslint-config-proedis', global: true }
+    )) {
       console.info(
         chalk.yellow(
           'To enable instant fix for template files, the eslint and eslint-config-proedis packages must be installed'
@@ -374,7 +383,11 @@ export class TemplateCompiler {
     }
 
     /** Check if a valid .eslintrc file exists */
-    if (!this.project.hasRootFile('eslint.config.js') && !this.project.hasRootFile('.eslintrc.js')) {
+    if (
+      !this.project.couldResolveFile('eslint.config.js')
+      && !this.project.couldResolveFile('.eslintrc.js')
+      && !this.project.couldResolveFile('.eslintrc.cjs')
+    ) {
       console.info(
         chalk.yellow(
           'To enable instant fix for template files, a valid configuration file for ESLint must exists'
@@ -384,7 +397,7 @@ export class TemplateCompiler {
     }
 
     /** Check if the tsconfig json file exists */
-    if (!this.project.hasRootFile('tsconfig.eslint.json')) {
+    if (!this.project.couldResolveFile('tsconfig.eslint.json')) {
       console.info(
         chalk.yellow(
           'To enable instant fix for template files, the tsconfig.eslint.json file must exist in project root directory'

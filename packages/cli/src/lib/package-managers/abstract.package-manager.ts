@@ -24,6 +24,8 @@ import { askForConfirmation, spinnerFeedbackFunction } from '../../ui';
  * Internal Types
  * -------- */
 export interface Dependency {
+  global?: boolean;
+
   name: string;
 
   modifier?: '^' | '~';
@@ -85,29 +87,36 @@ export abstract class AbstractPackageManager {
   /**
    * Return the current installed version of a dependency, looking for that in production
    * and in development dependencies
-   * @param name
+   * @param dependency
    */
-  public getInstalledDependencyVersion(name: string): string | null {
+  public getInstalledDependencyVersion(dependency: Dependency): string | null {
     /** Get the pool of dependencies to use to look for dependency name */
-    const pool = { ...this.packageJson.dependencies, ...this.packageJson.devDependencies };
+    if (!dependency.global) {
+      const pool = { ...this.packageJson.dependencies, ...this.packageJson.devDependencies };
 
-    /** Assert the package exists in current pool */
-    if (!pool || !(name in pool) || !pool[name]) {
-      return null;
+      /** Assert the package exists in current pool */
+      if (!pool || !(dependency.name in pool) || !pool[dependency.name]) {
+        return null;
+      }
     }
 
     /** Resolve the path of the requested dependency */
-    const modulePath = require.resolve(join(name, 'package.json'));
-
     try {
-      /** Return the package version field */
-      return (JSON.parse(readFileSync(modulePath, 'utf-8')) as PackageJson).version || null;
+      const modulePath = require.resolve(join(dependency.name, 'package.json'));
+
+      try {
+        /** Return the package version field */
+        return (JSON.parse(readFileSync(modulePath, 'utf-8')) as PackageJson).version || null;
+      }
+      catch {
+        console.info(
+          chalk.red(`Error reading installed version for dependency ${dependency.name}`)
+        );
+
+        return null;
+      }
     }
     catch {
-      console.info(
-        chalk.red(`Error reading installed version for dependency ${name}`)
-      );
-
       return null;
     }
   }
@@ -118,7 +127,7 @@ export abstract class AbstractPackageManager {
    * @param dependency
    */
   public isDependencyInstalled(dependency: Dependency): boolean {
-    return typeof this.getInstalledDependencyVersion(dependency.name) === 'string';
+    return typeof this.getInstalledDependencyVersion(dependency) === 'string';
   }
 
 
@@ -137,7 +146,7 @@ export abstract class AbstractPackageManager {
    */
   public isDependencySatisfied(dependency: Dependency): boolean {
     /** Get the version of installed dependency if exists */
-    const installedVersion = this.getInstalledDependencyVersion(dependency.name);
+    const installedVersion = this.getInstalledDependencyVersion(dependency);
 
     /** If dependency is not installed yet, return false */
     if (!installedVersion) {

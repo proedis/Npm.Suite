@@ -1,0 +1,15 @@
+import type { UI<%- children ? '' : 'Void' %>ComponentProps } from '@proedis/react';
+
+
+/* --------
+ * Component Props Definition
+ * -------- */
+export type <%- name %>Props = UI<%- children ? '' : 'Void' %>ComponentProps<%- '<Strict' + name + 'Props>' %>;
+
+
+/* --------
+ * Strict Props Definition
+ * -------- */
+export interface Strict<%- name %>Props {
+
+}

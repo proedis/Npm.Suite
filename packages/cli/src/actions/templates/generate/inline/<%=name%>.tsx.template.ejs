@@ -1,0 +1,38 @@
+import * as React from 'react';
+
+
+/* --------
+ * Internal Types
+ * -------- */
+interface <%- name %>Props {
+
+}
+
+
+/* --------
+ * Component Definition
+ * -------- */
+const <%- name %>: React.FunctionComponent<%- !children ? '<' + name + 'Props>' : '<React.PropsWithChildren<' + name + 'Props>>' %> = (props) => {
+
+  // ----
+  // Props Deconstruct
+  // ----
+  const {
+    <%= children ? 'children' : '' %>
+  } = props;
+
+
+  // ----
+  // Component Render
+  // ----
+  return (
+    <%- '<React.Fragment>' %>
+
+    <%- '</React.Fragment>' %>
+  );
+
+};
+
+<%- name %>.displayName = '<%- name %>';
+
+export default <%- name %>;
