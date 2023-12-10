@@ -13,7 +13,7 @@ export interface GenerateActionInput {
   children?: boolean;
 
   /** The element to generate */
-  element: 'atom' | 'molecule' | 'organism' | 'template' | 'component';
+  element: 'atom' | 'molecule' | 'organism' | 'template' | 'component' | 'context';
 
   /** Change the default folder into save files */
   folder?: string;
@@ -34,7 +34,8 @@ const FOLDER: Record<GenerateActionInput['element'], string> = {
   molecule : 'molecules',
   organism : 'organism',
   template : 'templates',
-  component: 'components'
+  component: 'components',
+  context  : 'contexts'
 };
 
 
@@ -61,7 +62,16 @@ export class GenerateAction extends AbstractAction<GenerateActionInput> {
       name
     } = options;
 
-    const compiler = this.compiler.forPath(inline ? 'inline' : 'split');
+    const compiler = (() => {
+      switch (element) {
+        case 'context':
+          return this.compiler.forPath('_context');
+
+        default:
+          return this.compiler.forPath(inline ? 'inline' : 'split');
+      }
+    })();
+
     const output = resolve(cwd(), folder || FOLDER[element], name);
 
     await compiler.saveAll(output, { model: options });

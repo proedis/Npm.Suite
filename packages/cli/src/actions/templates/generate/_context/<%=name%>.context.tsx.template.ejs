@@ -1,0 +1,60 @@
+import * as React from 'react';
+
+import { contextBuilder } from '@proedis/react';
+
+
+/* --------
+ * Context Value Definition
+ * -------- */
+export interface <%- name %>Context {
+
+}
+
+
+/* --------
+ * Context Building
+ * -------- */
+const {
+  use<%- name %>,
+  <%- name %>Provider: Base<%- name %>Provider
+} = contextBuilder<%- '<' + name + 'Context, \'' + name + '\'>'%>('<%- name %>');
+
+
+/* --------
+ * Context Provider Definition
+ * -------- */
+const <%- name %>Provider: React.FunctionComponent<%- '<React.PropsWithChildren>' %> = (props) => {
+
+  // ----
+  // Props Deconstruct
+  // ----
+  const {
+    children
+  } = props;
+
+
+  // ----
+  // Context Value Builder
+  // ----
+  const ctxValue = React.useMemo<%- '<' + name + 'Context>' %>(
+    () => ({}),
+    []
+  );
+
+
+  // ----
+  // Context Provider Render
+  // ----
+  return (
+    <%- '<Base' + name + 'Provider value={ctxValue}>' %>
+      {children}
+    <%- '</Base' + name + 'Provider>' %>
+  );
+
+};
+
+<%- name %>Provider.displayName = '<%- name %>Provider';
+
+export default <%- name %>Provider;
+
+export { use<%- name %> };

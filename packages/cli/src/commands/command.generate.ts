@@ -19,7 +19,8 @@ const ELEMENTS: GenerateActionInput['element'][] = [
   'molecule',
   'organism',
   'template',
-  'component'
+  'component',
+  'context'
 ];
 
 
