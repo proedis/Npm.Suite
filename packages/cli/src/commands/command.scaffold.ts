@@ -15,7 +15,8 @@ import type { ScaffoldActionInput } from '../actions';
  * Constants
  * -------- */
 const ELEMENTS: ScaffoldActionInput['element'][] = [
-  'enums'
+  'enums',
+  'models'
 ];
 
 

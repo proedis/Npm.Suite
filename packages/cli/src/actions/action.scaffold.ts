@@ -1,6 +1,6 @@
 import type { Class } from 'type-fest';
 
-import { EnumScaffolder } from '../lib';
+import { EnumScaffolder, ModelsScaffolder } from '../lib';
 import type { AbstractedScaffolder } from '../lib';
 
 import { AbstractAction } from './lib';
@@ -14,7 +14,7 @@ import { spinnerFeedbackFunction } from '../ui';
  * -------- */
 export interface ScaffoldActionInput {
   /** The element to scaffold */
-  element: 'enums';
+  element: 'enums' | 'models';
 }
 
 
@@ -36,6 +36,9 @@ export class ScaffoldAction extends AbstractAction<ScaffoldActionInput> {
     switch (inputs.getOption('element')) {
       case 'enums':
         return this.scaffoldElement(EnumScaffolder);
+
+      case 'models':
+        return this.scaffoldElement(ModelsScaffolder);
 
       default:
         throw new Error(`Invalid Scaffold found ${inputs.getOption('element')}`);
