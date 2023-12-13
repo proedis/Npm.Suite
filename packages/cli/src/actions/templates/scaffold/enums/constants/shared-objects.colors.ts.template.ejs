@@ -6,9 +6,9 @@ import type { ComposedSharedObjects } from '../interfaces/enums';
 /* --------
  * Internal Types
  * -------- */
-type SharedObjectsColors = {
-  [K in keyof ComposedSharedObjects]: Record<%- '<ComposedSharedObjects[K], MantineColor>'%>
-};
+type SharedObjectsColors = Partial<{
+  [K in keyof ComposedSharedObjects]: Partial<%- '<Record<ComposedSharedObjects[K], MantineColor>>'%>
+}>;
 
 
 /* --------
