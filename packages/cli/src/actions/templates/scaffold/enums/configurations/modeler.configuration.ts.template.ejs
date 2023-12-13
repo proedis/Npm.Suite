@@ -1,0 +1,22 @@
+import '@proedis/modeler';
+import { Enum } from '@proedis/modeler';
+
+import type { ComposedSharedObjects } from './interfaces/enums';
+
+import { sharedObjectsCollections } from './constants/enums';
+import sharedObjectsColors from './constants/shared-objects.colors';
+import sharedObjectsIcons from './constants/shared-objects.icons';
+
+
+/* --------
+ * Modeler Configuration
+ * -------- */
+declare module '@proedis/modeler' {
+  export interface ModelerOverride {
+    enums: ComposedSharedObjects;
+  }
+}
+
+Enum.configureCollections(sharedObjectsCollections);
+Enum.configureColors('red', sharedObjectsColors);
+Enum.configureIcons('bug', sharedObjectsIcons);

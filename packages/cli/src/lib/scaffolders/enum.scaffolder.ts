@@ -240,14 +240,23 @@ export class EnumScaffolder extends AbstractedScaffolder {
       )
     );
 
-    /** Show an alert if no file has been written */
-    if (!generatedFiles.length) {
-      console.info(
-        chalk.yellow(
-          'No files have been written because they already exists. Check them to assert al properties has been set'
-        )
-      );
+    /** Ask user if it must compile configuration for modeler */
+    const generateConfigurationFile = await askForConfirmation(
+      'Do you want to generate Modeler Configuration file? ' +
+      '@proedis/modeler is required to continue: without those packages utilities won\'t be usable.'
+    );
+
+    if (!generateConfigurationFile) {
+      return generatedFiles;
     }
+
+    /** Create the compiler */
+    const configurationCompiler = this.compiler.forPath('enums', 'configurations').defaults({
+      noLint    : true,
+      noOverride: true
+    });
+
+    generatedFiles.push(await configurationCompiler.save('modeler.configuration.ts', this.project.srcDirectory));
 
     return generatedFiles;
   }
