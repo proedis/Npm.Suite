@@ -16,19 +16,25 @@ export class Enum<C extends EnumName, V extends EnumValue<C> = EnumValue<C>> imp
   // ----
   // Static Properties & Methods
   // ----
+  private static _defaultColor: MantineColor = 'red';
+
   private static _colors: EnumsColors = {};
 
 
-  public static configureColors(colors: EnumsColors): typeof Enum {
+  public static configureColors(defaultColor: MantineColor, colors: EnumsColors): typeof Enum {
+    this._defaultColor = defaultColor;
     this._colors = colors;
     return this;
   }
 
 
+  private static _defaultIcon: IconName = 'bug';
+
   private static _icons: EnumsIcons = {};
 
 
-  public static configureIcons(icons: EnumsIcons): typeof Enum {
+  public static configureIcons(defaultIcon: IconName, icons: EnumsIcons): typeof Enum {
+    this._defaultIcon = defaultIcon;
     this._icons = icons;
     return this;
   }
@@ -64,7 +70,7 @@ export class Enum<C extends EnumName, V extends EnumValue<C> = EnumValue<C>> imp
 
     /** Return cached enum or find a new one from collections */
     return this._enumsCache.getOrAdd(key, () => {
-      /** Get the collection from internal source */
+      /** Get the collection from the internal source */
       const collection = this.getCollection(name);
 
       /** Find the right source object from the collection */
@@ -87,7 +93,7 @@ export class Enum<C extends EnumName, V extends EnumValue<C> = EnumValue<C>> imp
 
 
   private static getHashCode<C extends EnumName, V extends EnumValue<C>>(name: C, value: V): number {
-    /** Assert al params are string */
+    /** Assert al params are strings */
     if (!name || !value) {
       return Number.MIN_SAFE_INTEGER;
     }
@@ -163,12 +169,12 @@ export class Enum<C extends EnumName, V extends EnumValue<C> = EnumValue<C>> imp
   // ----
 
   public get iconName(): IconName {
-    return Enum._icons[this._collectionName]?.[this.value];
+    return Enum._icons[this._collectionName]?.[this.value] ?? Enum._defaultIcon;
   }
 
 
   public get color(): MantineColor {
-    return Enum._colors[this._collectionName]?.[this.value];
+    return Enum._colors[this._collectionName]?.[this.value] ?? Enum._defaultColor;
   }
 
 

@@ -52,13 +52,13 @@ export type EnumsCollections = Record<EnumName, Readonly<EnumsOf<EnumName>>>;
 
 export type EnumSource<E extends EnumName, V extends EnumValue<E> = EnumValue<E>> = EnumDescriptor<V>;
 
-export type EnumsColors = {
+export type EnumsColors = Partial<{
   [K in EnumName]: Record<EnumValue<K>, MantineColor>
-};
+}>;
 
-export type EnumsIcons = {
+export type EnumsIcons = Partial<{
   [K in EnumName]: Record<EnumValue<K>, IconName>
-};
+}>;
 
 
 /* --------
