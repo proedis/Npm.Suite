@@ -45,13 +45,10 @@ export class ModelsScaffolder extends AbstractedScaffolder {
     }
 
     /** Create the Model Repository with downloaded data */
-    const modelsRepository = new ModelsRepository(openApiDocument.components, modelsPath);
+    const modelsRepository = new ModelsRepository(openApiDocument.components, this.compiler, modelsPath);
     modelsRepository.write();
 
-    /** Generate the Barrel file for all models */
-    this.generateBarrel(modelsPath);
-
-    return [];
+    return this.generateBarrel(modelsPath);
   }
 
 
@@ -88,27 +85,29 @@ export class ModelsScaffolder extends AbstractedScaffolder {
   }
 
 
-  private generateBarrel(folder: string) {
+  private generateBarrel(folder: string): string[] {
     /** Get all typescript files in the folder */
     const files = globSync('**/*.ts', {
       cwd: folder
-    })
-      .sort((a, b) => a.localeCompare(b))
-      .map((file) => file.replace(/\.ts/i, ''));
+    }).sort((a, b) => a.localeCompare(b)).map(f => `./${f}`);
 
     const content: string[] = [
       TemplateCompiler.getDisclaimer(),
       ''
     ];
 
-    files.forEach((file) => {
+    files.map((file) => file.replace(/\.ts/i, '')).forEach((file) => {
       content.push(
-        `export * from './${file}';`,
+        `export * from '${file}';`,
         ''
       );
     });
 
-    writeFileSync(resolve(folder, 'index.ts'), content.join('\n'), 'utf-8');
+    const barrelFile = resolve(folder, 'index.ts');
+
+    writeFileSync(barrelFile, content.join('\n'), 'utf-8');
+
+    return [ ...files, barrelFile ].map(file => resolve(folder, file));
   }
 
 

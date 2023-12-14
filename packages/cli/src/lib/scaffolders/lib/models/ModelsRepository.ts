@@ -1,9 +1,9 @@
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { relative, resolve } from 'node:path';
 
 import type { Components } from '../../types/openapi';
 
 import type { AbstractedModel } from './AbstractedModel';
+import type { TemplateCompiler } from '../../../template.compiler';
 
 import { EnumModel } from './EnumModel';
 import { ObjectModel } from './ObjectModel';
@@ -23,9 +23,10 @@ export class ModelsRepository {
   /**
    * Create the Model Repository using components
    * @param components
+   * @param compiler
    * @param root
    */
-  constructor(components: Components, private readonly root: string) {
+  constructor(components: Components, private readonly compiler: TemplateCompiler, private readonly root: string) {
     Object.entries(components.schemas)
       .forEach(([ , schema ]) => {
         /** If the schema is an enum, create the enum model */
@@ -58,16 +59,10 @@ export class ModelsRepository {
   }
 
 
-  write(): void {
-    this.models.forEach((model) => {
-      if (!existsSync(model.folder)) {
-        mkdirSync(model.folder, { recursive: true });
-      }
-
-      writeFileSync(model.filePath, model.render(), 'utf-8');
-    });
-    // this.enums.forEach((m) => console.log(m.render()));
-    // this.models.forEach((m) => console.log(m.render()));
+  write(): string[] {
+    return this.models
+      .map((model) => this.compiler.writeFile(model.filePath, model.render()))
+      .filter(Boolean) as string[];
   }
 
 }

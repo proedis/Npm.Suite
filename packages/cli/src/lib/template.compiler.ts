@@ -319,7 +319,7 @@ export class TemplateCompiler {
    * @param override
    * @private
    */
-  private writeFile(path: string, file: string, modified?: boolean, override?: boolean): SavedFile {
+  public writeFile(path: string, file: string, modified?: boolean, override?: boolean): SavedFile {
     /** Template will be saved only if contains at least one char */
     if (!/[A-Za-z]/.test(file)) {
       return null;
