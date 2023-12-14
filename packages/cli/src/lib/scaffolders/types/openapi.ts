@@ -25,7 +25,7 @@ export type EnumSchema = EnumSchemaXData & {
  * Represents a parseable schema object extended with custom data.
  */
 export type ObjectSchemaXData = SchemaXData & {
-  'x-api-dto': true
+  'x-api-response-dto': true
 };
 
 export type EnumSchemaXData = SchemaXData & {

@@ -34,7 +34,7 @@ export class ModelsRepository {
           this.models.push(new EnumModel(schema, this));
         }
         /** If is a DTO object model, place into models */
-        if ('x-api-dto' in schema && !!schema['x-api-dto']) {
+        if ('x-api-response-dto' in schema && !!schema['x-api-response-dto']) {
           this.models.push(new ObjectModel(schema, this));
         }
       });
