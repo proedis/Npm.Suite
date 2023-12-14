@@ -40,6 +40,15 @@ export class Enum<C extends EnumName, V extends EnumValue<C> = EnumValue<C>> imp
   }
 
 
+  private static _labelFormatter: ((label: string) => string) | undefined;
+
+
+  public static setLabelFormatter(formatter: ((label: string) => string) | undefined): typeof Enum {
+    this._labelFormatter = formatter;
+    return this;
+  }
+
+
   private static _collections: EnumsCollections = {};
 
 
@@ -113,6 +122,24 @@ export class Enum<C extends EnumName, V extends EnumValue<C> = EnumValue<C>> imp
 
 
   // ----
+  // Well-Known Methods
+  // ----
+  /**
+   * Returns the primitive value of the object.
+   *
+   * @param hint - The type hint provided to convert the object into primitive.
+   * @return The primitive value of the object based on the given type hint.
+   */
+  [Symbol.toPrimitive](hint: string): number | V {
+    if (hint === 'number') {
+      return this.hashCode;
+    }
+
+    return this.value;
+  }
+
+
+  // ----
   // Public Getters
   // ----
   public get value(): V {
@@ -121,7 +148,7 @@ export class Enum<C extends EnumName, V extends EnumValue<C> = EnumValue<C>> imp
 
 
   public get label(): string {
-    return this._source.label;
+    return Enum._labelFormatter ? Enum._labelFormatter(this._source.label) : this._source.label;
   }
 
 
