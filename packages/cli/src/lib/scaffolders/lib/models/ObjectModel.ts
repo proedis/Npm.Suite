@@ -19,11 +19,12 @@ export class ObjectModel extends AbstractedModel<ObjectSchema> {
 
   /**
    * Generate e new Object Model to write Classes
+   * @param name
    * @param schema
    * @param repository
    */
-  constructor(schema: ObjectSchema, repository: ModelsRepository) {
-    super(schema, repository);
+  constructor(name: string, schema: ObjectSchema, repository: ModelsRepository) {
+    super(name, schema, repository);
 
     this.properties = Object.entries(this.schema.properties).map(([ propertyName, propertySchema ]) => {
       return PropertyFactory.create(propertyName, propertySchema);

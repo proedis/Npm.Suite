@@ -15,6 +15,18 @@ export class EnumProperty extends AbstractedProperty<EnumPropertyType> {
   }
 
 
+  public get requirements(): string {
+    return this.isFlag && !this.isNullable ? '' : super.requirements;
+  }
+
+
+  protected get propertyDefault(): string {
+    return this.isFlag && !this.isNullable
+      ? ` = new Flags<'${this.schema['x-element-name']}'>('${this.schema['x-element-name']}', [])`
+      : super.propertyDefault;
+  }
+
+
   get dependencies(): PropertyDependency[] {
     if (!this.isDescribed) {
       return [
@@ -46,11 +58,9 @@ export class EnumProperty extends AbstractedProperty<EnumPropertyType> {
 
 
   get propertyType(): string {
-    const suffix = this.schema.items ? '[]' : '';
-
     return this.isDescribed
-      ? `${this.isFlag ? 'Flags' : 'Enum'}<'${this.schema['x-element-name']}'>${suffix}`
-      : `${this.schema['x-element-name']}${suffix}`;
+      ? `${this.isFlag ? 'Flags' : 'Enum'}<'${this.schema['x-element-name']}'>`
+      : this.schema['x-element-name'];
   }
 
 }

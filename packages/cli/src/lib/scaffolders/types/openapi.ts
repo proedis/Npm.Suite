@@ -60,7 +60,7 @@ export type ItemType =
   | GuidPropertyType
   | NumberPropertyType;
 
-type ArrayItemType<T> = { type: 'array', items: T };
+type ArrayItemType<T> = ArrayPropertyType & { items: T };
 
 
 // ----
@@ -71,6 +71,12 @@ type ArrayItemType<T> = { type: 'array', items: T };
 export type ReferencePropertyType =
   | (ObjectSchemaXData & { type: undefined, allOf: ReferenceObject[] })
   | ReferenceObject;
+
+
+// ----
+// Array Property type
+// ----
+export type ArrayPropertyType = { type: 'array' };
 
 
 // ----

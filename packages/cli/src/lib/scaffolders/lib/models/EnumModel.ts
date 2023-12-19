@@ -8,10 +8,11 @@ import { AbstractedModel } from './AbstractedModel';
 export class EnumModel extends AbstractedModel<EnumSchema> {
 
   constructor(
+    public readonly name: string,
     protected readonly schema: EnumSchema,
     protected readonly _repository: ModelsRepository
   ) {
-    super(schema, _repository);
+    super(name, schema, _repository);
   }
 
 

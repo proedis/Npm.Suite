@@ -11,7 +11,19 @@ export abstract class AbstractedProperty<Schema extends ItemType> {
   // Static Utilities
   // ----
   public static getUnderlyingType(definition: PropertySchema): ItemType {
-    return definition.type === 'array' ? definition.items : definition;
+    if (definition.type === 'array') {
+      if ('x-api-enum' in definition && !!definition['x-api-enum']) {
+        return {
+          ...definition,
+          type: 'string'
+        };
+      }
+      else {
+        return definition.items;
+      }
+    }
+
+    return definition;
   }
 
 
@@ -52,6 +64,10 @@ export abstract class AbstractedProperty<Schema extends ItemType> {
    * @returns {boolean} true if the definition represents an array; otherwise, false.
    */
   public get isArray(): boolean {
+    if ('x-api-enum' in this.definition) {
+      return this.definition.type !== 'string' && !this.definition['x-enum-as-flags'];
+    }
+
     return this.definition.type === 'array';
   }
 
@@ -103,7 +119,7 @@ export abstract class AbstractedProperty<Schema extends ItemType> {
    *
    * @return {string} The default value for the property.
    */
-  private get propertyDefault(): string {
+  protected get propertyDefault(): string {
     return this.isArray && !this.isNullable ? ` = new Array<${this.propertyType}>()` : '';
   }
 

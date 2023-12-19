@@ -19,17 +19,10 @@ type ResolvedDependencies = Record<'external' | 'outer' | 'inner', Map<string, S
 export abstract class AbstractedModel<Schema extends SchemaXData> {
 
   constructor(
+    public readonly name: string,
     protected readonly schema: Schema,
     protected readonly repository: ModelsRepository
   ) {
-  }
-
-
-  // ----
-  // Public Getters
-  // ----
-  public get name(): string {
-    return this.schema['x-element-name'];
   }
 
 

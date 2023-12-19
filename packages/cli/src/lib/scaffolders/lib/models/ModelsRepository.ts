@@ -28,14 +28,14 @@ export class ModelsRepository {
    */
   constructor(components: Components, private readonly compiler: TemplateCompiler, private readonly root: string) {
     Object.entries(components.schemas)
-      .forEach(([ , schema ]) => {
+      .forEach(([ name, schema ]) => {
         /** If the schema is an enum, create the enum model */
         if ('x-api-enum' in schema && !schema['x-enum-described']) {
-          this.models.push(new EnumModel(schema, this));
+          this.models.push(new EnumModel(name, schema, this));
         }
         /** If is a DTO object model, place into models */
         if ('x-api-response-dto' in schema && !!schema['x-api-response-dto']) {
-          this.models.push(new ObjectModel(schema, this));
+          this.models.push(new ObjectModel(name, schema, this));
         }
       });
   }
