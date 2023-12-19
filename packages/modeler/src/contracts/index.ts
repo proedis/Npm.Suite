@@ -1,3 +1,1 @@
-export * from './EntityAuditable';
-
-export * from './EntityBase';
+export * from './ModelerObject';

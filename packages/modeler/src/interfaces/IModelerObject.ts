@@ -1,7 +1,7 @@
 import type { ClassTransformOptions } from 'class-transformer';
 
 
-export interface IEntityBase {
+export interface IModelerObject {
 
   toObject<R extends Record<string, any> = Record<string, any>>(): R;
 

@@ -1,6 +1,4 @@
-export * from './IEntityAuditable';
-
-export * from './IEntityBase';
+export * from './IModelerObject';
 
 export * from './IEnum';
 
