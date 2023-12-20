@@ -49,7 +49,12 @@ export class ObjectModel extends AbstractedModel<ObjectSchema> {
    */
   public get dependencies(): PropertyDependency[] {
     return [
-      ...this.extends.map(e => ({ name: e, from: undefined })),
+      ...(this.extends.length ? this.extends.map(e => ({ name: e, from: undefined })) : [
+        {
+          name: 'ModelerObject',
+          from: '@proedis/modeler'
+        }
+      ]),
       ...this.properties.reduce<PropertyDependency[]>((acc, property) => [ ...acc, ...property.dependencies ], []),
       ...(this.properties.some(p => p.isNullable) ? [ { name: 'Nullable', from: '@proedis/types' } ] : [])
     ];
@@ -59,7 +64,9 @@ export class ObjectModel extends AbstractedModel<ObjectSchema> {
   protected write(): string {
     const content: string[] = [];
 
-    content.push(`export class ${this.name} ${this.extends.length ? `extends ${this.extends.join(', ')} ` : ''}{`);
+    const implementations = this.extends.length ? this.extends : [ 'ModelerObject' ];
+
+    content.push(`export class ${this.name} extends ${implementations.join(', ')} {`);
     this.properties.forEach((property) => {
       content.push('');
       content.push(property.renderProperty(2));
