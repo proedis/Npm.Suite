@@ -17,11 +17,11 @@ import type {
  * Main Context Builder
  * -------- */
 const {
-  useClient,
+  useClient: useClientBase,
   ClientContext
 } = contextBuilder<ContextClient>('Client');
 
-export { useClient };
+export const useClient: () => ContextClient = useClientBase;
 
 
 /* --------
