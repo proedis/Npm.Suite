@@ -26,7 +26,7 @@ export class ObjectModel extends AbstractedModel<ObjectSchema> {
   constructor(name: string, schema: ObjectSchema, repository: ModelsRepository) {
     super(name, schema, repository);
 
-    this.properties = Object.entries(this.schema.properties).map(([ propertyName, propertySchema ]) => {
+    this.properties = Object.entries(this.schema.properties || {}).map(([ propertyName, propertySchema ]) => {
       return PropertyFactory.create(propertyName, propertySchema);
     });
   }

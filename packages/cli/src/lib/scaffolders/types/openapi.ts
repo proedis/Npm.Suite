@@ -12,7 +12,7 @@ export type Components = {
 export type ObjectSchema = ObjectSchemaXData & {
   type: 'object';
   allOf?: ReferenceObject[];
-  properties: Record<string, PropertySchema>;
+  properties?: Record<string, PropertySchema>;
 };
 
 export type EnumSchema = EnumSchemaXData & {
