@@ -49,7 +49,7 @@ const bootstrap = async () => {
 bootstrap()
   .catch((exception) => {
     if (exception && exception instanceof Error) {
-      console.info(pe.render(exception));
+      console.info(exception);
     }
     else {
       console.info(pe.render(new Error('Unhandled Error Occurred')));
