@@ -57,7 +57,7 @@ export class ObjectModel extends AbstractedModel<ObjectSchema> {
       ]),
       ...this.properties.reduce<PropertyDependency[]>((acc, property) => [ ...acc, ...property.dependencies ], []),
       ...(this.properties.some(p => p.isNullable) ? [ { name: 'Nullable', from: '@proedis/types' } ] : [])
-    ];
+    ].filter(d => d.name !== this.name);
   }
 
 
