@@ -27,7 +27,7 @@ export class ObjectModel extends AbstractedModel<ObjectSchema> {
     super(name, schema, repository);
 
     this.properties = Object.entries(this.schema.properties || {}).map(([ propertyName, propertySchema ]) => {
-      return PropertyFactory.create(propertyName, propertySchema);
+      return PropertyFactory.create(name, propertyName, propertySchema);
     });
   }
 

@@ -31,7 +31,8 @@ export abstract class AbstractedProperty<Schema extends ItemType> {
   // Constructor
   // ----
   public constructor(
-    public readonly name: string,
+    public readonly objectName: string,
+    public readonly propertyName: string,
     private readonly definition: PropertySchema
   ) {
     this.schema = AbstractedProperty.getUnderlyingType(definition) as Schema;
@@ -106,9 +107,25 @@ export abstract class AbstractedProperty<Schema extends ItemType> {
   }
 
 
+  private get safePropertyType(): string {
+    /** Get the base object referenced name */
+    const referenceObjectName = this.propertyType;
+
+    /**
+     * Must check if the object is self referenced,
+     * to avoid circular property reference in self referenced objects.
+     * If so, use the Omit type to exclude child property from the referenced type
+     */
+    return this.objectName === referenceObjectName
+      ? `Omit<${referenceObjectName}, '${this.propertyName}'>`
+      : referenceObjectName;
+  }
+
+
   private getPropertyType(): string {
     /** Create the base property type, adding brackets if is an Array */
-    const basePropertyType = this.isArray ? `${this.propertyType}[]` : this.propertyType;
+    const basePropertyType = this.isArray ? `${this.safePropertyType}[]` : this.safePropertyType;
+
     /** Return the right requirements based on nullable check */
     return this.isNullable ? `Nullable<${basePropertyType}>` : basePropertyType;
   }
@@ -120,7 +137,7 @@ export abstract class AbstractedProperty<Schema extends ItemType> {
    * @return {string} The default value for the property.
    */
   protected get propertyDefault(): string {
-    return this.isArray && !this.isNullable ? ` = new Array<${this.propertyType}>()` : '';
+    return this.isArray && !this.isNullable ? ` = new Array<${this.safePropertyType}>()` : '';
   }
 
 
@@ -133,7 +150,7 @@ export abstract class AbstractedProperty<Schema extends ItemType> {
     return [
       this.getDescription(indent),
       this.decorators.map((d) => ' '.repeat(indent) + d).join('\n'),
-      ' '.repeat(indent) + `public ${this.name}${this.requirements}: ${this.getPropertyType()}${this.propertyDefault};`
+      ' '.repeat(indent) + `public ${this.propertyName}${this.requirements}: ${this.getPropertyType()}${this.propertyDefault};`
     ].filter(Boolean).join('\n');
   }
 
