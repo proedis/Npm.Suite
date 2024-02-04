@@ -268,7 +268,12 @@ export class EnumScaffolder extends AbstractedScaffolder {
       async (resolveSharedObject, reject) => (
         import('node-fetch')
           .then((fetch) => fetch.default(
-            `${answers.host}/${answers.endpoint.replace(/^\//, '')}`
+            `${answers.host}/${answers.endpoint.replace(/^\//, '')}`,
+            {
+              headers: {
+                Origin: 'http://localhost'
+              }
+            }
           ))
           .then(async (response) => (
             resolveSharedObject(await response.json() as SharedObjects)

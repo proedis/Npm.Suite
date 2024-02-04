@@ -59,7 +59,12 @@ export class ModelsScaffolder extends AbstractedScaffolder {
       async (resolveOpenApi, reject) => (
         import('node-fetch')
           .then((fetch) => fetch.default(
-            `${answers.host}/${answers.endpoint.replace(/^\//, '')}`
+            `${answers.host}/${answers.endpoint.replace(/^\//, '')}`,
+            {
+              headers: {
+                Origin: 'http://localhost'
+              }
+            }
           ))
           .then(async (response) => (
             resolveOpenApi(await response.json() as OpenApiDocument)
