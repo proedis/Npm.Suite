@@ -22,10 +22,14 @@ export class EnumModel extends AbstractedModel<EnumSchema> {
 
 
   protected write(): string {
-    return [
-      `export type ${this.name} =`,
-      this.schema.enum.map(name => `  | '${name}'`).join('\n') + ';\n'
-    ].join('\n');
+    if (Array.isArray(this.schema.enum)) {
+      return [
+        `export type ${this.name} =`,
+        this.schema.enum.map(name => `  | '${name}'`).join('\n') + ';\n'
+      ].join('\n');
+    }
+
+    return `export type ${this.name} = ${this.schema.type};\n`;
   }
 
 }

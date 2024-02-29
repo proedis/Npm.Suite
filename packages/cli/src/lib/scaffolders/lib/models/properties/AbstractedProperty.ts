@@ -19,7 +19,7 @@ export abstract class AbstractedProperty<Schema extends ItemType> {
         };
       }
       else {
-        return definition.items;
+        return this.getUnderlyingType(definition.items as PropertySchema);
       }
     }
 
@@ -70,6 +70,16 @@ export abstract class AbstractedProperty<Schema extends ItemType> {
     }
 
     return this.definition.type === 'array';
+  }
+
+
+  /**
+   * Checks if the current array definition is a nested array.
+   *
+   * @returns {boolean} Returns true if the definition is a nested array, otherwise false.
+   */
+  public get isNestedArray(): boolean {
+    return this.definition.type === 'array' && (this.definition.items as PropertySchema).type === 'array';
   }
 
 
@@ -124,7 +134,9 @@ export abstract class AbstractedProperty<Schema extends ItemType> {
 
   private getPropertyType(): string {
     /** Create the base property type, adding brackets if is an Array */
-    const basePropertyType = this.isArray ? `${this.safePropertyType}[]` : this.safePropertyType;
+    const basePropertyType = this.isNestedArray ? `${this.safePropertyType}[][]`
+      : this.isArray ? `${this.safePropertyType}[]`
+        : this.safePropertyType;
 
     /** Return the right requirements based on nullable check */
     return this.isNullable ? `Nullable<${basePropertyType}>` : basePropertyType;
@@ -137,7 +149,8 @@ export abstract class AbstractedProperty<Schema extends ItemType> {
    * @return {string} The default value for the property.
    */
   protected get propertyDefault(): string {
-    return this.isArray && !this.isNullable ? ` = new Array<${this.safePropertyType}>()` : '';
+    const arrayItemType = this.isNestedArray ? `${this.safePropertyType}[]` : this.safePropertyType;
+    return this.isArray && !this.isNullable ? ` = new Array<${arrayItemType}>()` : '';
   }
 
 
