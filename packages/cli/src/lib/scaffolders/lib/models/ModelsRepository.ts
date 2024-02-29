@@ -50,7 +50,7 @@ export class ModelsRepository {
     const model: AbstractedModel<any> | undefined = this.models.find(m => m.name === name);
 
     if (!model) {
-      throw new Error(`Could not resolve dependency ${name}`);
+      throw new Error(`Could not resolve dependency ${name} from ${from}`);
     }
 
     const relativePath = relative(from, model.filePath).replace(/\.ts$/i, '');
