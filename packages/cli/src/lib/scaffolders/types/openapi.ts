@@ -15,10 +15,13 @@ export type ObjectSchema = ObjectSchemaXData & {
   properties?: Record<string, PropertySchema>;
 };
 
-export type EnumSchema = EnumSchemaXData & {
-  type: 'string';
-  enum: string[];
-};
+export type EnumSchema = EnumSchemaXData & ({
+  type: 'string',
+  enum: string[]
+} | {
+  type: 'array',
+  items: { type: string }
+});
 
 
 /**
