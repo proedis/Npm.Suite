@@ -1,3 +1,4 @@
+import * as dayjs from 'dayjs';
 import naturalCompare from 'natural-compare';
 
 import type { AnyObject } from '@proedis/types';
@@ -6,7 +7,8 @@ import { getValueAt } from '../../object';
 
 import type ArraySorter from './ArraySorter';
 
-import type { Comparer, SortDirection, SortOptions } from './types';
+import type { ISortable } from '../contracts';
+import type { ComparableFieldType, Comparer, SortDirection, SortOptions } from './types';
 
 
 export default class ArraySorterStep<T extends AnyObject> {
@@ -48,60 +50,91 @@ export default class ArraySorterStep<T extends AnyObject> {
     } = options || {};
 
     /** Get item value using comparer accessor function */
-    const firstItemValue = typeof this._comparer === 'string' ? getValueAt(firstItem, this._comparer) : this._comparer(
-      firstItem);
-    const nextItemValue = typeof this._comparer === 'string' ? getValueAt(nextItem, this._comparer) : this._comparer(
-      nextItem);
-    const allNil = firstItemValue == null && nextItemValue == null;
-    const anyNil = firstItemValue == null || nextItemValue == null;
+    const firstItemValue = typeof this._comparer === 'string'
+      ? getValueAt(firstItem, this._comparer)
+      : this._comparer(firstItem);
+    const nextItemValue = typeof this._comparer === 'string'
+      ? getValueAt(nextItem, this._comparer)
+      : this._comparer(nextItem);
+
+    /** Assert types are valid and cast to valid comparable value */
+    const firstComparableValue = this.getComparableValue(firstItemValue);
+    const nextComparableValue = this.getComparableValue(nextItemValue);
+
+    const allNil = firstComparableValue == null && nextComparableValue == null;
+    const anyNil = firstComparableValue == null || nextComparableValue == null;
 
     /** Assert the object type is the same */
-    if (!anyNil && typeof firstItemValue !== typeof nextItemValue) {
+    if (!anyNil && typeof firstComparableValue !== typeof nextComparableValue) {
       throw new Error('Sorting is valid only for item of the same type');
     }
 
-    /** Assert types are valid */
-    if (firstItemValue != null && !/string|number|boolean/.test(typeof firstItemValue)) {
-      throw new Error(`Only primitive type could be used to sort data. Found ${typeof firstItemValue}`);
-    }
-
-    if (nextItemValue != null && !/string|number|boolean/.test(typeof nextItemValue)) {
-      throw new Error(`Only primitive type could be used to sort data. Found ${typeof nextItemValue}`);
-    }
-
     /** Continue with the next sorting step only if the two value are equal */
-    if (allNil || firstItemValue == nextItemValue) {
+    if (allNil || firstComparableValue == nextComparableValue) {
       return this._nextStep?.getSortingOrder(firstItem, nextItem, options) ?? 0;
     }
 
     /** Return sorting order for nil value */
-    if (nextItemValue == null) {
+    if (nextComparableValue == null) {
       return placeNil === 'after' ? -1 : 1;
     }
 
-    if (firstItemValue == null) {
+    if (firstComparableValue == null) {
       return placeNil === 'after' ? 1 : -1;
     }
 
     /** Check boolean value */
-    if (typeof firstItemValue === 'boolean' || typeof nextItemValue === 'boolean') {
-      return nextItemValue === false
+    if (typeof firstComparableValue === 'boolean' || typeof nextComparableValue === 'boolean') {
+      return nextComparableValue === false
         ? placeFalse === 'after' ? 1 : -1
         : placeFalse === 'after' ? -1 : 1;
     }
 
     /** Check number value */
-    if (typeof firstItemValue === 'number' || typeof nextItemValue === 'number') {
-      return (firstItemValue as number) - (nextItemValue as number);
+    if (typeof firstComparableValue === 'number' || typeof nextComparableValue === 'number') {
+      return (firstComparableValue as number) - (nextComparableValue as number);
     }
 
     /** Natural string comparing */
     return compareStringCase === 'insensitive'
       ? naturalCompare(
-        (firstItemValue as string).toString().toLocaleLowerCase(),
-        (nextItemValue as string).toString().toLocaleLowerCase()
+        (firstComparableValue as string).toString().toLocaleLowerCase(),
+        (nextComparableValue as string).toString().toLocaleLowerCase()
       )
-      : naturalCompare((firstItemValue as string).toString(), (nextItemValue as string).toString());
+      : naturalCompare((firstComparableValue as string).toString(), (nextComparableValue as string).toString());
+  }
+
+
+  /**
+   * Returns a comparable value for the given input value.
+   *
+   * @param {any} value - The input value to convert into a comparable value.
+   * @returns {ComparableFieldType} - The converted comparable value.
+   * @throws {Error} - Throws an error if the value is not a supported type.
+   */
+  private getComparableValue(value: any): ComparableFieldType {
+    /** Check if the value is already one of the valid comparable value types */
+    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' || value === null || value === undefined) {
+      return value;
+    }
+
+    /** Check if received value implements the getSortableValue from ISortable contracts */
+    if (typeof (value as ISortable<ComparableFieldType> | any).getSortableValue === 'function') {
+      return (value as ISortable<ComparableFieldType>).getSortableValue();
+    }
+
+    /** If the value is a Date, it could safely be transformed into a valid number */
+    if (value instanceof Date) {
+      return value.valueOf();
+    }
+
+    /** Some libraries are working with DayJs, so it must be included in comparable values */
+    if (dayjs.isDayjs(value)) {
+      return value.unix();
+    }
+
+    /** Thrown unsupported value type error */
+    throw new Error(`Only primitive type, Date and DayJs objects could be used to sort data. Found ${typeof value}`);
   }
 
 
