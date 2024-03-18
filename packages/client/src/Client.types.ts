@@ -208,16 +208,9 @@ interface BaseClientRequestConfig<Tokens extends string> {
 /* --------
  * Method Dependent Request
  * -------- */
-type RequestType = GetRequestType | DataSendRequestType;
-
-interface GetRequestType {
+interface RequestType {
   /** The HTTP Method to use */
-  method?: 'GET';
-}
-
-interface DataSendRequestType {
-  /** The HTTP Method to use */
-  method?: Exclude<RequestMethod, 'get' | 'GET'>;
+  method?: RequestMethod;
 
   /** Data to send through body */
   data?: {
