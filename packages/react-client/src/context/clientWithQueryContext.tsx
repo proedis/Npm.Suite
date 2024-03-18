@@ -86,8 +86,8 @@ export function useClientQuery<R = unknown>(
  * @param requestConfig
  * @param options
  */
-export function useClientMutation<D extends ({ [key: string]: any } | undefined) = any, R = unknown>(
-  key: (string | number)[],
+export function useClientMutation<D, R = unknown>(
+  key: (string | number)[] | ((data: D) => (string | number)[]),
   method: ClientRequestConfig<ClientTokens, R>['method'] | ((data: D) => ClientRequestConfig<ClientTokens, R>['method']),
   requestConfig?: (data: D) => Omit<ClientRequestConfig<ClientTokens, R>, 'url' | 'method'>,
   options?: Omit<UseMutationOptions<R, RequestError, D>, 'mutationKey' | 'mutationFn'>
@@ -97,13 +97,11 @@ export function useClientMutation<D extends ({ [key: string]: any } | undefined)
   /** Return the result of the mutation hook */
   return useMutation<R, RequestError, D>({
     ...options,
-    mutationKey: key,
-    mutationFn : (data) => {
+    mutationFn: (data) => {
       /** Create the ClientRequestConfig to pass to client request method */
       const clientRequestConfig: ClientRequestConfig<ClientTokens, R> = {
         ...(typeof requestConfig === 'function' ? requestConfig(data) : {}),
-        data,
-        url   : key.join('/'),
+        url   : (typeof key === 'function' ? key(data) : key).join('/'),
         method: typeof method === 'function' ? method(data) : method
       };
       /** Return the result of the request */
