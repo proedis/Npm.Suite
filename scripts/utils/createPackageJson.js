@@ -80,8 +80,6 @@ module.exports = function createPackageJson(packagePath, buildPath) {
   const fileContent = JSON.stringify(newPackageData, null, 2);
   fs.writeFileSync(targetPath, fileContent, 'utf-8');
 
-  global.console.log(`Created package.json in ${targetPath}`);
-
   /** Return created package.json data */
   return newPackageData;
 };

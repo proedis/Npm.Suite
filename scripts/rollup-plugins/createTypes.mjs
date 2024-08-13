@@ -9,12 +9,12 @@ import shell from 'shelljs';
  */
 export default function createTypes(opt = {}) {
   return {
-    name    : 'Build .d.ts',
+    name    : 'create-types',
     version : '1.0.0',
     buildEnd: {
       order: 'post',
       handler() {
-        global.console.info('creating .d.ts files...');
+        this.info('creating .d.ts files...');
         shell.exec(`tsc -p ${opt.tsconfig ?? 'tsconfig.json'}`);
       }
     }

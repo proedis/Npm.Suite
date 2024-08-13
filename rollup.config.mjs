@@ -7,14 +7,17 @@ import { defineConfig } from 'rollup';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import del from 'rollup-plugin-delete';
 import commonjs from '@rollup/plugin-commonjs';
-import typescript from 'rollup-plugin-typescript2';
+import typescript from '@rollup/plugin-typescript';
 import json from '@rollup/plugin-json';
 import hashbang from 'rollup-plugin-hashbang';
 
 import glob from 'fast-glob';
 
+// eslint-disable-next-line import/extensions
 import getExternalDependenciesFromPackage from './scripts/utils/getExternalDependenciesFromPackage.mjs';
+// eslint-disable-next-line import/extensions
 import createTypes from './scripts/rollup-plugins/createTypes.mjs';
+// eslint-disable-next-line import/extensions
 import producePackageFiles from './scripts/rollup-plugins/producePackageFiles.mjs';
 
 
@@ -85,14 +88,15 @@ const buildConfiguration = defineConfig({
     format,
     exports        : 'auto',
     dir            : `${OUTPUT_DIRECTORY}/${format}`,
-    preserveModules: true
+    preserveModules: true,
+    sourcemap      : true
   })),
 
   // Strip useless warnings
   onwarn: (warning, defaultHandler) => {
     if (
       warning.code === 'MODULE_LEVEL_DIRECTIVE' &&
-      warning.message.includes(`"use client"`)
+      warning.message.includes('"use client"')
     ) {
       return;
     }
