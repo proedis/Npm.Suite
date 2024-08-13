@@ -16,8 +16,9 @@
     "@proedis/utils": "1.3.3"
   },
   "devDependencies": {
-    "@fortawesome/fontawesome-common-types": "^6.4.2",
-    "@mantine/core": "^7.2.2"
+    "@fortawesome/fontawesome-common-types": "^6.6.0",
+    "@mantine/core": "^7.12.1",
+    "@mantine/hooks": "^7.12.1"
   },
   "proedisMetadata": {
     "reflectPeerDependencies": [
