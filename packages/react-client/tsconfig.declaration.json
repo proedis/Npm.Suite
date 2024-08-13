@@ -6,31 +6,5 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "build/types"
-  },
-  "references": [
-    {
-      "path": "../cli/tsconfig.declaration.json"
-    },
-    {
-      "path": "../client/tsconfig.declaration.json"
-    },
-    {
-      "path": "../formatters/tsconfig.declaration.json"
-    },
-    {
-      "path": "../modeler/tsconfig.declaration.json"
-    },
-    {
-      "path": "../react/tsconfig.declaration.json"
-    },
-    {
-      "path": "../react-native-client/tsconfig.declaration.json"
-    },
-    {
-      "path": "../types/tsconfig.declaration.json"
-    },
-    {
-      "path": "../utils/tsconfig.declaration.json"
-    }
-  ]
+  }
 }
