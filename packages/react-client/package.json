@@ -10,6 +10,7 @@
     "client",
     "authentication"
   ],
+  "license": "MIT",
   "main": "src/index.ts",
   "scripts": {
     "build": "rollup --config ../../rollup.config.mjs"

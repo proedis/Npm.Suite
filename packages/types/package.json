@@ -7,6 +7,7 @@
     "typescript",
     "types"
   ],
+  "license": "MIT",
   "main": "index.d.ts",
   "types": "index.d.ts",
   "scripts": {

@@ -11,6 +11,7 @@
     "typescript",
     "styleguide"
   ],
+  "license": "MIT",
   "main": "index.js",
   "scripts": {
     "build": "node ../../scripts/compile-plain.js"
