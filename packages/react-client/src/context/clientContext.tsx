@@ -113,11 +113,11 @@ export const ClientProvider: React.FunctionComponent<React.PropsWithChildren<Cli
   // ----
   // Check if the client is Ready to be used and if children must be hide while client is initially loading
   // ----
-  if (!renderEvenIfUnready && !isReady) {
+  if (renderEvenIfUnready || isReady) {
     return (
-      <React.Fragment>
-        {suspense || <React.Fragment />}
-      </React.Fragment>
+      <ClientContext.Provider value={client}>
+        {children}
+      </ClientContext.Provider>
     );
   }
 
@@ -126,9 +126,9 @@ export const ClientProvider: React.FunctionComponent<React.PropsWithChildren<Cli
   // Component Render
   // ----
   return (
-    <ClientContext.Provider value={client}>
-      {children}
-    </ClientContext.Provider>
+    <React.Fragment>
+      {suspense || <React.Fragment />}
+    </React.Fragment>
   );
 
 };

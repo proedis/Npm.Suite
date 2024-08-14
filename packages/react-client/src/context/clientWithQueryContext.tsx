@@ -52,10 +52,10 @@ export function useClientQuery<R = unknown>(
   options?: Omit<UseQueryOptions<R, RequestError, R>, 'queryKey' | 'queryFn' | 'meta'>
 ): UseQueryResult<R, RequestError> {
   return useQuery<R, RequestError, R>(
-    [ ...key, requestConfig ],
     {
       ...options,
-      meta: {
+      queryKey: [ ...key, requestConfig ],
+      meta    : {
         url: key.join('/'),
         ...requestConfig
       }
