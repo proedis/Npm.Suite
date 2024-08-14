@@ -7,14 +7,6 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 7,
     project    : [ './tsconfig.eslint.json' ]
-  },
-
-  rules: {
-    'react-hooks/exhaustive-deps': [
-      'warn', {
-        'additionalHooks': '(useEnhancedEffect)'
-      }
-    ]
   }
 
 };
