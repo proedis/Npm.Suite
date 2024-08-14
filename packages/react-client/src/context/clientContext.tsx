@@ -16,10 +16,7 @@ import type {
 /* --------
  * Main Context Builder
  * -------- */
-const {
-  useClient: useClientBase,
-  ClientContext
-} = contextBuilder<ContextClient>('Client');
+const [ ClientContext, useClientBase ] = contextBuilder<ContextClient>('Client');
 
 export const useClient: () => ContextClient = useClientBase;
 

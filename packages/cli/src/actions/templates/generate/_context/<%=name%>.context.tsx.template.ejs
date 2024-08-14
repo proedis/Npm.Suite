@@ -14,10 +14,7 @@ export interface <%- name %>Context {
 /* --------
  * Context Building
  * -------- */
-const {
-  use<%- name %>,
-  <%- name %>Provider: Base<%- name %>Provider
-} = contextBuilder<%- '<' + name + 'Context, \'' + name + '\'>'%>('<%- name %>');
+const [ <%- name %>BaseContext, use<%- name %> ] = contextBuilder<%- '<' + name + 'Context>' %>('<%- name %>');
 
 
 /* --------
@@ -46,7 +43,7 @@ const <%- name %>Provider: React.FunctionComponent<%- '<React.PropsWithChildren>
   // Context Provider Render
   // ----
   return (
-    <%- '<Base' + name + 'Provider value={ctxValue}>' %>
+    <%- '<' + name + 'BaseContext.Provider value={ctxValue}>' %>
       {children}
     <%- '</Base' + name + 'Provider>' %>
   );
