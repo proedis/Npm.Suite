@@ -1,6 +1,6 @@
 {
   "name": "@proedis/react",
-  "version": "1.3.4",
+  "version": "1.4.0",
   "description": "A set of React Hooks, that add UI or Core functionality to your Apps",
   "keywords": [
     "proedis",
@@ -13,13 +13,13 @@
     "build": "rollup --config ../../rollup.config.mjs"
   },
   "dependencies": {
-    "@proedis/utils": "1.3.3",
+    "@proedis/utils": "1.4.0",
     "clsx": "^2.1.1",
     "kind-of": "^6.0.3"
   },
   "devDependencies": {
-    "@proedis/tsconfig": "1.3.0",
-    "@proedis/types": "1.1.0",
+    "@proedis/tsconfig": "1.4.0",
+    "@proedis/types": "1.2.0",
     "@types/kind-of": "^6.0.3"
   },
   "proedisMetadata": {
