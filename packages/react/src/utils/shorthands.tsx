@@ -230,8 +230,10 @@ function createComponentShorthand<Props extends PartialComponentProps, V extends
 
   /** If the value is a primitive value, or a plain props object, use base Component */
   if (valueIsPrimitiveValue || valueIsPropObject) {
+    const { key, ...propsWithoutKey } = props;
+
     return (
-      <Component {...props} />
+      <Component key={key} {...propsWithoutKey} />
     );
   }
 
