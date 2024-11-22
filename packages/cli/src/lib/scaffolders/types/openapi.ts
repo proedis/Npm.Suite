@@ -2,7 +2,31 @@ export interface OpenApiDocument {
   openapi: string;
 
   components: Components;
+
+  paths: Record<string, Record<string, PathMethodDescriptor>>;
 }
+
+export type PathMethodDescriptor = {
+  tags: string[]
+  summary?: string;
+  description?: string;
+  operationId?: string;
+  parameters?: RouteParameterSchema[];
+};
+
+export type RouteParameterSchema = {
+  name: string;
+  in: 'path' | 'query';
+  description?: string;
+  required: boolean;
+  schema:
+    | BooleanPropertyType
+    | StringPropertyType
+    | DateTimePropertyType
+    | TimeSpanPropertyType
+    | GuidPropertyType
+    | NumberPropertyType
+};
 
 export type Components = {
   schemas: Record<string, ObjectSchema | EnumSchema>
