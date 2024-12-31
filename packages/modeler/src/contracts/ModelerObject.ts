@@ -1,7 +1,7 @@
 import { instanceToPlain, instanceToInstance, plainToInstance } from 'class-transformer';
 import type { ClassConstructor, ClassTransformOptions } from 'class-transformer';
 
-import { isNil } from '@proedis/utils';
+import { isNil, getHash } from '@proedis/utils';
 
 import type { IModelerObject } from '../interfaces';
 
@@ -26,6 +26,29 @@ export abstract class ModelerObject implements IModelerObject {
 
 
   /**
+   * Compares two `ModelerObject` instances to determine if they represent the same object.
+   *
+   * @param {ModelerObject} left - The first `ModelerObject` to compare.
+   * @param {ModelerObject} right - The second `ModelerObject` to compare.
+   * @return {boolean} Returns `true` if the two objects are considered the same, otherwise `false`.
+   */
+  public static isSameModelerObject(left: ModelerObject, right: ModelerObject): boolean {
+    // Check first by strict object comparison
+    if (left === right) {
+      return true;
+    }
+
+    // Check if the prototype of the modeler object is the same
+    if (left.constructor !== right.constructor) {
+      return false;
+    }
+
+    // Returns hash comparison between the two ModelerObjects
+    return left.hash() === right.hash();
+  }
+
+
+  /**
    * Creates a new instance of a class using the provided source object.
    *
    * @template T - The type of the class to create an instance of.
@@ -37,6 +60,31 @@ export abstract class ModelerObject implements IModelerObject {
   public static from<T, V extends Array<any>>(this: ClassConstructor<T>, source: V): T[];
   public static from<T, V>(this: ClassConstructor<T>, source: V | V[]): T | T[] {
     return plainToInstance(this as ClassConstructor<T>, source);
+  }
+
+
+  /**
+   * Generates and returns a hash string for the current object.
+   *
+   * @return {string} A string representing the hash value of the object.
+   */
+  public hash(): string {
+    return getHash(this);
+  }
+
+
+  /**
+   * Determines whether the provided object is equal to the current instance.
+   *
+   * @param {any} other - The object to compare with the current instance.
+   * @return {boolean} True if the provided object is the same as the current instance, false otherwise.
+   */
+  public equals(other: any): other is this {
+    if (!ModelerObject.isModelerObject(other)) {
+      return false;
+    }
+
+    return ModelerObject.isSameModelerObject(this, other);
   }
 
 
