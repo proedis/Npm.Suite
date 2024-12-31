@@ -179,13 +179,13 @@ export class ModelsScaffolder extends AbstractedScaffolder {
     /** Create params */
     const pathParameters: string[] = [];
 
-    pathsAndParams.forEach((parameterSchema, path) => {
-      if (!parameterSchema.length) {
+    pathsAndParams.forEach((parametersSchema, path) => {
+      if (!parametersSchema.length) {
         return;
       }
 
       const objectKeys: string[] = [];
-      parameterSchema.forEach((parameterSchema) => {
+      parametersSchema.forEach((parameterSchema) => {
         let parameterType: string = '';
 
         switch (parameterSchema.schema.type) {
