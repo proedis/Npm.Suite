@@ -28,7 +28,7 @@ interface CompileOptions {
   noLint?: boolean;
 
   /** Disable overriding file */
-  noOverride?: boolean;
+  noOverride?: boolean | ((fileName: string, path: string) => boolean);
 
   /** Print the disclaimer on top of produced output */
   printDisclaimer?: boolean;
@@ -236,7 +236,7 @@ export class TemplateCompiler {
       return null;
     }
 
-    const savedFilePath = this.writeFile(outputPath, file, fileExists, !options.noOverride);
+    const savedFilePath = this.writeFile(outputPath, file, fileExists, options.noOverride);
 
     /** Lint and fix all files, if not omitted */
     if (!options?.noLint) {
@@ -295,7 +295,7 @@ export class TemplateCompiler {
         /** Create the output path */
         const outputPath = resolve(root, ...(descriptor.path || []), outputName);
         /** Write the file */
-        return resolveTemplate(this.writeFile(outputPath, file, undefined, !options.noOverride));
+        return resolveTemplate(this.writeFile(outputPath, file, undefined, options.noOverride));
       })
     ));
 
@@ -314,10 +314,15 @@ export class TemplateCompiler {
    * @param path
    * @param file
    * @param modified
-   * @param override
+   * @param noOverride
    * @private
    */
-  public writeFile(path: string, file: string, modified?: boolean, override?: boolean): SavedFile {
+  public writeFile(
+    path: string,
+    file: string,
+    modified?: boolean,
+    noOverride?: CompileOptions['noOverride']
+  ): SavedFile {
     /** Template will be saved only if contains at least one char */
     if (!/[A-Za-z]/.test(file)) {
       return null;
@@ -333,7 +338,9 @@ export class TemplateCompiler {
     const isFileModified = modified ?? existsSync(path);
 
     /** Check if file must be overridden */
-    if (isFileModified && !override) {
+    const fileName = basename(path);
+    const avoidOverriding = typeof noOverride === 'function' ? noOverride(fileName, path) : noOverride;
+    if (isFileModified && avoidOverriding) {
       console.info(
         chalk.yellow(
           `File ${path} already exists and won\'t be overridden`
