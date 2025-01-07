@@ -212,7 +212,7 @@ export class EnumScaffolder extends AbstractedScaffolder {
     /** Create the template compiler */
     const compiler = this.compiler.forPath('enums', 'constants').defaults({
       noLint    : true,
-      noOverride: true
+      noOverride: (fileName, path) => /\.(icons|colors)\.ts$/.test(fileName)
     });
 
     /** Ask user if it must compile shared objects color and icons */

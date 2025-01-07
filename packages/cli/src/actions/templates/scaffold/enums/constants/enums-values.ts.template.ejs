@@ -1,0 +1,28 @@
+import type { ComposedSharedObjects } from '../interfaces/enums';
+
+
+/* --------
+ * Internal Types
+ * -------- */
+type Enumify<%- '<T>'%> = {
+  [K in keyof T]: T[K] extends string | number
+    ? { [V in T[K]]: V }
+    : never
+};
+
+type SharedObjectsValues = Enumify<%- '<ComposedSharedObjects>'%>;
+
+
+/* --------
+ * Exports
+ * -------- */
+const ENUMS_VALUES: SharedObjectsValues = {
+<% sharedObjects.forEach(function (s) { %>
+  <%- s.name %>: {
+  <% s.values.forEach(function (value) { %>
+    <%= value %>: '<%= value %>',<% }) %>
+  },
+<% }) %>
+};
+
+export default ENUMS_VALUES;
