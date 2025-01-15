@@ -8,7 +8,7 @@ import { spinnerFeedbackFunction } from '../../ui';
 
 import { ModelsRepository } from './lib/models/ModelsRepository';
 
-import type { OpenApiDocument, RouteParameterSchema } from './types/openapi';
+import type { OpenApiDocument, RouteParameterSchema, PathMethodDescriptor } from './types/openapi';
 import { type SavedFile, TemplateCompiler } from '../template.compiler';
 import { globSync } from 'glob';
 
@@ -135,105 +135,204 @@ export class ModelsScaffolder extends AbstractedScaffolder {
   private generateNamespaces(root: string, openApiDocument: OpenApiDocument): SavedFile {
     /** Create the path to the file to write */
     const namespaceFile = resolve(root, 'namespaces', 'index.ts');
-    const openApiPaths = Object.keys(openApiDocument.paths ?? {});
 
-    /** Ensure at least one path exists */
-    if (!openApiPaths.length) {
+    /** Get the OpenApi Entries, with Path and relative Object */
+    const entries = Object.entries(openApiDocument.paths);
+
+    /** Ensure at least one path entry exists before continue */
+    if (!entries.length) {
       return null;
     }
 
-    /** Create the file to write */
-    const fileContent: string[] = [ TemplateCompiler.getDisclaimer(), '' ];
-    const pathsAndParams = new AugmentedMap<string, RouteParameterSchema[]>();
+    /** Initialize the file content to write */
+    const fileContent: string[] = [ TemplateCompiler.getDisclaimer() ];
+    const fileSections: string[][] = [];
 
-    /** Loop each path and build the descriptor object */
-    openApiPaths.forEach((openApiPath) => {
-      if (!openApiDocument.paths[openApiPath]) {
+    /** Fill all sections according to entries */
+    fileSections.push(ModelsScaffolder.generatePathContent(entries));
+    fileSections.push(ModelsScaffolder.generatePathMethods(entries));
+    fileSections.push(ModelsScaffolder.generatePathRouteParams(entries));
+    fileSections.push(ModelsScaffolder.generatePathParams(entries));
+
+    /** Create the full file content, joining all sections */
+    fileSections.forEach((section) => {
+      fileContent.push('');
+      fileContent.push(...section);
+    });
+
+    /** Write the file content to out location */
+    return this.compiler.writeFile(namespaceFile, fileContent.join('\n'), true, false);
+  }
+
+
+  /**
+   * Generates a list of strings representing TypeScript type definitions for paths.
+   *
+   * @param {Array} entries - An array of tuples where each tuple consists of a string representing the path
+   * and an object of type Record<string, PathMethodDescriptor>.
+   * @return {string[]} An array of strings containing TypeScript type definition for the paths.
+   */
+  private static generatePathContent(entries: [ string, Record<string, PathMethodDescriptor> ][]): string[] {
+    const content: string[] = [
+      'export type Path ='
+    ];
+
+    entries.forEach(([ path ]) => {
+      content.push(
+        `  | '${ModelsScaffolder.getRoutePathName(path)}'`
+      );
+    });
+
+    content[content.length - 1] += ';';
+
+    content.push('');
+
+    return content;
+  }
+
+
+  /**
+   * Generates an array of strings representing TypeScript type declarations
+   * for path methods based on the provided entries.
+   *
+   * @param entries An array of tuples where each tuple contains a string representing a path
+   *                and an object mapping method names to their descriptors.
+   * @return An array of strings that together form the TypeScript type declarations.
+   */
+  private static generatePathMethods(entries: [ string, Record<string, PathMethodDescriptor> ][]): string[] {
+    const content: string[] = [
+      'export type PathMethods = {'
+    ];
+
+    entries.forEach(([ path, methodsDescriptor ]) => {
+      content.push(
+        `  '${ModelsScaffolder.getRoutePathName(path)}': ${Object.keys(methodsDescriptor)
+          .map(method => `'${method.toUpperCase()}'`)
+          .join(' | ')},`
+      );
+    });
+
+    content.push('};', '');
+
+    return content;
+  }
+
+
+  /**
+   * Generates an array of strings defining a TypeScript type for path route parameters.
+   *
+   * @param entries - An array of tuples, where each tuple contains a path (string) and a record of path method descriptors.
+   * @return An array of strings representing a TypeScript type definition for path route parameters.
+   */
+  private static generatePathRouteParams(entries: [ string, Record<string, PathMethodDescriptor> ][]): string[] {
+    const content: string[] = [
+      'export type PathRouteParams = {'
+    ];
+
+    entries.forEach(([ path ]) => {
+      const routeParams = ModelsScaffolder.getRouteParam(path);
+
+      if (!routeParams.length) {
         return;
       }
 
-      Object.entries(openApiDocument.paths[openApiPath]).forEach(([ , descriptor ]) => {
-        const clearedPath = openApiPath.replace(/(^\/v1\/)|(^\/)/, '');
-        const parameters = pathsAndParams.getOrAdd(clearedPath, () => []);
-
-        (descriptor.parameters || []).forEach((parameter) => {
-          if (parameter.name.indexOf('-') >= 0) {
-            return;
-          }
-
-          if (!parameters.find(p => p.name === parameter.name)) {
-            parameters.push(parameter);
-          }
-        });
-      });
+      content.push(
+        `  '${ModelsScaffolder.getRoutePathName(path)}': {`,
+        `    ${routeParams.map(param => `'${param}': string | number`).join(',\n    ')}`,
+        `  },`
+      );
     });
 
-    /** Add all Path */
-    fileContent.push('export type Path =');
-    pathsAndParams.forEach((_, path) => {
-      fileContent.push(`  | '${path}'`);
-    });
-    fileContent[fileContent.length - 1] = `${fileContent[fileContent.length - 1]};`;
-    fileContent.push('');
+    content.push('};', '');
 
-    /** Create params */
-    const pathParameters: string[] = [];
+    return content;
+  }
 
-    pathsAndParams.forEach((parametersSchema, path) => {
-      if (!parametersSchema.length) {
-        return;
-      }
 
-      const objectKeys: string[] = [];
-      parametersSchema.forEach((parameterSchema) => {
-        let parameterType: string = '';
+  /**
+   * Generates an array of TypeScript string definitions for path query parameters
+   * based on the provided endpoints and their respective method descriptors.
+   *
+   * @param entries An array of tuples where each tuple consists of a string path and a record
+   * of HTTP methods mapped to their respective path method descriptors.
+   * @return An array of strings representing TypeScript type definitions for query parameters
+   * associated with specific paths and HTTP methods.
+   */
+  private static generatePathParams(entries: [ string, Record<string, PathMethodDescriptor> ][]): string[] {
+    const content: string[] = [
+      'export type PathQueryParams = {'
+    ];
 
-        switch (parameterSchema.schema.type) {
-          case 'string':
-            parameterType = 'string';
-            break;
+    entries.forEach(([ path, methodsDescriptor ]) => {
+      let hasParams = false;
+      const pathParamContent: string[] = [
+        `  '${ModelsScaffolder.getRoutePathName(path)}': {`
+      ];
 
-          case 'integer':
-          case 'number':
-            parameterType = 'number';
-            break;
+      Object.entries(methodsDescriptor).forEach(([ method, descriptor ]) => {
+        const queryParams = (descriptor.parameters || []).filter(param => param.in === 'query');
 
-          case 'boolean':
-            parameterType = 'boolean';
-            break;
-        }
-
-        if (!parameterType) {
+        if (!queryParams.length) {
           return;
         }
 
-        objectKeys.push(`${parameterSchema.name}${parameterSchema.required ? '' : '?'}: ${parameterType}`);
+        hasParams = true;
+
+        pathParamContent.push(`    '${method.toUpperCase()}': {`);
+
+        queryParams.forEach((param) => {
+          const isValidWithoutQuote = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(param.name);
+          const paramKey = `${!isValidWithoutQuote ? `'${param.name}'` : param.name}${param.required ? '' : '?'}`;
+          const constraint = ModelsScaffolder.getRouteParamConstraint(param);
+
+          pathParamContent.push(`      ${paramKey}: ${constraint},`);
+        });
+
+        pathParamContent.push(`    },`);
       });
 
-      if (!objectKeys.length) {
+      if (!hasParams) {
         return;
       }
 
-      pathParameters.push(`  '${path}': { ${objectKeys.join(', ')} },`);
+      pathParamContent.push('  },');
+      content.push(...pathParamContent);
     });
 
-    if (pathParameters.length > 0) {
-      fileContent.push('export type Params = {');
-      fileContent.push(...pathParameters);
-      fileContent.push('};');
-      fileContent.push('');
+    content.push('};', '');
+
+    return content;
+  }
+
+
+  private static getRoutePathName(route: string): string {
+    return route.replace(/(^\/v1\/)|(^\/)/, '');
+  }
+
+
+  private static getRouteParam(route: string): string[] {
+    const regex = /{([^}]+)}/g;
+    const matches = [];
+    let match;
+    while ((match = regex.exec(route)) !== null) {
+      matches.push(match[1]);
     }
+    return matches;
+  }
 
-    /** Utility Export */
-    fileContent.push('export interface WithNamespace {');
-    fileContent.push('  namespace: Path;');
-    fileContent.push('}');
-    fileContent.push('');
 
-    fileContent.push('export type Namespaced<T> = T & WithNamespace;');
-    fileContent.push('');
+  private static getRouteParamConstraint(param: RouteParameterSchema): string {
+    switch (param.schema.type) {
+      case 'string':
+        return 'string';
 
-    return this.compiler.writeFile(namespaceFile, fileContent.join('\n'), false, true);
+      case 'integer':
+      case 'number':
+        return 'number';
+
+      case 'boolean':
+        return 'boolean';
+    }
   }
 
 
