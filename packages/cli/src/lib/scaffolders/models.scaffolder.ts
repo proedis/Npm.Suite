@@ -160,6 +160,16 @@ export class ModelsScaffolder extends AbstractedScaffolder {
       fileContent.push(...section);
     });
 
+    /** Add utilities types */
+    fileContent.push('');
+    fileContent.push('export interface WithNamespace {');
+    fileContent.push('  namespace: Path;');
+    fileContent.push('}');
+    fileContent.push('');
+
+    fileContent.push('export type Namespaced<T> = T & WithNamespace;');
+    fileContent.push('');
+
     /** Write the file content to out location */
     return this.compiler.writeFile(namespaceFile, fileContent.join('\n'), true, false);
   }
