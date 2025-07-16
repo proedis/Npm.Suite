@@ -10,10 +10,10 @@ import type { DecoratorOptions, EnumName } from '../types';
 
 
 /**
- * Decorate any class property to be parsed as Flags object.
- * Flags properties won't be null, even if source value is null.
+ * Decorate any class property to be parsed as a Flags object.
+ * Flags properties won't be null, even if the source value is null.
  * A flag converted to Flags class instance will be converted back to
- * an array of string once the object instance will be transformed into plain object
+ * an array of string once the object instance is transformed into plain object
  * @param name The name of the collection of Enums to parse the value
  * @param options Optional options passed to Transform decorator
  * @constructor
@@ -27,7 +27,7 @@ export function AsFlags<C extends EnumName>(name: C, options?: DecoratorOptions)
     ),
     /** When casting an instance into a plain object, transform the Enum into string */
     Transform(
-      ({ value }) => Flags.isFlag(value) ? value.values : [],
+      ({ value }) => Flags.isFlag(value) ? value.flags : [],
       { toPlainOnly: true, ...options }
     )
   );

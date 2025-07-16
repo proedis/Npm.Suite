@@ -5,13 +5,11 @@ import type { IconName } from '@fortawesome/fontawesome-common-types';
 
 import type { EnumName, EnumsCollections, EnumsColors, EnumsIcons, EnumsOf, EnumSource, EnumValue } from '../types';
 
-import type { IEnum } from '../interfaces';
-
 
 /* --------
  * Class Definition
  * -------- */
-export class Enum<C extends EnumName, V extends EnumValue<C> = EnumValue<C>> implements IEnum<C, V> {
+export class Enum<C extends EnumName, V extends EnumValue<C> = EnumValue<C>> {
 
   // ----
   // Static Properties & Methods
