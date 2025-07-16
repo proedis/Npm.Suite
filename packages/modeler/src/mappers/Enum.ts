@@ -9,7 +9,7 @@ import type { EnumName, EnumsCollections, EnumsColors, EnumsIcons, EnumsOf, Enum
 /* --------
  * Class Definition
  * -------- */
-export class Enum<C extends EnumName, V extends EnumValue<C> = EnumValue<C>> {
+export class Enum<C extends EnumName> {
 
   // ----
   // Static Properties & Methods
@@ -68,10 +68,10 @@ export class Enum<C extends EnumName, V extends EnumValue<C> = EnumValue<C>> {
   }
 
 
-  private static readonly _enumsCache = new AugmentedMap<string, Enum<any, any>>();
+  private static readonly _enumsCache = new AugmentedMap<string, Enum<any>>();
 
 
-  public static getEnum<C extends EnumName, V extends EnumValue<C>>(name: C, value: V): Enum<C, V> {
+  public static getEnum<C extends EnumName>(name: C, value: EnumValue<C>): Enum<C> {
     /** Create the unique key for the enum */
     const key = `${name}--${value}`;
 
@@ -94,12 +94,17 @@ export class Enum<C extends EnumName, V extends EnumValue<C> = EnumValue<C>> {
   }
 
 
-  public static isEnum(value: any): value is Enum<any, any> {
+  public static isEnum(value: any): value is Enum<any> {
     return !isNil(value) && value instanceof Enum;
   }
 
 
-  private static getHashCode<C extends EnumName, V extends EnumValue<C>>(name: C, value: V): number {
+  private static getHashCode<C extends EnumName>(name: C, value: EnumValue<C> | Enum<C>): number {
+    /** Check if the value is already an Enum */
+    if (Enum.isEnum(value)) {
+      return value.hashCode;
+    }
+
     /** Assert al params are strings */
     if (!name || !value) {
       return Number.MIN_SAFE_INTEGER;
@@ -114,7 +119,7 @@ export class Enum<C extends EnumName, V extends EnumValue<C> = EnumValue<C>> {
   // ----
   constructor(
     private readonly _collectionName: C,
-    private readonly _source: EnumSource<C, V>
+    private readonly _source: EnumSource<C>
   ) {
   }
 
@@ -128,7 +133,7 @@ export class Enum<C extends EnumName, V extends EnumValue<C> = EnumValue<C>> {
    * @param hint - The type hint provided to convert the object into primitive.
    * @return The primitive value of the object based on the given type hint.
    */
-  [Symbol.toPrimitive](hint: string): number | V {
+  [Symbol.toPrimitive](hint: string): number | EnumValue<C> {
     if (hint === 'number') {
       return this.hashCode;
     }
@@ -140,7 +145,7 @@ export class Enum<C extends EnumName, V extends EnumValue<C> = EnumValue<C>> {
   // ----
   // Public Getters
   // ----
-  public get value(): V {
+  public get value(): EnumValue<C> {
     return this._source.value;
   }
 
@@ -158,33 +163,45 @@ export class Enum<C extends EnumName, V extends EnumValue<C> = EnumValue<C>> {
   // ----
   // Checkers methods
   // ----
-  public is(value: EnumValue<C>): boolean {
+  public is(value: Enum<C>): boolean;
+  public is(value: EnumValue<C>): boolean;
+  public is(value: Enum<C> | EnumValue<C>): boolean {
     /** Compare hash code of two elements */
     return Enum.getHashCode(this._collectionName, value) === this.hashCode;
   }
 
 
-  public isOneOf(...values: EnumValue<C>[]): boolean {
-    return values.some((value) => this.is(value));
+  public isOneOf(...values: Enum<C>[]): boolean
+  public isOneOf(...values: EnumValue<C>[]): boolean
+  public isOneOf(...values: (Enum<C> | EnumValue<C>)[]): boolean {
+    return values.some((value) => this.is(value as (Exclude<Enum<C> | EnumValue<C>, string>)));
   }
 
 
-  public lt(value: EnumValue<C>): boolean {
+  public lt(value: Enum<C>): boolean;
+  public lt(value: EnumValue<C>): boolean;
+  public lt(value: Enum<C> | EnumValue<C>): boolean {
     return this.hashCode < Enum.getHashCode(this._collectionName, value);
   }
 
 
-  public lte(value: EnumValue<C>): boolean {
+  public lte(value: Enum<C>): boolean;
+  public lte(value: EnumValue<C>): boolean;
+  public lte(value: Enum<C> | EnumValue<C>): boolean {
     return this.hashCode <= Enum.getHashCode(this._collectionName, value);
   }
 
 
-  public gt(value: EnumValue<C>): boolean {
+  public gt(value: Enum<C>): boolean;
+  public gt(value: EnumValue<C>): boolean;
+  public gt(value: Enum<C> | EnumValue<C>): boolean {
     return this.hashCode > Enum.getHashCode(this._collectionName, value);
   }
 
 
-  public gte(value: EnumValue<C>): boolean {
+  public gte(value: Enum<C>): boolean;
+  public gte(value: EnumValue<C>): boolean;
+  public gte(value: Enum<C> | EnumValue<C>): boolean {
     return this.hashCode >= Enum.getHashCode(this._collectionName, value);
   }
 

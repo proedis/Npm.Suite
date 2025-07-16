@@ -8,7 +8,7 @@ import type { EnumName, EnumValue } from '../types';
 /* --------
  * Class Definition
  * -------- */
-export class Flags<C extends EnumName> extends Array<Enum<C, EnumValue<C>>> {
+export class Flags<C extends EnumName> extends Array<Enum<C>> {
 
 
   // ----
@@ -35,7 +35,7 @@ export class Flags<C extends EnumName> extends Array<Enum<C, EnumValue<C>>> {
   // ----
   // Private Helper
   // ----
-  private _createFromEnums(enums: Enum<C, EnumValue<C>>[]): Flags<C> {
+  private _createFromEnums(enums: Enum<C>[]): Flags<C> {
     return new Flags(this._collectionName, enums.map(e => e.value));
   }
 
@@ -57,8 +57,10 @@ export class Flags<C extends EnumName> extends Array<Enum<C, EnumValue<C>>> {
   // Checkers Methods
   // ----
 
-  public hasFlag(value: EnumValue<C>): boolean {
-    return this.some((s) => s.is(value));
+  public hasFlag(value: Enum<C>): boolean;
+  public hasFlag(value: EnumValue<C>): boolean;
+  public hasFlag(value: Enum<C> | EnumValue<C>): boolean {
+    return this.some((s) => s.is(value as (Exclude<Enum<C> | EnumValue<C>, string>)));
   }
 
 
@@ -66,8 +68,12 @@ export class Flags<C extends EnumName> extends Array<Enum<C, EnumValue<C>>> {
    * @deprecated This function has completely been replaced from the `hasAll` method
    * @param values - The enum values to check for presence.
    */
-  public is(...values: EnumValue<C>[]): boolean {
-    return values.every((v) => this.some((s) => s.is(v)));
+  public is(...values: Enum<C>[]): boolean
+  public is(...values: EnumValue<C>[]): boolean
+  public is(...values: (Enum<C> | EnumValue<C>)[]): boolean {
+    return values.every((value) => (
+      this.some((s) => s.is(value as (Exclude<Enum<C> | EnumValue<C>, string>))))
+    );
   }
 
 
@@ -77,8 +83,10 @@ export class Flags<C extends EnumName> extends Array<Enum<C, EnumValue<C>>> {
    * @param values - The enum values to check for presence.
    * @returns True if all values are present; otherwise, false.
    */
-  public hasAll(...values: EnumValue<C>[]): boolean {
-    return values.every(v => this.hasFlag(v));
+  public hasAll(...values: Enum<C>[]): boolean
+  public hasAll(...values: EnumValue<C>[]): boolean
+  public hasAll(...values: (Enum<C> | EnumValue<C>)[]): boolean {
+    return values.every(value => (this.hasFlag(value as (Exclude<Enum<C> | EnumValue<C>, string>))));
   }
 
 
@@ -88,8 +96,10 @@ export class Flags<C extends EnumName> extends Array<Enum<C, EnumValue<C>>> {
    * @param values - The enum values to check for.
    * @returns True if at least one value is present; otherwise, false.
    */
-  public hasAny(...values: EnumValue<C>[]): boolean {
-    return values.some(v => this.hasFlag(v));
+  public hasAny(...values: Enum<C>[]): boolean
+  public hasAny(...values: EnumValue<C>[]): boolean
+  public hasAny(...values: (Enum<C> | EnumValue<C>)[]): boolean {
+    return values.some(value => this.hasFlag(value as (Exclude<Enum<C> | EnumValue<C>, string>)));
   }
 
 
@@ -99,8 +109,10 @@ export class Flags<C extends EnumName> extends Array<Enum<C, EnumValue<C>>> {
    * @param values - The enum values to verify absence for.
    * @returns True if none of the values are present; otherwise, false.
    */
-  public hasNone(...values: EnumValue<C>[]): boolean {
-    return !this.hasAny(...values);
+  public hasNone(...values: Enum<C>[]): boolean
+  public hasNone(...values: EnumValue<C>[]): boolean
+  public hasNone(...values: (Enum<C> | EnumValue<C>)[]): boolean {
+    return !this.hasAny(...(values as (Exclude<Enum<C> | EnumValue<C>, string>)[]));
   }
 
 
@@ -110,7 +122,9 @@ export class Flags<C extends EnumName> extends Array<Enum<C, EnumValue<C>>> {
    * @param values - The values to check against.
    * @returns True if all current flags exist within the specified values.
    */
-  public isSubsetOf(...values: EnumValue<C>[]): boolean {
+  public isSubsetOf(...values: Enum<C>[]): boolean
+  public isSubsetOf(...values: EnumValue<C>[]): boolean
+  public isSubsetOf(...values: (Enum<C> | EnumValue<C>)[]): boolean {
     const valueSet = new Set(values);
     return this.every(s => valueSet.has(s.value));
   }
@@ -122,8 +136,10 @@ export class Flags<C extends EnumName> extends Array<Enum<C, EnumValue<C>>> {
    * @param values - The values that must all be contained in the current flag set.
    * @returns True if all specified values are present in the current flag set.
    */
-  public isSupersetOf(...values: EnumValue<C>[]): boolean {
-    return values.every(v => this.hasFlag(v));
+  public isSupersetOf(...values: Enum<C>[]): boolean
+  public isSupersetOf(...values: EnumValue<C>[]): boolean
+  public isSupersetOf(...values: (Enum<C> | EnumValue<C>)[]): boolean {
+    return values.every(value => this.hasFlag(value as (Exclude<Enum<C> | EnumValue<C>, string>)));
   }
 
 
@@ -136,10 +152,12 @@ export class Flags<C extends EnumName> extends Array<Enum<C, EnumValue<C>>> {
    *
    * @param value - The enum value to add.
    */
-  public addFlag(value: EnumValue<C>): void {
+  public addFlag(value: Enum<C>): void;
+  public addFlag(value: EnumValue<C>): void;
+  public addFlag(value: Enum<C> | EnumValue<C>): void {
     /** Add the value only if it is not present into the original array */
-    if (!this.hasFlag(value)) {
-      this.push(Enum.getEnum(this._collectionName, value));
+    if (!this.hasFlag(value as (Exclude<Enum<C> | EnumValue<C>, string>))) {
+      this.push(Enum.isEnum(value) ? value : Enum.getEnum(this._collectionName, value));
     }
   }
 
@@ -149,9 +167,11 @@ export class Flags<C extends EnumName> extends Array<Enum<C, EnumValue<C>>> {
    *
    * @param values - The enum values to add.
    */
-  public addFlags(...values: EnumValue<C>[]): void {
-    for (const v of values) {
-      this.addFlag(v);
+  public addFlags(...values: Enum<C>[]): void
+  public addFlags(...values: EnumValue<C>[]): void
+  public addFlags(...values: (Enum<C> | EnumValue<C>)[]): void {
+    for (const value of values) {
+      this.addFlag(value as (Exclude<Enum<C> | EnumValue<C>, string>));
     }
   }
 
@@ -162,9 +182,11 @@ export class Flags<C extends EnumName> extends Array<Enum<C, EnumValue<C>>> {
    *
    * @param value - The enum value to remove.
    */
-  public removeFlag(value: EnumValue<C>): void {
+  public removeFlag(value: Enum<C>): void;
+  public removeFlag(value: EnumValue<C>): void;
+  public removeFlag(value: Enum<C> | EnumValue<C>): void {
     let index: number;
-    while ((index = this.findIndex(s => s.is(value))) !== -1) {
+    while ((index = this.findIndex(s => s.is(value as (Exclude<Enum<C> | EnumValue<C>, string>)))) !== -1) {
       this.splice(index, 1);
     }
   }
@@ -175,9 +197,11 @@ export class Flags<C extends EnumName> extends Array<Enum<C, EnumValue<C>>> {
    *
    * @param values - The enum values to remove.
    */
-  public removeFlags(...values: EnumValue<C>[]): void {
-    for (const v of values) {
-      this.removeFlag(v);
+  public removeFlags(...values: Enum<C>[]): void
+  public removeFlags(...values: EnumValue<C>[]): void
+  public removeFlags(...values: (Enum<C> | EnumValue<C>)[]): void {
+    for (const value of values) {
+      this.removeFlag(value as (Exclude<Enum<C> | EnumValue<C>, string>));
     }
   }
 
@@ -188,12 +212,14 @@ export class Flags<C extends EnumName> extends Array<Enum<C, EnumValue<C>>> {
    *
    * @param value - The enum value to toggle.
    */
-  public toggleFlag(value: EnumValue<C>): void {
-    if (this.hasFlag(value)) {
-      this.removeFlag(value);
+  public toggleFlag(value: Enum<C>): void;
+  public toggleFlag(value: EnumValue<C>): void;
+  public toggleFlag(value: Enum<C> | EnumValue<C>): void {
+    if (this.hasFlag(value as (Exclude<Enum<C> | EnumValue<C>, string>))) {
+      this.removeFlag(value as (Exclude<Enum<C> | EnumValue<C>, string>));
     }
     else {
-      this.addFlag(value);
+      this.addFlag(value as (Exclude<Enum<C> | EnumValue<C>, string>));
     }
   }
 
@@ -203,9 +229,11 @@ export class Flags<C extends EnumName> extends Array<Enum<C, EnumValue<C>>> {
    *
    * @param values - The enum values to toggle.
    */
-  public toggleFlags(...values: EnumValue<C>[]): void {
-    for (const v of values) {
-      this.toggleFlag(v);
+  public toggleFlags(...values: Enum<C>[]): void
+  public toggleFlags(...values: EnumValue<C>[]): void
+  public toggleFlags(...values: (Enum<C> | EnumValue<C>)[]): void {
+    for (const value of values) {
+      this.toggleFlag(value as (Exclude<Enum<C> | EnumValue<C>, string>));
     }
   }
 
@@ -223,9 +251,11 @@ export class Flags<C extends EnumName> extends Array<Enum<C, EnumValue<C>>> {
    *
    * @param values - The enum values to set.
    */
-  public set(...values: EnumValue<C>[]): void {
+  public set(...values: Enum<C>[]): void
+  public set(...values: EnumValue<C>[]): void
+  public set(...values: (Enum<C> | EnumValue<C>)[]): void {
     this.clear();
-    this.addFlags(...values);
+    this.addFlags(...(values as (Exclude<Enum<C> | EnumValue<C>, string>)[]));
   }
 
 
@@ -235,9 +265,7 @@ export class Flags<C extends EnumName> extends Array<Enum<C, EnumValue<C>>> {
    * @param predicate - A function to test each enum element.
    * @returns A new Flags instance with the filtered elements.
    */
-  public where(
-    predicate: (value: Enum<C, EnumValue<C>>, index: number, array: Enum<C, string>[]) => boolean
-  ): Flags<C> {
+  public where(predicate: (value: Enum<C>, index: number, array: Enum<C>[]) => boolean): Flags<C> {
     return this._createFromEnums(super.filter(predicate));
   }
 
