@@ -1,6 +1,6 @@
 {
   "name": "@proedis/modeler",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Utilities to write and build model based on class-transformer",
   "keywords": [
     "proedis",
