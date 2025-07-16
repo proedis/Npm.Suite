@@ -19,6 +19,11 @@ export class Flags<C extends EnumName> extends Array<Enum<C, EnumValue<C>>> {
   }
 
 
+  public static get [Symbol.species]() {
+    return Array;
+  }
+
+
   // ----
   // Instance Constructor
   // ----
