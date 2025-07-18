@@ -6,6 +6,10 @@ import type { PropertyDependency, ReferencePropertyType } from '../../../types/o
 export class ReferenceProperty extends AbstractedProperty<ReferencePropertyType> {
 
   get dependencies(): PropertyDependency[] {
+    if (this.propertyType === 'any') {
+      return [];
+    }
+
     return [
       {
         name: 'Type',
@@ -20,6 +24,10 @@ export class ReferenceProperty extends AbstractedProperty<ReferencePropertyType>
 
 
   get decorators(): string[] {
+    if (this.propertyType === 'any') {
+      return [];
+    }
+
     return [
       `@Type(() => ${this.propertyType})`
     ];
@@ -31,7 +39,7 @@ export class ReferenceProperty extends AbstractedProperty<ReferencePropertyType>
       return this.schema.$ref.split('/').pop() as string;
     }
     else {
-      return this.schema['x-element-name'];
+      return this.schema['x-element-name'] || 'any';
     }
   }
 

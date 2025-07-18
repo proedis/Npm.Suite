@@ -85,7 +85,8 @@ export type ItemType =
   | TimeSpanPropertyType
   | EnumPropertyType
   | GuidPropertyType
-  | NumberPropertyType;
+  | NumberPropertyType
+  | ObjectPropertyType;
 
 type ArrayItemType<T> = ArrayPropertyType & { items: T };
 
@@ -138,6 +139,12 @@ type IntegerPropertyType = { type: 'integer', format: 'int32' | 'int64' };
 type DecimalPropertyType = { type: 'number', format: 'float' | 'double' };
 
 export type NumberPropertyType = IntegerPropertyType | DecimalPropertyType;
+
+
+// ----
+// Object Property Type
+// ----
+export type ObjectPropertyType = { type: 'object', additionalProperties?: { nullable: boolean } };
 
 
 export interface SharedPropertyDescriptor {

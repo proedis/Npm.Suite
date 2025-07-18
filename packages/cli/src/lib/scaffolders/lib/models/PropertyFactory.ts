@@ -10,6 +10,7 @@ import { TimeSpanProperty } from './properties/TimeSpanProperty';
 import { EnumProperty } from './properties/EnumProperty';
 import { GuidProperty } from './properties/GuidProperty';
 import { NumberProperty } from './properties/NumberProperty';
+import { ObjectProperty } from './properties/ObjectProperty';
 
 import type { PropertySchema } from '../../types/openapi';
 
@@ -51,6 +52,10 @@ export class PropertyFactory {
 
     if (realType.type === 'integer' || realType.type === 'number') {
       return new NumberProperty(objectName, propertyName, schema);
+    }
+
+    if (realType.type === 'object') {
+      return new ObjectProperty(objectName, propertyName, schema);
     }
 
     console.error({ schema, realType });

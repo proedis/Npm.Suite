@@ -62,6 +62,17 @@ export abstract class AbstractedModel<Schema extends SchemaXData> {
     };
 
     this.dependencies.forEach((dependency) => {
+      /** Remove invalid dependencies */
+      if (!dependency.name && !dependency.from) {
+        return;
+      }
+
+      /** Check dependency name has been set */
+      if (!dependency.name) {
+        console.log(dependency);
+        throw new Error(`Dependency name is not defined for ${this.name} model`);
+      }
+
       /** Resolve the dependency source */
       const source = dependency.from || this.repository.resolveDependency(dependency.name, this.folder);
 
