@@ -31,7 +31,7 @@ export class PropertyFactory {
     }
 
     if (realType.type === 'string') {
-      if ('format' in realType && realType.format === 'date-time') {
+      if ('format' in realType && (realType.format === 'date-time' || realType.format === 'date')) {
         return new DateTimeProperty(objectName, propertyName, schema);
       }
 

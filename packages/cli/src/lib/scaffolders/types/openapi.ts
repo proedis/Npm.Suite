@@ -119,7 +119,7 @@ export type BooleanPropertyType = { type: 'boolean' };
 // ----
 export type StringPropertyType = { type: 'string' };
 
-export type DateTimePropertyType = StringPropertyType & { format: 'date-time' };
+export type DateTimePropertyType = StringPropertyType & { format: 'date-time' | 'date' };
 
 export type TimeSpanPropertyType = StringPropertyType & { format: 'date-span' };
 
