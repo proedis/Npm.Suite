@@ -15,6 +15,14 @@ export type DateTime = Dayjs;
 
 export type NullableDateTime = Nullable<DateTime>;
 
+export type InvalidTryParseResult = { success: false, value: null };
+
+export type ValidTryParseResult<T> = { success: true, value: T };
+
+export type TryParseResult<T> =
+  | InvalidTryParseResult
+  | ValidTryParseResult<T>;
+
 
 /* --------
  * Enum Descriptor Interface
