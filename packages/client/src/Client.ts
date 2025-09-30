@@ -724,15 +724,10 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
     /** Compile the data to send if the request differs from 'GET' */
     if (method.toUpperCase() !== 'GET' && ('data' in compiledRequest || 'files' in compiledRequest)) {
       /** Extract the data and the file object from config */
-      const { data, files } = compiledRequest;
+      const { data, files, formData: forceFormDataRequest } = compiledRequest;
 
-      /** If the file object is empty, place the data in the AxiosRequestConfig */
-      if (isNil(files)) {
-        /** Add data to request */
-        axiosRequestConfig.data = data;
-      }
-      /** If a file object exists, must append files to data before send it */
-      else {
+      /** Check if the request must be sent as FormData */
+      if (!isNil(files) || forceFormDataRequest) {
         /** Create the form data objects */
         const formData = data && data instanceof FormData ? data : new FormData();
 
@@ -744,11 +739,11 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
         /** Compile the file to upload within the FormData */
         Object.entries(files || {}).forEach(([ field, filesEntry ]) => {
           (Array.isArray(filesEntry) ? filesEntry : [ filesEntry ]).forEach((file) => {
-            /** Append to form data if file is already a blob */
+            /** Append to form data if the file is already a blob */
             if (file instanceof Blob) {
               formData.append(field, file, field);
             }
-            /** Else, if file is an uri referred file, append as is */
+            /** Else, if the file is an uri referred file, append as is */
             else if ('uri' in file) {
               formData.append(field, file as any, file.name || field);
             }
@@ -762,6 +757,9 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
         /** Add the new form data to axios request config */
         axiosRequestConfig.data = formData;
       }
+      else {
+        axiosRequestConfig.data = data;
+      }
     }
 
     /** Set the right header while sending data as FormData */
@@ -774,7 +772,7 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
 
     this._requestLogger.debug('Created base AxiosRequestConfig from user request', compiledRequest);
 
-    /** Use underlying axios instance to make the request */
+    /** Use the underlying axios instance to make the request */
     try {
       /** Check if some tokens must be appended to the request */
       if (isObject(useTokens)) {
@@ -788,7 +786,6 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
         }
       }
 
-      /** Use underlying axios instance to make the request */
       this._requestLogger.debug(`Performing a ${method} request to ${url}`, axiosRequestConfig);
 
       /** Await for the response */
@@ -801,7 +798,7 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
         : response.data;
     }
     catch (error) {
-      /** Error message will be showed only once client is fully loaded */
+      /** Error message will be shown only once the client is fully loaded */
       if (this.state.value.isLoaded) {
         this._requestLogger.error(`Error received from ${url}`, error);
       }

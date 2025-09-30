@@ -186,12 +186,6 @@ interface BaseClientRequestConfig<Tokens extends string> {
   /** The endpoint url to call */
   url?: string;
 
-  // /** The HTTP Method to use */
-  // method?: RequestMethod;
-  //
-  // /** Data to send through body */
-  // data?: { [key: string]: any };
-
   /** Request params to append to search string */
   params?: {
     [key: string]: any
@@ -221,6 +215,9 @@ interface RequestType {
   files?: {
     [key: string]: Blob | FileDescriptor | (Blob | FileDescriptor)[]
   };
+
+  /** Force the request to be sent as multipart/form-data */
+  formData?: boolean;
 }
 
 
