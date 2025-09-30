@@ -1,6 +1,6 @@
 {
   "name": "@proedis/react-native-client",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Dedicated Package and Utility to use @proedis/client on react-native",
   "keywords": [
     "proedis",
@@ -21,7 +21,7 @@
     "@react-native-async-storage/async-storage": "1.24.0"
   },
   "devDependencies": {
-    "@proedis/client": "2.0.0",
+    "@proedis/client": "2.1.0",
     "@proedis/tsconfig": "1.4.0"
   },
   "proedisMetadata": {

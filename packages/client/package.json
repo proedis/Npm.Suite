@@ -1,6 +1,6 @@
 {
   "name": "@proedis/client",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "A client class that could be used while developing WebApp with built-in authentication token management",
   "keywords": [
     "proedis",
