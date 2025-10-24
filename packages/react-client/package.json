@@ -1,6 +1,6 @@
 {
   "name": "@proedis/react-client",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "description": "Wrapper for @proedis/client repository to use it with React",
   "keywords": [
     "proedis",
