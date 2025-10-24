@@ -62,24 +62,30 @@ export function useClientQuery<R = unknown>(
   } = requestConfig || {};
 
   /** Return the result of the query hook */
-  return useQuery<R, RequestError, R>(
+  const {
+    data,
+    ...allExceptData
+  } = useQuery<R, RequestError, R>(
     {
       ...options,
       queryKey: [ ...key, restRequestConfig ],
       meta    : {
         url: key.join('/'),
         ...restRequestConfig
-      },
-      select  : (data) => {
-        /** If a transformer is defined, use it to transform the data */
-        if (transformer) {
-          return plainToInstance(transformer, data) as R;
-        }
-        /** Otherwise, return the data as is */
-        return data;
       }
     }
   );
+
+  /** Apply transformer to data */
+  const memoizedData = React.useMemo(
+    () => data && transformer ? plainToInstance(transformer, data) as R : data,
+    [ data, transformer ]
+  );
+
+  return {
+    ...allExceptData,
+    data: memoizedData
+  } as UseQueryResult<R, RequestError>;
 }
 
 
