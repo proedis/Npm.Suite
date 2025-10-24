@@ -30,7 +30,9 @@
       "@proedis/react",
       "root:@tanstack/react-query",
       "root:react",
-      "root:react-dom"
+      "root:react-dom",
+      "root:class-transformer",
+      "root:reflect-metadata"
     ]
   },
   "peerDependenciesMeta": {

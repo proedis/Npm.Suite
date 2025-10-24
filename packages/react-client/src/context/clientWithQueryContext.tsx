@@ -1,5 +1,7 @@
 import * as React from 'react';
 
+import { plainToInstance } from 'class-transformer';
+
 import type { ClientRequestConfig, RequestError } from '@proedis/client';
 
 import { mergeObjects } from '@proedis/utils';
@@ -53,13 +55,28 @@ export function useClientQuery<R = unknown>(
   requestConfig?: Omit<ClientRequestConfig<ClientTokens, R>, 'url'>,
   options?: Omit<UseQueryOptions<R, RequestError, R>, 'queryKey' | 'queryFn' | 'meta'>
 ): UseQueryResult<R, RequestError> {
+  /** Extract the transformer from the request config */
+  const {
+    transformer,
+    ...restRequestConfig
+  } = requestConfig || {};
+
+  /** Return the result of the query hook */
   return useQuery<R, RequestError, R>(
     {
       ...options,
-      queryKey: [ ...key, requestConfig ],
+      queryKey: [ ...key, restRequestConfig ],
       meta    : {
         url: key.join('/'),
-        ...requestConfig
+        ...restRequestConfig
+      },
+      select  : (data) => {
+        /** If a transformer is defined, use it to transform the data */
+        if (transformer) {
+          return plainToInstance(transformer, data) as R;
+        }
+        /** Otherwise, return the data as is */
+        return data;
       }
     }
   );
