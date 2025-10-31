@@ -8,6 +8,7 @@ import { mergeObjects } from '@proedis/utils';
 
 import { QueryClient, QueryClientProvider, useMutation, useQuery } from '@tanstack/react-query';
 import type {
+  QueryClientProviderProps,
   QueryClientConfig,
   UseMutationOptions,
   UseMutationResult,
@@ -141,9 +142,14 @@ export function useClientMutation<D, R = unknown>(
  * -------- */
 
 interface ClientWithQueryProviderProps extends ClientProviderProps {
+  /** Setup a custom QueryClientProvider component */
+  queryClientProviderComponent?: React.FunctionComponent<QueryClientProviderProps>;
+
   /** Add extra configuration to QueryClient */
   queryClientConfig?: Partial<QueryClientConfig>;
 }
+
+const DefaultClientProviderComponent = QueryClientProvider;
 
 export const ClientWithQueryProvider: React.FunctionComponent<React.PropsWithChildren<ClientWithQueryProviderProps>> = (
   (props) => {
@@ -155,7 +161,8 @@ export const ClientWithQueryProvider: React.FunctionComponent<React.PropsWithChi
       children,
 
       client,
-      queryClientConfig: userDefinedQueryClientConfig,
+      queryClientConfig           : userDefinedQueryClientConfig,
+      queryClientProviderComponent: UserDefinedQueryClientProviderComponent,
 
       ...clientProviderProps
     } = props;
@@ -178,15 +185,20 @@ export const ClientWithQueryProvider: React.FunctionComponent<React.PropsWithChi
       [ client, userDefinedQueryClientConfig ]
     );
 
+    const QueryClientProviderComponent = React.useMemo(
+      () => UserDefinedQueryClientProviderComponent || DefaultClientProviderComponent,
+      [ UserDefinedQueryClientProviderComponent ]
+    );
+
 
     // ----
     // Render the Provider
     // ----
     return (
       <ClientProvider client={client} {...clientProviderProps}>
-        <QueryClientProvider client={queryClient}>
+        <QueryClientProviderComponent client={queryClient}>
           {children}
-        </QueryClientProvider>
+        </QueryClientProviderComponent>
       </ClientProvider>
     );
   }
