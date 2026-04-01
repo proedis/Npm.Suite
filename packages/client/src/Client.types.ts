@@ -45,7 +45,7 @@ export interface ClientSettings<UserData extends AnyObject, StoredData extends A
     response: any,
     authAction: AuthActionType,
     client: Client<UserData, StoredData, Tokens>
-  ) => UserData>;
+  ) => UserData> | 'fetch';
 }
 
 

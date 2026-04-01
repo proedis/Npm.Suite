@@ -232,6 +232,8 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
 
   private readonly _requestLogger: Logger;
 
+  private readonly _authenticationLogger: Logger;
+
   private readonly _providers: ClientProviders;
 
   private readonly _tokensHandshake = new Map<Tokens, TokenHandshake<UserData, StoredData, Tokens>>();
@@ -258,6 +260,7 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
     /** Create the internal logger instance */
     this._initLogger = Logger.forContext('Initializing');
     this._requestLogger = Logger.forContext('Requests');
+    this._authenticationLogger = Logger.forContext('Authentication');
 
     /** Save defined providers */
     this._providers = {
@@ -357,7 +360,7 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
 
     /** Assert no error occurred */
     if (userDataError) {
-      this._initLogger.error('UserData could not be loaded, assuming client is unauthenticated', userDataError);
+      this._initLogger.warn('UserData could not be loaded, assuming client is unauthenticated', userDataError);
       return returnAndResolve(null);
     }
 
@@ -461,7 +464,20 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
    * @param authAction
    * @private
    */
-  private _extractUserData(authResponse: any, authAction: AuthActionType): UserData | null {
+  private async _extractUserData(authResponse: any, authAction: AuthActionType): Promise<UserData | null> {
+    /** Check if user data must be fetched instead of extracted */
+    if (this._settings.userDataExtractor === 'fetch') {
+      this._authenticationLogger.debug('UserDataExtractor Mode = fetch');
+
+      try {
+        return await this.request<UserData>(this._builtInApi('getUserData')());
+      }
+      catch (error: any) {
+        this._authenticationLogger.error('Error while extracting UserData using fetch mode', error);
+        return null;
+      }
+    }
+
     /** Get the extractor from settings */
     const extract = !!this._settings.userDataExtractor
       ? (typeof this._settings.userDataExtractor === 'function'
@@ -882,14 +898,16 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
    * @param data
    */
   public async login(data: AnyObject): Promise<void> {
+    this._authenticationLogger.debug('Starting Login Flow');
+
     /** Get the auth response */
     const authResponse = await this.request(this._builtInApi('login')(data));
 
     /** Pass the auth response to token handshakes */
     await this._passAuthResponseToHandshakes(authResponse, 'login');
 
-    /** Pass the auth response to user data extractor */
-    const userData = this._extractUserData(authResponse, 'login');
+    /** Pass the auth response to the user data extractor */
+    const userData = await this._extractUserData(authResponse, 'login');
 
     /** Update the client state */
     await this._updateUserData(userData);
@@ -904,14 +922,16 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
    * @param data
    */
   public async signup(data: AnyObject): Promise<void> {
+    this._authenticationLogger.debug('Starting Signup Flow');
+
     /** Get the auth response */
     const authResponse = await this.request(this._builtInApi('signup')(data));
 
     /** Pass the auth response to token handshakes */
     await this._passAuthResponseToHandshakes(authResponse, 'signup');
 
-    /** Pass the auth response to user data extractor */
-    const userData = this._extractUserData(authResponse, 'signup');
+    /** Pass the auth response to the user data extractor */
+    const userData = await this._extractUserData(authResponse, 'signup');
 
     /** Update the client state */
     await this._updateUserData(userData);

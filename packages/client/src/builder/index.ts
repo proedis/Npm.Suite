@@ -114,10 +114,21 @@ export default class ClientBuilder<
    * @param extractor
    */
   public withUserData<T extends AnyObject>(
-    extractor?: ClientSettings<T, StoredData, Tokens>['userDataExtractor']
+    extractor?: Exclude<ClientSettings<T, StoredData, Tokens>['userDataExtractor'], 'fetch'>
   ): ClientBuilder<T, StoredData, Tokens> {
     /** Save the extractor */
     this._userDataExtractor = extractor as any;
+
+    return this as any;
+  }
+
+
+  /**
+   * Set the ClientBuilder UserData type and mark them as automatically
+   * fetched after authentication flow
+   */
+  public withFetchedUserData<T extends AnyObject>(): ClientBuilder<T, StoredData, Tokens> {
+    this._userDataExtractor = 'fetch';
 
     return this as any;
   }
