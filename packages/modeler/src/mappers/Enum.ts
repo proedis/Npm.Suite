@@ -171,8 +171,8 @@ export class Enum<C extends EnumName> {
   }
 
 
-  public isOneOf(...values: Enum<C>[]): boolean
-  public isOneOf(...values: EnumValue<C>[]): boolean
+  public isOneOf(...values: Enum<C>[]): boolean;
+  public isOneOf(...values: EnumValue<C>[]): boolean;
   public isOneOf(...values: (Enum<C> | EnumValue<C>)[]): boolean {
     return values.some((value) => this.is(value as (Exclude<Enum<C> | EnumValue<C>, string>)));
   }

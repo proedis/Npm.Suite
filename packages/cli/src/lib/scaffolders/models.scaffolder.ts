@@ -1,8 +1,6 @@
 import { existsSync, rmSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import { AugmentedMap } from '@proedis/utils';
-
 import { AbstractedScaffolder } from './lib';
 import { spinnerFeedbackFunction } from '../../ui';
 
@@ -249,7 +247,7 @@ export class ModelsScaffolder extends AbstractedScaffolder {
       content.push(
         `  '${ModelsScaffolder.getRoutePathName(path)}': {`,
         `    ${routeParams.map(param => `'${param}': string | number`).join(',\n    ')}`,
-        `  },`
+        '  },'
       );
     });
 
@@ -298,7 +296,7 @@ export class ModelsScaffolder extends AbstractedScaffolder {
           pathParamContent.push(`      ${paramKey}: ${constraint},`);
         });
 
-        pathParamContent.push(`    },`);
+        pathParamContent.push('    },');
       });
 
       if (!hasParams) {

@@ -12,6 +12,7 @@ export class TimeSpan {
   // ----
   private static readonly _toStringTag = 'TimeSpan';
 
+  // eslint-disable-next-line max-len
   private static readonly _parseRegex = /^(?<sign>-)?(?:(?<days>\d+)\.)?(?<hours>[0-1]?\d|2[0-3]):(?<minutes>[0-5]\d):(?<seconds>[0-5]\d)(?:\.(?<ms>\d{1,3}))?$/;
 
 
@@ -101,7 +102,7 @@ export class TimeSpan {
    * If the parsing fails, returns a result with success set to false and a null value.
    *
    * @param {string} timespan - The string representation of the timespan to parse.
-   * @return {TryParseResult<TimeSpan>} An object containing the parsing success status and the parsed TimeSpan value or null if parsing fails.
+   * @return {TryParseResult<TimeSpan>} An object containing the parsing success status and the parsed TimeSpan.
    */
   public static tryParse(timespan: string): TryParseResult<TimeSpan> {
     try {
@@ -125,7 +126,8 @@ export class TimeSpan {
 
 
   /**
-   * Extracts time components (hours, minutes, seconds, milliseconds) from a given Date object and returns them as a TimeSpan object.
+   * Extracts time components (hours, minutes, seconds, milliseconds)
+   * from a given Date object and returns them as a TimeSpan object.
    *
    * @param {Date} date - The Date object from which time components are to be extracted.
    * @return {TimeSpan} A TimeSpan object encapsulating the extracted time components.
@@ -294,7 +296,8 @@ export class TimeSpan {
    * Checks if the given value is an instance of TimeSpan or a compatible object.
    *
    * @param {unknown} value - The value to check.
-   * @return {boolean} Returns true if the value is an instance of TimeSpan or meets the criteria of a TimeSpan-compatible object; otherwise, returns false.
+   * @return {boolean} Returns true if the value is an instance of TimeSpan
+   *                   or meets the criteria of a TimeSpan-compatible object; otherwise, returns false.
    */
   public static isTimeSpan(value: unknown): value is TimeSpan {
     if (value == null) {
@@ -469,7 +472,8 @@ export class TimeSpan {
   /**
    * Retrieves the total number of whole seconds represented by the TimeSpan.
    *
-   * @return {number} The total whole seconds, derived by dividing the internal millisecond count by the number of milliseconds per second.
+   * @return {number} The total whole seconds, derived by dividing the internal millisecond count
+   *                  by the number of milliseconds per second.
    */
   public get seconds(): number {
     return this.getSafeTruncatedValue(this.totalSeconds % 60);
@@ -528,7 +532,8 @@ export class TimeSpan {
   /**
    * Compares the current object with another object to determine their relative order.
    * @param {unknown} other - The object to compare with the current instance.
-   * @return {number} A negative number if the current object is less than the other object, zero if they are equal, or a positive number if the current object is greater than the other object.
+   * @return {number} A negative number if the current object is less than the other object,
+   *                  zero if they are equal, or a positive number if the current object is greater than the other object.
    */
   public compareTo(other: unknown): number;
   public compareTo(other: TimeSpan): number;

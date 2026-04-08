@@ -69,6 +69,7 @@ export abstract class AbstractedModel<Schema extends SchemaXData> {
 
       /** Check dependency name has been set */
       if (!dependency.name) {
+        // eslint-disable-next-line no-console
         console.log(dependency);
         throw new Error(`Dependency name is not defined for ${this.name} model`);
       }
