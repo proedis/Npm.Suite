@@ -891,6 +891,20 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
 
 
   /**
+   * Handles the response received from a token grant and processes it for all active token handshakes.
+   *
+   * @param {Tokens} name - The specific token type for which the grant response has been received.
+   * @param {any} response - The response data associated with the token grant.
+   */
+  public async onTokenGrantResponseReceived(name: Tokens, response: any) {
+    /** Complete process for all TokenHandshake */
+    await Promise.all(Array.from(this._tokensHandshake.values()).map(t => (
+      t.extractTokenFromSiblingGrant(name, response)
+    )));
+  }
+
+
+  /**
    * Perform the login action.
    * After a login request has been resolved successfully, the client
    * will try to extract tokens and user data from the response,

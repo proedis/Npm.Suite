@@ -19,8 +19,8 @@ export interface TokenHandshakeConfiguration<
   /** User defined function to check if a token is valid or not */
   checkValidity?: (token: unknown, client: Client<UserData, StoredData, Tokens>) => boolean;
 
-  /** Set of extractors that could be used to get token */
-  extractors?: TokenExtractor<any>[];
+  /** Set of extractors that could be used to get the token */
+  extractors?: TokenExtractor<any, Tokens>[];
 
   /** Grant request configuration */
   grant?: NonTransformableClientRequest<UserData, StoredData, Tokens>;
@@ -102,8 +102,9 @@ type TokenAsQueryParamsTransporter = { type: 'query', value: string };
 // A token extractor define how a token could be extracted from
 // a Server Response received by the client
 // ----
-export type TokenExtractor<Response extends AnyObject> =
+export type TokenExtractor<Response extends AnyObject, Tokens extends string> =
   | TokenAuthResponseExtractor<Response>
+  | TokenGrantResponseExtractor<Response, Tokens>
   | TokenQueryParamExtractor
   | TokenPlainExtractor;
 
@@ -128,4 +129,10 @@ export type TokenQueryParamExtractor = {
 export type TokenPlainExtractor = {
   type: 'plain',
   extract: TokenSpecification | false
+};
+
+export type TokenGrantResponseExtractor<Response extends AnyObject, Tokens extends string> = {
+  type: 'grant-response',
+  fromGrantOf: Tokens[],
+  extract: (response: Response, token: Tokens, client: Client<any, any, any>) => TokenSpecification | undefined
 };

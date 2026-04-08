@@ -13,12 +13,14 @@ import type { AuthActionType } from '../../Client.types';
 
 import type {
   TokenAuthResponseExtractor,
+  TokenGrantResponseExtractor,
   TokenSpecification,
   TokenHandshakeConfiguration,
   TokenQueryParamExtractor,
   TokenPlainExtractor,
   TokenTransporter,
-  UseTokenTransporter, TokenExtractor
+  UseTokenTransporter,
+  TokenExtractor
 } from './TokenHandshake.types';
 
 import RequestError from '../../Client.RequestError';
@@ -88,7 +90,7 @@ export default class TokenHandshake<UserData extends AnyObject, StoreData extend
    * Get all token extractors
    * @private
    */
-  private _getTokenExtractors(): TokenExtractor<any>[] {
+  private _getTokenExtractors(): TokenExtractor<any, Tokens>[] {
     return this._configuration.getOrDefault('extractors', 'array', []);
   }
 
@@ -345,6 +347,9 @@ export default class TokenHandshake<UserData extends AnyObject, StoreData extend
 
       /** Assert token response is valid */
       if (this.isValid(tokenResponse)) {
+        /** Broadcast rawTokenResponse to other Token Handshakes */
+        await this._client.onTokenGrantResponseReceived(this._name, rawTokenResponse);
+
         return this._consolidateToken(tokenResponse);
       }
     }
@@ -563,6 +568,39 @@ export default class TokenHandshake<UserData extends AnyObject, StoreData extend
 
       /** Get the token specification from response */
       const tokenSpecification = extract(authResponse, authAction, this._client);
+
+      if (this.isValid(tokenSpecification)) {
+        await this._consolidateToken(tokenSpecification);
+      }
+    });
+
+    /** Await resolution of all promises */
+    await Promise.all(extractorsPromises);
+  }
+
+
+  /**
+   * Extracts a token from a sibling grant response using the defined extractors.
+   *
+   * @param {Tokens} tokenName - The name of the token to be extracted.
+   * @param {any} response - The sibling grant response object used to extract the token.
+   */
+  public async extractTokenFromSiblingGrant(tokenName: Tokens, response: any) {
+    /** Get all grant response extract */
+    const extractors = this._getTokenExtractors()
+      .filter(e => (
+        e.type === 'grant-response' && Array.isArray(e.fromGrantOf) && e.fromGrantOf.includes(tokenName)
+      )) as TokenGrantResponseExtractor<any, any>[];
+
+    /** If any extractors exist, use to get the token from response */
+    const extractorsPromises = extractors.map(async (extractor) => {
+      /** Assert the extractor exists before use it */
+      if (typeof extractor.extract !== 'function') {
+        return;
+      }
+
+      /** Get the token specification from the response */
+      const tokenSpecification = extractor.extract(response, tokenName, this._client);
 
       if (this.isValid(tokenSpecification)) {
         await this._consolidateToken(tokenSpecification);
