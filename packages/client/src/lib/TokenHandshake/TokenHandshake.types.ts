@@ -17,10 +17,7 @@ export interface TokenHandshakeConfiguration<
   Tokens extends string
 > {
   /** User defined function to check if a token is valid or not */
-  checkValidity?: (
-    token: Partial<TokenSpecification> | undefined,
-    client: Client<UserData, StoredData, Tokens>
-  ) => boolean;
+  checkValidity?: (token: unknown, client: Client<UserData, StoredData, Tokens>) => boolean;
 
   /** Set of extractors that could be used to get token */
   extractors?: TokenExtractor<any>[];

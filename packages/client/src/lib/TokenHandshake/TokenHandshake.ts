@@ -392,8 +392,8 @@ export default class TokenHandshake<UserData extends AnyObject, StoreData extend
    * Check the validity of a token specification object
    * @param specification
    */
-  public isValid(specification?: Partial<TokenSpecification>): specification is TokenSpecification {
-    /** Get user defined check validity function */
+  public isValid(specification?: unknown): specification is TokenSpecification {
+    /** Get the user-defined check validity function */
     const checkValidity = this._configuration.get('checkValidity', 'function');
 
     /** If a custom function exists, use it to validate token */
@@ -408,19 +408,22 @@ export default class TokenHandshake<UserData extends AnyObject, StoreData extend
       return false;
     }
 
+    /** Wrap candidate in a typed object */
+    const candidate = specification as Partial<TokenSpecification>;
+
     /** Assert the token is a valid string */
-    if (!isValidString(specification.token)) {
+    if (!isValidString(candidate.token)) {
       this._handshakeLogger.debug('Token string field seems not to be a valid string');
       return false;
     }
 
     /** If the token haven't got expire date, then would be considered not expiring */
-    if (specification.expiresAt == null) {
+    if (candidate.expiresAt == null) {
       return true;
     }
 
     /** Transform the expiresAt using Date constructor */
-    const expireDate = new Date(specification.expiresAt);
+    const expireDate = new Date(candidate.expiresAt);
 
     /** Check expiring value */
     if ((expireDate.valueOf() - this._configuration.getOrDefault('validityThreshold', 'number', 0)) > Date.now()) {
