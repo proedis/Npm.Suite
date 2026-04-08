@@ -310,22 +310,36 @@ export default class TokenHandshake<UserData extends AnyObject, StoreData extend
     );
 
     if (grantRequest) {
-      this._handshakeLogger.debug('Using grant request to retrieve token');
+      this._handshakeLogger.debug('Using the grant request to retrieve the token');
 
-      /** Compile the grant request before send to the client to remove the current token from request */
+      /** Compile the grant request before send to the client to remove the current token from the request */
       const compiledRequest = this._client.compileRequest<TokenSpecification>(grantRequest);
 
-      /** Remove current token from useToken object */
+      /** Remove the current token from the useToken object */
       if (isObject(compiledRequest.useTokens)) {
         compiledRequest.useTokens[this._name] = false;
       }
 
       /** Make the Request */
-      const [ grantTokenError, tokenResponse ] = await this._client.safeRequest<TokenSpecification>(compiledRequest);
+      const [ grantTokenError, rawTokenResponse ] = await this._client.safeRequest<TokenSpecification>(compiledRequest);
+
+      /** Immediately stop if a grant token error occurred */
+      if (grantTokenError) {
+        throw await this._flushToken(grantTokenError);
+      }
+
+      /** Extract the post-response grant transform function */
+      const transformGrantResponse = this._configuration.get(
+        'transformGrantResponse',
+        (config) => typeof config === 'function'
+      );
+
+      const tokenResponse = typeof transformGrantResponse === 'function'
+        ? transformGrantResponse(rawTokenResponse, this._client)
+        : rawTokenResponse;
 
       /** Throw if an invalid request has been made */
-      if (grantTokenError || !this.isValid(tokenResponse)) {
-        /** Flush tokens */
+      if (!this.isValid(tokenResponse)) {
         throw await this._flushToken(grantTokenError);
       }
 

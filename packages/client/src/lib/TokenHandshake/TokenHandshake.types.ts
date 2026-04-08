@@ -37,6 +37,12 @@ export interface TokenHandshakeConfiguration<
   /** Set token persistency, default to `local` (localstorage) */
   persistency?: StoragePersistency;
 
+  /** Post transform the grant response before validate and consolidate tokens */
+  transformGrantResponse?: (
+    response: any,
+    client: Client<UserData, StoredData, Tokens>
+  ) => TokenSpecification | undefined;
+
   /**
    * Configure the admitted transporters to send the token
    * within the request
