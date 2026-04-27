@@ -1,6 +1,6 @@
 {
   "name": "@proedis/client",
-  "version": "2.4.2",
+  "version": "2.5.0",
   "description": "A client class that could be used while developing WebApp with built-in authentication token management",
   "keywords": [
     "proedis",
@@ -17,10 +17,10 @@
   },
   "devDependencies": {
     "@proedis/tsconfig": "1.4.2",
-    "@proedis/types": "1.3.2"
+    "@proedis/types": "1.4.0"
   },
   "dependencies": {
-    "@proedis/utils": "1.5.2",
+    "@proedis/utils": "1.6.0",
     "axios": "1.7.4",
     "logdown": "3.3.1",
     "store2": "2.14.3"
