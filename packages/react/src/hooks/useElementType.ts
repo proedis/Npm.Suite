@@ -51,7 +51,7 @@ export function useElementType<Props extends ElementReliantProps = ElementRelian
 ): React.ElementType {
 
   /** Get default props directly from Component */
-  const { defaultProps: componentDefaultProps } = Component;
+  const { defaultProps: componentDefaultProps } = Component as any;
 
   /** If received props contain the element type, use it to render the component */
   if (props.as && props.as !== componentDefaultProps?.as) {

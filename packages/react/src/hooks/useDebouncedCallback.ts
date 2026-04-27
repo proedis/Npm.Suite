@@ -29,7 +29,7 @@ export function useDebouncedCallback<Fn extends (...args: any[]) => any>(
 ): DebouncedFunction<Fn> {
 
   /** Prepare the timeout ref */
-  const timeout = React.useRef<ReturnType<typeof setTimeout>>();
+  const timeout = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const debounceCallback = useSyncedRef(callback);
 
   /** Set up a function that could be used to clear timeout */
