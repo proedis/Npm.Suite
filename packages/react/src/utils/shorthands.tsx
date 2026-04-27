@@ -225,7 +225,7 @@ function createComponentShorthand<Props extends PartialComponentProps, V extends
 
   /** If provided value is a valid React Element, wrap using Component */
   if (valueIsReactElement) {
-    return React.cloneElement(value as React.ReactElement, props);
+    return React.cloneElement(value as React.ReactElement, props) as React.ReactElement<Props>;
   }
 
   /** If the value is a primitive value, or a plain props object, use base Component */
