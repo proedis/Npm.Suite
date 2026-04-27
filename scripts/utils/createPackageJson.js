@@ -40,7 +40,10 @@ module.exports = function createPackageJson(packagePath, buildPath) {
       const pool = isFromRoot ? rootDevDependencies : devDependencies;
 
       if (pool && pool[dependencyName]) {
-        pkgData.peerDependencies[dependencyName] = `^${pool[dependencyName]}`;
+        const requestedVersion = pool[dependencyName];
+        pkgData.peerDependencies[dependencyName] = requestedVersion.charAt(0) === '^'
+          ? requestedVersion
+          : `^${pool[dependencyName]}`;
       }
       else {
         throw new Error(
