@@ -60,7 +60,6 @@ export default function producePackageFiles(srcDirectory, buildDirectory) {
 
           /** Check file exists or not before copy */
           if (!fs.existsSync(sourceFilePath)) {
-            this.warn(`Skipping file ${sourceFilePath}, it doesn't exist`);
             return;
           }
 
