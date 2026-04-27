@@ -11,6 +11,8 @@ import type { Nullable } from '@proedis/types';
 /* --------
  * Useful Types
  * -------- */
+export type DateTime = Dayjs;
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 export const DateTime = Dayjs;
 
 export type NullableDateTime = Nullable<typeof DateTime>;
