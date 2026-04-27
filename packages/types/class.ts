@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-redeclare */
 import type { AnyObject } from './objects';
 
 
@@ -7,3 +8,4 @@ import type { AnyObject } from './objects';
  * generate a new Instance of the Class
  */
 export type Instantiable<T extends AnyObject> = { new(...args: any[]): T };
+export const Instantiable = Object;

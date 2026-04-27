@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-redeclare */
+
 /* --------
  * Utilities Type
  * -------- */
@@ -5,6 +7,7 @@
 type ObjectKey = string | number | symbol;
 
 export type AnyObject = { [key: string]: any };
+export const AnyObject = Object;
 
 
 /* --------
@@ -18,6 +21,7 @@ export type RecursivePartial<T> = {
       ? RecursivePartial<T[P]>
       : T[P]
 };
+export const RecursivePartial = Object;
 
 
 /* --------
@@ -82,7 +86,9 @@ type UnpackNestedValue<T> = T extends NestedValue<infer U> ? U : T extends Date 
  * -------- */
 /** Get a list of all object possible path */
 export type ObjectPath<TObject extends AnyObject> = Path<TObject>;
+export const ObjectPath = String;
 
 /** Get the value type at object paths */
 export type ValueAtPath<TObject extends AnyObject, ValuePath extends ObjectPath<TObject>> =
   UnpackNestedValue<PathValue<TObject, ValuePath>>;
+export const ValueAtPath = Object;

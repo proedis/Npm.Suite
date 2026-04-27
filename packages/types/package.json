@@ -8,8 +8,8 @@
     "types"
   ],
   "license": "MIT",
-  "main": "index.d.ts",
-  "types": "index.d.ts",
+  "main": "index.ts",
+  "types": "index.ts",
   "scripts": {
     "build": "node ../../scripts/compile-plain.js"
   },
