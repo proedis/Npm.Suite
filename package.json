@@ -27,9 +27,9 @@
   "scripts": {
     "release:graph": "nx graph",
     "release:lint": "eslint ./packages",
-    "release:version": "lerna version --exact",
+    "release:version": "lerna version --exact --force-publish",
     "release:build": "lerna run build",
-    "release:publish": "lerna publish from-package --contents build",
+    "release:publish": "lerna publish from-package --contents build --force-publish",
     "release": "yarn release:version && yarn release:build && yarn release:publish"
   },
   "devDependencies": {
