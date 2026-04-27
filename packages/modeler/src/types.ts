@@ -1,4 +1,4 @@
-import type { Dayjs } from 'dayjs';
+import { Dayjs } from 'dayjs';
 
 import type { MantineColor } from '@mantine/core';
 import type { IconName } from '@fortawesome/fontawesome-common-types';
@@ -11,9 +11,9 @@ import type { Nullable } from '@proedis/types';
 /* --------
  * Useful Types
  * -------- */
-export type DateTime = Dayjs;
+export const DateTime = Dayjs;
 
-export type NullableDateTime = Nullable<DateTime>;
+export type NullableDateTime = Nullable<typeof DateTime>;
 
 export type InvalidTryParseResult = { success: false, value: null };
 
