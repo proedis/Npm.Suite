@@ -78,11 +78,6 @@ export class ModelsScaffolder extends AbstractedScaffolder {
       throw new Error('Definition error: expected an object');
     }
 
-    /** Assert the version of the OpenApi Document is valid */
-    if (openApiDocument.openapi !== '3.0.1') {
-      throw new Error(`Expecting OpenApi document Version 3.0.1, found ${openApiDocument.openapi}`);
-    }
-
     /** Return the document */
     return openApiDocument;
   }
