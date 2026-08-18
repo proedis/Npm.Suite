@@ -1,9 +1,16 @@
 import { AugmentedMap, isNil } from '@proedis/utils';
 
-import type { MantineColor } from '@mantine/core';
-import type { IconName } from '@fortawesome/fontawesome-common-types';
-
-import type { EnumName, EnumsCollections, EnumsColors, EnumsIcons, EnumsOf, EnumSource, EnumValue } from '../types';
+import type {
+  EnumColor,
+  EnumIcon,
+  EnumName,
+  EnumsCollections,
+  EnumsColors,
+  EnumsIcons,
+  EnumsOf,
+  EnumSource,
+  EnumValue
+} from '../types';
 
 
 /* --------
@@ -14,24 +21,24 @@ export class Enum<C extends EnumName> {
   // ----
   // Static Properties & Methods
   // ----
-  private static _defaultColor: MantineColor = 'red';
+  private static _defaultColor: EnumColor = 'red';
 
   private static _colors: EnumsColors = {};
 
 
-  public static configureColors(defaultColor: MantineColor, colors: EnumsColors): typeof Enum {
+  public static configureColors(defaultColor: EnumColor, colors: EnumsColors): typeof Enum {
     this._defaultColor = defaultColor;
     this._colors = colors;
     return this;
   }
 
 
-  private static _defaultIcon: IconName = 'bug';
+  private static _defaultIcon: EnumIcon = 'bug';
 
   private static _icons: EnumsIcons = {};
 
 
-  public static configureIcons(defaultIcon: IconName, icons: EnumsIcons): typeof Enum {
+  public static configureIcons(defaultIcon: EnumIcon, icons: EnumsIcons): typeof Enum {
     this._defaultIcon = defaultIcon;
     this._icons = icons;
     return this;
@@ -210,12 +217,12 @@ export class Enum<C extends EnumName> {
   // Computed and Configured Data
   // ----
 
-  public get iconName(): IconName {
+  public get iconName(): EnumIcon {
     return Enum._icons[this._collectionName]?.[this.value] ?? Enum._defaultIcon;
   }
 
 
-  public get color(): MantineColor {
+  public get color(): EnumColor {
     return Enum._colors[this._collectionName]?.[this.value] ?? Enum._defaultColor;
   }
 
