@@ -1,6 +1,6 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { builtinModules } from 'node:module';
-import { join, resolve } from 'node:path';
+import { join, relative, resolve } from 'node:path';
 import process from 'node:process';
 
 
@@ -155,6 +155,45 @@ function verifyPackage(packageName) {
       problems.push(`bin '${binName}' has no hashbang: it would not be executable once linked`);
     }
   });
+
+  // ----
+  // 1c. Every declared source asset must have reached each built output directory
+  // ----
+  /**
+   * Assets are copied by a build step, not emitted by rollup, so nothing else notices when
+   * that step stops running. A package manager that does not execute post scripts — Yarn
+   * Berry, for one — would drop the copy silently: the CLI would publish without its .ejs
+   * templates and fail at runtime with every other check still green.
+   *
+   * 'proedisMetadata' is stripped from the published manifest, so the declaration is read
+   * from the package source instead.
+   */
+  const sourceManifest = JSON.parse(readFileSync(join(packagePath, 'package.json'), 'utf-8'));
+  const assetExtensions = sourceManifest.proedisMetadata?.assets ?? [];
+
+  if (assetExtensions.length) {
+    const sourceDirectory = join(packagePath, 'src');
+
+    const expectedAssets = collectFiles(sourceDirectory, assetExtensions)
+      .map((file) => relative(sourceDirectory, file));
+
+    const outputDirectories = [ 'cjs', 'esm' ].filter((directory) => existsSync(join(buildPath, directory)));
+
+    if (!outputDirectories.length) {
+      problems.push(`${expectedAssets.length} declared asset(s) but no output directory to hold them`);
+    }
+
+    outputDirectories.forEach((directory) => {
+      const missing = expectedAssets.filter((asset) => !existsSync(join(buildPath, directory, asset)));
+
+      if (missing.length) {
+        problems.push(
+          `${missing.length} of ${expectedAssets.length} declared asset(s) never reached ${directory}/ `
+          + `— first missing: ${missing[0]}`
+        );
+      }
+    });
+  }
 
   // ----
   // 2. Dual-format output must declare its module type per directory

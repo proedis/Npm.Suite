@@ -154,8 +154,14 @@ the most likely way to break a package silently.
 - `buildFormats: string[]` — which rollup output formats to emit, `['cjs', 'esm']` by
   default. The CLI sets `['cjs']`: consumed only through its `bin`, nothing referenced its
   ESM output and it was shipped as dead weight. A package narrowing this must also narrow
-  anything that writes into the dropped directory — the CLI's `postbuild` copied its `.ejs`
-  templates into `build/esm` too, which would have recreated the directory.
+  anything that writes into the dropped directory.
+- `assets: string[]` — file extensions that a build step copies into the output rather than
+  rollup emitting them (the CLI's `.ejs` templates). `release:verify` then requires every
+  matching file under `src/` to exist at the same relative path in each output directory.
+  Nothing else notices when a copy step stops running: the package would publish without its
+  templates and fail at runtime with every other check green. For the same reason the copy is
+  chained inside `build` rather than living in a `postbuild` hook — Yarn Berry does not run
+  `pre`/`post` scripts, and `lerna run` delegates to the package manager.
 
 Rollup externals (`scripts/utils/getExternalDependenciesFromPackage.mjs`) = `dependencies` +
 `peerDependencies` + `reflectPeerDependencies` (each also matched as a `name/**` subpath regex,

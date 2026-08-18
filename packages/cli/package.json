@@ -17,8 +17,7 @@
   },
   "scripts": {
     "dev": "ts-node --project tsconfig.scripts.json src/index.ts",
-    "build": "rollup --config ../../rollup.config.mjs",
-    "postbuild": "cpy 'src/**/*.ejs' build/cjs"
+    "build": "rollup --config ../../rollup.config.mjs && cpy 'src/**/*.ejs' build/cjs"
   },
   "dependencies": {
     "@proedis/utils": "^1.6.0",
@@ -48,6 +47,9 @@
     "noMain": true,
     "buildFormats": [
       "cjs"
+    ],
+    "assets": [
+      ".ejs"
     ]
   }
 }
