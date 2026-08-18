@@ -1,0 +1,45 @@
+name: CI
+
+# Releasing is a deliberate local action: this workflow never publishes. It only proves
+# that what sits on a branch is releasable.
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Lint, build and verify artifacts
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # Must satisfy the root "engines" constraint (>=22.13.0), which lerna 10 requires
+          node-version: '22'
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Lint
+        run: yarn release:lint
+
+      # The build is the correctness gate: TS diagnostics are errors, not warnings,
+      # and a failing declaration build aborts it. See CLAUDE.md.
+      - name: Build
+        run: yarn release:build
+
+      # A green build only proves the code compiles. This proves the published manifests
+      # actually declare everything the emitted files import.
+      - name: Verify publishable artifacts
+        run: yarn release:verify
+
+
