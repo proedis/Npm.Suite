@@ -1,5 +1,3 @@
-import type * as React from 'react';
-
 import { useEnhancedEffect } from './useEnhancedEffect';
 import { useSyncedRef } from './useSyncedRef';
 
@@ -14,12 +12,19 @@ const DEFAULT_EVENTS: ReadonlyArray<keyof HTMLElementEventMap> = [
 /**
  * Use this hook to fire an event every time a click occurs outside
  * the provided target element
+ *
+ * The target is typed as the minimal structural shape the hook actually reads instead of
+ * 'React.RefObject<T> | React.MutableRefObject<T>'. Those aliases changed meaning between
+ * @types/react 18 and 19: in 19 'useRef<T>(null)' yields 'RefObject<T | null>', which no
+ * longer satisfies 'RefObject<T>' and made every call site fail to compile. The
+ * implementation already null-checks 'current', so admitting it in the type costs nothing.
+ *
  * @param target
  * @param callback
  * @param events
  */
 export function useClickOutside<T extends HTMLElement>(
-  target: React.RefObject<T> | React.MutableRefObject<T>,
+  target: { readonly current: T | null | undefined },
   callback: EventListener,
   events: ReadonlyArray<keyof HTMLElementEventMap> = DEFAULT_EVENTS
 ) {
