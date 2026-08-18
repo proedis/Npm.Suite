@@ -25,19 +25,25 @@
     "@proedis/types": "1.4.0"
   },
   "proedisMetadata": {
-    "reflectPeerDependencies": [
-      "@proedis/client",
-      "@proedis/react",
-      "root:@tanstack/react-query",
-      "root:react",
-      "root:react-dom",
-      "root:class-transformer",
-      "root:reflect-metadata"
-    ]
-  },
-  "peerDependenciesMeta": {
-    "react-dom": {
-      "optional": true
+    "reflectPeerDependencies": {
+      "@proedis/client": {
+        "from": "self"
+      },
+      "@proedis/react": {
+        "from": "self"
+      },
+      "@tanstack/react-query": {
+        "range": "^5.0.0"
+      },
+      "react": {
+        "range": ">=18.0.0 <20.0.0"
+      },
+      "class-transformer": {
+        "range": "^0.5.1"
+      },
+      "reflect-metadata": {
+        "range": "^0.1.13 || ^0.2.0"
+      }
     }
   },
   "gitHead": "90312798dcd649482f0e916cbd0d209a45d544d4"

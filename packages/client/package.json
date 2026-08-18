@@ -16,21 +16,27 @@
     "build": "rollup --config ../../rollup.config.mjs"
   },
   "devDependencies": {
-    "@proedis/tsconfig": "1.4.2",
-    "@proedis/types": "1.4.0"
+    "@proedis/tsconfig": "1.4.2"
   },
   "dependencies": {
+    "@proedis/types": "^1.4.0",
     "@proedis/utils": "1.6.0",
-    "axios": "1.7.4",
-    "logdown": "3.3.1",
-    "store2": "2.14.3"
+    "axios": "^1.7.4",
+    "logdown": "^3.3.1",
+    "store2": "^2.14.3"
   },
   "proedisMetadata": {
-    "reflectPeerDependencies": [
-      "root:class-transformer",
-      "root:reflect-metadata",
-      "root:rxjs"
-    ]
+    "reflectPeerDependencies": {
+      "class-transformer": {
+        "range": "^0.5.1"
+      },
+      "reflect-metadata": {
+        "range": "^0.1.13 || ^0.2.0"
+      },
+      "rxjs": {
+        "range": "^7.0.0"
+      }
+    }
   },
   "gitHead": "90312798dcd649482f0e916cbd0d209a45d544d4"
 }

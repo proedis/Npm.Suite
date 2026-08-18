@@ -13,19 +13,23 @@
     "build": "rollup --config ../../rollup.config.mjs"
   },
   "dependencies": {
+    "@proedis/types": "^1.4.0",
     "@proedis/utils": "1.6.0"
   },
   "devDependencies": {
-    "@fortawesome/fontawesome-common-types": "^6.6.0",
-    "@mantine/core": "^7.12.1",
-    "@mantine/hooks": "^7.12.1",
-    "@proedis/types": "1.4.0"
+    "@proedis/tsconfig": "1.4.2"
   },
   "proedisMetadata": {
-    "reflectPeerDependencies": [
-      "root:class-transformer",
-      "root:reflect-metadata",
-      "root:dayjs"
-    ]
+    "reflectPeerDependencies": {
+      "class-transformer": {
+        "range": "^0.5.1"
+      },
+      "reflect-metadata": {
+        "range": "^0.1.13 || ^0.2.0"
+      },
+      "dayjs": {
+        "range": ">=1.11.0"
+      }
+    }
   }
 }

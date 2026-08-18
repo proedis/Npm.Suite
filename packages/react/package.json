@@ -13,19 +13,23 @@
     "build": "rollup --config ../../rollup.config.mjs"
   },
   "dependencies": {
+    "@proedis/types": "^1.4.0",
     "@proedis/utils": "1.6.0",
     "clsx": "^2.1.1",
     "kind-of": "^6.0.3"
   },
   "devDependencies": {
     "@proedis/tsconfig": "1.4.2",
-    "@proedis/types": "1.4.0",
     "@types/kind-of": "^6.0.3"
   },
   "proedisMetadata": {
-    "reflectPeerDependencies": [
-      "root:react"
-    ]
+    "reflectPeerDependencies": {
+      "react": {
+        "from": "root",
+        "range": ">=18.0.0 <20.0.0"
+      }
+    },
+    "sideEffects": false
   },
   "gitHead": "e5cd5bc288cc6ba93f716278a9401c9a45abc0e8"
 }

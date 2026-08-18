@@ -13,9 +13,11 @@
   },
   "license": "MIT",
   "proedisMetadata": {
-    "reflectPeerDependencies": [
-      "root:typescript"
-    ],
+    "reflectPeerDependencies": {
+      "typescript": {
+        "range": ">=5.2.0"
+      }
+    },
     "noMain": true
   },
   "gitHead": "e5cd5bc288cc6ba93f716278a9401c9a45abc0e8"

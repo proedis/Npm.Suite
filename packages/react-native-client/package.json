@@ -17,18 +17,25 @@
     "build": "rollup --config ../../rollup.config.mjs"
   },
   "dependencies": {
-    "@proedis/utils": "1.6.0",
-    "@react-native-async-storage/async-storage": "1.24.0"
+    "@proedis/utils": "1.6.0"
   },
   "devDependencies": {
     "@proedis/client": "2.5.0",
-    "@proedis/tsconfig": "1.4.2"
+    "@proedis/tsconfig": "1.4.2",
+    "@react-native-async-storage/async-storage": "1.24.0"
   },
   "proedisMetadata": {
-    "reflectPeerDependencies": [
-      "@proedis/client",
-      "root:react"
-    ]
+    "reflectPeerDependencies": {
+      "@proedis/client": {
+        "from": "self"
+      },
+      "react": {
+        "range": ">=18.0.0 <20.0.0"
+      },
+      "@react-native-async-storage/async-storage": {
+        "range": ">=1.18.0 <4.0.0"
+      }
+    }
   },
   "gitHead": "90312798dcd649482f0e916cbd0d209a45d544d4"
 }
