@@ -1,8 +1,16 @@
 {
   "name": "@proedis/cli",
   "version": "1.0.0",
-  "main": "./index.js",
-  "private": true,
+  "description": "Proedis command line interface to scaffold projects, generate React components and build models from an OpenAPI specification",
+  "keywords": [
+    "proedis",
+    "cli",
+    "scaffold",
+    "generator",
+    "react",
+    "openapi",
+    "typescript"
+  ],
   "license": "MIT",
   "bin": {
     "proedis": "./cjs/index.js"
@@ -10,13 +18,12 @@
   "scripts": {
     "dev": "ts-node --project tsconfig.scripts.json src/index.ts",
     "build": "rollup --config ../../rollup.config.mjs",
-    "postbuild": "cpy 'src/**/*.ejs' build/esm && cpy 'src/**/*.ejs' build/cjs"
+    "postbuild": "cpy 'src/**/*.ejs' build/cjs"
   },
   "dependencies": {
-    "@proedis/utils": "1.4.0",
+    "@proedis/utils": "^1.6.0",
     "chalk": "4.1.2",
     "commander": "11.1.0",
-    "eslint": "8.53.0",
     "ejs": "3.1.9",
     "glob": "10.3.10",
     "inquirer": "8.2.6",
@@ -29,11 +36,18 @@
     "yaml": "2.3.4"
   },
   "devDependencies": {
-    "@types/eslint": "8.44.7",
+    "@proedis/types": "1.4.0",
     "@types/ejs": "3.1.5",
+    "@types/eslint": "8.44.7",
     "@types/inquirer": "9.0.6",
     "@types/node-fetch": "2.6.4",
     "cpy-cli": "5.0.0",
     "type-fest": "4.6.0"
+  },
+  "proedisMetadata": {
+    "noMain": true,
+    "buildFormats": [
+      "cjs"
+    ]
   }
 }

@@ -1,5 +1,6 @@
 import console from 'node:console';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { basename, dirname, extname, resolve, relative, sep as pathSeparator } from 'node:path';
 import { cwd } from 'node:process';
 
@@ -10,7 +11,13 @@ import * as ejs from 'ejs';
 
 import { globSync } from 'glob';
 
-import { ESLint } from 'eslint';
+/**
+ * Type only: the ESLint used to fix generated files is the one installed in the project the
+ * CLI is running against, together with that project's own configuration. Importing it for
+ * real would resolve this package's copy instead, and would force every installation of the
+ * CLI to carry an ESLint of its own.
+ */
+import type * as ESLintModule from 'eslint';
 
 import type { Project } from './project';
 
@@ -362,6 +369,24 @@ export class TemplateCompiler {
   }
 
 
+  /**
+   * Resolve the ESLint class from the project the CLI is running against, so generated
+   * files are fixed with that project's own ESLint and rules.
+   *
+   * @return The ESLint class, or null when the project has no ESLint installed, which lets
+   *         the caller degrade to a warning instead of failing the whole generation.
+   */
+  private resolveProjectEslint(): typeof ESLintModule.ESLint | null {
+    try {
+      const projectRequire = createRequire(resolve(this.project.rootDirectory, 'package.json'));
+      return (projectRequire('eslint') as typeof ESLintModule).ESLint;
+    }
+    catch {
+      return null;
+    }
+  }
+
+
   public async lintAndFixFiles(paths: SavedFile[]) {
     /** Filter keeping only valid paths */
     const fixablePaths = paths.filter((path) => (
@@ -373,23 +398,39 @@ export class TemplateCompiler {
       return;
     }
 
-    /** Check if necessary dependencies to use eslint have been installed */
-    const manager = await this.project.manager();
-    if (!manager.areDependenciesInstalled(
-      { name: 'eslint', global: true },
-      { name: 'eslint-config-proedis', global: true }
-    )) {
+    /**
+     * Load the ESLint installed in the target project.
+     * This replaces an 'areDependenciesInstalled' probe for 'eslint': resolving the module
+     * is the check that actually matters, and it guarantees the generated files are fixed
+     * by the same ESLint the project itself uses.
+     */
+    const ESLint = this.resolveProjectEslint();
+
+    if (!ESLint) {
       console.info(
         chalk.yellow(
-          'To enable instant fix for template files, the eslint and eslint-config-proedis packages must be installed'
+          'To enable instant fix for template files, the eslint package must be installed in this project'
         )
       );
       return;
     }
 
-    /** Check if a valid .eslintrc file exists */
+    /** The shared config is still expected to be resolvable from the project */
+    const manager = await this.project.manager();
+    if (!manager.areDependenciesInstalled({ name: 'eslint-config-proedis', global: true })) {
+      console.info(
+        chalk.yellow(
+          'To enable instant fix for template files, the eslint-config-proedis package must be installed'
+        )
+      );
+      return;
+    }
+
+    /** Check if a valid flat or legacy configuration file exists */
     if (
       !this.project.couldResolveFile('eslint.config.js')
+      && !this.project.couldResolveFile('eslint.config.mjs')
+      && !this.project.couldResolveFile('eslint.config.cjs')
       && !this.project.couldResolveFile('.eslintrc.js')
       && !this.project.couldResolveFile('.eslintrc.cjs')
     ) {
@@ -401,27 +442,62 @@ export class TemplateCompiler {
       return;
     }
 
-    /** Check if the tsconfig json file exists */
-    if (!this.project.couldResolveFile('tsconfig.eslint.json')) {
+    /**
+     * Create the new eslint instance.
+     * 'useEslintrc' was removed in ESLint 9, where legacy configuration is opted into
+     * through the environment instead: passing the option there throws.
+     */
+    const isLegacyEslint = Number.parseInt(ESLint.version ?? '', 10) < 9;
+
+    const eslint = new ESLint({
+      cwd: this.project.rootDirectory,
+      fix: true,
+      ...(isLegacyEslint ? { useEslintrc: true } : {})
+    });
+
+    /**
+     * Lint all files.
+     *
+     * There used to be a hard precondition on a 'tsconfig.eslint.json' existing in the
+     * project root. That filename is a convention of a project's own eslintrc, not
+     * something this CLI should know about, and a flat config project may legitimately not
+     * have it — the fix was skipped there for no reason. Whatever is actually wrong with the
+     * project's setup is reported below, by ESLint itself.
+     */
+    let results: ESLintModule.ESLint.LintResult[];
+
+    try {
+      results = await eslint.lintFiles(fixablePaths);
+    }
+    catch (error) {
+      /** An unloadable parser or an invalid flat config rejects here */
       console.info(
-        chalk.yellow(
-          'To enable instant fix for template files, the tsconfig.eslint.json file must exist in project root directory'
-        )
+        chalk.yellow(`Instant fix for template files has been skipped: ${(error as Error).message}`)
       );
       return;
     }
 
-    /** Create the new eslint instance */
-    const eslint = new ESLint({
-      useEslintrc: true,
-      cwd        : this.project.rootDirectory,
-      fix        : true
-    });
+    /**
+     * Not every configuration problem rejects: an unreadable 'parserOptions.project' comes
+     * back as a fatal parsing error on each result instead, so the results have to be
+     * inspected as well. ESLint names the offending file, which is more useful than any
+     * hint hardcoded here.
+     */
+    const fatalMessages = [
+      ...new Set(
+        results
+          .flatMap((result) => result.messages)
+          .filter((message) => message.fatal)
+          .map((message) => message.message)
+      )
+    ];
 
-    /** Lint all files */
-    const results = await eslint.lintFiles(fixablePaths);
+    if (fatalMessages.length) {
+      console.info(chalk.yellow('Instant fix for template files could not be applied:'));
+      fatalMessages.forEach((message) => console.info(chalk.yellow(`  ${message}`)));
+    }
 
-    /** Produce the fixing */
+    /** Produce the fixing, for whichever files could be parsed */
     await ESLint.outputFixes(results);
   }
 
