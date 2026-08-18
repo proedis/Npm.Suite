@@ -4,7 +4,6 @@
   "extends": "./web.json",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "noEmit": true,
-    "target": "ESNext"
+    "noEmit": true
   }
 }

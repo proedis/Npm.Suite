@@ -4,7 +4,7 @@
   "compilerOptions": {
     "allowJs": true,
     "composite": false,
-    "target": "ES2017",
+    "target": "ES2022",
     "module": "ESNext",
     "sourceMap": true,
     "skipLibCheck": true,
@@ -25,7 +25,8 @@
     "strict": true,
     "resolveJsonModule": true,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "useDefineForClassFields": false
   },
   "exclude": [
     "node_modules"
