@@ -28,7 +28,8 @@
     "@types/get-value": "^3.0.3",
     "@types/natural-compare": "^1.4.1",
     "@types/object-hash": "^3.0.2",
-    "@types/set-value": "^4.0.1"
+    "@types/set-value": "^4.0.1",
+    "rollup": "^4.62.4"
   },
   "proedisMetadata": {
     "reflectPeerDependencies": {

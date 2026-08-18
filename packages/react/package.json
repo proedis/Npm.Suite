@@ -20,7 +20,8 @@
   },
   "devDependencies": {
     "@proedis/tsconfig": "1.4.2",
-    "@types/kind-of": "^6.0.3"
+    "@types/kind-of": "^6.0.3",
+    "rollup": "^4.62.4"
   },
   "proedisMetadata": {
     "reflectPeerDependencies": {

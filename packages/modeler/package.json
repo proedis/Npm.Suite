@@ -17,7 +17,8 @@
     "@proedis/utils": "1.6.0"
   },
   "devDependencies": {
-    "@proedis/tsconfig": "1.4.2"
+    "@proedis/tsconfig": "1.4.2",
+    "rollup": "^4.62.4"
   },
   "proedisMetadata": {
     "reflectPeerDependencies": {

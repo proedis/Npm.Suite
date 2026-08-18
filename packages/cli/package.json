@@ -41,6 +41,7 @@
     "@types/inquirer": "9.0.6",
     "@types/node-fetch": "2.6.4",
     "cpy-cli": "5.0.0",
+    "rollup": "^4.62.4",
     "type-fest": "4.6.0"
   },
   "proedisMetadata": {

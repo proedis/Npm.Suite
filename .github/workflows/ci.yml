@@ -20,6 +20,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Must run before setup-node: the yarn cache step shells out to `yarn --version`,
+      # which needs corepack to have resolved the version pinned in `packageManager`.
+      - name: Enable corepack
+        run: corepack enable
+
       - uses: actions/setup-node@v4
         with:
           # Must satisfy the root "engines" constraint (>=22.13.0), which lerna 10 requires
@@ -27,7 +32,7 @@ jobs:
           cache: yarn
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Lint
         run: yarn release:lint

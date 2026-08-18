@@ -12,6 +12,10 @@ libraries consumed by Proedis applications. Versioning is **independent per pack
 
 ## Commands
 
+The package manager is **Yarn 4** (`packageManager: yarn@4.18.0`), resolved through corepack. Run
+`corepack enable` once per machine: without it a globally installed Yarn 1 runs against a Berry
+lockfile it cannot parse (`__metadata: version: 10` instead of `# yarn lockfile v1`).
+
 There is **no test runner configured** in this repository — no jest/vitest, no spec files. Do not
 invent a `yarn test`. Verification means typecheck + lint + build.
 
@@ -49,6 +53,21 @@ run first.
 
 Root `tsconfig.dev.json` extends the **base** preset (no `jsx`), so it cannot typecheck
 `packages/react*`. It is an IDE convenience only — always typecheck per package.
+
+### Yarn 4 specifics
+
+`.yarnrc.yml` sets **`nodeLinker: node-modules`**, and that is not a preference. The default PnP
+linker breaks this repository: every package points `main` at `src/index.ts`, so in-repo consumers
+compile their siblings' TypeScript source, and under PnP a plain `tsc` cannot resolve a workspace
+sibling — verified, `TS2307` — without the Yarn SDK injected into every tool. node-modules keeps
+the symlinked layout everything relies on.
+
+**Berry only exposes binaries a workspace declares.** Yarn 1 hoisted the root `node_modules/.bin`
+into every workspace script; Yarn 4 does not. Every package whose `build` invokes `rollup` therefore
+declares `rollup` as its own devDependency, and the sandbox app declares `eslint` and `typescript`.
+This is easy to miss when adding a package, because it fails asymmetrically:
+`yarn workspace <name> build` reports `command not found: rollup` while `yarn release:build` keeps
+working, since nx builds its own PATH.
 
 ### Release
 

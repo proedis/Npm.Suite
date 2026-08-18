@@ -22,7 +22,8 @@
     "@proedis/client": "2.5.0",
     "@proedis/react": "1.6.0",
     "@proedis/tsconfig": "1.4.2",
-    "@proedis/types": "1.4.0"
+    "@proedis/types": "1.4.0",
+    "rollup": "^4.62.4"
   },
   "proedisMetadata": {
     "reflectPeerDependencies": {

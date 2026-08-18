@@ -16,7 +16,8 @@
     "build": "rollup --config ../../rollup.config.mjs"
   },
   "devDependencies": {
-    "@proedis/tsconfig": "1.4.2"
+    "@proedis/tsconfig": "1.4.2",
+    "rollup": "^4.62.4"
   },
   "gitHead": "e5cd5bc288cc6ba93f716278a9401c9a45abc0e8",
   "proedisMetadata": {
