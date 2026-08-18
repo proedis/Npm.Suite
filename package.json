@@ -27,25 +27,22 @@
   "scripts": {
     "release:graph": "nx graph",
     "release:lint": "eslint ./packages",
-    "release:version": "lerna version --exact",
+    "release:version": "lerna version",
     "release:build": "lerna run build",
-    "release:publish": "lerna publish from-package --contents build",
-    "release": "yarn release:version && yarn release:build && yarn release:publish"
+    "release:verify": "node ./scripts/verify-artifacts.mjs",
+    "release:publish": "lerna publish from-package --contents build"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.4.0",
-    "@commitlint/config-conventional": "^19.2.2",
-    "@rollup/plugin-commonjs": "^26.0.1",
+    "@rollup/plugin-commonjs": "^29.0.3",
     "@rollup/plugin-json": "^6.1.0",
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-typescript": "^11.1.6",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-typescript": "^12.3.0",
     "@tanstack/react-query": "^5.51.23",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@typescript-eslint/eslint-plugin": "6.10.0",
     "@typescript-eslint/parser": "6.10.0",
     "class-transformer": "^0.5.1",
-    "cpy": "8.1.2",
     "dayjs": "^1.11.12",
     "eslint": "8.53.0",
     "eslint-config-airbnb-typescript": "17.1.0",
@@ -53,25 +50,18 @@
     "eslint-plugin-import": "2.29.0",
     "eslint-plugin-react": "7.33.2",
     "eslint-plugin-react-hooks": "4.6.0",
-    "fs-extra": "^9.1.0",
-    "husky": "^9.1.4",
-    "lerna": "^6.4.1",
+    "lerna": "^10.0.0",
     "react": "19.2.5",
     "react-dom": "19.2.5",
     "reflect-metadata": "^0.2.2",
-    "rollup": "^4.20.0",
-    "rollup-plugin-delete": "^2.0.0",
+    "rollup": "^4.62.4",
+    "rollup-plugin-delete": "^3.0.2",
     "rollup-plugin-hashbang": "^3.0.0",
     "rxjs": "7.8.1",
-    "shelljs": "^0.8.5",
-    "typescript": "5.2.2"
+    "typescript": "5.9.3"
   },
   "engines": {
-    "node": ">=16.0.0"
-  },
-  "resolutions": {
-    "string-width": "4.2.3",
-    "strip-ansi": "6.0.1"
+    "node": ">=22.13.0"
   },
   "packageManager": "yarn@1.22.19"
 }
