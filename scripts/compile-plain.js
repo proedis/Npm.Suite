@@ -2,21 +2,28 @@ const fs = require('node:fs');
 const path = require('node:path');
 const process = require('node:process');
 
-const cpy = require('cpy');
-
 const createPackageJson = require('./utils/createPackageJson');
 
-async function compilePlain() {
-  const buildDirectory = 'build';
 
+/* --------
+ * Constants
+ * -------- */
+const BUILD_DIRECTORY = 'build';
+
+/** Elements that must never be copied into the build directory */
+const EXCLUDED_NAMES = [ BUILD_DIRECTORY, 'node_modules', 'package.json' ];
+
+
+function compilePlain() {
   const packagePath = process.cwd();
-  const buildPath = path.resolve(packagePath, buildDirectory);
+  const buildPath = path.resolve(packagePath, BUILD_DIRECTORY);
 
 
   // ----
   // Clean the Build Directory
   // ----
-  fs.rmSync(buildPath, { recursive: true });
+  /** 'force' keeps this idempotent: without it a missing build directory throws ENOENT on a fresh clone */
+  fs.rmSync(buildPath, { recursive: true, force: true });
 
 
   // ----
@@ -28,14 +35,29 @@ async function compilePlain() {
   // ----
   // Copy all files from source to destination
   // ----
-  await cpy(
-    [ './**/*.*', '!build', '!node_modules', '!package.json', '!tsconfig.*' ],
-    buildDirectory,
-    {
-      cwd    : packagePath,
-      parents: true
+  /**
+   * Entries are copied one by one instead of copying the package root in a single call:
+   * 'fs.cpSync' rejects a destination located inside the source directory up front
+   * (ERR_FS_CP_EINVAL), before any filter is consulted.
+   */
+  const isCopyable = (basename) => !basename.startsWith('.')
+    && !EXCLUDED_NAMES.includes(basename)
+    && !basename.startsWith('tsconfig.');
+
+  for (const entry of fs.readdirSync(packagePath)) {
+    if (!isCopyable(entry)) {
+      continue;
     }
-  );
+
+    fs.cpSync(
+      path.resolve(packagePath, entry),
+      path.resolve(buildPath, entry),
+      {
+        recursive: true,
+        filter   : (source) => isCopyable(path.basename(source))
+      }
+    );
+  }
 
 
   // ----
@@ -44,4 +66,4 @@ async function compilePlain() {
   createPackageJson(packagePath, buildPath);
 }
 
-compilePlain().then(() => process.exit());
+compilePlain();

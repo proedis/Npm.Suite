@@ -1,5 +1,5 @@
-import { resolve as resolvePath } from 'path';
-import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { resolve as resolvePath } from 'node:path';
+import { existsSync, readFileSync } from 'node:fs';
 
 import { defineConfig } from 'rollup';
 
@@ -24,9 +24,30 @@ import producePackageFiles from './scripts/rollup-plugins/producePackageFiles.mj
 const SOURCE_DIRECTORY = 'src';
 
 const OUTPUT_DIRECTORY = 'build';
-const OUTPUT_TYPES_DIRECTORY = `${OUTPUT_DIRECTORY}/types`;
 
-const BUILD_FORMATS = [ 'cjs', 'esm' ];
+const SUPPORTED_BUILD_FORMATS = [ 'cjs', 'esm' ];
+
+/**
+ * Output formats are per package, declared through 'proedisMetadata.buildFormats'.
+ * Both formats are built by default; a package consumed only through its 'bin', like the
+ * CLI, has nothing pointing at the ESM output and would just ship it as dead weight.
+ */
+const PACKAGE_JSON_PATH = resolvePath(process.cwd(), 'package.json');
+
+const PACKAGE_METADATA = existsSync(PACKAGE_JSON_PATH)
+  ? JSON.parse(readFileSync(PACKAGE_JSON_PATH, 'utf-8')).proedisMetadata ?? {}
+  : {};
+
+const BUILD_FORMATS = PACKAGE_METADATA.buildFormats ?? SUPPORTED_BUILD_FORMATS;
+
+const UNSUPPORTED_FORMATS = BUILD_FORMATS.filter((format) => !SUPPORTED_BUILD_FORMATS.includes(format));
+
+if (UNSUPPORTED_FORMATS.length) {
+  throw new Error(
+    `Invalid proedisMetadata.buildFormats value(s) '${UNSUPPORTED_FORMATS.join('\', \'')}': `
+    + `only '${SUPPORTED_BUILD_FORMATS.join('\', \'')}' are supported`
+  );
+}
 
 const TSCONFIG_DECLARATION_FILENAME = 'tsconfig.declaration.json';
 const TSCONFIG_DECLARATION_PATH = resolvePath(process.cwd(), TSCONFIG_DECLARATION_FILENAME);
@@ -34,22 +55,12 @@ const TSCONFIG_DECLARATION_PATH = resolvePath(process.cwd(), TSCONFIG_DECLARATIO
 const HAS_TYPES_SETTINGS = existsSync(TSCONFIG_DECLARATION_PATH);
 
 
-// ----
-// tsconfig.declaration.json file updater
-// ----
-if (HAS_TYPES_SETTINGS) {
-  /** Load the json file */
-  const fileContent = JSON.parse(readFileSync(TSCONFIG_DECLARATION_PATH, 'utf-8'));
-
-  /** Check output dir on compiler options */
-  fileContent.compilerOptions = {
-    rootDir: SOURCE_DIRECTORY,
-    ...fileContent.compilerOptions,
-    outDir: OUTPUT_TYPES_DIRECTORY
-  };
-
-  writeFileSync(TSCONFIG_DECLARATION_PATH, JSON.stringify(fileContent, null, 2), { encoding: 'utf-8' });
-}
+/**
+ * Each package declares 'rootDir' and 'outDir' explicitly inside its own
+ * tsconfig.declaration.json, so there is nothing to patch here at build time.
+ * The previous implementation rewrote that file on every run, mutating a
+ * git-tracked source file as a side effect of building.
+ */
 
 
 // ----
@@ -100,8 +111,25 @@ const buildConfiguration = defineConfig({
     }),
     // Preserve the Hashbang
     hashbang.default(),
-    // Compile using typescript
-    typescript(),
+    // Compile using typescript.
+    // 'noEmitOnError' is what promotes TS diagnostics from rollup warnings to build
+    // failures: without it a type error only prints a warning and rollup still exits 0,
+    // producing a fully publishable artifact out of code that does not compile.
+    typescript({
+      /**
+       * Promotes TS diagnostics from rollup warnings to build failures: without it a type
+       * error only prints a warning and rollup still exits 0, producing a fully
+       * publishable artifact out of code that does not compile.
+       */
+      noEmitOnError: true,
+      /**
+       * The base preset enables 'allowJs' for application consumers, but no package source
+       * contains JavaScript. Keeping it on makes @rollup/plugin-typescript >= 12 redirect
+       * emit to a temporary outDir under the system temp folder, which then fails its own
+       * 'outDir must be inside Rollup dir' validation.
+       */
+      allowJs      : false
+    }),
     // Enable the JSON Plugin
     json(),
     // Enable CommonJS output

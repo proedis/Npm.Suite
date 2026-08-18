@@ -16,6 +16,9 @@ coverage
 out/
 build
 
+# build metadata
+*.tsbuildinfo
+
 # misc
 .DS_Store
 *.pem
