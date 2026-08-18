@@ -68,19 +68,6 @@ type PathValue<T, P extends Path<T> | ArrayPath<T>> = P extends `${infer K}.${in
         : never
       : never;
 
-type NestedValue<
-  TValue extends unknown[] | Record<string, unknown> | Map<unknown, unknown> = unknown[] | Record<string, unknown>
-> =
-  & { [$NestedValue: string]: never; }
-  & TValue;
-
-type UnpackNestedValue<T> = T extends NestedValue<infer U> ? U : T extends Date | FileList
-  ? T
-  : T extends Record<string, unknown> ? {
-    [K in keyof T]: UnpackNestedValue<T[K]>;
-  } : T;
-
-
 /* --------
  * Types to Extract all Field Path from an Object
  * -------- */
@@ -88,7 +75,15 @@ type UnpackNestedValue<T> = T extends NestedValue<infer U> ? U : T extends Date 
 export type ObjectPath<TObject extends AnyObject> = Path<TObject>;
 export const ObjectPath = String;
 
-/** Get the value type at object paths */
+/**
+ * Get the value type at object paths.
+ *
+ * The result used to be wrapped in an 'UnpackNestedValue' mapped type, inherited from
+ * react-hook-form together with the 'NestedValue' marker it was meant to unwrap. Nothing
+ * ever produced a 'NestedValue', so the wrapper only performed a recursive identity
+ * rebuild of every nested record: from TypeScript 5.9 that recursion exceeds the
+ * instantiation depth limit (TS2321) as soon as the object type is still generic.
+ */
 export type ValueAtPath<TObject extends AnyObject, ValuePath extends ObjectPath<TObject>> =
-  UnpackNestedValue<PathValue<TObject, ValuePath>>;
+  PathValue<TObject, ValuePath>;
 export const ValueAtPath = Object;
