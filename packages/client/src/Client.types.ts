@@ -1,8 +1,8 @@
-import type { AxiosRequestConfig, Method as RequestMethod } from 'axios';
 
 import type { ClassConstructor } from 'class-transformer';
 
 import type { AnyObject } from '@proedis/types';
+import type { RequestInitConfig, RequestMethod } from './lib/Transport/Transport.types';
 
 import type { LoggerOptions } from './lib/Logger/Logger.types';
 import type { EnvironmentDependentOptions } from './lib/Options/Options.types';
@@ -92,8 +92,12 @@ export interface ClientProviders {
  * Client Requests endpoint Settings
  * -------- */
 interface ClientRequestSettings<Tokens extends string> {
-  /** Set default axios configuration */
-  axiosConfig?: Partial<AxiosRequestConfig>;
+  /**
+   * Transport level options applied to every request, each one overridable per call.
+   *
+   * Renamed from 'axiosConfig' now that there is no axios instance to configure.
+   */
+  transportConfig?: RequestInitConfig;
 
   /** Set defaults request settings */
   defaults?: NonTransformableClientRequestConfig<Tokens>;
@@ -190,8 +194,14 @@ interface BaseClientRequestConfig<Tokens extends string> {
     [key: string]: any
   };
 
-  /** Override Axios Request config for this specific request */
-  requestConfig?: Omit<AxiosRequestConfig, Exclude<keyof ClientRequestConfig<Tokens, Response>, 'requestConfig'>>;
+  /**
+   * Transport level options for this specific request.
+   *
+   * Headers above all, which is what this is used for in practice. It used to be an axios configuration
+   * object; it is now the transport's own {@link RequestInitConfig}, which covers the same ground for an
+   * API call without pulling a whole HTTP library into the public type surface.
+   */
+  requestConfig?: Omit<RequestInitConfig, Exclude<keyof ClientRequestConfig<Tokens, Response>, 'requestConfig'>>;
 
   /** Append token on request */
   useTokens?: Partial<Record<Tokens, UseTokenTransporter>>;

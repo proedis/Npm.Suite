@@ -317,6 +317,38 @@ Equivalence with Orbit's own flat config is verified by diffing `eslint --print-
 rule, not by eyeballing the rule lists: zero rules active in Orbit are missing here, and the option
 differences are all `@stylistic` writing schema defaults in full where core leaves them implicit.
 
+### The client's transport is `fetch`, and the query string is the load-bearing part
+
+`@proedis/client` performs its requests through `lib/Transport`, not through axios. The audit that
+preceded the swap found the client used interceptors, cancel tokens, progress events, adapters,
+`paramsSerializer`, `transformRequest`, `withCredentials` and `responseType` **zero** times; what it
+used was a base url, a timeout, default headers, a status check, query serialization and an abort
+signal.
+
+`serializeParams` reproduces axios's query format **byte for byte**, and that is not politeness: a
+server reading `ids[]=1&ids[]=2` differently from `ids[0]=1&ids[1]=2` fails silently and only in
+production. The rules were measured against real requests, not read off the axios source — an earlier
+reconstruction from memory contradicted the measurements twice. They are: nil values dropped at any
+depth (`0` and `''` kept), `Date` as ISO, an array of scalars *at the top level* using `key[]`, every
+other array using indices — including an array of scalars nested below the top level — and objects
+nesting by key. The encoder is `encodeURIComponent` plus exactly four substitutions (`$`, `,`, `:`
+literal, space as `+`); brackets stay percent-encoded. It is verified by a generative diff against
+axios over hundreds of random shapes, which is the test to re-run after touching it.
+
+**Never set `Content-Type` on a multipart body.** A `FormData` carries a boundary only the platform can
+generate. The old code set `multipart/form-data` explicitly and got away with it because axios rewrote
+the header; under `fetch` that produces a request no server can parse. `Client.request` no longer sets
+it and the transport strips it defensively.
+
+`RequestError` is still the shape consumers catch, unchanged. What changed is where it reads from:
+`TransportError`, which carries `kind` (`status` / `abort` / `network` / `parse`), the response when one
+arrived, and the request's method and url — so an abort or a timeout now reports the failing url instead
+of the current page.
+
+`AbortSignal.any` is deliberately not used to combine the caller's signal with the timeout: it landed in
+Safari 17.4 and the emit target reaches back to 16.4. The manual bridge in `createRequestSignal` also
+keeps accepting a mimicked signal, which the previous transport tolerated.
+
 ### The mappers carry .NET semantics, and they are load-bearing
 
 `TimeSpan` renders and parses the .NET duration format `[-][d.]hh:mm:ss[.fff]` — the days component is
@@ -388,7 +420,7 @@ Dependency direction is strictly one-way; `utils` and `types` are the leaves.
 | `@proedis/utils` | `Guard`, `AugmentedMap`, `Deferred`, `will`, `ArraySorter`, hashing, deep object access. Publishes a subpath per module (`array`, `guard`, `hash`, `object`, `promise`, `runtime`, `string`). |
 | `@proedis/formatters` | Locale-aware duration/number/pluralize formatters. |
 | `@proedis/modeler` | `class-transformer` model base + decorators. Color/icon tokens are consumer-supplied via `ModelerOverride`, not typed against a UI kit. |
-| `@proedis/client` | The core: authenticated HTTP client over axios. |
+| `@proedis/client` | The core: authenticated HTTP client over `fetch`. Zero HTTP dependencies — `store2` for browser storage is the only runtime one left besides the workspace packages. |
 | `@proedis/react` | Framework-agnostic React hooks/utils (`contextBuilder`, `useAutoControlledState`, shorthands). |
 | `@proedis/react-client` | React bindings for `@proedis/client` + `@tanstack/react-query` integration. |
 | `@proedis/react-native-client` | `AsyncStorage`-backed storage provider for `@proedis/client`. |

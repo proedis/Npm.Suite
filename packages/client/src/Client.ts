@@ -1,5 +1,4 @@
-import axios from 'axios';
-import type { AxiosInstance, AxiosRequestConfig, AxiosResponse, GenericAbortSignal } from 'axios';
+
 
 import { plainToInstance } from 'class-transformer';
 
@@ -8,6 +7,8 @@ import { Observable } from 'rxjs';
 import type { AnyObject } from '@proedis/types';
 
 import { Deferred, hasEqualHash, isNil, isObject, isValidString, mergeObjects, will, isBrowser } from '@proedis/utils';
+import type { GenericAbortSignal, TransportRequestConfig } from './lib/Transport/Transport.types';
+import Transport from './lib/Transport/Transport';
 
 import Logger from './lib/Logger/Logger';
 import Options from './lib/Options/Options';
@@ -221,7 +222,7 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
   // ----
   // Internal properties
   // ----
-  private readonly _axios: AxiosInstance;
+  private readonly _transport: Transport;
 
   private _clientInitializationDeferred: Deferred<UserData | null> | undefined;
 
@@ -283,7 +284,7 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
     }
 
     /** Create the client and store default requests options */
-    this._axios = this._createAxiosInstance(_settings.requests);
+    this._transport = this._createTransport(_settings.requests);
     this._defaultsRequestConfig = _settings.requests.defaults;
 
     /** Save initial client state */
@@ -368,12 +369,12 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
 
   /**
    * Use settings provided by 'requests' options key to build
-   * a new Axios instance that could be used to perform request
+   * a new Transport instance that could be used to perform request
    * to API BackEnd server
    * @param settings
    * @private
    */
-  private _createAxiosInstance(settings: ClientSettings<UserData, StoredData, Tokens>['requests']): AxiosInstance {
+  private _createTransport(settings: ClientSettings<UserData, StoredData, Tokens>['requests']): Transport {
     /** Parse the server configuration settings */
     const serverSettings = new Options(settings.server);
 
@@ -390,22 +391,18 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
       namespace && `/${Client.sanitizeUrl(namespace)}`
     ].filter(isValidString).join('');
 
-    this._initLogger.info(`AxiosInstance will be created using BaseURL ${urlParts}`);
+    this._initLogger.info(`Transport will be created using BaseURL ${urlParts}`);
 
     /**
-     * In some system, the Axios module will be imported using 'default', try to assert the create function exists
-     * Take this code as an experimental work-around
+     * Build the transport.
+     *
+     * The interop dance that used to sit here — probing for a 'default' property before reaching for
+     * 'create' — went away with the library that needed it.
      */
-    const createAxios = typeof (axios as unknown as { default?: typeof axios }).default?.create === 'function'
-      ? (axios as unknown as { default?: typeof axios }).default!.create
-      : axios.create;
-
-    /** Return the Axios Instance */
-    return createAxios({
-      ...settings.axiosConfig,
-      baseURL       : urlParts,
-      timeout       : serverSettings.getOrDefault('timeout', 'number', 30_000),
-      validateStatus: (status) => status >= 200 && status < 300
+    return new Transport({
+      baseUrl : urlParts,
+      timeout : serverSettings.getOrDefault('timeout', 'number', 30_000),
+      defaults: settings.transportConfig
     });
   }
 
@@ -536,17 +533,17 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
   // ----
 
   /**
-   * Return the baseUrl used by the internal axios instance
+   * Return the baseUrl used by the internal transport
    * to perform http requests
    */
   public get baseUrl(): string {
-    const { baseURL } = this._axios.defaults;
+    const { baseUrl } = this._transport;
 
-    if (!baseURL) {
+    if (!baseUrl) {
       throw new Error('client.baseUrl is unusable because no URL has been set.');
     }
 
-    return baseURL;
+    return baseUrl;
   }
 
 
@@ -564,17 +561,8 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
     name: string,
     value: string | string[] | number | boolean | null
   ): Client<UserData, StoredData, Tokens> {
-    /** If a null value has been provided, remove the header */
-    if (isNil(value)) {
-      if (name in this._axios.defaults.headers) {
-        delete this._axios.defaults.headers[name];
-      }
-
-      return this;
-    }
-
-    /** Add the new header to defaults */
-    this._axios.defaults.headers[name] = value;
+    /** The transport treats a nil value as a removal, so both cases are one call */
+    this._transport.useHeader(name, value);
 
     return this;
   }
@@ -707,8 +695,8 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
     abortSignal?: GenericAbortSignal
   ): Promise<Response> {
     /** Assert the client has been loaded */
-    if (!this._axios) {
-      this._requestLogger.error('AxiosInstance is not ready. Check your configuration');
+    if (!this._transport) {
+      this._requestLogger.error('Transport is not ready. Check your configuration');
       throw new Error('Client has not been initialized');
     }
 
@@ -724,9 +712,9 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
       useTokens
     } = compiledRequest;
 
-    /** Sanitize the URL and create the base AxiosRequestConfig */
+    /** Sanitize the URL and create the base request configuration */
     const url = Client.sanitizeUrl(initialUrl ?? '');
-    const axiosRequestConfig: AxiosRequestConfig = {
+    const transportRequestConfig: TransportRequestConfig = {
       ...requestConfig,
       url,
       method,
@@ -767,25 +755,26 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
           });
         });
 
-        /** Add the new form data to axios request config */
-        axiosRequestConfig.data = formData;
+        /** Add the new form data to the request configuration */
+        transportRequestConfig.data = formData;
       }
       else {
-        axiosRequestConfig.data = data;
+        transportRequestConfig.data = data;
       }
     }
 
-    /** Set the right header while sending data as FormData */
-    if (axiosRequestConfig.data && axiosRequestConfig.data instanceof FormData && !(axiosRequestConfig.headers?.['Content-Type'])) {
-      axiosRequestConfig.headers = {
-        ...axiosRequestConfig.headers,
-        'Content-Type': 'multipart/form-data'
-      };
-    }
+    /**
+     * The 'Content-Type' of a multipart body is deliberately not set here.
+     *
+     * It used to be set to 'multipart/form-data' whenever the body was a FormData, and that worked only
+     * because axios rewrote the header itself: a multipart body carries a boundary that only the platform
+     * can generate, so the header has to be left for it to fill in. Setting it by hand produces a request
+     * no server can parse — and the transport strips it defensively for the same reason.
+     */
 
-    this._requestLogger.debug('Created base AxiosRequestConfig from user request', compiledRequest);
+    this._requestLogger.debug('Created base request configuration from user request', compiledRequest);
 
-    /** Use the underlying axios instance to make the request */
+    /** Use the underlying transport to make the request */
     try {
       /** Check if some tokens must be appended to the request */
       if (isObject(useTokens)) {
@@ -794,15 +783,15 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
           const transporter = useTokens[tokenName];
 
           if (transporter) {
-            await this._getTokenHandshake(tokenName).appendToken(axiosRequestConfig, transporter);
+            await this._getTokenHandshake(tokenName).appendToken(transportRequestConfig, transporter);
           }
         }
       }
 
-      this._requestLogger.debug(`Performing a ${method} request to ${url}`, axiosRequestConfig);
+      this._requestLogger.debug(`Performing a ${method} request to ${url}`, transportRequestConfig);
 
       /** Await for the response */
-      const response = (await this._axios(axiosRequestConfig)) as AxiosResponse<Response>;
+      const response = await this._transport.request<Response>(transportRequestConfig);
 
       this._requestLogger.debug(`Received response from ${url}`, response);
 

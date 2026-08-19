@@ -22,7 +22,6 @@
   "dependencies": {
     "@proedis/types": "^1.4.0",
     "@proedis/utils": "1.6.0",
-    "axios": "^1.7.4",
     "store2": "^2.14.3"
   },
   "proedisMetadata": {

@@ -2,7 +2,7 @@ import { Deferred, isBrowser, isObject, isValidString, will } from '@proedis/uti
 
 import type { AnyObject } from '@proedis/types';
 
-import type { AxiosRequestConfig } from 'axios';
+import type { TransportRequestConfig } from '../Transport/Transport.types';
 
 import Logger from '../../lib/Logger/Logger';
 import Options from '../Options/Options';
@@ -577,7 +577,7 @@ export default class TokenHandshake<UserData extends AnyObject, StoreData extend
    * @param request
    * @param transporterType
    */
-  public async appendToken(request: AxiosRequestConfig, transporterType: UseTokenTransporter) {
+  public async appendToken(request: TransportRequestConfig, transporterType: UseTokenTransporter) {
     /** Get the Transporter */
     const transporter = this._getTransporterConfiguration(transporterType);
 
