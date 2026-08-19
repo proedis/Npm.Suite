@@ -402,8 +402,21 @@ await client.storage.isInitialized();  // resolves once the first read completed
 | `hasAuth` | whether user data is present — narrows `userData` when true |
 | `userData` | the user data, or `null` |
 
-⚠️ Treat an emitted value as **read only**. The value a subscriber receives is the one the store keeps,
-so mutating it changes client state without persisting anything. Use `set` or `transact`.
+An emitted value is **frozen**, and so is the initial one. That is not a convention you have to
+remember: a BehaviorSubject keeps the value it emitted, so what a subscriber receives *is* what the store
+holds — writing to it used to change client state without persisting anything, silently. Now it throws.
+
+```ts
+const state = client.state.value;
+
+state.userData.displayName = 'x';   // TypeError — go through set or transact
+await client.storage.set('theme', 'dark');
+await client.storage.transact((data) => { data.seen += 1; return data; });   // the copy is writable
+```
+
+⚠️ Freezing locks properties, not the internal state of an exotic object. A `Date`, a `Map` or a `Set`
+held inside the value can still be mutated through its own methods — objects and arrays, which is what
+storage data is made of, are genuinely protected.
 
 #### Lifecycle
 
@@ -517,6 +530,7 @@ And the bug fixes, three of which changed behaviour you may have worked around:
 | `Logger.configure` did nothing after the first logger existed | Each logger snapshotted the defaults in its constructor, so configuring from a second client's settings was ignored. |
 | No way to release a client | There is `dispose()` now. A client replaced by a hot reload or a tenant switch used to leave its subjects alive together with every subscriber. |
 | A caller could corrupt client state by accident | The store shared nested objects with whatever was passed to `set`, so mutating your own object afterwards wrote into client state, bypassing `set` and `transact` — nothing persisted, nothing emitted. |
+| A **subscriber** could corrupt it too | A BehaviorSubject keeps the value it emitted, so what a subscriber received was what the store held. Emitted and initial values are now frozen, which turns that silent corruption into a `TypeError`. Legitimate writes are unaffected: `set` and `transact` both work on a writable copy. |
 | `safeRequest` declared a response that was not there | It was typed `[ RequestError \| null, Response ]` and returned `null as Response` on failure, so a caller reading the response without checking the error held a null the compiler swore was a value. It is a discriminated tuple now. |
 | `Client.blobFromBase64` was browser only | It reached for `window.atob` behind an `isBrowser` guard, which made the whole base64 upload path browser only for no reason beyond the property lookup. It probes for a global `atob` instead, so base64 files work in Node and React Native too. |
 

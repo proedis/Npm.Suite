@@ -121,6 +121,12 @@ function cloneValue<T>(value: T, seen: CloneRegistry): T {
    * Property descriptors are copied rather than read: an accessor stays an accessor instead of being
    * flattened into whatever its getter happened to return, and non enumerable keys and symbols come
    * along too.
+   *
+   * Enumerability is preserved because it describes the shape. Writability and configurability are not:
+   * the copy is always mutable, whatever the source was. A clone exists to be modified, and one that
+   * inherits a lock is a clone you cannot use — a frozen source would otherwise produce a copy whose
+   * properties silently refuse assignment, which is exactly what happens when a frozen state snapshot is
+   * cloned to be edited.
    */
   const clonedObject = Object.create(Object.getPrototypeOf(value));
   seen.set(value, clonedObject);
@@ -129,10 +135,22 @@ function cloneValue<T>(value: T, seen: CloneRegistry): T {
     const descriptor = Object.getOwnPropertyDescriptor(value, key)!;
 
     if ('value' in descriptor) {
-      descriptor.value = cloneValue(descriptor.value, seen);
+      Object.defineProperty(clonedObject, key, {
+        value       : cloneValue(descriptor.value, seen),
+        enumerable  : descriptor.enumerable,
+        writable    : true,
+        configurable: true
+      });
+
+      return;
     }
 
-    Object.defineProperty(clonedObject, key, descriptor);
+    Object.defineProperty(clonedObject, key, {
+      get         : descriptor.get,
+      set         : descriptor.set,
+      enumerable  : descriptor.enumerable,
+      configurable: true
+    });
   });
 
   return clonedObject as T;
@@ -155,7 +173,7 @@ function cloneValue<T>(value: T, seen: CloneRegistry): T {
  * - a class instance is rebuilt **on the same prototype**, so `instanceof` still holds and its
  *   methods are still there — unlike `structuredClone`, which hands back a plain object
  * - property descriptors are preserved, so an accessor stays an accessor and symbols and non
- *   enumerable keys survive
+ *   enumerable keys survive — while the copy is always **writable**, even when the source was frozen
  * - circular and shared references are preserved: an object reachable twice from the root is one
  *   object in the copy as well, and a cycle terminates instead of overflowing the stack
  *

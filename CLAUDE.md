@@ -340,6 +340,22 @@ generate. The old code set `multipart/form-data` explicitly and got away with it
 the header; under `fetch` that produces a request no server can parse. `Client.request` no longer sets
 it and the transport strips it defensively.
 
+**The stores hand out frozen values.** `ClientSubject` clones what enters it and freezes the copy, on the
+initial value as well as on every emission. Cloning protects the caller's object, freezing protects the
+store from its subscribers — a BehaviorSubject keeps the value it emitted, so what a subscriber receives
+*is* what the store holds, and writing to it used to change client state without persisting anything.
+
+That freeze only works because `deepClone` normalizes writability: it copies property descriptors, and a
+frozen source's descriptors carry `writable: false`, so `Storage.transact` — which clones the value and
+hands it to the updater — would otherwise pass an updater a copy that silently refuses assignment. The
+clone is always writable and configurable while enumerability is preserved, because that describes the
+shape. The two changes are one decision and have to move together.
+
+Freezing locks properties, not internal slots: a `Date`, `Map` or `Set` inside the value stays mutable
+through its own methods. Objects and arrays — what storage data is made of — are genuinely protected. The
+cost is 0.2–0.4 µs on a typical state against the 17 µs the `getHash` guard already spends on every
+persist.
+
 `RequestError` is still the shape consumers catch, unchanged. What changed is where it reads from:
 `TransportError`, which carries `kind` (`status` / `abort` / `network` / `parse`), the response when one
 arrived, and the request's method and url — so an abort or a timeout now reports the failing url instead

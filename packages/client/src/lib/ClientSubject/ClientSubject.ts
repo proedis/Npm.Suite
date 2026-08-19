@@ -1,7 +1,7 @@
 import { BehaviorSubject } from 'rxjs';
 import type { Observable, Observer, OperatorFunction, Subscription } from 'rxjs';
 
-import { deepClone } from '@proedis/utils';
+import { deepClone, deepFreeze } from '@proedis/utils';
 
 import Logger from '../Logger/Logger';
 
@@ -50,14 +50,44 @@ export default abstract class ClientSubject<T> {
   // ----
   // Protected methods
   // ----
+  /**
+   * Take ownership of a value on its way into the subject, and hand out something nobody can corrupt.
+   *
+   * Cloning comes first: whatever was passed in — the caller's initial data, the object handed to `set` —
+   * stays theirs and stays mutable. Freezing comes second, and applies to the copy only.
+   *
+   * The freeze is what closes the other half of the problem. A BehaviorSubject *keeps* the value it
+   * emitted, so `value` and what a subscriber received are the same object: without this, a subscriber
+   * writing to `value.userData.name` reached straight into the client's state, bypassing `set` and
+   * `transact` — nothing persisted, nothing emitted, and the next hash comparison found no change to save
+   * because the change was already inside. Now that write throws, which is a bug report instead of a
+   * corruption.
+   *
+   * ⚠️ Freezing locks properties, not the internal state of an exotic object: a `Date`, a `Map` or a `Set`
+   * held inside the value can still be mutated through its own methods. Objects and arrays — which is
+   * what storage data is made of — are genuinely protected.
+   *
+   * @param data The value entering the subject
+   */
+  private _seal(data: T): T {
+    return deepFreeze(deepClone(data));
+  }
+
+
   protected _initializeSubject(data: T) {
     /** Assert the subject is not initialized yet */
     if (this._internalSubject) {
       throw new Error(`${this._subjectName} has already been initialized`);
     }
 
-    /** Initialize the Subject */
-    this._internalSubject = new BehaviorSubject<T>(data);
+    /**
+     * Initialize the Subject.
+     *
+     * The initial value goes through the same treatment as every later one. It used not to, which made it
+     * the one value in the store's life that was both mutable *and* shared with the caller: a client
+     * built with 'initialStorage' handed that very object out until the first write replaced it.
+     */
+    this._internalSubject = new BehaviorSubject<T>(this._seal(data));
   }
 
 
@@ -71,27 +101,15 @@ export default abstract class ClientSubject<T> {
     this._subjectLogger.debug(`Emitting new data for ${this._subjectName}`, data);
 
     /**
-     * Take ownership of the value before it goes in.
-     *
-     * This used to be a shallow spread, which meant every nested object inside the subject was the very
-     * same object the *caller* had handed to `set`. A caller keeping a reference to what it passed — an
-     * options object, a user record it goes on to edit — was writing straight into the client's state
-     * afterwards, without going through `set` or `transact`: nothing was persisted, nothing was emitted,
-     * and the next hash comparison found no change to save because the change was already inside.
-     *
-     * A deep copy also handles a `T` that is not a plain object: spreading an array produced an object.
-     *
-     * ⚠️ **What this does not do** is protect the subject from its own subscribers. A BehaviorSubject
-     * keeps the value it emitted, so `value` and what a subscriber received are the same object: a
-     * subscriber that mutates what it got still reaches the state. Closing that requires either freezing
-     * the value or cloning on every read, and each has a cost of its own — it is a separate decision, not
-     * something this copy quietly covers.
+     * Emit an owned, frozen copy — see {@link _seal}. This used to be a shallow spread, which isolated
+     * nothing: every nested object inside the emitted value was the very same object the caller had
+     * handed to `set`.
      *
      * ⚠️ Nested identities change on every emission. A consumer memoizing on a slice —
      * `useMemo(…, [ storage.userData ])` — recomputes whenever anything in the value changes, not only
      * that slice. Emissions are hash guarded upstream, so they only happen on a real change.
      */
-    this._subject.next(deepClone(data));
+    this._subject.next(this._seal(data));
   }
 
 

@@ -17,7 +17,7 @@ properly.** 🧰
 | Module | Entry point | What lives there |
 | --- | --- | --- |
 | **array** | `@proedis/utils/array` | `sorter` — a chainable, multi-criteria sorter — and `areArraysStrictEqual` |
-| **object** | `@proedis/utils/object` | `getValueAt` / `setValueAt` typed path access, `mergeObjects`, `deepClone`, `isObject`, `isPlainObject`, `AugmentedMap` — zero runtime dependencies beyond `get-value`, `set-value` and `ts-deepmerge` |
+| **object** | `@proedis/utils/object` | `getValueAt` / `setValueAt` typed path access, `mergeObjects`, `deepClone`, `deepFreeze`, `isObject`, `isPlainObject`, `AugmentedMap` — zero runtime dependencies beyond `get-value`, `set-value` and `ts-deepmerge` |
 | **promise** | `@proedis/utils/promise` | `will` — errors as values — and `Deferred` |
 | **guard** | `@proedis/utils/guard` | `Guard`, a fluent way to assert an invariant and throw a specific error |
 | **hash** | `@proedis/utils/hash` | `getHash`, `hasEqualHash` |
@@ -131,7 +131,8 @@ path — both directions. `setValueAt` creates missing intermediate objects alon
 | Function | Notes |
 | --- | --- |
 | `mergeObjects(...objects)` | Recursive merge, left to right. Nested objects are merged key by key; **arrays are replaced**, the rightmost one winning. |
-| `deepClone(value)` | A real deep copy: `Map` / `Set` **contents** included, class instances rebuilt **on their own prototype**, property descriptors preserved, cycles and shared references handled. Functions, promises and weak collections are shared — none of them has a meaningful copy. |
+| `deepClone(value)` | A real deep copy: `Map` / `Set` **contents** included, class instances rebuilt **on their own prototype**, property descriptors preserved, cycles and shared references handled. The copy is always **writable**, even when the source was frozen — a clone exists to be modified. Functions, promises and weak collections are shared, none of them having a meaningful copy. |
+| `deepFreeze(value)` | Freeze a value and everything reachable from it, **in place**. Real protection on objects and arrays — a write, an addition or a `push` all throw. ⚠️ Not on exotic objects: a frozen `Date` still moves under `setTime`, a frozen `Map` still accepts `set`. Pair it with `deepClone` when the source must stay mutable. |
 | `isObject(value)` | Non nil, non array object. A `Date` passes: it *is* an object. |
 | `isPlainObject(value)` | Object literal or null-prototype object only. The one to use before iterating own keys. |
 | `AugmentedMap` | A `Map` with `getOrAdd(key, factory)`, where the factory runs **only** on a miss. |
@@ -218,6 +219,8 @@ Then the renames and signature changes:
 | `areArrayStrictEquals` → `areArraysStrictEqual` | Rename. The old name still works as a `@deprecated` alias, removed in the next major. |
 | `getValueAt` returns `undefined` for an unresolvable path | It used to coerce that case to `null`. Only reachable when the object does not really match its declared type, or an optional property is unset. |
 | `deepClone` is a real deep copy now | Nothing, unless you *relied* on a class instance being shared between source and copy. It used to hand class instances over by reference at any depth, clone a `Map` container without its contents, and overflow the stack on a circular structure. `clone-deep` is gone as a dependency. |
+| `deepClone` normalizes writability | The copy's properties are always writable and configurable, where they used to inherit the source's descriptors. Cloning a frozen object produced a copy that silently refused assignment — which defeats the point of cloning it. Enumerability is still preserved, because that describes the shape. |
+| New: `deepFreeze` | Nothing — purely additive. |
 | `mergeObjects` replaces arrays instead of concatenating them | Check any merge where both sides carry a list. The old behaviour doubled up on anything list shaped — an axios `transformResponse` merged with a default one ran both transforms. |
 | `@proedis/utils/generics` → `@proedis/utils/hash` | Only affects deep imports. `getHash` and `hasEqualHash` moved; `isNil` now lives at the root. |
 | `@proedis/utils/constants` → `@proedis/utils/runtime` | Only affects deep imports. |
