@@ -174,10 +174,6 @@ export default class Storage<Data extends AnyObject> extends ClientSubject<Data>
 
 
   /**
-   * Perform multiple update to data object
-   * @param updateFn
-   */
-  /**
    * Release this storage, completing its subject and unblocking anything waiting on initialization.
    *
    * A pending initialization is rejected rather than abandoned: `isInitialized` is awaited by every write
@@ -204,6 +200,14 @@ export default class Storage<Data extends AnyObject> extends ClientSubject<Data>
   }
 
 
+  /**
+   * Apply several updates to the stored data in a single persist operation.
+   *
+   * The callback receives a deep clone, not the live value: mutating it in place is both allowed and
+   * the point, since the emitted value is frozen and could not be mutated anyway.
+   *
+   * @param updateFn Receives a mutable copy of the current data and returns the data to persist
+   */
   public async transact(updateFn: ((data: Data) => Data)) {
     /** Await the module is initialized */
     await this.isInitialized();
