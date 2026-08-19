@@ -1,7 +1,7 @@
 import * as React from 'react';
 import clsx from 'clsx';
 
-import kind_of from 'kind-of';
+import kindOf from 'kind-of';
 
 import type { AnyObject } from '@proedis/types';
 import { isNil } from '@proedis/utils';
@@ -130,8 +130,8 @@ function createComponentShorthand<Props extends PartialComponentProps, V extends
   const valueIsString = typeof value === 'string';
   const valueIsNumber = typeof value === 'number' && !Number.isNaN(value);
   const valueIsReactElement = React.isValidElement(value);
-  const valueIsPropObject = kind_of(value) === 'object';
-  const valueIsPrimitiveValue = valueIsString || valueIsNumber || kind_of(value) === 'array';
+  const valueIsPropObject = kindOf(value) === 'object';
+  const valueIsPrimitiveValue = valueIsString || valueIsNumber || kindOf(value) === 'array';
 
   /** Check the validity of provided value, logging the error only in production */
   if (!valueIsReactElement && !valueIsPrimitiveValue && !valueIsPropObject) {
@@ -140,7 +140,7 @@ function createComponentShorthand<Props extends PartialComponentProps, V extends
         [
           'Shorthand value must be a string|number|array|object|ReactElement|function.',
           'Use null|undefined|boolean for none.',
-          `Received ${kind_of(value)}`
+          `Received ${kindOf(value)}`
         ].join(' ')
       );
     }
@@ -280,8 +280,11 @@ export function creatableComponent<Props extends {}, V extends UseShorthandValue
 ): CreatableComponent<Props, V> {
 
   /** Attach create method to the provided Component function */
-  (Component as CreatableComponent<Props, V>).create =
-    createShorthandFactory<Props, V>(Component, mapValueToProps, computeComponentKey);
+  (Component as CreatableComponent<Props, V>).create = createShorthandFactory<Props, V>(
+    Component,
+    mapValueToProps,
+    computeComponentKey
+  );
 
   /** Return the Component */
   return Component as CreatableComponent<Props, V>;

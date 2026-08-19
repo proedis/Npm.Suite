@@ -51,7 +51,7 @@ export function useDataSelector<T>(
   // ----
   // Internal State
   // ----
-  const [ selected, setSelectedBase ] = React.useState<T | undefined>(options?.defaultSelected);
+  const [ requestedSelection, setRequestedSelection ] = React.useState<T | undefined>(options?.defaultSelected);
 
 
   // ----
@@ -88,16 +88,9 @@ export function useDataSelector<T>(
 
   const setSelected = React.useCallback(
     (item: T | undefined) => {
-      const sourceItem = getSourceItem(item);
-
-      setSelectedBase(sourceItem);
-
-      const { current: currentUserDefinedOnSelectChange } = userDefinedOnSelectChange;
-      if (typeof currentUserDefinedOnSelectChange === 'function') {
-        currentUserDefinedOnSelectChange(sourceItem);
-      }
+      setRequestedSelection(item);
     },
-    [ getSourceItem, userDefinedOnSelectChange ]
+    []
   );
 
   const clearSelected = React.useCallback(
@@ -114,21 +107,47 @@ export function useDataSelector<T>(
   // ----
   // Selected Assertion
   // ----
+  /**
+   * Resolve the requested selection against the data as it is *now*, while rendering.
+   *
+   * 'getSourceItem' already answers every case the reconciliation has to cover: it returns the matching
+   * source item, or 'undefined' when the requested one is not in the data any more — and 'undefined' in,
+   * 'undefined' out. So the whole thing is one derivation.
+   *
+   * It used to be an effect that called setState, which meant every data change that invalidated the
+   * selection rendered twice: once with the stale selection, once with the corrected one. Deriving it
+   * here means a render never shows a selection the data does not back.
+   */
+  const selected = getSourceItem(requestedSelection);
+
+
+  // ----
+  // Selection Change Notification
+  // ----
+  /**
+   * Notify the consumer once per actual change, from a single place.
+   *
+   * The callback used to fire synchronously inside the setter, which left the data-driven invalidation
+   * above unreported — the selection could be cleared by a data change without anybody being told.
+   * Watching the resolved value covers both paths, and fires after the commit that made the change
+   * real.
+   */
+  const lastNotifiedSelection = React.useRef(selected);
+
   React.useEffect(
     () => {
-      /** Get source item from data */
-      const sourceItem = getSourceItem(selected);
-
-      /** If selected exists, but source item not, remove selection */
-      if (selected && !sourceItem) {
-        setSelected(undefined);
+      if (lastNotifiedSelection.current === selected) {
+        return;
       }
-      /** If both items exist, but are different, replace selection */
-      else if (!!selected && !!sourceItem && selected !== sourceItem) {
-        setSelected(sourceItem);
+
+      lastNotifiedSelection.current = selected;
+
+      const { current: currentUserDefinedOnSelectChange } = userDefinedOnSelectChange;
+      if (typeof currentUserDefinedOnSelectChange === 'function') {
+        currentUserDefinedOnSelectChange(selected);
       }
     },
-    [ getSourceItem, setSelected, selected ]
+    [ selected, userDefinedOnSelectChange ]
   );
 
 
