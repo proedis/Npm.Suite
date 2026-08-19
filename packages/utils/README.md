@@ -222,6 +222,7 @@ Then the renames and signature changes:
 | `deepClone` normalizes writability | The copy's properties are always writable and configurable, where they used to inherit the source's descriptors. Cloning a frozen object produced a copy that silently refused assignment — which defeats the point of cloning it. Enumerability is still preserved, because that describes the shape. |
 | New: `deepFreeze` | Nothing — purely additive. |
 | `mergeObjects` replaces arrays instead of concatenating them | Check any merge where both sides carry a list. The old behaviour doubled up on anything list shaped — an axios `transformResponse` merged with a default one ran both transforms. |
+| `toKebabCase('')` returns `''` | Nothing, unless you tested the result for `undefined`. An empty input used to fall through the match and return `undefined` rather than a string, so the declared `string` return was a lie for exactly one input. |
 | `@proedis/utils/generics` → `@proedis/utils/hash` | Only affects deep imports. `getHash` and `hasEqualHash` moved; `isNil` now lives at the root. |
 | `@proedis/utils/constants` → `@proedis/utils/runtime` | Only affects deep imports. |
 | New: subpath entry points, `isPlainObject`, exported `ISortable` / `SortOptions` / `GuardAndThrow` / `WillResult` | Nothing — purely additive. |
