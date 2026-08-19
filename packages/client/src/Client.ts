@@ -6,7 +6,9 @@ import { Observable } from 'rxjs';
 
 import type { AnyObject } from '@proedis/types';
 
-import { Deferred, hasEqualHash, isNil, isObject, isValidString, mergeObjects, will, isBrowser } from '@proedis/utils';
+import { Deferred, hasEqualHash, isNil, isObject, isValidString, mergeObjects, will } from '@proedis/utils';
+import type { WillResult } from '@proedis/utils';
+
 import type { GenericAbortSignal, TransportRequestConfig } from './lib/Transport/Transport.types';
 import Transport from './lib/Transport/Transport';
 
@@ -70,9 +72,17 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
    * @param sliceSize Slice size used to aggregate bytes
    */
   public static blobFromBase64(base64Data: string, contentType: string | null, sliceSize: number = 512): Blob {
-    /** Check code is running on browser */
-    if (!isBrowser) {
-      throw new Error('Client.blobFromBase64 method could be used only on Browser');
+    /**
+     * Assert the runtime can decode base64 at all.
+     *
+     * This used to be gated on 'isBrowser' and reached for 'window.atob', which made the whole base64
+     * upload path browser only for no reason other than the property lookup: 'atob' is a global in every
+     * browser, in Node 16 and up, and in React Native from 0.74. Probing for the function instead of for
+     * the platform is both more honest and more portable — and where it genuinely is missing, the message
+     * now says what is missing rather than where you are.
+     */
+    if (typeof atob !== 'function') {
+      throw new Error('Client.blobFromBase64 requires a global \'atob\' function, missing in this runtime');
     }
 
     /**
@@ -103,7 +113,7 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
     })();
 
     /** Create the blob from content */
-    const binaryString = window.atob(content);
+    const binaryString = atob(content);
 
     /** Create the blob using right ContentType */
     const byteArrays = [];
@@ -823,14 +833,24 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
   public async safeRequest<Response>(
     config: ClientRequest<UserData, StoredData, Tokens, Response>,
     abortSignal?: GenericAbortSignal
-  ): Promise<[ RequestError | null, Response ]> {
-    const [ error, response ] = await will(this.request<Response>(config, abortSignal));
-
-    if (error) {
-      return [ RequestError.fromError(error), null as Response ];
+  ): Promise<WillResult<Response, RequestError>> {
+    /**
+     * The result is a discriminated tuple, so checking the error narrows the response.
+     *
+     * It used to be typed '[ RequestError | null, Response ]' and return 'null as Response' on failure —
+     * a response that was declared present and was not. Callers who read it without checking the error
+     * first were holding a null the compiler swore was a value.
+     */
+    try {
+      return [ null, await this.request<Response>(config, abortSignal) ];
     }
-
-    return [ error, response ];
+    catch (error) {
+      /**
+       * Normalized rather than passed through: 'request' throws a RequestError from its own catch, but the
+       * initialization guard above it throws a plain Error, which would otherwise escape untranslated.
+       */
+      return [ RequestError.fromError(error), null ];
+    }
   }
 
 

@@ -181,8 +181,14 @@ module — CSS in a browser, ANSI on a TTY, `NO_COLOR` respected.
 /** Throws a RequestError on failure */
 const project = await client.request<Project>({ url: '/projects/7' });
 
-/** Returns [ error, response ] instead of throwing */
+/** Returns a discriminated tuple instead of throwing: checking one side narrows the other */
 const [ error, project ] = await client.safeRequest<Project>({ url: '/projects/7' });
+
+if (error) {
+  return;
+}
+
+project.name;   // 👈 narrowed to Project here, no assertion needed
 
 /** An Observable, aborting the request when unsubscribed */
 const subscription = client.request$<Project>({ url: '/projects/7' }).subscribe(onNext);
@@ -279,10 +285,11 @@ one of them fails on a platform you did not test:
 | Shape | Works on | Why |
 | --- | --- | --- |
 | a `Blob` (or a `File`) | **everywhere** | what `FormData` takes natively |
-| `{ base64, type, name }` | **browser only** | decoded through `window.atob`, and the client throws elsewhere |
-| `{ uri, type, name }` | **React Native only** | React Native's `FormData` accepts a descriptor object; a spec compliant one throws |
+| `{ base64, type, name }` | **everywhere** with a global `atob`: every browser, Node 16+, React Native 0.74+ | decoded into a `Blob` before being appended |
+| `{ uri, type, name }` | **React Native only** | React Native's `FormData` accepts a descriptor object, where a spec compliant one throws |
 
-A `Blob` is therefore the shape to reach for in code that has to run in more than one place.
+So the only genuinely platform bound shape is the uri descriptor, which is React Native's own extension.
+A `Blob` or a base64 descriptor travels anywhere.
 
 ⚠️ Never set `Content-Type` yourself on a multipart request. A multipart body carries a boundary only
 the platform can generate, so the header has to be left for it to fill in — the client removes it if
@@ -349,7 +356,7 @@ same operation. Five parallel requests needing the same expired token produce **
 | Member | |
 | --- | --- |
 | `request<R>(config, signal?)` | performs the request, throws `RequestError` |
-| `safeRequest<R>(config, signal?)` | returns `[ error, response ]` |
+| `safeRequest<R>(config, signal?)` | returns a discriminated `[ error, response ]` tuple: exactly one side is ever filled, so checking either narrows the other |
 | `request$<R>(config)` | an `Observable`, aborting the request on unsubscribe |
 | `compileRequest<R>(config)` | resolve a request function and merge the defaults, without sending |
 | `createUrl(config)` | the full url a request would be sent to |
@@ -419,7 +426,7 @@ useEffect(() => {
 | `Client.sanitizeUrl(url)` | strip leading and trailing slashes, and encode |
 | `Client.areDataEquals(a, b)` | the hash comparison the stores use to decide whether to emit |
 | `Client.toFormData(object, formData?, parentKey?)` | flatten an object into a `FormData` |
-| `Client.blobFromBase64(base64, contentType, sliceSize?)` | a `Blob` from base64, accepting a data uri. ⚠️ **Browser only** — it goes through `window.atob` and throws elsewhere |
+| `Client.blobFromBase64(base64, contentType, sliceSize?)` | a `Blob` from base64, accepting a data uri and deducing the content type from it |
 
 ### 💾 Storage providers
 
@@ -510,6 +517,8 @@ And the bug fixes, three of which changed behaviour you may have worked around:
 | `Logger.configure` did nothing after the first logger existed | Each logger snapshotted the defaults in its constructor, so configuring from a second client's settings was ignored. |
 | No way to release a client | There is `dispose()` now. A client replaced by a hot reload or a tenant switch used to leave its subjects alive together with every subscriber. |
 | A caller could corrupt client state by accident | The store shared nested objects with whatever was passed to `set`, so mutating your own object afterwards wrote into client state, bypassing `set` and `transact` — nothing persisted, nothing emitted. |
+| `safeRequest` declared a response that was not there | It was typed `[ RequestError \| null, Response ]` and returned `null as Response` on failure, so a caller reading the response without checking the error held a null the compiler swore was a value. It is a discriminated tuple now. |
+| `Client.blobFromBase64` was browser only | It reached for `window.atob` behind an `isBrowser` guard, which made the whole base64 upload path browser only for no reason beyond the property lookup. It probes for a global `atob` instead, so base64 files work in Node and React Native too. |
 
 ## 🤝 Compatibility
 
