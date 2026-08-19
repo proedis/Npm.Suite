@@ -1,9 +1,7 @@
 import { AugmentedMap, isValidString, sorter } from '@proedis/utils';
-
+<% if (hasZod) { %>
 import { z } from 'zod';
-
-import type { ComboboxItem } from '@mantine/core';
-
+<% } %>
 import * as sharedObjectsCollection from './enums';
 
 import type { SharedObject, SharedObjectName } from '../interfaces/shared-objects';
@@ -175,9 +173,21 @@ function getSharedObjectLabel<%- '<T extends SharedObjectName>' %>(
 }
 
 
+<% if (hasZod) { %>
 /* --------
  * Zod Enum Builder
  * -------- */
+
+/**
+ * The shape a select expects from an option. Declared structurally on purpose: it is what
+ * '@mantine/core' ComboboxItem and every other kit's equivalent accept, without this file
+ * having to know which kit the application uses.
+ */
+type SharedObjectOption = {
+  label: string;
+  value: string;
+};
+
 type ZodSharedObject<%- '<T extends SharedObjectName>' %> =
   & z.ZodEnum<[ ComposedSharedObjects[T], ...ComposedSharedObjects[T][] ]>
   & { data: SharedObject<%- '<ComposedSharedObjects[T]>' %>[] };
@@ -220,7 +230,7 @@ function zodSharedObject<%- '<T extends SharedObjectName>' %>(
   );
 
   Object.defineProperty(zodEnum, 'data', {
-    get(): ComboboxItem[] {
+    get(): SharedObjectOption[] {
       return sharedObject.map(({ label, value }) => (
         { label, value }
       ));
@@ -228,9 +238,9 @@ function zodSharedObject<%- '<T extends SharedObjectName>' %>(
   });
   return zodEnum as ZodSharedObject<%- '<T>' %>;
 }
-
+<% } %>
 
 /* --------
  * Library Export
  * -------- */
-export { getSharedObjects, zodSharedObject, getSharedObject, getSharedObjectLabel };
+export { getSharedObjects, <% if (hasZod) { %>zodSharedObject, <% } %>getSharedObject, getSharedObjectLabel };

@@ -1,5 +1,6 @@
 import console from 'node:console';
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { relative, resolve, sep as pathSeparator } from 'node:path';
 import { cwd } from 'node:process';
 
@@ -8,9 +9,6 @@ import * as inquirer from 'inquirer';
 import * as yaml from 'yaml';
 
 import type { PackageJson } from 'type-fest';
-
-import type { AbstractPackageManager, DependencyType } from './package-managers';
-import { PackageManagerFactory } from './package-managers';
 
 
 /* --------
@@ -75,6 +73,35 @@ export class Project {
   }
 
 
+  /**
+   * Every package.json between the current working directory and the filesystem root, nearest
+   * first.
+   *
+   * `getFirstPathFor` stops at the first hit, which is the right answer for "which project am I
+   * in" and the wrong one for "is this package available here": inside a monorepo the manifest
+   * that declares a dependency is often not the closest one.
+   *
+   * @private
+   */
+  private static getManifestPaths(): string[] {
+    const cwdPathParts = cwd().split(pathSeparator);
+    const manifestPaths: string[] = [];
+
+    /** Walk backward from the current path to the root, collecting every manifest on the way */
+    while (cwdPathParts.length > 1) {
+      const manifestPath = resolve(cwdPathParts.join(pathSeparator), 'package.json');
+
+      if (existsSync(manifestPath) && statSync(manifestPath).isFile()) {
+        manifestPaths.push(manifestPath);
+      }
+
+      cwdPathParts.pop();
+    }
+
+    return manifestPaths;
+  }
+
+
   // ----
   // Folders and Directories
   // ----
@@ -113,13 +140,15 @@ export class Project {
   // ----
   // Utilities
   // ----
-  public couldResolveFile(name: string): boolean {
-    return Project.getFirstPathFor(name, 'file') !== null;
-  }
 
-
-  public hasRootFile(name: string): boolean {
-    return existsSync(resolve(this.rootDirectory, name));
+  /**
+   * Find a file by name, walking backward from the current directory to the filesystem root.
+   *
+   * @param name The file name to look for
+   * @return Its absolute path, or null when no directory on the way up holds it
+   */
+  public findFile(name: string): string | null {
+    return Project.getFirstPathFor(name, 'file');
   }
 
 
@@ -151,49 +180,50 @@ export class Project {
   }
 
 
-  // ----
-  // Package Manager Reference
-  // ----
-
-  private _manager: AbstractPackageManager | undefined;
-
-
-  public async manager(): Promise<AbstractPackageManager> {
-    /** If manager has already been loaded, return it */
-    if (this._manager) {
-      return this._manager;
-    }
-
-    /** Else, find the corrected manager and return it */
-    this._manager = await PackageManagerFactory.find(this.packageJson);
-
-    return this._manager;
-  }
-
-
-  // ----
-  // Dependency Installation
-  // ----
-
   /**
-   * Starting from a base dependency, resolve all peerDependency and try to install them
-   * @param dependency
-   * @param type
+   * Check whether a package is available to the code this project compiles.
+   *
+   * Used to decide what a generated file may reference: a template that imports a package the
+   * project cannot resolve produces code that does not compile, and the scaffolders have no
+   * business installing anything on the user's behalf.
+   *
+   * **This is deliberately not a lookup in the nearest package.json.** Inside a monorepo a
+   * workspace routinely uses a package hoisted from the root manifest without declaring it
+   * itself — real case: `zod` is declared by the root of Yard4.Web and used from
+   * `packages/yard-models`, which never mentions it. Reading only the closest manifest answers
+   * `false` there and silently drops a helper the project has been using all along.
+   *
+   * Resolution comes first because it is the question that actually matters, the same reason
+   * `TemplateCompiler` resolves ESLint through `createRequire` rather than probing a manifest.
+   * The manifest walk is the fallback for the two cases resolution cannot answer: dependencies
+   * declared but not installed yet, and linkers whose resolution a plain `createRequire` does
+   * not see.
+   *
+   * @param name The package name to look for
    */
-  public async addDependencyChain(dependency: string, type: DependencyType): Promise<boolean> {
-    /** Get the package manager to use */
-    const manager = await this.manager();
-
-    /** Resolve all dependencies */
-    const dependencies = await manager.resolveDependencyTree({ name: dependency });
-
-    /** If no dependencies have to be installed, skip */
-    if (!dependencies.length) {
+  public canResolveDependency(name: string): boolean {
+    /** Ask the project itself whether the package resolves from its root */
+    try {
+      createRequire(resolve(this.rootDirectory, 'package.json')).resolve(name);
       return true;
     }
+    catch {
+      /** Not resolvable from here: fall back to what the manifests declare */
+    }
 
-    /** Install all required dependency */
-    return manager.add(dependencies, type);
+    /** Any manifest between the current directory and the filesystem root counts */
+    return Project.getManifestPaths().some((manifestPath) => {
+      try {
+        const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8')) as PackageJson;
+        const pool = { ...manifest.dependencies, ...manifest.devDependencies };
+
+        return typeof pool[name] === 'string';
+      }
+      catch {
+        /** An unreadable or malformed manifest simply does not declare anything */
+        return false;
+      }
+    });
   }
 
 
@@ -201,49 +231,83 @@ export class Project {
   // Prompts
   // ----
 
-  public async getPromptWithCachedDefaults<T extends inquirer.Answers>(
-    promptName: string,
-    questions: Array<inquirer.DistinctQuestion<T>>
-  ): Promise<T> {
-    /** Try to load the initial cached settings */
-    const cachedSettingsPath = resolve(this.rootDirectory, '.proedis.yml');
-    let cachedSettings: Record<string, any> = {};
+  /** The file holding the answers remembered between runs */
+  private get _settingsPath(): string {
+    return resolve(this.rootDirectory, '.proedis.yml');
+  }
 
+
+  /** Read the remembered answers, tolerating a missing or malformed file */
+  private readSettings(): Record<string, any> {
     try {
-      const cachedSettingsFileContent = existsSync(cachedSettingsPath)
-        ? readFileSync(cachedSettingsPath, 'utf-8')
+      const content = existsSync(this._settingsPath)
+        ? readFileSync(this._settingsPath, 'utf-8')
         : null;
 
-      if (cachedSettingsFileContent) {
-        cachedSettings = yaml.parse(cachedSettingsFileContent);
-      }
+      return content ? yaml.parse(content) ?? {} : {};
     }
     catch {
-      // Ignored
+      /** A settings file nobody can parse is the same as no settings file */
+      return {};
     }
+  }
 
+
+  /**
+   * Ask a set of questions, defaulting each one to the answer remembered from the last run.
+   *
+   * Answers are **not** written back here: persisting them is `persistPromptAnswers`, which the
+   * caller invokes once the configuration has proven to work. Writing on the way in remembered
+   * a host that had just failed, and offered it again as the default on the next run.
+   *
+   * @param promptName The key the answers are remembered under
+   * @param questions The questions to ask
+   * @param presets Answers already known, which skip their question entirely
+   */
+  public async getPromptWithCachedDefaults<T extends inquirer.Answers>(
+    promptName: string,
+    questions: Array<inquirer.DistinctQuestion<T>>,
+    presets?: Partial<T>
+  ): Promise<T> {
     /** Extract the defaults from settings */
-    const _defaults = cachedSettings[promptName] || {};
+    const cachedAnswers = this.readSettings()[promptName] || {};
+
+    /** Anything already provided is not worth asking about */
+    const pendingQuestions = questions.filter((question) => (
+      presets?.[question.name as keyof T] === undefined
+    ));
+
+    /** Every answer known upfront: there is nothing to prompt */
+    if (!pendingQuestions.length) {
+      return { ...presets } as T;
+    }
 
     /** Create the inquirer prompt */
     const prompt = inquirer.createPromptModule();
 
     /** Get the answers */
     const answers = await prompt<T>(
-      questions.map((q) => ({
+      pendingQuestions.map((q) => ({
         ...q,
-        default: _defaults[q.name] || q.default
+        default: cachedAnswers[q.name] || q.default
       }))
     );
 
-    /** Update the cached settings file */
-    cachedSettings[promptName] = answers;
+    return { ...presets, ...answers } as T;
+  }
 
-    /** Save the file to be reused */
-    writeFileSync(cachedSettingsPath, yaml.stringify(cachedSettings), 'utf-8');
 
-    /** Return user answers */
-    return answers;
+  /**
+   * Remember a set of answers for the next run.
+   *
+   * @param promptName The key the answers are remembered under
+   * @param answers The answers to persist
+   */
+  public persistPromptAnswers(promptName: string, answers: Record<string, any>): void {
+    const settings = this.readSettings();
+    settings[promptName] = answers;
+
+    writeFileSync(this._settingsPath, yaml.stringify(settings), 'utf-8');
   }
 
 }

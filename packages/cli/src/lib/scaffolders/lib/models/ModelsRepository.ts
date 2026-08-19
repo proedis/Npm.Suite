@@ -3,7 +3,8 @@ import { relative, resolve } from 'node:path';
 import type { Components } from '../../types/openapi';
 
 import type { AbstractedModel } from './AbstractedModel';
-import type { TemplateCompiler } from '../../../template.compiler';
+import { TemplateCompiler } from '../../../template.compiler';
+import type { PlannedFile } from '../../../write-plan';
 
 import { EnumModel } from './EnumModel';
 import { ObjectModel } from './ObjectModel';
@@ -23,10 +24,9 @@ export class ModelsRepository {
   /**
    * Create the Model Repository using components
    * @param components
-   * @param compiler
    * @param root
    */
-  constructor(components: Components, private readonly compiler: TemplateCompiler, private readonly root: string) {
+  constructor(components: Components, private readonly root: string) {
     Object.entries(components.schemas)
       .forEach(([ name, schema ]) => {
         /** If the schema is an enum, create the enum model */
@@ -59,10 +59,17 @@ export class ModelsRepository {
   }
 
 
-  write(): string[] {
+  /**
+   * Render every model.
+   *
+   * Rendering is where this can fail — an unresolvable reference, a property type nothing maps —
+   * so it happens before anything is written: the whole set is produced first, and only a
+   * complete one ever reaches the disk.
+   */
+  build(): PlannedFile[] {
     return this.models
-      .map((model) => this.compiler.writeFile(model.filePath, model.render()))
-      .filter(Boolean) as string[];
+      .map((model) => TemplateCompiler.toPlannedFile(model.filePath, model.render()))
+      .filter((file): file is PlannedFile => file !== null);
   }
 
 }

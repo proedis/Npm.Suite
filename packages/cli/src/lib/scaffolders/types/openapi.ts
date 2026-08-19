@@ -19,14 +19,18 @@ export type RouteParameterSchema = {
   in: 'path' | 'query';
   description?: string;
   required: boolean;
-  schema:
-    | BooleanPropertyType
-    | StringPropertyType
-    | DateTimePropertyType
-    | TimeSpanPropertyType
-    | GuidPropertyType
-    | NumberPropertyType
+  schema: RouteParameterType;
 };
+
+/** A repeated query parameter arrives as an array of one of the scalar types */
+export type RouteParameterType =
+  | BooleanPropertyType
+  | StringPropertyType
+  | DateTimePropertyType
+  | TimeSpanPropertyType
+  | GuidPropertyType
+  | NumberPropertyType
+  | (ArrayPropertyType & { items: RouteParameterType });
 
 export type Components = {
   schemas: Record<string, ObjectSchema | EnumSchema>

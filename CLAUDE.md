@@ -50,9 +50,8 @@ Linting runs on **ESLint 9 with a flat config**: the root `eslint.config.mjs` co
 `.eslintrc.js` and no `.eslintignore` any more — ignores live in the config, and `--ext` was removed
 from ESLint 9 (which is why `release:lint` is a bare `eslint .`).
 
-`packages/cli` declares a `dev` script (`ts-node src/index.ts`), but **ts-node is not installed** in
-the workspace, so it fails as written. Build the package and run `build/cjs/index.js` instead, or add
-ts-node deliberately.
+`packages/cli` has no `dev` script: it used to declare one running `ts-node`, which is not installed
+in the workspace, so it failed as written. Build the package and run `build/cjs/index.js`.
 
 `producePackageFiles` creates the build directory itself. Rollup only creates output directories
 during the write phase, after `buildEnd`, so a package without a `tsconfig.declaration.json` (the
@@ -224,9 +223,11 @@ and it understands both metadata forms). Consequence: **anything only in `devDep
 bundled into the output.**
 
 A package must declare the `@types/*` of everything it imports, even when the type package happens
-to be hoisted at the root. `packages/cli` imported `semver` while relying on `@types/semver` arriving
-transitively through the root's `@typescript-eslint` 6; removing those devDependencies during the
-ESLint 9 migration broke the CLI build with `TS7016`. The hoist was never a declaration.
+to be hoisted at the root. `packages/cli` used to import `semver` while relying on `@types/semver`
+arriving transitively through the root's `@typescript-eslint` 6; removing those devDependencies
+during the ESLint 9 migration broke the CLI build with `TS7016`. The hoist was never a declaration.
+(That import is gone — `semver` left with the package-manager layer — but the rule it taught holds
+for every package here.)
 
 A `devDependency` is *not* enough for a type-only import, because **the emitted `.d.ts` keeps
 the import while `createPackageJson` strips `devDependencies`**. A consumer then resolves a
@@ -268,6 +269,16 @@ using that project's own rules: `import type * as ESLintModule from 'eslint'` fo
 `createRequire(<project>/package.json)('eslint')` at runtime. Importing it for real would use
 this package's copy and force every CLI installation to carry ESLint (93 modules, 14 MB).
 
+**The pass runs from the directory holding the ESLint configuration, and that is load-bearing.**
+A relative `parserOptions.project` is resolved by `@typescript-eslint/parser` against the
+*process* working directory — not against the `cwd` handed to `new ESLint()`, and not against the
+configuration's own location. Every project this scaffolder actually runs in is a monorepo whose
+ESLint setup lives at the root, while the command is invoked from a workspace, so the parser
+looked for `<workspace>/tsconfig.eslint.json`, failed to read it, and returned a fatal parsing
+error on every generated file: the fix silently did nothing, in both real consumer projects. It is
+fixed with a `chdir` to the configuration's directory, restored in a `finally`. Measured before and
+after: `fatal: 1` from the workspace, `fatal: 0` from the root, same file and same config.
+
 Two behaviours there are verified against real ESLint installs and easy to break:
 
 - `useEslintrc` was **removed in ESLint 9**, where passing it throws `Invalid Options`. The
@@ -278,6 +289,20 @@ Two behaviours there are verified against real ESLint installs and easy to break
   as ESLint worded them. There is deliberately no precondition on `tsconfig.eslint.json`
   anymore; that filename belongs to a project's eslintrc, not to this CLI, and a flat config
   project has no reason to own it.
+
+There is no longer a probe asserting `eslint-config-proedis` is installed, nor one asserting a
+configuration file exists among a handful of hardcoded names. Both could only produce false
+negatives: the first resolved from *this package's* location rather than the project's, so it
+answered a question about the CLI installation instead — and it demanded one specific shared config
+where any working ESLint setup will do; the second declared a correctly configured project
+unconfigured whenever it used a name outside the list (`.eslintrc.json`, `.eslintrc.yml`,
+`eslint.config.ts`, `eslintConfig` in the manifest). The list of names survives for one purpose
+only, picking the directory to run from, and when it matches nothing the pass still runs.
+
+The whole thing reports a `LintOutcome` rather than succeeding unconditionally. It used to mark its
+spinner as succeeded and then print the reason it had failed underneath, which reads as a fix that
+was applied; a project whose ESLint cannot run still does not fail the scaffold, since the files
+are written and correct, only unformatted.
 
 ### The shared ESLint config lints this repository
 
@@ -440,7 +465,7 @@ Dependency direction is strictly one-way; `utils` and `types` are the leaves.
 | `@proedis/react` | Framework-agnostic React hooks/utils (`contextBuilder`, `useAutoControlledState`, shorthands). |
 | `@proedis/react-client` | React bindings for `@proedis/client` + `@tanstack/react-query` integration. |
 | `@proedis/react-native-client` | `AsyncStorage`-backed storage provider for `@proedis/client`. |
-| `@proedis/cli` | `proedis` binary: `init`, `scaffold`, `generate`. Published **bin-only**: `noMain`, `buildFormats: ['cjs']`, no declaration build — shipping types would force `@proedis/types`, `type-fest` and `@types/inquirer` into runtime deps for an API nobody imports. ESLint is resolved from the *target* project at runtime, never bundled. |
+| `@proedis/cli` | `proedis` binary: `scaffold enums` and `scaffold models`, both fed by an Orbit-style API. `init` and `generate` were removed unpublished. Published **bin-only**: `noMain`, `buildFormats: ['cjs']`, no declaration build — shipping types would force `@proedis/types`, `type-fest` and `@types/inquirer` into runtime deps for an API nobody imports. It is the only package declaring `engines` (Node `>=22.13.0`), which `createPackageJson` passes through untouched: a CLI that fails at runtime on an old Node should refuse to install instead, while the libraries must not inherit a floor that has nothing to do with them. ESLint is resolved from the *target* project at runtime, never bundled. |
 
 ## Architecture
 
@@ -499,16 +524,110 @@ when a transformer is declared on the request config.
 
 ### `@proedis/cli`
 
-Three parallel abstraction layers, each with an `AbstractedX` base and a factory:
-`commands/` (commander wiring, argument validation) → `actions/` (orchestration) → `lib/`
-(`Project` for cwd-walking project discovery, `package-managers/` and `runners/` for
-npm/yarn/pnpm parity, `scaffolders/` for code generation). Templates are `.ejs` files under
-`src/actions/templates/`, some with interpolated filenames (`<%=name%>.tsx.template.ejs`), copied
-into `build/{esm,cjs}` by a `postbuild` step — a new template directory needs no code change but
-**does** need the postbuild glob to still match.
+**`scaffold` is the only command.** `init` and `generate` were removed before the package was ever
+published: a usage sweep across the other repositories found no trace of either — no `.eslintrc.js`
+generated by `init eslint` beyond one legacy file, no component tree in the shape `generate` writes
+— while `scaffold` had left a `.proedis.yml` in two projects. `init` was also the only consumer of
+the `package-managers/` and `runners/` layers, which went with it, along with `latest-version`,
+`package-json` and `semver`.
+
+Two layers remain, each with an `AbstractedX` base: `commands/` (commander wiring, argument
+validation) → `actions/` (orchestration) → `lib/` (`Project` for cwd-walking project discovery,
+`scaffolders/` for code generation, `TemplateCompiler`). Templates are `.ejs` files under
+`src/actions/templates/scaffold/`, copied into `build/cjs` by a step chained inside `build` — a new
+template directory needs no code change but **does** need that glob to still match.
 
 `scaffold models` downloads an OpenAPI document over HTTP and materialises `class-transformer`
-models from it (`lib/scaffolders/lib/models/`, one `*Property` class per OpenAPI primitive).
+models from it (`lib/scaffolders/lib/models/`, one `*Property` class per OpenAPI primitive). The
+download goes through the platform's own `fetch` — `node-fetch` was a leftover from a Node without
+one, and the engines floor is 22.
+
+Three mappings are easy to get wrong and are verified against the compiled binary: `format:
+date-span` produces `@AsTimeSpan() TimeSpan` (it used to produce a bare `string`, so every duration
+reached the application as text and the mapper the modeler exists for was never applied); an array
+query parameter produces `T[]` (the switch used to fall through and interpolate the literal text
+`undefined` into the generated file); and a schema whose `allOf` carries more than one `$ref` now
+raises, because TypeScript has single inheritance and the refs used to be joined with a comma into
+a file that does not compile. All three failures happen during the render phase, so nothing is
+written.
+
+**Everything is rendered before anything is written.** `WritePlan` collects the whole intended
+output — the directories to empty and every file with its content — and `commit()` is the only
+place that touches the disk. This is not tidiness: generation used to write as it rendered, so a
+failure halfway through left the output directories already emptied and partially repopulated.
+That failure is not hypothetical — an OpenAPI document referencing a schema the API does not mark
+as a DTO raises `Could not resolve dependency` from `ModelsRepository`, and `PropertyFactory`
+throws on any type it cannot map. Reproduced on a project with four generated files: before, it
+ended with two files and no barrel; now the run exits 1 with the four original files byte
+identical. Every realistic failure lives in the render phase, so moving the commit past it closes
+the whole class; what remains after `commit()` starts is real I/O failure only.
+
+`TemplateCompiler` is therefore a renderer, not a writer: `plan` / `planAll` return `PlannedFile`
+objects and nothing else writes. The models barrel is built from the planned paths rather than
+from a glob over the output directory — there is nothing on disk to glob at that point, and the
+directory would have described the previous run anyway.
+
+Holding the content also means the previous file can be compared before being replaced, which is
+where the `unchanged` count in the summary comes from: a run that rewrote twelve identical files
+used to report twelve updates. ⚠️ With ESLint active the count reads lower than expected, and
+correctly so — the fix reformats the files *after* they are written, so the next run's freshly
+rendered output genuinely differs from what is on disk.
+
+**A failure has to be visible.** `spinnerFeedbackFunction` used to be written as
+`new Promise(async (resolve) => …)`, whose executor rejection the Promise constructor discards: the
+returned promise never settled, and every failing path of both scaffolders surfaced as an unhandled
+rejection with an internal stack trace instead of the message that had been prepared for it. The
+same shape appeared in `saveAll`, where a template that failed to compile hung `Promise.all`
+forever. On top of that the entry point printed the error and returned, leaving the exit code at
+**0**, so a scaffold that downloaded nothing looked like a success to CI. Errors already worded by
+a spinner are thrown as `ReportedError` so the entry point sets the exit code without saying it
+twice; `PROEDIS_DEBUG` brings the stack back.
+
+`scaffold enums` wipes and rewrites its output directories on every run without asking. That is
+deliberate: those files are a clone of a truth that lives in the API, so anything the server no
+longer returns has to disappear. The directories are announced before being emptied, and the
+downloaded document is **validated before anything is erased** — a server answering with the wrong
+shape used to wipe the output first and fail afterwards. The two files a human is expected to
+edit — `shared-objects.colors` and `shared-objects.icons` — are the exception, marked `noOverride`,
+which also means **an existing project will not pick up a change to those two templates**: delete
+them to regenerate.
+
+Both scaffolders share `AbstractedScaffolder`, which owns the phases that were duplicated between
+them: the host/endpoint prompts, the download, the wipe, and the optional confirmations. Each
+subclass states its `cacheKey`, its `sourceName`, a `describeSource` summarising what arrived
+(`Found 12 enums, 87 values.`) and its own validator. The answers reach `.proedis.yml` **after** a
+successful download, never before — writing on the way in remembered a host that had just failed
+and offered it again as the next run's default.
+
+`--host`, `--endpoint` and `-y` skip the prompts they answer, which is what makes the command
+usable from a script: with all three there is nothing left to ask. `save` no longer prompts before
+overwriting either — `noOverride` already states declaratively which files are the user's, so the
+question changed nothing where it was set and contradicted the point of these outputs everywhere
+else.
+
+**Generated code names no UI kit.** The colors and icons files used to import `MantineColor` and
+`IconName` and rebuild the mapped types by hand; they now use `EnumsColors` / `EnumsIcons` from
+`@proedis/modeler`, which resolve through `ModelerOverride` — the same mechanism the modeler
+already exposes, and the reason it dropped those imports from its own type surface. The generated
+`modeler.configuration.ts` declares `color: string` and `icon: string` explicitly: semantically
+identical to the built-in fallback, but it makes the configuration visible instead of implicit, and
+swapping either for a real token type immediately constrains both files. Verified by compiling the
+generated output against the modeler's published `.d.ts`, then narrowing `color` and watching an
+out-of-set value fail.
+
+The zod helper in `shared-objects.ts` is emitted **only when zod is available**
+(`Project.canResolveDependency`). A scaffolder that installs nothing must not generate an import for
+a package that is not there.
+
+That check is deliberately **not** a lookup in the nearest `package.json`, and the reason is the
+target audience: both real users of this scaffolder are monorepo workspaces. `Yard4.Web` declares
+`zod` in its **root** manifest and uses it from `packages/yard-models`, which never mentions it —
+reading only the closest manifest answers `false` and silently drops a helper that project has been
+using all along. So resolution comes first (`createRequire(<root>/package.json).resolve(name)`, the
+same instrument `TemplateCompiler` uses for ESLint), and a walk over every manifest up to the
+filesystem root is the fallback for what resolution cannot answer: a dependency declared but not
+installed yet, and linkers a plain `createRequire` does not see. Verified across all three cases —
+installed but undeclared, declared but not installed, absent everywhere.
 
 ## Conventions
 

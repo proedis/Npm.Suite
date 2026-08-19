@@ -1,5 +1,3 @@
-import console from 'node:console';
-
 import { AbstractedProperty } from './properties/AbstractedProperty';
 
 import { BooleanProperty } from './properties/BooleanProperty';
@@ -58,8 +56,18 @@ export class PropertyFactory {
       return new ObjectProperty(objectName, propertyName, schema);
     }
 
-    console.error({ schema, realType });
-    throw new Error();
+    /**
+     * Nothing maps this property.
+     *
+     * This used to be `throw new Error()` with no message at all, preceded by a raw object dump:
+     * the user got a blank error line and a console spill. The message has to name the property,
+     * because that is what tells them whether the API grew a type this scaffolder does not know
+     * or their document is malformed.
+     */
+    throw new Error(
+      `Cannot map property '${objectName}.${propertyName}': `
+      + `no property type handles ${JSON.stringify(realType)}`
+    );
   }
 
 }
