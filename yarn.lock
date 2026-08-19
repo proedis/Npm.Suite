@@ -1755,7 +1755,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@proedis/cli@workspace:packages/cli"
   dependencies:
-    "@proedis/types": "npm:1.4.0"
+    "@proedis/types": "npm:^2.0.0"
     "@types/ejs": "npm:3.1.5"
     "@types/eslint": "npm:8.44.7"
     "@types/inquirer": "npm:9.0.6"
@@ -1775,13 +1775,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@proedis/client@npm:2.5.0, @proedis/client@workspace:packages/client":
+"@proedis/client@npm:^3.0.0, @proedis/client@workspace:packages/client":
   version: 0.0.0-use.local
   resolution: "@proedis/client@workspace:packages/client"
   dependencies:
-    "@proedis/tsconfig": "npm:1.4.2"
-    "@proedis/types": "npm:^1.4.0"
-    "@proedis/utils": "npm:1.6.0"
+    "@proedis/tsconfig": "npm:^2.0.0"
+    "@proedis/types": "npm:^2.0.0"
+    "@proedis/utils": "npm:^2.0.0"
     rollup: "npm:^4.62.4"
     store2: "npm:^2.14.3"
   languageName: unknown
@@ -1791,7 +1791,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@proedis/formatters@workspace:packages/formatters"
   dependencies:
-    "@proedis/tsconfig": "npm:1.4.2"
+    "@proedis/tsconfig": "npm:^2.0.0"
     rollup: "npm:^4.62.4"
   languageName: unknown
   linkType: soft
@@ -1800,9 +1800,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@proedis/modeler@workspace:packages/modeler"
   dependencies:
-    "@proedis/tsconfig": "npm:1.4.2"
-    "@proedis/types": "npm:^1.4.0"
-    "@proedis/utils": "npm:1.6.0"
+    "@proedis/tsconfig": "npm:^2.0.0"
+    "@proedis/types": "npm:^2.0.0"
+    "@proedis/utils": "npm:^2.0.0"
     rollup: "npm:^4.62.4"
   languageName: unknown
   linkType: soft
@@ -1811,11 +1811,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@proedis/react-client@workspace:packages/react-client"
   dependencies:
-    "@proedis/client": "npm:2.5.0"
-    "@proedis/react": "npm:1.6.0"
-    "@proedis/tsconfig": "npm:1.4.2"
-    "@proedis/types": "npm:1.4.0"
-    "@proedis/utils": "npm:1.6.0"
+    "@proedis/client": "npm:^3.0.0"
+    "@proedis/react": "npm:^2.0.0"
+    "@proedis/tsconfig": "npm:^2.0.0"
+    "@proedis/types": "npm:^2.0.0"
+    "@proedis/utils": "npm:^2.0.0"
     rollup: "npm:^4.62.4"
   languageName: unknown
   linkType: soft
@@ -1824,21 +1824,21 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@proedis/react-native-client@workspace:packages/react-native-client"
   dependencies:
-    "@proedis/client": "npm:2.5.0"
-    "@proedis/tsconfig": "npm:1.4.2"
-    "@proedis/utils": "npm:1.6.0"
+    "@proedis/client": "npm:^3.0.0"
+    "@proedis/tsconfig": "npm:^2.0.0"
+    "@proedis/utils": "npm:^2.0.0"
     "@react-native-async-storage/async-storage": "npm:1.24.0"
     rollup: "npm:^4.62.4"
   languageName: unknown
   linkType: soft
 
-"@proedis/react@npm:1.6.0, @proedis/react@workspace:packages/react":
+"@proedis/react@npm:^2.0.0, @proedis/react@workspace:packages/react":
   version: 0.0.0-use.local
   resolution: "@proedis/react@workspace:packages/react"
   dependencies:
-    "@proedis/tsconfig": "npm:1.4.2"
-    "@proedis/types": "npm:^1.4.0"
-    "@proedis/utils": "npm:1.6.0"
+    "@proedis/tsconfig": "npm:^2.0.0"
+    "@proedis/types": "npm:^2.0.0"
+    "@proedis/utils": "npm:^2.0.0"
     "@types/kind-of": "npm:^6.0.3"
     clsx: "npm:^2.1.1"
     kind-of: "npm:^6.0.3"
@@ -1873,27 +1873,27 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@proedis/tsconfig@npm:1.4.2, @proedis/tsconfig@workspace:packages/tsconfig":
+"@proedis/tsconfig@npm:^2.0.0, @proedis/tsconfig@workspace:packages/tsconfig":
   version: 0.0.0-use.local
   resolution: "@proedis/tsconfig@workspace:packages/tsconfig"
   languageName: unknown
   linkType: soft
 
-"@proedis/types@npm:1.4.0, @proedis/types@npm:^1.4.0, @proedis/types@workspace:packages/types":
+"@proedis/types@npm:^2.0.0, @proedis/types@workspace:packages/types":
   version: 0.0.0-use.local
   resolution: "@proedis/types@workspace:packages/types"
   dependencies:
-    "@proedis/tsconfig": "npm:1.4.2"
+    "@proedis/tsconfig": "npm:^2.0.0"
     rollup: "npm:^4.62.4"
   languageName: unknown
   linkType: soft
 
-"@proedis/utils@npm:1.6.0, @proedis/utils@workspace:packages/utils":
+"@proedis/utils@npm:^2.0.0, @proedis/utils@workspace:packages/utils":
   version: 0.0.0-use.local
   resolution: "@proedis/utils@workspace:packages/utils"
   dependencies:
-    "@proedis/tsconfig": "npm:1.4.2"
-    "@proedis/types": "npm:^1.4.0"
+    "@proedis/tsconfig": "npm:^2.0.0"
+    "@proedis/types": "npm:^2.0.0"
     "@types/get-value": "npm:^3.0.3"
     "@types/natural-compare": "npm:^1.4.1"
     "@types/object-hash": "npm:^3.0.2"

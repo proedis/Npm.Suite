@@ -1,6 +1,6 @@
 {
   "name": "eslint-config-proedis",
-  "version": "2.2.3",
+  "version": "3.0.0",
   "description": "Proedis ESLint flat configuration for TypeScript and React projects",
   "keywords": [
     "proedis",

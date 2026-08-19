@@ -1,6 +1,6 @@
 {
   "name": "@proedis/react-client",
-  "version": "3.7.0",
+  "version": "4.0.0",
   "description": "Wrapper for @proedis/client repository to use it with React",
   "keywords": [
     "proedis",
@@ -16,13 +16,13 @@
     "build": "rollup --config ../../rollup.config.mjs"
   },
   "dependencies": {
-    "@proedis/utils": "1.6.0"
+    "@proedis/utils": "^2.0.0"
   },
   "devDependencies": {
-    "@proedis/client": "2.5.0",
-    "@proedis/react": "1.6.0",
-    "@proedis/tsconfig": "1.4.2",
-    "@proedis/types": "1.4.0",
+    "@proedis/client": "^3.0.0",
+    "@proedis/react": "^2.0.0",
+    "@proedis/tsconfig": "^2.0.0",
+    "@proedis/types": "^2.0.0",
     "rollup": "^4.62.4"
   },
   "proedisMetadata": {

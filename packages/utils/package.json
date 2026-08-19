@@ -1,6 +1,6 @@
 {
   "name": "@proedis/utils",
-  "version": "1.6.0",
+  "version": "2.0.0",
   "description": "Set of smart utilities and reusable shared functions",
   "keywords": [
     "proedis",
@@ -14,7 +14,7 @@
     "build": "rollup --config ../../rollup.config.mjs"
   },
   "dependencies": {
-    "@proedis/types": "^1.4.0",
+    "@proedis/types": "^2.0.0",
     "get-value": "^3.0.1",
     "natural-compare": "^1.4.0",
     "object-hash": "^3.0.0",
@@ -22,7 +22,7 @@
     "ts-deepmerge": "^7.0.1"
   },
   "devDependencies": {
-    "@proedis/tsconfig": "1.4.2",
+    "@proedis/tsconfig": "^2.0.0",
     "@types/get-value": "^3.0.3",
     "@types/natural-compare": "^1.4.1",
     "@types/object-hash": "^3.0.2",

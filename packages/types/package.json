@@ -1,6 +1,6 @@
 {
   "name": "@proedis/types",
-  "version": "1.4.0",
+  "version": "2.0.0",
   "description": "Shared TypeScript type primitives for the Proedis suite",
   "keywords": [
     "proedis",
@@ -13,7 +13,7 @@
     "build": "rollup --config ../../rollup.config.mjs"
   },
   "devDependencies": {
-    "@proedis/tsconfig": "1.4.2",
+    "@proedis/tsconfig": "^2.0.0",
     "rollup": "^4.62.4"
   },
   "proedisMetadata": {

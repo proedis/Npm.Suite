@@ -1,6 +1,6 @@
 {
   "name": "@proedis/cli",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Proedis command line interface to scaffold projects, generate React components and build models from an OpenAPI specification",
   "keywords": [
     "proedis",
@@ -29,7 +29,7 @@
     "yaml": "2.3.4"
   },
   "devDependencies": {
-    "@proedis/types": "1.4.0",
+    "@proedis/types": "^2.0.0",
     "@types/ejs": "3.1.5",
     "@types/eslint": "8.44.7",
     "@types/inquirer": "9.0.6",
