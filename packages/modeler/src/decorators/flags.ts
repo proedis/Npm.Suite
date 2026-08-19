@@ -23,12 +23,12 @@ export function AsFlags<C extends EnumName>(name: C, options?: DecoratorOptions)
     /** When transform a plain object into instance, create a new flags */
     Transform(
       ({ value }) => new Flags(name, !isNil(value) && Array.isArray(value) ? value : []),
-      { toClassOnly: true, ...options }
+      { ...options, toClassOnly: true }
     ),
     /** When casting an instance into a plain object, transform the Enum into string */
     Transform(
-      ({ value }) => Flags.isFlag(value) ? value.flags : [],
-      { toPlainOnly: true, ...options }
+      ({ value }) => (Flags.isFlag(value) ? value.flags : []),
+      { ...options, toPlainOnly: true }
     )
   );
 }

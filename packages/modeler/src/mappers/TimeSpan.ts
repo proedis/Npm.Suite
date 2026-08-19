@@ -12,7 +12,7 @@ export class TimeSpan {
   // ----
   private static readonly _toStringTag = 'TimeSpan';
 
-  // eslint-disable-next-line max-len
+
   private static readonly _parseRegex = /^(?<sign>-)?(?:(?<days>\d+)\.)?(?<hours>[0-1]?\d|2[0-3]):(?<minutes>[0-5]\d):(?<seconds>[0-5]\d)(?:\.(?<ms>\d{1,3}))?$/;
 
 
@@ -84,11 +84,11 @@ export class TimeSpan {
 
     /** Create the total Milliseconds number */
     const totalMilliseconds = (
-      (Number(days) * TimeSpan.millisecondsPerDay) +
-      (Number(hours) * TimeSpan.millisecondsPerHour) +
-      (Number(minutes) * TimeSpan.millisecondsPerMinute) +
-      (Number(seconds) * TimeSpan.millisecondsPerSecond) +
-      millisecondsValue
+      (Number(days) * TimeSpan.millisecondsPerDay)
+      + (Number(hours) * TimeSpan.millisecondsPerHour)
+      + (Number(minutes) * TimeSpan.millisecondsPerMinute)
+      + (Number(seconds) * TimeSpan.millisecondsPerSecond)
+      + millisecondsValue
     ) * (sign === '-' ? -1 : 1);
 
     /** Return a new TimeSpan instance */
@@ -111,7 +111,7 @@ export class TimeSpan {
         value  : TimeSpan.parse(timespan)
       };
     }
-    catch (error) {
+    catch {
       return {
         success: false,
         value  : null
@@ -309,8 +309,8 @@ export class TimeSpan {
     }
 
     return (
-      typeof value === 'object' && 'totalMilliseconds' in value &&
-      (value as any)[Symbol.toStringTag] === this._toStringTag
+      typeof value === 'object' && 'totalMilliseconds' in value
+      && (value as any)[Symbol.toStringTag] === this._toStringTag
     );
   }
 
@@ -347,13 +347,18 @@ export class TimeSpan {
   }
 
 
-  public [Symbol.toPrimitive](hint: string) {
+  /**
+   * The primitive this duration collapses to, which depends on what the runtime asked for.
+   *
+   * A string context — a template literal, `String(value)` — gets the formatted duration, so that it
+   * agrees with {@link toString}. Every other context gets the millisecond count, which is what makes
+   * arithmetic and ordering comparisons work.
+   *
+   * @param hint The type the runtime is coercing towards
+   */
+  public [Symbol.toPrimitive](hint: string): string | number {
     if (hint === 'string') {
       return this.toString();
-    }
-
-    if (hint === 'number') {
-      return this._milliseconds;
     }
 
     return this._milliseconds;
@@ -363,13 +368,25 @@ export class TimeSpan {
   // ----
   // Formatters
   // ----
+  /**
+   * Render the duration in the .NET format, `[-][d.]hh:mm:ss.fff`.
+   *
+   * The days component is separated by a **dot**, which is what {@link parse} reads back. It used to be
+   * joined with a colon, so any duration of a day or more produced a string this very class refused to
+   * parse — and since the `AsTimeSpan` decorator serializes through here, such a value could not survive
+   * a round trip through an API at all.
+   *
+   * @example
+   * TimeSpan.parse('1.02:03:04.005').toString();   // '01.02:03:04.005'
+   * TimeSpan.fromSeconds(1).toString();            // '00:00:01.000'
+   */
   public toString(): string {
-    return (this._milliseconds < 0 ? '-' : '') +
-      this.numberToPaddedString(this.days, 2, false, ':') +
-      this.numberToPaddedString(this.hours, 2, true, ':') +
-      this.numberToPaddedString(this.minutes, 2, true, ':') +
-      this.numberToPaddedString(this.seconds, 2, true, '.') +
-      this.numberToPaddedString(this.milliseconds, 3, true);
+    return (this._milliseconds < 0 ? '-' : '')
+      + this.numberToPaddedString(this.days, 2, false, '.')
+      + this.numberToPaddedString(this.hours, 2, true, ':')
+      + this.numberToPaddedString(this.minutes, 2, true, ':')
+      + this.numberToPaddedString(this.seconds, 2, true, '.')
+      + this.numberToPaddedString(this.milliseconds, 3, true);
   }
 
 
@@ -380,6 +397,17 @@ export class TimeSpan {
    */
   public valueOf(): number {
     return this._milliseconds;
+  }
+
+
+  /**
+   * The value used when this duration is serialized by `JSON.stringify`.
+   *
+   * It is the formatted string, matching what the `AsTimeSpan` decorator writes. Without this hook the
+   * instance was serialized field by field, leaking its private storage as `{"_milliseconds":3600000}`.
+   */
+  public toJSON(): string {
+    return this.toString();
   }
 
 
@@ -521,7 +549,7 @@ export class TimeSpan {
    */
   private getSafeTruncatedValue(value: number): number {
     const truncatedValue = Math.trunc(value);
-    return truncatedValue === -0 ? 0 : truncatedValue;
+    return Object.is(truncatedValue, -0) ? 0 : truncatedValue;
   }
 
 

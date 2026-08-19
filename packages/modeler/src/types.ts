@@ -1,4 +1,6 @@
-import { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
+
+import type { Dayjs } from 'dayjs';
 
 import type { TransformOptions } from 'class-transformer';
 
@@ -8,11 +10,27 @@ import type { Nullable } from '@proedis/types';
 /* --------
  * Useful Types
  * -------- */
+
+/**
+ * A point in time, as produced by the `AsDayJs` decorator.
+ *
+ * The name carries both a type and a value, the way `dayjs` itself does: as a **type** it is a Day.js
+ * instance, as a **value** it is the factory that builds one.
+ *
+ * @example
+ * class Ticket extends ModelerObject {
+ *   @AsDayJs()
+ *   public createdAt!: DateTime;
+ * }
+ *
+ * const now: DateTime = DateTime();
+ */
 export type DateTime = Dayjs;
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export const DateTime = Dayjs;
+export const DateTime = dayjs;
 
-export type NullableDateTime = Nullable<typeof DateTime>;
+/** A point in time that may be absent */
+export type NullableDateTime = Nullable<DateTime>;
 
 export type InvalidTryParseResult = { success: false, value: null };
 
@@ -92,4 +110,13 @@ export type EnumsIcons = Partial<{
 /* --------
  * Custom Decorator Options
  * -------- */
-export type DecoratorOptions = Exclude<TransformOptions, 'toClassOnly' | 'toPlainOnly'>;
+
+/**
+ * The `Transform` options a Proedis decorator accepts.
+ *
+ * `toClassOnly` and `toPlainOnly` are removed on purpose: each decorator declares both directions
+ * itself, and overriding either one from the outside makes the plain-to-class transform run on the way
+ * out as well. This used to be written with `Exclude`, which operates on unions and therefore removed
+ * nothing at all from an object type.
+ */
+export type DecoratorOptions = Omit<TransformOptions, 'toClassOnly' | 'toPlainOnly'>;

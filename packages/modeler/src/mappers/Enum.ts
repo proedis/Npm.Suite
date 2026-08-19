@@ -57,8 +57,19 @@ export class Enum<C extends EnumName> {
   private static _collections: EnumsCollections = {};
 
 
+  /**
+   * Register the enum collections the application works with.
+   *
+   * Every resolved enum is cached by name and value, so the cache is dropped here: without that, a
+   * second call — a hot reload, a tenant switch, a test resetting its fixtures — kept handing out
+   * instances built from the previous collections, labels and all.
+   *
+   * @param collections The collections, keyed by enum name
+   */
   public static configureCollections(collections: EnumsCollections): typeof Enum {
     this._collections = collections;
+    this._enumsCache.clear();
+
     return this;
   }
 
@@ -106,6 +117,17 @@ export class Enum<C extends EnumName> {
   }
 
 
+  /**
+   * Resolve a value to the number the comparison operators work on.
+   *
+   * A value that is not part of the collection resolves to `Number.MIN_SAFE_INTEGER` rather than
+   * throwing: this feeds every comparison in the class, and a comparison has an answer for an unknown
+   * value — `false` — while a thrown error has none. Looking one up on purpose still throws, which is
+   * what {@link getEnum} is for.
+   *
+   * @param name The collection to look into
+   * @param value An enum instance, or one of its values
+   */
   private static getHashCode<C extends EnumName>(name: C, value: EnumValue<C> | Enum<C>): number {
     /** Check if the value is already an Enum */
     if (Enum.isEnum(value)) {
@@ -117,7 +139,12 @@ export class Enum<C extends EnumName> {
       return Number.MIN_SAFE_INTEGER;
     }
 
-    return this.getEnum(name, value)?.hashCode ?? Number.MIN_SAFE_INTEGER;
+    try {
+      return this.getEnum(name, value).hashCode;
+    }
+    catch {
+      return Number.MIN_SAFE_INTEGER;
+    }
   }
 
 
@@ -236,8 +263,14 @@ export class Enum<C extends EnumName> {
   }
 
 
-  public toJSON(): string {
-    return this.toString();
+  /**
+   * The value used when this enum is serialized by `JSON.stringify`.
+   *
+   * An enum's JSON form is its value, so this is simply the string — which is also what the `AsEnum`
+   * decorator writes when a model is converted to a plain object.
+   */
+  public toJSON(): EnumValue<C> {
+    return this.value;
   }
 
 }
