@@ -6,6 +6,8 @@ export { default as getValueAt } from './getValueAt';
 
 export { default as isObject } from './isObject';
 
+export { default as isPlainObject } from './isPlainObject';
+
 export { default as mergeObjects } from './mergeObjects';
 
 export { default as setValueAt } from './setValueAt';

@@ -1,17 +1,28 @@
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import naturalCompare from 'natural-compare';
 
 import type { AnyObject } from '@proedis/types';
-
 import { getValueAt } from '../../object';
+
 
 import type ArraySorter from './ArraySorter';
 
-import type { ISortable } from '../contracts';
-import type { ComparableFieldType, Comparer, SortDirection, SortOptions } from './types';
+import type { ComparableFieldType, Comparer, ISortable, SortDirection, SortOptions } from './types';
 
 
+/**
+ * A single criterion of a sorting chain, and the object every `orderBy` / `thenBy` call hands back.
+ *
+ * A step only gets to decide the order of two items when every step before it called them equal,
+ * which is how the chain behaves like a composite sort rather than like three independent ones.
+ * Never built directly: {@link ArraySorter} creates them.
+ */
 export default class ArraySorterStep<T extends AnyObject> {
+
+
+  // ---- //
+  // Private properties
+  // ---- //
 
   /**
    * When sorting by multiple fields and property, save each
@@ -21,11 +32,15 @@ export default class ArraySorterStep<T extends AnyObject> {
   private _nextStep: ArraySorterStep<T> | undefined = undefined;
 
 
+  // ---- //
+  // Constructor
+  // ---- //
+
   /**
    * Initialize a new step to sort data
-   * @param _parentSorter
-   * @param _comparer
-   * @param _direction
+   * @param _parentSorter The sorter owning the whole chain, the only one that runs the sort
+   * @param _comparer How to get a comparable value out of an item
+   * @param _direction The direction this single step runs in
    */
   constructor(
     private readonly _parentSorter: ArraySorter<T>,
@@ -35,12 +50,19 @@ export default class ArraySorterStep<T extends AnyObject> {
   }
 
 
-  public getSortingOrder(firstItem: T, nextItem: T, options?: SortOptions): number {
-    const placement = this.getNaturalSortingOrder(firstItem, nextItem, options);
-    return this._direction === 'asc' ? placement : placement * -1;
-  }
+  // ---- //
+  // Private methods
+  // ---- //
 
-
+  /**
+   * Compare two items on this step only, ignoring the declared direction.
+   *
+   * @param firstItem The first item
+   * @param nextItem The item to compare it against
+   * @param options How ties, casing and nil values are handled
+   * @returns A negative number, zero, or a positive number, as `Array.prototype.sort` expects
+   * @throws {Error} When the two values are of different, non nil types
+   */
   private getNaturalSortingOrder(firstItem: T, nextItem: T, options?: SortOptions): number {
     /** Get options and set defaults */
     const {
@@ -66,11 +88,14 @@ export default class ArraySorterStep<T extends AnyObject> {
 
     /** Assert the object type is the same */
     if (!anyNil && typeof firstComparableValue !== typeof nextComparableValue) {
-      throw new Error('Sorting is valid only for item of the same type');
+      throw new Error(
+        'Sorting is valid only for item of the same type, found '
+        + `'${typeof firstComparableValue}' and '${typeof nextComparableValue}'`
+      );
     }
 
     /** Continue with the next sorting step only if the two value are equal */
-    if (allNil || firstComparableValue == nextComparableValue) {
+    if (allNil || firstComparableValue === nextComparableValue) {
       return this._nextStep?.getSortingOrder(firstItem, nextItem, options) ?? 0;
     }
 
@@ -106,15 +131,20 @@ export default class ArraySorterStep<T extends AnyObject> {
 
 
   /**
-   * Returns a comparable value for the given input value.
+   * Reduce any value to something two items can be ordered by.
    *
-   * @param {any} value - The input value to convert into a comparable value.
-   * @returns {ComparableFieldType} - The converted comparable value.
-   * @throws {Error} - Throws an error if the value is not a supported type.
+   * Primitives and nil values pass straight through. An object implementing the {@link ISortable}
+   * contract is asked for its own sortable value, a `Date` becomes its epoch milliseconds and a
+   * Day.js value its epoch seconds — which is why the sorter compares dates correctly without the
+   * caller mapping them first.
+   *
+   * @param value The value to convert into a comparable value
+   * @returns The converted comparable value
+   * @throws {Error} When the value is of an unsupported type
    */
   private getComparableValue(value: any): ComparableFieldType {
     /** Check if the value is already one of the valid comparable value types */
-    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' || value === null || value === undefined) {
+    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' || value == null) {
       return value;
     }
 
@@ -151,10 +181,33 @@ export default class ArraySorterStep<T extends AnyObject> {
   }
 
 
+  // ---- //
+  // Public methods
+  // ---- //
+
   /**
-   * Sort the underlying Array using custom comparare and
-   * the 'asc' sort direction
-   * @param comparer
+   * Compare two items on this step, honouring the declared direction and falling through to the
+   * next step when they tie.
+   *
+   * Public because a step delegates to the following one, not because a consumer is expected to
+   * call it.
+   *
+   * @param firstItem The first item
+   * @param nextItem The item to compare it against
+   * @param options How ties, casing and nil values are handled
+   * @returns A negative number, zero, or a positive number, as `Array.prototype.sort` expects
+   */
+  public getSortingOrder(firstItem: T, nextItem: T, options?: SortOptions): number {
+    const placement = this.getNaturalSortingOrder(firstItem, nextItem, options);
+    return this._direction === 'asc' ? placement : placement * -1;
+  }
+
+
+  /**
+   * Add a tie breaking criterion, ascending.
+   *
+   * @param comparer A typed dot notation path into the item, or an accessor function
+   * @returns The new sorting step, to chain further criteria or to run the sort
    */
   public thenBy(comparer: Comparer<T>): ArraySorterStep<T> {
     /** Return the new sorter step object instance */
@@ -163,9 +216,10 @@ export default class ArraySorterStep<T extends AnyObject> {
 
 
   /**
-   * Sort the underlying Array using custom comparare and
-   * the 'desc' sort direction
-   * @param comparer
+   * Add a tie breaking criterion, descending.
+   *
+   * @param comparer A typed dot notation path into the item, or an accessor function
+   * @returns The new sorting step, to chain further criteria or to run the sort
    */
   public thenByDescending(comparer: Comparer<T>): ArraySorterStep<T> {
     /** Return the new sorter step object instance */
@@ -174,8 +228,10 @@ export default class ArraySorterStep<T extends AnyObject> {
 
 
   /**
-   * Sort the Array of data
-   * @param options
+   * Run the whole chain and return the ordered array, leaving the source untouched.
+   *
+   * @param options How ties, casing and nil values are handled
+   * @returns A new, sorted array
    */
   public sort(options?: SortOptions): T[] {
     return this._parentSorter.sort(options);

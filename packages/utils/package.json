@@ -15,7 +15,6 @@
   },
   "dependencies": {
     "@proedis/types": "^1.4.0",
-    "clone-deep": "^4.0.1",
     "get-value": "^3.0.1",
     "natural-compare": "^1.4.0",
     "object-hash": "^3.0.0",
@@ -24,7 +23,6 @@
   },
   "devDependencies": {
     "@proedis/tsconfig": "1.4.2",
-    "@types/clone-deep": "^4.0.2",
     "@types/get-value": "^3.0.3",
     "@types/natural-compare": "^1.4.1",
     "@types/object-hash": "^3.0.2",
@@ -38,6 +36,15 @@
         "range": ">=1.11.0"
       }
     },
+    "exports": [
+      "array",
+      "guard",
+      "hash",
+      "object",
+      "promise",
+      "runtime",
+      "string"
+    ],
     "sideEffects": false
   },
   "gitHead": "e5cd5bc288cc6ba93f716278a9401c9a45abc0e8"
