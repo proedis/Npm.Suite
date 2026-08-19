@@ -35,20 +35,5 @@ export default proedis.defineConfig(
     rules: {
       'import/no-dynamic-require': [ 'off' ]
     }
-  },
-
-  {
-    /**
-     * The CLI wraps a handful of user facing operations in an async promise executor, a shape that
-     * swallows a rejection instead of surfacing it. Rewriting them is a behavioural change in a
-     * package with no test suite, so it is owed work rather than a drive-by fix.
-     *
-     * TODO restructure the executors, then delete this entry.
-     */
-    name : 'suite/cli-promise-executors-pending-review',
-    files: [ 'packages/cli/src/**' ],
-    rules: {
-      'no-async-promise-executor': [ 'off' ]
-    }
   }
 );
