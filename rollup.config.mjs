@@ -10,11 +10,11 @@ import typescript from '@rollup/plugin-typescript';
 import json from '@rollup/plugin-json';
 import hashbang from 'rollup-plugin-hashbang';
 
-// eslint-disable-next-line import/extensions
+
 import getExternalDependenciesFromPackage from './scripts/utils/getExternalDependenciesFromPackage.mjs';
-// eslint-disable-next-line import/extensions
+
 import createTypes from './scripts/rollup-plugins/createTypes.mjs';
-// eslint-disable-next-line import/extensions
+
 import producePackageFiles from './scripts/rollup-plugins/producePackageFiles.mjs';
 
 
@@ -49,6 +49,17 @@ if (UNSUPPORTED_FORMATS.length) {
   );
 }
 
+/**
+ * Additional entry points declared through 'proedisMetadata.exports', one directory name per
+ * published subpath.
+ *
+ * They have to be listed as rollup inputs, not merely referenced from the manifest: with
+ * 'preserveModules' rollup keeps the module graph intact but still elides a module that holds
+ * nothing but re-exports, and every one of these barrels is exactly that. The subpath would then
+ * point at a file that was never written — caught by 'release:verify', but only after the fact.
+ */
+const SUBPATH_ENTRIES = PACKAGE_METADATA.exports ?? [];
+
 const TSCONFIG_DECLARATION_FILENAME = 'tsconfig.declaration.json';
 const TSCONFIG_DECLARATION_PATH = resolvePath(process.cwd(), TSCONFIG_DECLARATION_FILENAME);
 
@@ -68,8 +79,11 @@ const HAS_TYPES_SETTINGS = existsSync(TSCONFIG_DECLARATION_PATH);
 // ----
 const buildConfiguration = defineConfig({
 
-  // Set the file input
-  input: `${SOURCE_DIRECTORY}/index.ts`,
+  // Set the file input, the package barrel plus every published subpath barrel
+  input: [
+    `${SOURCE_DIRECTORY}/index.ts`,
+    ...SUBPATH_ENTRIES.map((subpath) => `${SOURCE_DIRECTORY}/${subpath}/index.ts`)
+  ],
 
   // Automatically extract external dependencies using package json
   external: getExternalDependenciesFromPackage(),
@@ -86,8 +100,8 @@ const buildConfiguration = defineConfig({
   // Strip useless warnings
   onwarn: (warning, defaultHandler) => {
     if (
-      warning.code === 'MODULE_LEVEL_DIRECTIVE' &&
-      warning.message.includes('"use client"')
+      warning.code === 'MODULE_LEVEL_DIRECTIVE'
+      && warning.message.includes('"use client"')
     ) {
       return;
     }

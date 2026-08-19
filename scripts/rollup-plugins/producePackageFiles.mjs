@@ -2,7 +2,7 @@ import * as path from 'node:path';
 import * as fs from 'node:fs';
 import { cp } from 'node:fs/promises';
 
-// eslint-disable-next-line import/extensions
+
 import createPackageJson from '../utils/createPackageJson.js';
 
 
