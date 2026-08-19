@@ -2,31 +2,35 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "display": "Proedis - Base Configuration",
   "compilerOptions": {
-    "allowJs": true,
-    "composite": false,
     "target": "ES2022",
     "module": "ESNext",
-    "sourceMap": true,
-    "skipLibCheck": true,
-    "inlineSources": false,
-    "importHelpers": true,
-    "downlevelIteration": true,
-    "isolatedModules": true,
-    "preserveWatchOutput": true,
-    "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
+
+    "allowJs": true,
+    "resolveJsonModule": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitAny": true,
-    "noImplicitReturns": true,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "strict": true,
-    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "importHelpers": true,
+    "downlevelIteration": true,
+
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "useDefineForClassFields": false
+    "useDefineForClassFields": false,
+
+    "strict": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+
+    "sourceMap": true,
+    "inlineSources": false,
+    "composite": false,
+    "preserveWatchOutput": true
   },
   "exclude": [
     "node_modules"

@@ -3,6 +3,7 @@
   "display": "Proedis - Web Base Configuration",
   "extends": "./base.json",
   "compilerOptions": {
+    "moduleResolution": "bundler",
     "lib": [
       "DOM",
       "DOM.Iterable",
