@@ -20,8 +20,8 @@ There is **no test runner configured** in this repository — no jest/vitest, no
 invent a `yarn test`. Verification means typecheck + lint + build.
 
 ```bash
-# lint every package (the release gate)
-yarn release:lint                                  # eslint ./packages
+# lint everything (the release gate)
+yarn release:lint                                  # eslint .
 
 # typecheck a single package (run from inside the package directory)
 npx tsc -p tsconfig.json --noEmit                  # base-preset packages
@@ -38,9 +38,17 @@ yarn release:verify                                # node ./scripts/verify-artif
 # dependency graph
 yarn release:graph                                 # nx graph
 
+# regenerate the vendored Airbnb rule sets inside eslint-config-proedis
+yarn rules:sync                                    # node ./scripts/sync-airbnb-rules.mjs
+
 # sandbox app
 yarn workspace react-testing-app dev               # vite on :3000
 ```
+
+Linting runs on **ESLint 9 with a flat config**: the root `eslint.config.mjs` consumes the
+`eslint-config-proedis` it publishes, so the suite is its own first consumer. There is no
+`.eslintrc.js` and no `.eslintignore` any more — ignores live in the config, and `--ext` was removed
+from ESLint 9 (which is why `release:lint` is a bare `eslint .`).
 
 `packages/cli` declares a `dev` script (`ts-node src/index.ts`), but **ts-node is not installed** in
 the workspace, so it fails as written. Build the package and run `build/cjs/index.js` instead, or add
@@ -53,6 +61,20 @@ run first.
 
 Root `tsconfig.dev.json` extends the **base** preset (no `jsx`), so it cannot typecheck
 `packages/react*`. It is an IDE convenience only — always typecheck per package.
+
+`@proedis/tsconfig` splits along one line: `base` keeps `moduleResolution: node` (node10), because it
+is what a Node consumer and a declaration emit both need, while `web` and everything above it use
+`moduleResolution: bundler` — those projects are always behind Vite, webpack or Metro. `declaration`
+is **not** a preset but an overlay with no `extends` of its own, composed *last* in an `extends`
+array so its `noEmit: false` and `composite: true` win:
+
+```json
+{ "extends": [ "@proedis/tsconfig/react", "@proedis/tsconfig/declaration" ] }
+```
+
+That composition is the point: before it, every React package emitted its declarations under the
+base preset's resolution and a hardcoded `jsx` override, i.e. with different settings from the ones
+it typechecked with.
 
 ### Yarn 4 specifics
 
@@ -135,6 +157,12 @@ markers are right. The dependency check exists because the build compiles happil
 `.d.ts` that imports a stripped `devDependency` — verified by reintroducing that exact regression:
 the build still exits 0, `release:verify` exits 1.
 
+It also fails when `README.md` or `LICENSE` is missing from a build directory. Publishing runs with
+`--contents build`, so a file that never gets copied there does not exist for a consumer: the
+rollup packages copy both through `producePackageFiles`, and `compile-plain` copies the root LICENSE
+explicitly, since it sits outside every package and the entry loop can never reach it. **The gate is
+therefore red until every package has a README** — that is deliberate, it is the release checklist.
+
 It scans emitted `.d.ts` for rollup packages and the hand-written `.js`/`.ts` of the plain-copy
 ones. Emitted `.js` is deliberately skipped: rollup's `external` list is built from
 `dependencies` + `peerDependencies` + `reflectPeerDependencies`, so an undeclared runtime import
@@ -174,6 +202,14 @@ the most likely way to break a package silently.
   default. The CLI sets `['cjs']`: consumed only through its `bin`, nothing referenced its
   ESM output and it was shipped as dead weight. A package narrowing this must also narrow
   anything that writes into the dropped directory.
+- `exports: string[]` — directory names below `src`, each holding its own barrel `index.ts`,
+  published as additional entry points (`@proedis/utils/array`). `createPackageJson` writes them
+  into both `exports` and `typesVersions` — the second one so a consumer whose `moduleResolution`
+  predates `exports` still finds the declarations. **A subpath must also be added to the rollup
+  `input` list**, which `rollup.config.mjs` derives from this same field: with `preserveModules`
+  rollup keeps the module graph but still elides a module that holds nothing but re-exports, and
+  every one of these barrels is exactly that. Verified the hard way — the subpaths pointed at files
+  that were never written, and `npm pack` + install outside the workspace is what caught it.
 - `assets: string[]` — file extensions that a build step copies into the output rather than
   rollup emitting them (the CLI's `.ejs` templates). `release:verify` then requires every
   matching file under `src/` to exist at the same relative path in each output directory.
@@ -186,6 +222,11 @@ Rollup externals (`scripts/utils/getExternalDependenciesFromPackage.mjs`) = `dep
 `peerDependencies` + `reflectPeerDependencies` (each also matched as a `name/**` subpath regex,
 and it understands both metadata forms). Consequence: **anything only in `devDependencies` gets
 bundled into the output.**
+
+A package must declare the `@types/*` of everything it imports, even when the type package happens
+to be hoisted at the root. `packages/cli` imported `semver` while relying on `@types/semver` arriving
+transitively through the root's `@typescript-eslint` 6; removing those devDependencies during the
+ESLint 9 migration broke the CLI build with `TS7016`. The hoist was never a declaration.
 
 A `devDependency` is *not* enough for a type-only import, because **the emitted `.d.ts` keeps
 the import while `createPackageJson` strips `devDependencies`**. A consumer then resolves a
@@ -238,6 +279,77 @@ Two behaviours there are verified against real ESLint installs and easy to break
   anymore; that filename belongs to a project's eslintrc, not to this CLI, and a flat config
   project has no reason to own it.
 
+### The shared ESLint config lints this repository
+
+`eslint-config-proedis` is consumed by the root `eslint.config.mjs`, so any change to it is felt here
+first. Four things about it are load-bearing:
+
+**Layer order is the whole mechanism.** For any file, the last flat-config entry that matches wins.
+The presets therefore apply the upstream recommended sets, then the vendored Airbnb decisions, then
+the Proedis adjustments — and `typescript-eslint`'s `eslintRecommended` is **re-applied after
+Airbnb**, because Airbnb switches several of the rules it disables back on. Getting that order wrong
+does not fail loudly: it double-reports, and it makes `no-undef` flag every DOM type used in a type
+position.
+
+**Airbnb is vendored, not depended on.** `eslint-config-airbnb-base@15` never shipped a flat config
+and still declares `eslint: ^7 || ^8` as a peer, which npm treats as an `ERESOLVE` failure next to a
+current ESLint. `scripts/sync-airbnb-rules.mjs` reads its rule files, remaps the 68 formatting rules
+to the `@stylistic` namespace, drops the ones ESLint has since deleted (`valid-jsdoc`,
+`require-jsdoc`) and writes `lib/airbnb/*.js`. Those files are generated — edit the preset that
+consumes them, not them, and re-run `yarn rules:sync` after bumping the source package.
+
+**Formatting comes from `@stylistic`.** ESLint core deprecated its formatting rules in 9 and removed
+them in 10; `@typescript-eslint` dropped its copies in v8. The `@stylistic` ports also *see*
+TypeScript, which means they report on syntax the core rules never inspected — `semi` on a type alias
+declaration, `indent` in a conditional type, `operator-linebreak` on the `=` of a generic alias.
+That last one is why `operator-linebreak` deliberately relaxes Airbnb's `'=': 'none'` to `'ignore'`:
+a long generic type alias has nowhere to go but the next line, and the rule cannot tell an alias from
+an assignment. **A consequence to remember: an `eslint-disable` comment naming a core formatting rule
+stops suppressing anything.** ESLint reports those itself, as unused disable directives.
+
+**Version 2 never actually applied Airbnb.** It extended `eslint-config-airbnb-typescript/base`,
+which carries only the TypeScript overrides and not the Airbnb rule sets, so the suite had never been
+checked against them. Adopting v3 surfaced 253 findings in code that was green — most of them
+mechanical, a few genuine bugs (a `throw new Error('… ${runner}')` written with single quotes, so the
+message printed the placeholder; `Guard.ifIn` / `ifNotIn` asserting the opposite of their names).
+
+Equivalence with Orbit's own flat config is verified by diffing `eslint --print-config` output rule by
+rule, not by eyeballing the rule lists: zero rules active in Orbit are missing here, and the option
+differences are all `@stylistic` writing schema defaults in full where core leaves them implicit.
+
+### The mappers carry .NET semantics, and they are load-bearing
+
+`TimeSpan` renders and parses the .NET duration format `[-][d.]hh:mm:ss[.fff]` — the days component is
+separated by a **dot**. It used to be emitted with a colon, which meant any duration of a day or more
+produced a string `TimeSpan.parse` refused, and since `AsTimeSpan` serializes through `toString` such a
+value could not survive a round trip through an API. Any change to that format has to keep
+`parse(x.toString())` equal to `x` for a value with days, negative included.
+
+`toJSON` on `ModelerObject`, `Flags`, `Enum` and `TimeSpan` is the hook `JSON.stringify` invokes, so it
+takes **no arguments** and returns a value, never a JSON string. All four used to return strings, which
+made `JSON.stringify` encode them a second time: a model nested in a payload came out as
+`{"user":"{\"id\":7}"}`. The explicit string form lives on `toJsonString`.
+
+`DateTime` is exported as both a type and a value — the type is a Day.js instance, the value is the
+`dayjs` factory. The value half exists because 224 files in Orbit import the name through a plain value
+import alongside the decorators; it used to be `export const DateTime = Dayjs`, and `dayjs` does not
+expose `Dayjs` at runtime, so the published constant was `undefined`.
+
+### `useSyncedRef` is the backbone of the React hooks
+
+Six hooks in `@proedis/react` are built on it, and Orbit uses it directly in 13 places. It writes its
+ref **during render**, which is what makes the value current for the commit it belongs to — and which
+is why `react-hooks/refs` is suppressed inline, in that file, with the reasoning. Every alternative
+loses the guarantee the hook exists for: writing in an effect makes `current` lag one commit behind,
+which is the exact bug its callers are avoiding. Read it from an effect, a handler or a cleanup, never
+while rendering.
+
+Public signatures must avoid `React.RefObject`, `React.MutableRefObject` and
+`ReturnType<typeof React.useRef<T>>`: those changed meaning between `@types/react` 18 and 19. Use
+minimal structural shapes — `useForkRef` takes `{ current: T | null | undefined }` for that reason. The
+18/19 matrix is verified by compiling the **emitted declarations** against both, with `skipLibCheck`
+off, from outside the workspace; re-run it after touching any public React signature.
+
 ### Peer compatibility policy
 
 Published peer ranges are deliberately wider than the versions pinned here: `react`/`react-dom`
@@ -270,10 +382,10 @@ Dependency direction is strictly one-way; `utils` and `types` are the leaves.
 
 | Package | Role |
 | --- | --- |
-| `@proedis/types` | Shared primitives (`AnyObject`, `Nullable`, `Environment`, path types). Ships raw `.ts`; each type has a runtime counterpart const. |
+| `@proedis/types` | Shared primitives (`AnyObject`, `Nullable`, `Nillable`, `Primitive`, `Awaitable`, `ValueOf`, `DeepPartial`, `Environment`, `Instantiable`, path types). A rollup package like the others since 2.0.0 — it used to ship raw `.ts`, which assumed every consumer's bundler was willing to transpile TypeScript found inside `node_modules`. Each type still has a runtime counterpart const, so a plain value import cannot resolve to nothing. |
 | `@proedis/tsconfig` | tsconfig presets: `base` → `web` → `react` → `react-native`, plus `declaration`. |
-| `eslint-config-proedis` | `index.js` (React) and `base.js` (non-React), sharing `lib/shared.js`. |
-| `@proedis/utils` | `Guard`, `AugmentedMap`, `Deferred`, `will`, `ArraySorter`, hashing, deep object access. |
+| `eslint-config-proedis` | ESLint 9 **flat config**, ESM, self-contained: every plugin is a real dependency, so a consumer installs one package. `base()` / `react()` return plain config arrays; `configs.*` exposes the individual blocks and `plugins.*` the plugin instances, so nothing is a closed box. The Airbnb rule decisions are **vendored** under `lib/airbnb` (regenerate with `yarn rules:sync`) and all formatting goes through `@stylistic`. |
+| `@proedis/utils` | `Guard`, `AugmentedMap`, `Deferred`, `will`, `ArraySorter`, hashing, deep object access. Publishes a subpath per module (`array`, `guard`, `hash`, `object`, `promise`, `runtime`, `string`). |
 | `@proedis/formatters` | Locale-aware duration/number/pluralize formatters. |
 | `@proedis/modeler` | `class-transformer` model base + decorators. Color/icon tokens are consumer-supplied via `ModelerOverride`, not typed against a UI kit. |
 | `@proedis/client` | The core: authenticated HTTP client over axios. |
@@ -372,6 +484,27 @@ Not enforced but universal — do not break it:
 - Private class members prefixed `_` (`no-underscore-dangle` is off for this reason).
 - JSDoc on public methods, and inline `/** … */` narration on non-trivial statements.
 - English for all code, comments, commit messages and documentation.
+
+Every published package carries a `README.md` following one shared skeleton, and
+`release:verify` fails without it:
+
+1. centred title, one-line pitch, npm + license badges
+2. `## ✨ What's in the box` — the TL;DR table or bullet list
+3. `## 📦 Installation` — including *why* a peer is required, when it is
+4. `## 🚀 Quick start` — the shortest thing that actually works
+5. `## 📖 API` — tables for surfaces, prose for the parts with a trade-off
+6. `## 🔀 Migrating to <next major>` — a two column table, one row per breaking change
+7. `## 🤝 Compatibility` — peer ranges, TypeScript floor, runtime floor
+8. `## 📄 License`
+
+**Every example in a README and in a JSDoc block is verified against the compiled artifact**, not
+written from memory. That is not ceremony: this session's first drafts contained a `formatDuration`
+example off by a unit, a claim about `normalizeNumberWithPrecision` that measurement disproved, and a
+`RenderWhen` snippet that did not typecheck at all — each one found by running it.
+
+Tone: relaxed and occasionally funny, never clowning. Emoji where they help a reader scan, not as
+decoration. Warnings about real footguns get a ⚠️ and an explanation of the consequence, not just the
+rule.
 
 TypeScript is `5.9.3`, `strict`, and enables `experimentalDecorators` + `emitDecoratorMetadata`
 (required by `class-transformer` in `modeler` and `client`), `isolatedModules: true` (so no
