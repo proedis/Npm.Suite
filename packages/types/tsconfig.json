@@ -1,6 +1,6 @@
 {
-  "extends": "@proedis/tsconfig/react",
+  "extends": "@proedis/tsconfig/base",
   "include": [
-    "./**/*.ts"
+    "src"
   ]
 }

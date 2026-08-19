@@ -1,0 +1,13 @@
+{
+  "extends": [
+    "@proedis/tsconfig/base",
+    "@proedis/tsconfig/declaration"
+  ],
+  "include": [
+    "src"
+  ],
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "build/types"
+  }
+}
