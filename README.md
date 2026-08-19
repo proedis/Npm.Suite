@@ -112,18 +112,37 @@ that never gets copied there does not exist for a consumer.
 
 ## 📤 Releasing
 
-Deliberately manual, and run one step at a time — there is no aggregate `release` script:
+Three steps, from a clean `master`:
 
 ```bash
-yarn release:version    # interactive, per package
-yarn release:build
-yarn release:verify
-yarn release:publish
+yarn release:preflight   # lint + build + verify, before anything is bumped
+yarn release:version     # interactive, one question per package
+yarn release:finalize    # build + verify + publish
 ```
 
-Versioning is **independent per package**, so a release usually produces several tags at the same
-commit. CI runs lint → build → verify on every push to `master`, every pull request and on demand,
-and **never publishes**: releasing stays a deliberate local action.
+**1 · Preflight.** Checks everything a release can fail on except the version strings themselves,
+which is nearly all of it. Nothing irreversible has happened yet: fix, rerun, repeat.
+
+**2 · Version.** Versioning is **independent per package**, so this asks once per package and
+produces **one tag each**. The cascade is unavoidable — every dependent of a bumped package is
+bumped too, so a change to `types` moves most of the suite. When it finishes, the version commits
+and the tags are **already pushed**: `lerna version` pushes by default, and nothing here turns that
+off. This is the point of no return.
+
+**3 · Look, then finalize.** `git show --stat HEAD` for the numbers, `git tag --points-at HEAD` for
+the tags. Then `release:finalize` rebuilds with the new versions, verifies, and publishes.
+
+> ⚠️ **There is deliberately no single `release` script.** The irreversible half runs *first*, and
+> the verification only two steps later — chaining them would not create that problem, it would
+> automate it. And the order cannot simply be rearranged: the published manifest takes its `version`
+> from the source one, so the build has to follow the bump.
+
+If `publish` is interrupted — network, 2FA, an expired token — just run it again:
+`lerna publish from-package` compares each local version against the registry and picks up whatever
+is missing.
+
+CI runs lint → build → verify on every push to `master`, every pull request and on demand, and
+**never publishes**: releasing stays a deliberate local action.
 
 ## 📄 License
 
