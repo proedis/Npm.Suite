@@ -37,7 +37,7 @@ export default function getExternalDependenciesFromPackage() {
     /** Return direct package and all specific import */
     return [
       ...dependencies,
-      ...dependencies.map(dep => new RegExp(`^${dep}\/.+$`))
+      ...dependencies.map(dep => new RegExp(`^${dep}/.+$`))
     ];
   }
   catch (error) {

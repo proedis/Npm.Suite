@@ -1,13 +1,12 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "display": "Proedis - Types Configuration",
-  "extends": "./base",
+  "display": "Proedis - Declaration Emit Overlay",
   "compilerOptions": {
     "composite": true,
     "declaration": true,
-    "noEmit": false,
     "emitDeclarationOnly": true,
-    "jsx": "react-jsx"
+    "noEmit": false,
+    "stripInternal": true
   },
   "exclude": [
     "node_modules",

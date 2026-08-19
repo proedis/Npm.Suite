@@ -54,15 +54,30 @@ export default class Storage<Data extends AnyObject> extends ClientSubject<Data>
     /** Initialize the Deferred object */
     this._initDeferred = new Deferred<Data>();
 
-    /** Create the initial function to resolve the deferred object and complete the process */
+    /**
+     * Create the initial function to resolve the deferred object and complete the process.
+     *
+     * The subject is initialized **before** the deferred resolves, and the order matters: anything
+     * awaiting initialization goes on to read 'this.value', which throws while the subject is missing.
+     * The reverse order happened to work only because an awaiting continuation runs in a later
+     * microtask — correct by scheduling accident rather than by construction.
+     */
     const initAndResolve = (data: Data): Data => {
+      /** A storage disposed while its first read was still in flight must not build a subject now */
+      if (this.isDisposed) {
+        this._storageLogger.debug('Storage was disposed before initialization completed, discarding data');
+        return data;
+      }
+
+      /** Complete the initialization process of the Subject */
+      this._initializeSubject(data);
+
       /** Resolve the initDeferred object */
       if (this._initDeferred) {
         this._initDeferred.resolve(data);
         this._initDeferred = undefined;
       }
-      /** Complete the initialization process of the Subject */
-      this._initializeSubject(data);
+
       return data;
     };
 
@@ -140,6 +155,15 @@ export default class Storage<Data extends AnyObject> extends ClientSubject<Data>
    * @param value
    */
   public async set<Key extends keyof Data>(key: Key, value: (Data[Key] | ((current: Data[Key]) => Data[Key]))) {
+    /**
+     * Await initialization before touching 'this.value'.
+     *
+     * Without it, calling 'set' inside the startup window threw 'Subject has not been initialized
+     * yet': the current value is read synchronously, before 'persist' gets a chance to await anything.
+     * 'transact' always awaited, so the two methods disagreed on whether they were safe to call early.
+     */
+    await this.isInitialized();
+
     await this.persist({
       ...this.value,
       [key]: typeof value === 'function'
@@ -150,8 +174,39 @@ export default class Storage<Data extends AnyObject> extends ClientSubject<Data>
 
 
   /**
-   * Perform multiple update to data object
-   * @param updateFn
+   * Release this storage, completing its subject and unblocking anything waiting on initialization.
+   *
+   * A pending initialization is rejected rather than abandoned: `isInitialized` is awaited by every write
+   * path, so leaving it pending would hang each of them forever instead of failing them.
+   */
+  public dispose(): void {
+    if (this.isDisposed) {
+      return;
+    }
+
+    const pendingInitialization = this._initDeferred;
+    this._initDeferred = undefined;
+
+    super.dispose();
+
+    if (pendingInitialization?.isPending) {
+      /** Attached first, so rejecting a promise nobody awaited does not surface as an unhandled one */
+      pendingInitialization.promise.catch(() => {
+        this._storageLogger.debug('Initialization abandoned because the Storage was disposed');
+      });
+
+      pendingInitialization.reject(new Error(`Storage '${this._namespace}' was disposed before initializing`));
+    }
+  }
+
+
+  /**
+   * Apply several updates to the stored data in a single persist operation.
+   *
+   * The callback receives a deep clone, not the live value: mutating it in place is both allowed and
+   * the point, since the emitted value is frozen and could not be mutated anyway.
+   *
+   * @param updateFn Receives a mutable copy of the current data and returns the data to persist
    */
   public async transact(updateFn: ((data: Data) => Data)) {
     /** Await the module is initialized */

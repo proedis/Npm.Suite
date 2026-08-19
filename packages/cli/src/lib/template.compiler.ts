@@ -1,11 +1,7 @@
-import console from 'node:console';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { basename, dirname, extname, resolve, relative, sep as pathSeparator } from 'node:path';
-import { cwd } from 'node:process';
-
-import chalk from 'chalk';
-import ora from 'ora';
+import { basename, dirname, extname, resolve, sep as pathSeparator } from 'node:path';
+import { chdir, cwd } from 'node:process';
 
 import * as ejs from 'ejs';
 
@@ -20,8 +16,7 @@ import { globSync } from 'glob';
 import type * as ESLintModule from 'eslint';
 
 import type { Project } from './project';
-
-import { askForConfirmation } from '../ui';
+import type { PlannedFile } from './write-plan';
 
 
 /* --------
@@ -44,13 +39,50 @@ interface CompileOptions {
   rename?: string;
 }
 
-export type SavedFile = string | null;
+/** What the ESLint pass did, or the reason it could not run */
+export interface LintOutcome {
+  /** Files handed to ESLint */
+  linted: number;
+
+  /** Files ESLint actually rewrote */
+  fixed: number;
+
+  /** Set when the pass could not run at all */
+  skipped?: string;
+
+  /** Configuration problems ESLint reported per file, worded as ESLint worded them */
+  problems: string[];
+}
 
 
 /* --------
  * Internal Constant
  * -------- */
 const FIXABLE_EXTENSIONS: string[] = [ '.js', '.jsx', '.ts', '.tsx' ];
+
+/**
+ * Configuration file names, used **only** to locate the directory ESLint should run from.
+ *
+ * This is not a precondition: it used to gate the whole pass, so a project configured through
+ * any name absent from the list — `.eslintrc.json`, `.eslintrc.yml`, `eslint.config.ts`, the
+ * `eslintConfig` key of a package.json — was told it had no configuration and got no fix. The
+ * list can only ever be incomplete, so when nothing matches the pass still runs and lets ESLint
+ * itself decide whether it has something to work with.
+ */
+const ESLINT_CONFIGURATION_FILES: string[] = [
+  'eslint.config.js',
+  'eslint.config.mjs',
+  'eslint.config.cjs',
+  'eslint.config.ts',
+  'eslint.config.mts',
+  'eslint.config.cts',
+  '.eslintrc.js',
+  '.eslintrc.cjs',
+  '.eslintrc.json',
+  '.eslintrc.yaml',
+  '.eslintrc.yml',
+  '.eslintrc'
+];
 
 
 /* --------
@@ -102,8 +134,9 @@ export class TemplateCompiler {
   /**
    * Initialize a new TemplateCompiler setting the root
    * of the project to resolve files relative
-   * @param root
-   * @param project
+   *
+   * @param root The directory templates are resolved from
+   * @param project The project being scaffolded
    */
   constructor(
     private readonly root: string,
@@ -131,15 +164,6 @@ export class TemplateCompiler {
    */
   public forPath(...paths: string[]): TemplateCompiler {
     return new TemplateCompiler(resolve(this.root, ...paths), this.project);
-  }
-
-
-  /**
-   * Completely set a new Root for the TemplateCompiler
-   * @param root
-   */
-  public forRoot(root: string): TemplateCompiler {
-    return new TemplateCompiler(root, this.project);
   }
 
 
@@ -213,59 +237,41 @@ export class TemplateCompiler {
 
 
   /**
-   * Compile a template by name and save into desired path
-   * @param name
-   * @param path
-   * @param _options
+   * Render a template and return the file it would produce, without touching the disk.
+   *
+   * @param name The template name, without the suffix
+   * @param path The directory the file belongs in
+   * @param _options Compilation options
+   * @return The planned file, or null when the template rendered to nothing meaningful
    */
-  public async save(name: string, path: string, _options?: CompileOptions): Promise<SavedFile> {
+  public async plan(name: string, path: string, _options?: CompileOptions): Promise<PlannedFile | null> {
     const options = {
       ...this._defaultCompilerOptions,
       ..._options
     };
 
     /** Get the file content compiling the requested template */
-    const file = await this.compile(name, options);
+    const content = await this.compile(name, options);
 
     /** Set the file output name */
     const outputFilename = ejs.render(options.rename || name, options.model);
     const outputPath = resolve(path, outputFilename);
 
-    /** Check if a file already exists with same name */
-    const fileExists = existsSync(outputPath);
-
-    const saveFile = fileExists
-      ? await askForConfirmation(`${name} already exists in output path. Do you want to override it?`)
-      : true;
-
-    /** Abort if saving is not requested */
-    if (!saveFile) {
-      return null;
-    }
-
-    const savedFilePath = this.writeFile(outputPath, file, fileExists, options.noOverride);
-
-    /** Lint and fix all files, if not omitted */
-    if (!options?.noLint) {
-      await this.lintAndFixFiles([ savedFilePath ]);
-    }
-
-    /** Return the path of the saved file */
-    return savedFilePath;
+    return TemplateCompiler.toPlannedFile(outputPath, content, options.noOverride);
   }
 
 
   /**
-   * Compile all templates and save preserving directory structure
-   * @param root
-   * @param _options
-   * @param silent
+   * Render every template below the current root, preserving the directory structure.
+   *
+   * @param root The directory the tree is written under
+   * @param _options Compilation options
+   * @return The planned files, in template order
    */
-  public async saveAll(
+  public async planAll(
     root: string,
-    _options?: Exclude<CompileOptions, 'rename'>,
-    silent?: boolean
-  ): Promise<SavedFile[]> {
+    _options?: Exclude<CompileOptions, 'rename'>
+  ): Promise<PlannedFile[]> {
     const templates = this.getAllTemplates();
 
     if (!templates.length) {
@@ -287,85 +293,53 @@ export class TemplateCompiler {
       };
     });
 
-    if (!silent) {
-      ora('Generating files...').succeed();
-    }
+    /**
+     * A plain async function, not 'new Promise(async …)': the Promise constructor discards its
+     * executor's rejection, so a template that failed to compile left this promise pending and
+     * hung the whole run on 'Promise.all' below, with no error to show for it.
+     */
+    const templatesPromises = templatesDescriptor.map(async (descriptor): Promise<PlannedFile | null> => {
+      /** Create or use the current compiler */
+      const compiler = descriptor.path ? this.forPath(...descriptor.path) : this;
+      /** Compile the file */
+      const content = await compiler.compile(descriptor.name, options);
+      /** Create the output name */
+      const outputName = ejs.render(descriptor.name, options.model);
+      /** Create the output path */
+      const outputPath = resolve(root, ...(descriptor.path || []), outputName);
 
-    const templatesPromises = templatesDescriptor.map((descriptor) => (
-      new Promise<SavedFile>(async (resolveTemplate) => {
-        /** Create or use the current compiler */
-        const compiler = descriptor.path ? this.forPath(...descriptor.path) : this;
-        /** Compile the file */
-        const file = await compiler.compile(descriptor.name, options);
-        /** Create the output name */
-        const outputName = ejs.render(descriptor.name, options.model);
-        /** Create the output path */
-        const outputPath = resolve(root, ...(descriptor.path || []), outputName);
-        /** Write the file */
-        return resolveTemplate(this.writeFile(outputPath, file, undefined, options.noOverride));
-      })
-    ));
+      return TemplateCompiler.toPlannedFile(outputPath, content, options.noOverride);
+    });
 
-    const savedFiles = await Promise.all(templatesPromises);
-
-    if (!options?.noLint) {
-      await this.lintAndFixFiles(savedFiles);
-    }
-
-    return savedFiles.filter(Boolean);
+    return (await Promise.all(templatesPromises)).filter((file): file is PlannedFile => file !== null);
   }
 
 
   /**
-   * Write the file
-   * @param path
-   * @param file
-   * @param modified
-   * @param noOverride
-   * @private
+   * Turn rendered content into a planned file, resolving whether it belongs to the user.
+   *
+   * @param path The absolute path the file belongs at
+   * @param content The rendered content
+   * @param noOverride The declaration, which may be a predicate over the file name
+   * @return The planned file, or null when the content holds nothing worth writing
    */
-  public writeFile(
+  public static toPlannedFile(
     path: string,
-    file: string,
-    modified?: boolean,
+    content: string,
     noOverride?: CompileOptions['noOverride']
-  ): SavedFile {
-    /** Template will be saved only if contains at least one char */
-    if (!/[A-Za-z]/.test(file)) {
+  ): PlannedFile | null {
+    /** A template that rendered to nothing but punctuation produces no file at all */
+    if (!/[A-Za-z]/.test(content)) {
       return null;
     }
 
-    /** Assert the parent folder exists */
-    const parent = dirname(path);
-    if (!existsSync(parent)) {
-      mkdirSync(parent, { recursive: true });
-    }
-
-    /** Check if file is modified or not */
-    const isFileModified = modified ?? existsSync(path);
-
-    /** Check if file must be overridden */
     const fileName = basename(path);
-    const avoidOverriding = typeof noOverride === 'function' ? noOverride(fileName, path) : noOverride;
-    if (isFileModified && avoidOverriding) {
-      console.info(
-        chalk.yellow(
-          `File ${path} already exists and won\'t be overridden`
-        )
-      );
 
-      return null;
-    }
-
-    /** Write the file and show feedback to user */
-    writeFileSync(path, file, 'utf-8');
-    console.info(
-      isFileModified
-        ? chalk.yellow(`  M ${relative(cwd(), path)}`)
-        : chalk.green(`  A ${relative(cwd(), path)}`)
-    );
-
-    return path;
+    return {
+      content,
+      noOverride: typeof noOverride === 'function' ? noOverride(fileName, path) : !!noOverride,
+      path
+    };
   }
 
 
@@ -387,15 +361,45 @@ export class TemplateCompiler {
   }
 
 
-  public async lintAndFixFiles(paths: SavedFile[]) {
-    /** Filter keeping only valid paths */
-    const fixablePaths = paths.filter((path) => (
-      typeof path === 'string' && FIXABLE_EXTENSIONS.includes(extname(path)))
-    ) as string[];
+  /**
+   * The directory ESLint has to run from.
+   *
+   * This is not cosmetic. A relative `parserOptions.project` is resolved by
+   * `@typescript-eslint/parser` against **the process working directory**, not against the `cwd`
+   * handed to `new ESLint()` and not against the directory holding the configuration. In a
+   * monorepo whose ESLint setup lives at the root — the shape of every project this scaffolder
+   * actually runs in — invoking the CLI from inside a workspace made the parser look for
+   * `<workspace>/tsconfig.eslint.json`, fail to read it, and report a fatal parsing error on
+   * every generated file: the fix silently did nothing. Measured, and fixed by running the pass
+   * from the configuration's own directory.
+   *
+   * @return The directory to run from, falling back to the project root when no known
+   *         configuration file name is found — the pass still runs from there.
+   */
+  private resolveEslintWorkingDirectory(): string {
+    const configurationPath = ESLINT_CONFIGURATION_FILES
+      .map((fileName) => this.project.findFile(fileName))
+      .find((path): path is string => path !== null);
+
+    return configurationPath ? dirname(configurationPath) : this.project.rootDirectory;
+  }
+
+
+  /**
+   * Fix the generated files with the ESLint installed in the target project.
+   *
+   * @param paths The files to fix, as returned by the write phase
+   * @return What the pass did, so the caller can report it instead of guessing
+   */
+  public async lintAndFixFiles(paths: string[]): Promise<LintOutcome> {
+    const outcome: LintOutcome = { linted: 0, fixed: 0, problems: [] };
+
+    /** Filter keeping only the files ESLint has rules for */
+    const fixablePaths = paths.filter((path) => FIXABLE_EXTENSIONS.includes(extname(path)));
 
     /** Assert at least one file exist */
     if (!fixablePaths.length) {
-      return;
+      return outcome;
     }
 
     /**
@@ -407,74 +411,49 @@ export class TemplateCompiler {
     const ESLint = this.resolveProjectEslint();
 
     if (!ESLint) {
-      console.info(
-        chalk.yellow(
-          'To enable instant fix for template files, the eslint package must be installed in this project'
-        )
-      );
-      return;
-    }
-
-    /** The shared config is still expected to be resolvable from the project */
-    const manager = await this.project.manager();
-    if (!manager.areDependenciesInstalled({ name: 'eslint-config-proedis', global: true })) {
-      console.info(
-        chalk.yellow(
-          'To enable instant fix for template files, the eslint-config-proedis package must be installed'
-        )
-      );
-      return;
-    }
-
-    /** Check if a valid flat or legacy configuration file exists */
-    if (
-      !this.project.couldResolveFile('eslint.config.js')
-      && !this.project.couldResolveFile('eslint.config.mjs')
-      && !this.project.couldResolveFile('eslint.config.cjs')
-      && !this.project.couldResolveFile('.eslintrc.js')
-      && !this.project.couldResolveFile('.eslintrc.cjs')
-    ) {
-      console.info(
-        chalk.yellow(
-          'To enable instant fix for template files, a valid configuration file for ESLint must exists'
-        )
-      );
-      return;
+      outcome.skipped = 'eslint is not installed in this project';
+      return outcome;
     }
 
     /**
-     * Create the new eslint instance.
-     * 'useEslintrc' was removed in ESLint 9, where legacy configuration is opted into
-     * through the environment instead: passing the option there throws.
+     * There used to be two more preconditions here: one asserting 'eslint-config-proedis' was
+     * installed, and one asserting a configuration file existed among five hardcoded names.
+     * Both could only produce false negatives — the first resolved from this package's location
+     * rather than the project's and demanded one specific shared config where any working setup
+     * will do, the second declared a correctly configured project unconfigured whenever it used
+     * a name outside that list. Whether there is something to lint with is ESLint's answer to
+     * give, and both of its ways of saying no are handled below.
      */
     const isLegacyEslint = Number.parseInt(ESLint.version ?? '', 10) < 9;
 
+    const workingDirectory = this.resolveEslintWorkingDirectory();
+
     const eslint = new ESLint({
-      cwd: this.project.rootDirectory,
+      cwd: workingDirectory,
       fix: true,
+      /** Removed in ESLint 9, where passing it throws 'Invalid Options' */
       ...(isLegacyEslint ? { useEslintrc: true } : {})
     });
 
     /**
-     * Lint all files.
-     *
-     * There used to be a hard precondition on a 'tsconfig.eslint.json' existing in the
-     * project root. That filename is a convention of a project's own eslintrc, not
-     * something this CLI should know about, and a flat config project may legitimately not
-     * have it — the fix was skipped there for no reason. Whatever is actually wrong with the
-     * project's setup is reported below, by ESLint itself.
+     * Run from the configuration's directory, then restore: see
+     * 'resolveEslintWorkingDirectory' for why the process working directory is what decides
+     * whether a relative 'parserOptions.project' resolves.
      */
+    const callerWorkingDirectory = cwd();
     let results: ESLintModule.ESLint.LintResult[];
 
     try {
+      chdir(workingDirectory);
       results = await eslint.lintFiles(fixablePaths);
     }
     catch (error) {
       /** An unloadable parser or an invalid flat config rejects here */
-      console.info(
-        chalk.yellow(`Instant fix for template files has been skipped: ${(error as Error).message}`)
-      );
-      return;
+      outcome.skipped = (error as Error).message;
+      return outcome;
+    }
+    finally {
+      chdir(callerWorkingDirectory);
     }
 
     /**
@@ -483,7 +462,7 @@ export class TemplateCompiler {
      * inspected as well. ESLint names the offending file, which is more useful than any
      * hint hardcoded here.
      */
-    const fatalMessages = [
+    outcome.problems = [
       ...new Set(
         results
           .flatMap((result) => result.messages)
@@ -492,13 +471,13 @@ export class TemplateCompiler {
       )
     ];
 
-    if (fatalMessages.length) {
-      console.info(chalk.yellow('Instant fix for template files could not be applied:'));
-      fatalMessages.forEach((message) => console.info(chalk.yellow(`  ${message}`)));
-    }
-
     /** Produce the fixing, for whichever files could be parsed */
     await ESLint.outputFixes(results);
+
+    outcome.linted = results.length;
+    outcome.fixed = results.filter((result) => result.output !== undefined).length;
+
+    return outcome;
   }
 
 }

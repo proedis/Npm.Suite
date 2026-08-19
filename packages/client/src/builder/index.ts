@@ -1,6 +1,6 @@
-import type { AxiosRequestConfig } from 'axios';
-
 import type { AnyObject } from '@proedis/types';
+import type { RequestInitConfig } from '../lib/Transport/Transport.types';
+
 
 import Client from '../Client';
 import type {
@@ -49,7 +49,7 @@ export default class ClientBuilder<
 
   private _defaultRequest: NonTransformableClientRequestConfig<Tokens> | undefined;
 
-  private _axiosConfig: Partial<AxiosRequestConfig> | undefined;
+  private _transportConfig: RequestInitConfig | undefined;
 
   private _userDataExtractor: ClientSettings<UserData, StoredData, Tokens>['userDataExtractor'];
 
@@ -157,12 +157,11 @@ export default class ClientBuilder<
    */
   public withToken<T extends string>(
     name: T,
-    /* eslint-disable @typescript-eslint/indent */
     configuration: Builder<
       TokenHandshakeConfiguration<UserData, StoredData, Tokens | T>,
       TokenHandshakeConfiguration<UserData, StoredData, Tokens>
     >
-    /* eslint-enable */
+
   ): ClientBuilder<UserData, StoredData, Tokens | T> {
     /** Create a new configuration for the token */
     const currentConfiguration = this._tokens.get(name as any);
@@ -229,15 +228,18 @@ export default class ClientBuilder<
 
 
   /**
-   * Set the Axios defaults param.
-   * If default params have already been set, they will be
+   * Set the transport level options applied to every request.
+   * If defaults have already been set, they will be
    * passed to the option function to let the user edit them
+   *
+   * Renamed from 'withAxiosDefault' now that there is no axios instance behind the client.
+   *
    * @param configure
    */
-  public withAxiosDefault(
-    configure: Builder<Partial<AxiosRequestConfig> | undefined>
+  public withTransportDefault(
+    configure: Builder<RequestInitConfig | undefined>
   ): ClientBuilder<UserData, StoredData, Tokens> {
-    this._axiosConfig = typeof configure === 'function' ? configure(this._axiosConfig) : configure;
+    this._transportConfig = typeof configure === 'function' ? configure(this._transportConfig) : configure;
     return this;
   }
 
@@ -285,7 +287,7 @@ export default class ClientBuilder<
       api              : this._api,
       extras           : this._extras,
       requests         : {
-        axiosConfig: this._axiosConfig,
+        transportConfig: this._transportConfig,
         defaults   : this._defaultRequest,
         server     : this._server
       },

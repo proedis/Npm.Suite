@@ -21,7 +21,9 @@ export default class NativeAsyncStorage implements StorageApi {
      * In some system, the AsyncStorage module will be imported using 'default', try to assert the create function exists
      * Take this code as an experimental work-around
      */
-    return typeof (AsyncStorageModule as { default?: typeof AsyncStorageModule }).default?.getItem === 'function'
+    const hasDefaultExport = typeof (AsyncStorageModule as { default?: typeof AsyncStorageModule }).default?.getItem === 'function';
+
+    return hasDefaultExport
       ? (AsyncStorageModule as unknown as { default: typeof AsyncStorageModule }).default
       : AsyncStorageModule;
   })();

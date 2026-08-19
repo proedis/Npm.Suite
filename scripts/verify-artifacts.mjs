@@ -83,20 +83,30 @@ function toPackageName(specifier) {
 }
 
 
-/** Every path an entry point field can point at, flattened out of the exports map */
+/**
+ * Every path an entry point field can point at, flattened out of the exports map.
+ *
+ * 'typesVersions' is walked together with 'exports' because it declares the very same
+ * subpaths for consumers whose moduleResolution predates 'exports': a stale entry there
+ * fails only on the consumer side, and only for those consumers.
+ */
 function collectEntryPoints(manifest) {
   const entryPoints = [ manifest.main, manifest.module, manifest.types ].filter(Boolean);
 
-  const walkExports = (value) => {
+  const walkPaths = (value) => {
     if (typeof value === 'string') {
       entryPoints.push(value);
     }
+    else if (Array.isArray(value)) {
+      value.forEach(walkPaths);
+    }
     else if (value && typeof value === 'object') {
-      Object.values(value).forEach(walkExports);
+      Object.values(value).forEach(walkPaths);
     }
   };
 
-  walkExports(manifest.exports);
+  walkPaths(manifest.exports);
+  walkPaths(manifest.typesVersions);
 
   return [ ...new Set(entryPoints) ];
 }
@@ -194,6 +204,21 @@ function verifyPackage(packageName) {
       }
     });
   }
+
+  // ----
+  // 1d. Documentation and license must reach the tarball
+  // ----
+  /**
+   * Publishing runs with '--contents build', so anything that never gets copied into the
+   * build directory simply does not exist for a consumer. A package landing on npm with no
+   * README renders as an empty page on the registry, and one with no LICENSE contradicts
+   * the 'license' field of its own manifest.
+   */
+  [ 'README.md', 'LICENSE' ].forEach((file) => {
+    if (!existsSync(join(buildPath, file))) {
+      problems.push(`${file} is missing from the build: it would not be published`);
+    }
+  });
 
   // ----
   // 2. Dual-format output must declare its module type per directory

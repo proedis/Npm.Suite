@@ -26,9 +26,10 @@ export class ObjectModel extends AbstractedModel<ObjectSchema> {
   constructor(name: string, schema: ObjectSchema, repository: ModelsRepository) {
     super(name, schema, repository);
 
-    this.properties = Object.entries(this.schema.properties || {}).map(([ propertyName, propertySchema ]) => {
-      return PropertyFactory.create(name, propertyName, propertySchema);
-    });
+    this.properties = Object.entries(this.schema.properties || {})
+      .map(([ propertyName, propertySchema ]) => (
+        PropertyFactory.create(name, propertyName, propertySchema)
+      ));
   }
 
 
@@ -64,9 +65,22 @@ export class ObjectModel extends AbstractedModel<ObjectSchema> {
   protected write(): string {
     const content: string[] = [];
 
-    const implementations = this.extends.length ? this.extends : [ 'ModelerObject' ];
+    /**
+     * TypeScript has single inheritance, so a schema whose 'allOf' carries more than one '$ref'
+     * cannot become a class. This used to be joined with a comma and written out anyway, which
+     * produced a file that does not compile — a failure the user met at build time, far from
+     * its cause. Raising it here happens during the render phase, so nothing is written at all.
+     */
+    if (this.extends.length > 1) {
+      throw new Error(
+        `Cannot generate the ${this.name} model: its 'allOf' declares multiple base schemas `
+        + `(${this.extends.join(', ')}), and a TypeScript class can only extend one`
+      );
+    }
 
-    content.push(`export class ${this.name} extends ${implementations.join(', ')} {`);
+    const baseClass = this.extends[0] ?? 'ModelerObject';
+
+    content.push(`export class ${this.name} extends ${baseClass} {`);
     this.properties.forEach((property) => {
       content.push('');
       content.push(property.renderProperty(2));

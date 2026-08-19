@@ -2,9 +2,6 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "display": "Proedis - React Native Configuration",
   "extends": "./react.json",
-  "compilerOptions": {
-    "jsx": "react-native"
-  },
   "exclude": [
     "node_modules",
     "babel.config.js",

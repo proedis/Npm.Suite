@@ -1,26 +1,12 @@
-import { existsSync, rmSync, writeFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { relative, resolve, sep as pathSeparator } from 'node:path';
 
 import { AbstractedScaffolder } from './lib';
-import { spinnerFeedbackFunction } from '../../ui';
 
 import { ModelsRepository } from './lib/models/ModelsRepository';
 
 import type { OpenApiDocument, RouteParameterSchema, PathMethodDescriptor } from './types/openapi';
-import { type SavedFile, TemplateCompiler } from '../template.compiler';
-import { globSync } from 'glob';
-
-
-/* --------
- * Internal Types
- * -------- */
-interface ModelsScaffolderAnswers {
-  /** The endpoint at which the host will respond with OpenAPI Specification */
-  endpoint: string;
-
-  /** The host to use to download OpenAPI Specification */
-  host: string;
-}
+import { TemplateCompiler } from '../template.compiler';
+import type { PlannedFile } from '../write-plan';
 
 
 /* --------
@@ -28,82 +14,107 @@ interface ModelsScaffolderAnswers {
  * -------- */
 export class ModelsScaffolder extends AbstractedScaffolder {
 
-  public async scaffold(): Promise<SavedFile[]> {
-    /** Get scaffold configuration */
-    const answers = await this.getAnswers();
+  // ----
+  // Source Description
+  // ----
+  protected get cacheKey(): string {
+    return 'scaffold-models';
+  }
 
-    /** Download the open api document from server */
-    const openApiDocument = await this.getOpenApiDocument(answers);
+
+  protected get sourceName(): string {
+    return 'OpenAPI Specification';
+  }
+
+
+  protected describeSource(source: OpenApiDocument): string {
+    const schemas = Object.keys(source.components?.schemas ?? {});
+    const paths = Object.keys(source.paths ?? {});
+
+    /** Only the schemas carrying the Proedis extensions ever become a file */
+    const models = schemas.filter((name) => {
+      const schema = (source.components.schemas as Record<string, any>)[name];
+      return ('x-api-response-dto' in schema && !!schema['x-api-response-dto'])
+        || ('x-api-enum' in schema && !schema['x-enum-described']);
+    });
+
+    return `Found ${models.length} model${models.length === 1 ? '' : 's'} out of ${schemas.length} schema`
+      + `${schemas.length === 1 ? '' : 's'}, and ${paths.length} path${paths.length === 1 ? '' : 's'}.`;
+  }
+
+
+  protected async build(): Promise<void> {
+    /** Download and validate the OpenApi document */
+    const openApiDocument = await this.getSource<OpenApiDocument>(ModelsScaffolder.assertOpenApiDocument);
 
     /** Get the root folder to use to write/update models */
     const root = this.project.srcDirectory;
 
-    /** Create a new string array of saved files */
-    const results: SavedFile[] = [];
+    /** Render every model and the namespaces, adding them to the plan */
+    this.plan.add(...this.generateModels(root, openApiDocument));
 
-    /** Generate all models from OpenApi Document */
-    results.push(...this.generateModels(root, openApiDocument));
-    results.push(this.generateNamespaces(root, openApiDocument));
+    const namespaces = this.generateNamespaces(root, openApiDocument);
 
-    /** Return the array of written files */
-    return results;
+    if (namespaces) {
+      this.plan.add(namespaces);
+    }
   }
 
 
-  private async getOpenApiDocument(answers: ModelsScaffolderAnswers): Promise<OpenApiDocument> {
-    /** Download the OpenApi Document from the Server */
-    const openApiDocument = await spinnerFeedbackFunction<OpenApiDocument>(
-      'Downloading OpenApi Specification',
-      async (resolveOpenApi, reject) => (
-        import('node-fetch')
-          .then((fetch) => fetch.default(
-            `${answers.host}/${answers.endpoint.replace(/^\//, '')}`,
-            {
-              headers: {
-                Origin: 'http://localhost'
-              }
-            }
-          ))
-          .then(async (response) => (
-            resolveOpenApi(await response.json() as OpenApiDocument)
-          ))
-          .catch((error) => {
-            reject(error?.message || 'Error while downloading OpenApi Specification');
-          })
-      )
-    );
-
+  /**
+   * Reject anything that is not an OpenApi document, before the models directory is erased.
+   *
+   * @param source The parsed response body
+   */
+  private static assertOpenApiDocument(source: unknown): OpenApiDocument {
     /** Assert is a valid object */
-    if (typeof openApiDocument !== 'object' || openApiDocument == null || Array.isArray(openApiDocument)) {
+    if (typeof source !== 'object' || source == null || Array.isArray(source)) {
       throw new Error('Definition error: expected an object');
     }
 
-    /** Return the document */
-    return openApiDocument;
-  }
+    const document = source as OpenApiDocument;
 
-
-  private generateModels(root: string, openApiDocument: OpenApiDocument): string[] {
-    const modelsPath = resolve(root, 'models', 'scaffold');
-
-    /** Clear the entire models folder */
-    if (existsSync(modelsPath)) {
-      rmSync(modelsPath, { recursive: true, force: true });
+    /** Both halves are read unconditionally further down: a document without them is not one */
+    if (typeof document.components?.schemas !== 'object' || document.components.schemas == null) {
+      throw new Error('Definition error: the document declares no \'components.schemas\'');
     }
 
-    /** Create the Model Repository with downloaded data */
-    const modelsRepository = new ModelsRepository(openApiDocument.components, this.compiler, modelsPath);
-    modelsRepository.write();
+    if (typeof document.paths !== 'object' || document.paths == null) {
+      throw new Error('Definition error: the document declares no \'paths\'');
+    }
 
-    return this.generateBarrel(modelsPath);
+    return document;
   }
 
 
-  private generateBarrel(folder: string): string[] {
-    /** Get all typescript files in the folder */
-    const files = globSync('**/*.ts', {
-      cwd: folder
-    }).sort((a, b) => a.localeCompare(b)).map(f => `./${f}`);
+  private generateModels(root: string, openApiDocument: OpenApiDocument): PlannedFile[] {
+    const modelsPath = resolve(root, 'models', 'scaffold');
+
+    /** Declare the entire models folder as rebuilt from scratch */
+    this.wipeDirectories([ modelsPath ]);
+
+    /** Create the Model Repository with downloaded data, and render every model */
+    const modelsRepository = new ModelsRepository(openApiDocument.components, modelsPath);
+    const models = modelsRepository.build();
+
+    return [ ...models, this.generateBarrel(modelsPath, models) ];
+  }
+
+
+  /**
+   * Build the barrel re-exporting every generated model.
+   *
+   * It is derived from the rendered files rather than from a glob over the output directory:
+   * nothing has been written yet when this runs, and reading the directory would in any case
+   * describe the previous run rather than this one.
+   *
+   * @param folder The directory the models belong in
+   * @param models The rendered models
+   */
+  private generateBarrel(folder: string, models: PlannedFile[]): PlannedFile {
+    const files = models
+      .map((model) => `./${relative(folder, model.path).split(pathSeparator).join('/')}`)
+      .sort((a, b) => a.localeCompare(b));
 
     const content: string[] = [
       TemplateCompiler.getDisclaimer(),
@@ -117,15 +128,15 @@ export class ModelsScaffolder extends AbstractedScaffolder {
       );
     });
 
-    const barrelFile = resolve(folder, 'index.ts');
-
-    writeFileSync(barrelFile, content.join('\n'), 'utf-8');
-
-    return [ ...files, barrelFile ].map(file => resolve(folder, file));
+    return {
+      content   : content.join('\n'),
+      noOverride: false,
+      path      : resolve(folder, 'index.ts')
+    };
   }
 
 
-  private generateNamespaces(root: string, openApiDocument: OpenApiDocument): SavedFile {
+  private generateNamespaces(root: string, openApiDocument: OpenApiDocument): PlannedFile | null {
     /** Create the path to the file to write */
     const namespaceFile = resolve(root, 'namespaces', 'index.ts');
 
@@ -163,8 +174,14 @@ export class ModelsScaffolder extends AbstractedScaffolder {
     fileContent.push('export type Namespaced<T> = T & WithNamespace;');
     fileContent.push('');
 
-    /** Write the file content to out location */
-    return this.compiler.writeFile(namespaceFile, fileContent.join('\n'), true, false);
+    /**
+     * Hand the file to the plan.
+     *
+     * Whether it counts as created or updated is decided at commit time by comparing it with
+     * what is on disk: it used to be forced to 'modified', so a namespace file created for the
+     * first time was still announced as a modification.
+     */
+    return TemplateCompiler.toPlannedFile(namespaceFile, fileContent.join('\n'));
   }
 
 
@@ -324,6 +341,16 @@ export class ModelsScaffolder extends AbstractedScaffolder {
   }
 
 
+  /**
+   * The TypeScript type a query parameter accepts.
+   *
+   * Every branch has to return something: the switch used to fall through for anything outside
+   * the three primitives, and the resulting `undefined` was interpolated straight into the
+   * generated file as the literal text `undefined`. Arrays are the case that actually reached
+   * it — a repeated query parameter is ordinary in an OpenAPI document.
+   *
+   * @param param The parameter descriptor
+   */
   private static getRouteParamConstraint(param: RouteParameterSchema): string {
     switch (param.schema.type) {
       case 'string':
@@ -335,26 +362,18 @@ export class ModelsScaffolder extends AbstractedScaffolder {
 
       case 'boolean':
         return 'boolean';
+
+      case 'array':
+        return `${ModelsScaffolder.getRouteParamConstraint({
+          ...param,
+          schema: param.schema.items
+        })}[]`;
+
+      default:
+        /** Everything travels the query string as text, so this is a fallback and not a guess */
+        return 'string';
     }
   }
 
-
-  private async getAnswers(): Promise<ModelsScaffolderAnswers> {
-    return this.project.getPromptWithCachedDefaults<ModelsScaffolderAnswers>(
-      'scaffold-models',
-      [
-        {
-          type   : 'input',
-          name   : 'host',
-          message: 'The host to use to download OpenAPI Specification'
-        },
-        {
-          type   : 'input',
-          name   : 'endpoint',
-          message: 'The endpoint at which the host will respond with OpenAPI Specification'
-        }
-      ]
-    );
-  }
 
 }

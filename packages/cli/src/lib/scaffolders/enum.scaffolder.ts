@@ -1,28 +1,17 @@
 import console from 'node:console';
 import { relative, resolve } from 'node:path';
 import { cwd } from 'node:process';
-import { existsSync, mkdirSync, rmSync } from 'node:fs';
 
 import chalk from 'chalk';
 
 import { AbstractedScaffolder } from './lib';
 
-import { askForConfirmation, spinnerFeedbackFunction } from '../../ui';
-
-import type { SavedFile } from '../template.compiler';
+import type { PlannedFile } from '../write-plan';
 
 
 /* --------
  * Internal Types
  * -------- */
-interface EnumScaffolderAnswers {
-  /** The endpoint relative to the host to use to download shared objects definition */
-  endpoint: string;
-
-  /** The host to use to download shared objects definition */
-  host: string;
-}
-
 interface SharedObjectDefinition {
   /** The enumerator system name */
   name: string;
@@ -42,17 +31,33 @@ type SharedObjects = Record<string, SharedObjectDefinition[]>;
  * -------- */
 export class EnumScaffolder extends AbstractedScaffolder {
 
+  // ----
+  // Source Description
+  // ----
+  protected get cacheKey(): string {
+    return 'scaffold-enums';
+  }
+
+
+  protected get sourceName(): string {
+    return 'Enums Definition';
+  }
+
+
+  protected describeSource(source: SharedObjects): string {
+    const names = Object.keys(source);
+    const values = names.reduce((count, name) => count + source[name].length, 0);
+
+    return `Found ${names.length} enum${names.length === 1 ? '' : 's'}, ${values} value${values === 1 ? '' : 's'}.`;
+  }
+
 
   // ----
   // Main Scaffold Implementation
   // ----
-  public async scaffold(): Promise<SavedFile[]> {
-    /** Get scaffold configuration */
-    const answers = await this.getAnswers();
-    console.info();
-
-    /** Download shared objects from remote server */
-    const sharedObjects = await this.getSharedObjects(answers);
+  protected async build(): Promise<void> {
+    /** Download and validate the shared objects definition */
+    const sharedObjects = await this.getSource<SharedObjects>(EnumScaffolder.assertSharedObjects);
 
     /** Build the folders path */
     const root = this.project.srcDirectory;
@@ -65,23 +70,15 @@ export class EnumScaffolder extends AbstractedScaffolder {
     /** Start to process to write enums definition */
     console.info();
     console.info(`All paths will be resolved from root ${chalk.green(relative(cwd(), root))}:`);
-    console.info(` - Saving Constants in ${chalk.cyan('./' + relative(root, constantsPath))}`);
-    console.info(` - Saving Enums in ${chalk.cyan('./' + relative(root, enumsPath))}`);
-    console.info(` - Saving Utilities in ${chalk.cyan('./' + relative(root, typesPath))}`);
-    console.info();
+    console.info(` - Saving Constants in ${chalk.cyan(`./${relative(root, constantsPath)}`)}`);
+    console.info(` - Saving Enums in ${chalk.cyan(`./${relative(root, enumsPath)}`)}`);
+    console.info(` - Saving Utilities in ${chalk.cyan(`./${relative(root, typesPath)}`)}`);
 
     /** Clean all directories and recreate */
-    [ typesPath, enumsPath, resolve(constantsPath, 'enums') ].forEach((path) => {
-      /** Remove if folder exists */
-      if (existsSync(path)) {
-        rmSync(path, { recursive: true });
-      }
-      /** Recreate the folder */
-      mkdirSync(path, { recursive: true });
-    });
+    this.wipeDirectories([ typesPath, enumsPath, resolve(constantsPath, 'enums') ]);
 
-    /** Create the array of generate files to be returned */
-    const generatedFiles: SavedFile[] = [
+    /** Render every file, adding it to the plan. Nothing is on disk until the plan commits */
+    this.plan.add(
       /** Create all interfaces and types under interfaces folder */
       ...await this.generateEnumsInterfaces(enumsPath, sharedObjects),
       /** Generate main shared object utilities */
@@ -90,19 +87,16 @@ export class EnumScaffolder extends AbstractedScaffolder {
       ...await this.generateSharedObjectConstants(resolve(constantsPath, 'enums'), sharedObjects),
       /** Generate all utilities */
       ...await this.generateSharedObjectsUtilities(constantsPath, sharedObjects)
-    ];
-
-
-    return Promise.resolve(generatedFiles);
+    );
   }
 
 
   // ----
   // Internal Scaffold Utilities
   // ----
-  private async generateEnumsInterfaces(outputPath: string, sharedObjects: SharedObjects): Promise<SavedFile[]> {
+  private async generateEnumsInterfaces(outputPath: string, sharedObjects: SharedObjects): Promise<PlannedFile[]> {
     /** Create an array of generated files to be linted at the end of the process */
-    const generatedFiles: SavedFile[] = [];
+    const generatedFiles: (PlannedFile | null)[] = [];
 
     /** Create the template compiler */
     const compiler = this.compiler.forPath('enums', 'interfaces', 'enums').defaults({
@@ -113,7 +107,7 @@ export class EnumScaffolder extends AbstractedScaffolder {
     /** Generate all single enum type definition */
     generatedFiles.push(...await Promise.all(
       Object.keys(sharedObjects).map((enumName) => (
-        compiler.save(
+        compiler.plan(
           '_enum-type-definition.ts',
           outputPath,
           {
@@ -128,14 +122,14 @@ export class EnumScaffolder extends AbstractedScaffolder {
     ));
 
     /** Create the composed shared object interface */
-    generatedFiles.push(await compiler.save(
+    generatedFiles.push(await compiler.plan(
       '_composed.ts',
       outputPath,
       { model: { names: Object.keys(sharedObjects) } }
     ));
 
     /** Create the enums type index to export all types */
-    generatedFiles.push(await compiler.save(
+    generatedFiles.push(await compiler.plan(
       '_enum-type-index.ts',
       outputPath,
       {
@@ -145,11 +139,11 @@ export class EnumScaffolder extends AbstractedScaffolder {
     ));
 
     /** Return all generated files */
-    return generatedFiles;
+    return generatedFiles.filter((file): file is PlannedFile => file !== null);
   }
 
 
-  private async generateSharedObjectsTypes(outputPath: string, sharedObjects: SharedObjects): Promise<SavedFile[]> {
+  private async generateSharedObjectsTypes(outputPath: string, sharedObjects: SharedObjects): Promise<PlannedFile[]> {
     /** Create the template compiler */
     const compiler = this.compiler.forPath('enums', 'interfaces', 'shared-objects').defaults({
       noLint         : true,
@@ -157,15 +151,15 @@ export class EnumScaffolder extends AbstractedScaffolder {
     });
 
     /** Generate all files in directory */
-    return compiler.saveAll(outputPath, {
+    return compiler.planAll(outputPath, {
       model: { names: Object.keys(sharedObjects) }
     });
   }
 
 
-  private async generateSharedObjectConstants(outputPath: string, sharedObjects: SharedObjects): Promise<SavedFile[]> {
+  private async generateSharedObjectConstants(outputPath: string, sharedObjects: SharedObjects): Promise<PlannedFile[]> {
     /** Create an array of generated files to be linted at the end of the process */
-    const generatedFiles: SavedFile[] = [];
+    const generatedFiles: (PlannedFile | null)[] = [];
 
     /** Create the template compiler */
     const compiler = this.compiler.forPath('enums', 'constants', 'enums').defaults({
@@ -176,7 +170,7 @@ export class EnumScaffolder extends AbstractedScaffolder {
     /** Generate single files for all enums */
     generatedFiles.push(...await Promise.all(
       Object.keys(sharedObjects).map((enumName) => (
-        compiler.save(
+        compiler.plan(
           '_enum-constant.ts',
           outputPath,
           {
@@ -191,7 +185,7 @@ export class EnumScaffolder extends AbstractedScaffolder {
     ));
 
     /** Create the enums type index to export all types */
-    generatedFiles.push(await compiler.save(
+    generatedFiles.push(await compiler.plan(
       '_index.ts',
       outputPath,
       {
@@ -201,13 +195,13 @@ export class EnumScaffolder extends AbstractedScaffolder {
     ));
 
     /** Return the array of generated files */
-    return generatedFiles;
+    return generatedFiles.filter((file): file is PlannedFile => file !== null);
   }
 
 
-  private async generateSharedObjectsUtilities(outputPath: string, sharedObjects: SharedObjects): Promise<SavedFile[]> {
+  private async generateSharedObjectsUtilities(outputPath: string, sharedObjects: SharedObjects): Promise<PlannedFile[]> {
     /** Create an array of generated files to be linted at the end of the process */
-    const generatedFiles: SavedFile[] = [];
+    const generatedFiles: (PlannedFile | null)[] = [];
 
     /** Create the template compiler */
     const compiler = this.compiler.forPath('enums', 'constants').defaults({
@@ -215,22 +209,37 @@ export class EnumScaffolder extends AbstractedScaffolder {
       noOverride: (fileName) => /\.(icons|colors)\.ts$/.test(fileName)
     });
 
-    /** Ask user if it must compile shared objects color and icons */
-    const mustContinue = await askForConfirmation(
-      'Do you want to generate SharedObjects utilities like colors and icons? ' +
-      'Mantine and FontAwesome are required to continue: without those packages utilities won\'t be usable.'
+    /**
+     * Ask user if it must compile shared objects color and icons.
+     *
+     * The generated files no longer name a UI kit: color and icon tokens are typed through
+     * '@proedis/modeler' EnumsColors and EnumsIcons, which resolve to whatever the
+     * application declares on ModelerOverride, and to plain strings until it declares
+     * anything. Mantine and FontAwesome used to be hard requirements here purely because
+     * these two files imported their token types directly.
+     */
+    const mustContinue = await this.confirm(
+      'Do you want to generate SharedObjects utilities like colors and icons? '
+      + '@proedis/modeler is required to continue: without that package the utilities won\'t be usable.'
     );
 
     if (!mustContinue) {
-      return generatedFiles;
+      return generatedFiles.filter((file): file is PlannedFile => file !== null);
     }
 
     /** Compile all files in the folder */
     generatedFiles.push(
-      ...await compiler.saveAll(
+      ...await compiler.planAll(
         outputPath,
         {
           model: {
+            /**
+             * The zod helper is emitted only when zod is actually available to this project:
+             * generating an import for a package that cannot be resolved produces a file that
+             * does not compile, and this scaffolder installs nothing on its own. Availability
+             * is not the same as being declared here — see 'canResolveDependency'.
+             */
+            hasZod       : this.project.canResolveDependency('zod'),
             sharedObjects: Object.keys(sharedObjects).map((sharedObjectName) => ({
               name  : sharedObjectName,
               values: sharedObjects[sharedObjectName].map((v) => v.name)
@@ -241,13 +250,13 @@ export class EnumScaffolder extends AbstractedScaffolder {
     );
 
     /** Ask user if it must compile configuration for modeler */
-    const generateConfigurationFile = await askForConfirmation(
-      'Do you want to generate Modeler Configuration file? ' +
-      '@proedis/modeler is required to continue: without those packages utilities won\'t be usable.'
+    const generateConfigurationFile = await this.confirm(
+      'Do you want to generate Modeler Configuration file? '
+      + '@proedis/modeler is required to continue: without that package the utilities won\'t be usable.'
     );
 
     if (!generateConfigurationFile) {
-      return generatedFiles;
+      return generatedFiles.filter((file): file is PlannedFile => file !== null);
     }
 
     /** Create the compiler */
@@ -256,38 +265,25 @@ export class EnumScaffolder extends AbstractedScaffolder {
       noOverride: true
     });
 
-    generatedFiles.push(await configurationCompiler.save('modeler.configuration.ts', this.project.srcDirectory));
+    generatedFiles.push(await configurationCompiler.plan('modeler.configuration.ts', this.project.srcDirectory));
 
-    return generatedFiles;
+    return generatedFiles.filter((file): file is PlannedFile => file !== null);
   }
 
 
-  private async getSharedObjects(answers: EnumScaffolderAnswers): Promise<SharedObjects> {
-    const sharedObjects = await spinnerFeedbackFunction<SharedObjects>(
-      'Downloading Enums Definition...',
-      async (resolveSharedObject, reject) => (
-        import('node-fetch')
-          .then((fetch) => fetch.default(
-            `${answers.host}/${answers.endpoint.replace(/^\//, '')}`,
-            {
-              headers: {
-                Origin: 'http://localhost'
-              }
-            }
-          ))
-          .then(async (response) => (
-            resolveSharedObject(await response.json() as SharedObjects)
-          ))
-          .catch((error) => {
-            reject(error?.message || 'Error while downloading Enums Definition');
-          })
-      )
-    );
-
+  /**
+   * Reject anything that is not a shared objects definition, before a single directory
+   * gets erased on disk.
+   *
+   * @param source The parsed response body
+   */
+  private static assertSharedObjects(source: unknown): SharedObjects {
     /** Validating the enums definition response */
-    if (typeof sharedObjects !== 'object' || sharedObjects == null || Array.isArray(sharedObjects)) {
+    if (typeof source !== 'object' || source == null || Array.isArray(source)) {
       throw new Error('Definition error: expected an object with type Record<string, EnumDefinition[]>');
     }
+
+    const sharedObjects = source as SharedObjects;
 
     /** Assert all shared objects response are an array */
     const keysNotArray = Object.keys(sharedObjects).filter((k) => !Array.isArray(sharedObjects[k]));
@@ -304,36 +300,14 @@ export class EnumScaffolder extends AbstractedScaffolder {
       )));
     if (malformedKeys.length) {
       throw new Error(
-        'Invalid SharedObjects response: ' +
-        'expecting all values to be an object implementing { name: string, label: string, value: number }. ' +
-        `Found invalid elements in [${malformedKeys.join(', ')}]`
+        'Invalid SharedObjects response: '
+        + 'expecting all values to be an object implementing { name: string, label: string, value: number }. '
+        + `Found invalid elements in [${malformedKeys.join(', ')}]`
       );
     }
 
     /** Return downloaded data */
     return sharedObjects;
-  }
-
-
-  private async getAnswers(): Promise<EnumScaffolderAnswers> {
-    /** Get answers to configure enums scaffold */
-    return this.project.getPromptWithCachedDefaults<EnumScaffolderAnswers>(
-      'scaffold-enums',
-      [
-        {
-          name    : 'host',
-          type    : 'input',
-          message : 'Set the host to download data',
-          validate: (input) => !!input
-        },
-        {
-          name    : 'endpoint',
-          type    : 'input',
-          message : 'Set the endpoint to download data',
-          validate: (input) => !!input
-        }
-      ]
-    );
   }
 
 }

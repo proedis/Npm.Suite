@@ -21,13 +21,13 @@ export function AsEnum<C extends EnumName>(name: C, options?: DecoratorOptions) 
   return combineDecorators(
     /** When transform a plain object into instance, create a new enum */
     Transform(
-      ({ value }) => !isNil(value) ? Enum.getEnum(name, value) : null,
-      { toClassOnly: true, ...options }
+      ({ value }) => (!isNil(value) ? Enum.getEnum(name, value) : null),
+      { ...options, toClassOnly: true }
     ),
     /** When casting an instance into a plain object, transform the Enum into string */
     Transform(
-      ({ value }) => Enum.isEnum(value) ? value.value : null,
-      { toPlainOnly: true, ...options }
+      ({ value }) => (Enum.isEnum(value) ? value.value : null),
+      { ...options, toPlainOnly: true }
     )
   );
 }

@@ -1,6 +1,6 @@
+import { isBrowser, isValidString } from '@proedis/utils';
 import ClientBuilder from '../../builder';
 
-import { isBrowser, isValidString } from '@proedis/utils';
 
 import {
   bearerTransporter,
@@ -10,7 +10,7 @@ import {
 
 import { plainTokenExtractor, queryParamExtractor } from '../../lib/TokenHandshake/mixin/extractors';
 
-import { transformAxiosResponseObject } from '../../utils';
+import { transformResponseObject } from '../../utils';
 
 import type { TokenSpecification } from '../../lib/TokenHandshake/TokenHandshake.types';
 
@@ -50,8 +50,8 @@ export default function GeaAuthenticatedClient(name: string, geaApplicationId: s
         url          : '/auth/exchange',
         method       : 'GET',
         requestConfig: {
-          baseURL          : 'https://api.gea.connect.ecoportale.net/v1',
-          transformResponse: transformAxiosResponseObject<GeaExchangeResult, TokenSpecification>(
+          baseUrl          : 'https://api.gea.connect.ecoportale.net/v1',
+          transformResponse: transformResponseObject<GeaExchangeResult, TokenSpecification>(
             (response) => response.refreshToken
           )
         },
@@ -71,7 +71,7 @@ export default function GeaAuthenticatedClient(name: string, geaApplicationId: s
         url          : '/auth/grant',
         method       : 'GET',
         requestConfig: {
-          baseURL: 'https://api.gea.connect.ecoportale.net/v1'
+          baseUrl: 'https://api.gea.connect.ecoportale.net/v1'
         },
         useTokens    : {
           refreshToken    : true,
@@ -88,7 +88,7 @@ export default function GeaAuthenticatedClient(name: string, geaApplicationId: s
       url          : '/auth/user-data',
       method       : 'GET',
       requestConfig: {
-        baseURL: 'https://api.gea.connect.ecoportale.net/v1'
+        baseUrl: 'https://api.gea.connect.ecoportale.net/v1'
       },
       useTokens    : {
         accessToken: true

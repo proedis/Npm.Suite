@@ -18,9 +18,9 @@ export abstract class AbstractedProperty<Schema extends ItemType> {
           type: 'string'
         };
       }
-      else {
-        return this.getUnderlyingType(definition.items as PropertySchema);
-      }
+
+      return this.getUnderlyingType(definition.items as PropertySchema);
+
     }
 
     return definition;
@@ -163,7 +163,7 @@ export abstract class AbstractedProperty<Schema extends ItemType> {
     return [
       this.getDescription(indent),
       this.decorators.map((d) => ' '.repeat(indent) + d).join('\n'),
-      ' '.repeat(indent) + `public ${this.propertyName}${this.requirements}: ${this.getPropertyType()}${this.propertyDefault};`
+      `${' '.repeat(indent)}public ${this.propertyName}${this.requirements}: ${this.getPropertyType()}${this.propertyDefault};`
     ].filter(Boolean).join('\n');
   }
 

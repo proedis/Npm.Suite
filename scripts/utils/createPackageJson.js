@@ -152,28 +152,74 @@ module.exports = function createPackageJson(packagePath, buildPath) {
   }
 
   /**
+   * Output formats the package actually emits, declared through 'proedisMetadata.buildFormats'
+   * and mirrored from the rollup configuration. Both are produced by default; a package
+   * consumed only through its 'bin', like the CLI, narrows the list and must not advertise
+   * an entry point pointing at a directory it never wrote.
+   */
+  const buildFormats = proedisMetadata.buildFormats ?? [ 'cjs', 'esm' ];
+
+  const hasCjs = buildFormats.includes('cjs');
+  const hasEsm = buildFormats.includes('esm');
+
+  /**
+   * Build the conditional export block of a single entry point.
+   *
+   * Condition order is significant, because the first matching condition wins: 'types' has to
+   * be resolved before any runtime condition, and 'import' before 'require'.
+   *
+   * @param entry Entry point path relative to each output directory, without extension
+   * @return {object} The conditional block to place inside the exports map
+   */
+  const buildExportConditions = (entry) => ({
+    types: `./types/${entry}.d.ts`,
+    ...(hasEsm ? { import: `./esm/${entry}.js` } : {}),
+    ...(hasCjs ? { require: `./cjs/${entry}.js` } : {})
+  });
+
+  /**
+   * Additional entry points the package publishes, declared through 'proedisMetadata.exports'
+   * as a list of directory names below 'src' — each one holding its own barrel 'index.ts'.
+   *
+   * They exist because rollup builds every package with 'preserveModules', so
+   * 'esm/array/index.js' and its declaration are already on disk: exposing them costs nothing
+   * and lets a consumer import a single module instead of the whole barrel.
+   */
+  const subpathEntries = proedisMetadata.exports ?? [];
+
+  /**
    * Check if main reference must be created or not.
    *
    * 'main'/'module'/'types' are kept alongside 'exports' on purpose: TypeScript's classic
-   * 'node' moduleResolution (what @proedis/tsconfig still sets) ignores 'exports' entirely,
-   * so removing them would break every consumer on the current preset.
+   * 'node' moduleResolution (what the @proedis/tsconfig 'base' preset still sets) ignores
+   * 'exports' entirely, so removing them would break every consumer on that preset.
    *
    * The 'exports' map is what lets modern bundlers and native Node ESM pick the right
-   * artifact. Condition order is significant: 'types' must come first.
+   * artifact. 'typesVersions' is the same courtesy extended to the subpaths: a project whose
+   * moduleResolution predates 'exports' resolves the runtime file through its bundler anyway,
+   * but would find no declaration for '<name>/<subpath>' without it.
    */
   const mainReference = !proedisMetadata.noMain
     ? {
-      main   : './cjs/index.js',
-      module : './esm/index.js',
+      main   : hasCjs ? './cjs/index.js' : './esm/index.js',
+      ...(hasEsm ? { module: './esm/index.js' } : {}),
       types  : './types/index.d.ts',
       exports: {
-        '.': {
-          types  : './types/index.d.ts',
-          import : './esm/index.js',
-          require: './cjs/index.js'
-        },
+        '.': buildExportConditions('index'),
+        ...Object.fromEntries(subpathEntries.map((subpath) => (
+          [ `./${subpath}`, buildExportConditions(`${subpath}/index`) ]
+        ))),
         './package.json': './package.json'
-      }
+      },
+      ...(subpathEntries.length
+        ? {
+          typesVersions: {
+            '*': Object.fromEntries(subpathEntries.map((subpath) => (
+              [ subpath, [ `./types/${subpath}/index.d.ts` ] ]
+            )))
+          }
+        }
+        : {})
     }
     : {};
 

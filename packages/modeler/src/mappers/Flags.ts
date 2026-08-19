@@ -72,8 +72,7 @@ export class Flags<C extends EnumName> extends Array<Enum<C>> {
   public is(...values: EnumValue<C>[]): boolean;
   public is(...values: (Enum<C> | EnumValue<C>)[]): boolean {
     return values.every((value) => (
-      this.some((s) => s.is(value as (Exclude<Enum<C> | EnumValue<C>, string>))))
-    );
+      this.some((s) => s.is(value as (Exclude<Enum<C> | EnumValue<C>, string>)))));
   }
 
 
@@ -125,7 +124,15 @@ export class Flags<C extends EnumName> extends Array<Enum<C>> {
   public isSubsetOf(...values: Enum<C>[]): boolean;
   public isSubsetOf(...values: EnumValue<C>[]): boolean;
   public isSubsetOf(...values: (Enum<C> | EnumValue<C>)[]): boolean {
-    const valueSet = new Set(values);
+    /**
+     * Normalized to plain values first. The set used to be built out of the arguments as given, so the
+     * documented 'Enum<C>[]' overload compared enum instances against value strings and reported every
+     * non empty flag set as not a subset.
+     */
+    const valueSet = new Set<EnumValue<C>>(
+      values.map((value) => (Enum.isEnum(value) ? value.value : value))
+    );
+
     return this.every(s => valueSet.has(s.value));
   }
 
@@ -300,13 +307,21 @@ export class Flags<C extends EnumName> extends Array<Enum<C>> {
   }
 
 
+  /** The plain representation of the flag set: the array of its values */
   public toObject(): EnumValue<C>[] {
     return this.map((s) => s.value);
   }
 
 
-  public toJSON(): string {
-    return JSON.stringify(this.toObject());
+  /**
+   * The value used when this flag set is serialized by `JSON.stringify`.
+   *
+   * It returns the array of values, not a string. Returning a string made `JSON.stringify` encode it a
+   * second time, so a flag set nested anywhere in a payload came out as `"[\"open\"]"` — a string that
+   * happens to contain JSON — instead of an array.
+   */
+  public toJSON(): EnumValue<C>[] {
+    return this.toObject();
   }
 
 }

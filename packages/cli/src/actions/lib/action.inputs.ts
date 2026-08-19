@@ -16,9 +16,9 @@ export class ActionInputs<Schema extends AnyObject> {
     this._options = new Map<keyof Schema, Schema[keyof Schema]>();
 
     /** If any defaults exist, reflect value into storage */
-    if (!!defaults) {
+    if (defaults) {
       (Object.keys(defaults) as (keyof Schema)[]).forEach((key) => {
-        if (!!defaults[key]) {
+        if (defaults[key]) {
           this._options.set(key, defaults[key] as Schema[keyof Schema]);
         }
       });

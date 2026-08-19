@@ -1,4 +1,3 @@
-import '@proedis/modeler';
 import { Enum } from '@proedis/modeler';
 
 import type { ComposedSharedObjects } from './interfaces/enums';
@@ -11,9 +10,24 @@ import sharedObjectsIcons from './constants/shared-objects.icons';
 /* --------
  * Modeler Configuration
  * -------- */
+
+/**
+ * The tokens an Enum resolves its color and its icon to are defined here, not by
+ * '@proedis/modeler': the package deliberately keeps a UI kit out of its own type surface.
+ *
+ * Declared as 'string' they behave exactly as the built in fallback does, and this block is
+ * the only place stating that the configuration exists at all. Replace either one with the
+ * type of the kit this application actually uses to get completion on every color and icon
+ * name, for instance:
+ *
+ *   color: MantineColor;   // from '@mantine/core'
+ *   icon: IconName;        // from '@fortawesome/fontawesome-common-types'
+ */
 declare module '@proedis/modeler' {
   export interface ModelerOverride {
     enums: ComposedSharedObjects;
+    color: string;
+    icon: string;
   }
 }
 

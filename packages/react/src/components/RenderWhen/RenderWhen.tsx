@@ -22,7 +22,7 @@ const RenderWhen: React.FunctionComponent<RenderWhenProps> = (props) => {
     const { children, isFalse: invertConditionLogic } = props;
 
     /** Check if the node must render or not */
-    if (children && (!invertConditionLogic && condition) || (invertConditionLogic && !condition)) {
+    if ((children && !invertConditionLogic && condition) || (invertConditionLogic && !condition)) {
       return (
         <React.Fragment>
           {children}

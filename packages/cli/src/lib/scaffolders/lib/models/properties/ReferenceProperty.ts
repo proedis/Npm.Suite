@@ -38,9 +38,9 @@ export class ReferenceProperty extends AbstractedProperty<ReferencePropertyType>
     if ('$ref' in this.schema) {
       return this.schema.$ref.split('/').pop() as string;
     }
-    else {
-      return this.schema['x-element-name'] || 'any';
-    }
+
+    return this.schema['x-element-name'] || 'any';
+
   }
 
 }

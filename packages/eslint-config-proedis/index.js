@@ -1,50 +1,59 @@
-module.exports = {
+/**
+ * eslint-config-proedis
+ *
+ * The shared ESLint flat configuration of the Proedis suite.
+ *
+ * Two presets, {@link base} and {@link react}, each returning a plain flat config array — which is
+ * what makes them composable: a flat config is an array, and for any file the last entry that
+ * matches it wins. Appending your own entry is therefore all it takes to override anything.
+ *
+ * Every plugin the presets rely on is a real dependency of this package, so installing it is enough:
+ * there is no list of peer plugins to keep in sync on the project side.
+ *
+ * @example
+ * // eslint.config.mjs
+ * import proedis from 'eslint-config-proedis';
+ *
+ * export default proedis.react();
+ *
+ * @example
+ * // …with project specific adjustments
+ * import proedis from 'eslint-config-proedis';
+ * import tanstack from '@tanstack/eslint-plugin-query';
+ *
+ * export default proedis.defineConfig(
+ *   proedis.react({ reactVersion: '19', ignores: [ 'src/generated/**' ] }),
+ *
+ *   // a rule of the shared config, relaxed
+ *   { rules: { 'no-console': [ 'off' ] } },
+ *
+ *   // a plugin of your own, installed by the project
+ *   { plugins: { '@tanstack/query': tanstack }, rules: { '@tanstack/query/exhaustive-deps': 'error' } },
+ *
+ *   // a rule loosened for one directory only
+ *   { files: [ 'src/legacy/**' ], rules: { '@stylistic/max-len': [ 'off' ] } }
+ * );
+ *
+ * @example
+ * // …or composed from the individual blocks, skipping the presets entirely
+ * import proedis from 'eslint-config-proedis';
+ *
+ * export default proedis.defineConfig(
+ *   proedis.configs.ignores(),
+ *   proedis.configs.files(),
+ *   proedis.configs.javascript,
+ *   proedis.configs.typescript,
+ *   proedis.configs.stylistic
+ * );
+ */
+import globals from 'globals';
 
-  extends: [
-    'airbnb-typescript',
-    'plugin:react-hooks/recommended',
-    './lib/shared.js'
-  ],
+import * as configs from './lib/blocks.js';
+import defineConfig from './lib/define-config.js';
+import plugins from './lib/plugins.js';
+import { base, react } from './lib/presets.js';
 
-  settings: {
-    react: {
-      version: 'detect'
-    }
-  },
 
-  plugins: [
-    'react',
-    'react-hooks'
-  ],
+export { base, react, configs, defineConfig, plugins, globals };
 
-  rules: {
-    // JSX a11n
-    'jsx-a11y/anchor-is-valid'                       : [ 'off' ],
-    'jsx-a11y/no-noninteractive-element-interactions': [ 'off' ],
-    'jsx-a11y/no-static-element-interactions'        : [ 'off' ],
-    'jsx-a11y/click-events-have-key-events'          : [ 'off' ],
-
-    // Strict React file Rules
-    'react/destructuring-assignment'   : [ 'off' ],
-    'react/jsx-boolean-value'          : [ 'off' ],
-    'react/jsx-curly-brace-presence'   : [ 'error', { props: 'always', children: 'never' } ],
-    'react/jsx-fragments'              : [ 'error', 'element' ],
-    'react/jsx-key'                    : [ 'error', { checkKeyMustBeforeSpread: true } ],
-    'react/jsx-one-expression-per-line': [ 'off' ],
-    'react/jsx-props-no-spreading'     : [ 'off' ],
-    'react/no-array-index-key'         : [ 'off' ],
-    'react/no-unused-prop-types'       : [ 'off' ],
-    'react/prop-types'                 : [ 'off' ],
-    'react/require-default-props'      : [ 'off' ],
-    'react/state-in-constructor'       : [ 'error', 'never' ],
-    'react/static-property-placement'  : [ 'off' ],
-
-    // Hook Extensions
-    'react-hooks/exhaustive-deps': [
-      'warn', {
-        'additionalHooks': '(useEnhancedEffect)'
-      }
-    ]
-  }
-
-};
+export default { base, react, configs, defineConfig, plugins, globals };

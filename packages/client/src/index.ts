@@ -30,3 +30,17 @@ export type { TokenSpecification } from './lib/TokenHandshake/TokenHandshake.typ
 export type { default as Storage } from './lib/Storage/Storage';
 
 export type { StorageProvider, StorageApi, StoragePersistency } from './lib/Storage/Storage.types';
+
+export { default as TransportError } from './lib/Transport/TransportError';
+
+export type { TransportErrorKind } from './lib/Transport/TransportError';
+
+export type {
+  GenericAbortSignal,
+  RequestHeaders,
+  RequestHeaderValue,
+  RequestInitConfig,
+  RequestMethod,
+  ResponseTransformer,
+  TransportResponse
+} from './lib/Transport/Transport.types';

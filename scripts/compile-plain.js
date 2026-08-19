@@ -61,6 +61,22 @@ function compilePlain() {
 
 
   // ----
+  // Copy the Root License
+  // ----
+  /**
+   * The license lives at the repository root, outside of every package, so the entry loop
+   * above can never reach it. Publishing happens with '--contents build', which means a
+   * package whose build directory has no LICENSE ships without one — exactly what the
+   * rollup packages already avoid through their own 'producePackageFiles' copy step.
+   */
+  const licensePath = path.resolve(packagePath, '..', '..', 'LICENSE');
+
+  if (fs.existsSync(licensePath)) {
+    fs.cpSync(licensePath, path.resolve(buildPath, 'LICENSE'));
+  }
+
+
+  // ----
   // Create the Package Json File
   // ----
   createPackageJson(packagePath, buildPath);

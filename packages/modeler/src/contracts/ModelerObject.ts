@@ -111,12 +111,29 @@ export abstract class ModelerObject implements IModelerObject {
 
 
   /**
+   * The value used when this instance is serialized by `JSON.stringify`.
+   *
+   * It returns the plain object, and it takes **no** arguments, both because that is what the protocol
+   * requires: `JSON.stringify` invokes this hook passing the *property key* the value sits under, so a
+   * signature accepting transform options received the string `'user'` where it expected a
+   * configuration object.
+   *
+   * Returning a string, as this used to, made `JSON.stringify` encode the result a second time — a
+   * model nested anywhere in a payload came out as `{"user":"{\"id\":7}"}`, a string that happens to
+   * contain JSON. Reach for {@link toJsonString} when a string is what you actually want.
+   */
+  public toJSON(): Record<string, any> {
+    return this.toObject();
+  }
+
+
+  /**
    * Transform the ModelerObject instance (or the class that implements that) into a JSON string
    *
    * @param {ClassTransformOptions} options - The options for class transformation
    * @return {string} - The transformed ModelerObject instance as a JSON string
    */
-  public toJSON(options?: ClassTransformOptions): string {
+  public toJsonString(options?: ClassTransformOptions): string {
     return JSON.stringify(this.toObject(options));
   }
 }

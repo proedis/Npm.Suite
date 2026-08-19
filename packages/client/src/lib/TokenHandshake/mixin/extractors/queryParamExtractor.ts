@@ -8,6 +8,6 @@ export default function queryParamExtractor(
   return {
     type             : 'query-param',
     extract          : extractor,
-    hideWhenExtracted: hideWhenExtracted
+    hideWhenExtracted
   };
 }

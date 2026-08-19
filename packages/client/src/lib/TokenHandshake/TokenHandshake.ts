@@ -2,7 +2,7 @@ import { Deferred, isBrowser, isObject, isValidString, will } from '@proedis/uti
 
 import type { AnyObject } from '@proedis/types';
 
-import type { AxiosRequestConfig } from 'axios';
+import type { TransportRequestConfig } from '../Transport/Transport.types';
 
 import Logger from '../../lib/Logger/Logger';
 import Options from '../Options/Options';
@@ -161,13 +161,18 @@ export default class TokenHandshake<UserData extends AnyObject, StoreData extend
    * If a deferred promise exists, and is still waiting for the resolution reject it and unload
    * @private
    */
-  private _rejectDeferredPromise() {
+  private _rejectDeferredPromise(reason?: unknown) {
     /** Assert the deferred object exists */
     if (this._getDeferred) {
       /** Resolve if it is pending */
       if (this._getDeferred.isPending) {
         this._handshakeLogger.debug('Rejecting the Deferred promise to abort all simultaneous requests');
-        this._getDeferred.reject();
+        /**
+         * A reason is always carried through. Rejecting with nothing meant the caller that started the
+         * retrieval got a real RequestError while everybody waiting on the same deferred got
+         * 'undefined' — and 'catch (error) { error.message }' turned into a TypeError on those.
+         */
+        this._getDeferred.reject(reason ?? RequestError.fromError(new Error('Token retrieval aborted')));
       }
       /** Unload the deferred promise */
       this._handshakeLogger.debug('Unloading the Deferred promise');
@@ -226,13 +231,77 @@ export default class TokenHandshake<UserData extends AnyObject, StoreData extend
     /** Set up the Deferred object */
     this._initializeDeferredPromise();
 
+    /**
+     * Everything below is wrapped so the Deferred can never be left pending.
+     *
+     * It is created above, before any of the work, and 'getSpecification' hands it to every caller that
+     * arrives while a retrieval is in flight. So an exception escaping this method without settling it
+     * did not merely fail one call: it left the Deferred pending and assigned forever, and every later
+     * 'getSpecification' returned that same promise. The token silently stopped being obtainable —
+     * every request needing it hung until the page was reloaded.
+     *
+     * Three routes used to escape this way: a throwing 'transformGrantResponse', a throwing
+     * 'checkValidity', and a failure inside the sibling grant broadcast. The most likely one in
+     * practice was none of those — it was reading 'this.value' during the startup window, before the
+     * underlying storage finished loading, which threw 'Subject has not been initialized yet'.
+     */
+    try {
+      return await this._retrieveValidTokenUnsafe();
+    }
+    catch (error) {
+      this._rejectDeferredPromise(error);
+      throw error;
+    }
+    finally {
+      /**
+       * Belt and braces. Every path through the chain settles the Deferred today — success through
+       * '_consolidateToken', failure through the catch above — and this makes that an invariant rather
+       * than a property of the current code: a future branch returning without consolidating a token
+       * cannot leave a caller waiting forever. It is a no-op once the Deferred has been settled and
+       * unloaded, which is the normal case.
+       */
+      this._rejectDeferredPromise(
+        RequestError.fromError(new Error(`Token '${this._name}' retrieval ended without a token`))
+      );
+    }
+  }
+
+
+  /**
+   * The actual retrieval chain, always invoked through {@link _retrieveValidToken} so that the Deferred
+   * is settled whatever happens in here.
+   * @private
+   */
+  private async _retrieveValidTokenUnsafe(): Promise<TokenSpecification> {
+    /**
+     * Wait for the underlying storage before reading the stored token.
+     *
+     * 'this.value' throws while the subject is uninitialized, and a client asks for its first token
+     * during boot — exactly while the storage read is still in flight.
+     */
+    await this.isInitialized();
+
 
     // ----
     // Use token stored into local storage
     // ----
-    if (this.isValid(this.value)) {
+    const inMemoryToken = this.value;
+
+    if (this.isValid(inMemoryToken)) {
       this._handshakeLogger.debug('In Memory Token is valid');
-      return this._consolidateToken(this.value);
+
+      /**
+       * Nothing to consolidate: this token *is* what the storage already holds.
+       *
+       * It used to go through '_consolidateToken' regardless, which means 'transact' cloned the
+       * specification and 'persist' hashed it against itself only to conclude that nothing had changed and
+       * return. Every request carrying a token paid for that — measured at roughly 19µs per token, on the
+       * main thread, to compare a value with itself. The Deferred still has to be settled, because callers
+       * that arrived while this was running are waiting on it.
+       */
+      this._resolveDeferredPromise(inMemoryToken);
+
+      return inMemoryToken;
     }
 
 
@@ -408,6 +477,63 @@ export default class TokenHandshake<UserData extends AnyObject, StoreData extend
 
 
   /**
+   * Release this handshake, rejecting any token retrieval still in flight.
+   *
+   * The pending Deferred is settled before the storage goes: a caller blocked on `getSpecification`
+   * deserves an error, not a promise that will never move again.
+   */
+  public dispose(): void {
+    if (this.isDisposed) {
+      return;
+    }
+
+    this._rejectDeferredPromise(
+      RequestError.fromError(new Error(`TokenHandshake '${this._name}' was disposed`))
+    );
+
+    super.dispose();
+  }
+
+
+  /**
+   * React to a token of this handshake having been rejected by the server, and say whether the request that
+   * carried it is worth retrying.
+   *
+   * The comparison is the compare-and-swap behind the client's retry on a 401. Several requests can be in
+   * flight carrying the same token and all of them can come back rejected, so three situations have to be
+   * told apart — and collapsing them wrongly is how a retry either storms the grant endpoint or gives up
+   * on requests it could have saved:
+   *
+   * - **the stored token is the rejected one** — drop it, and retry. This is the first rejection to arrive
+   * - **the stored token is something else already** — a sibling rejection got here first and either
+   *   refreshed it or is refreshing it right now. Nothing to drop, and retrying is exactly right: the
+   *   attempt will wait on that same refresh and send whatever comes out of it
+   * - **the token is manually controlled** — the application owns its lifecycle, so it is neither dropped
+   *   nor retried. This flag is the opt-out for the whole behaviour
+   *
+   * @param token The token string the caller sent, and got rejected
+   * @returns Whether a retry is worth attempting
+   */
+  public async invalidateRejectedToken(token: string): Promise<boolean> {
+    if (this._configuration.getOrDefault('isManuallyControlled', 'boolean', false)) {
+      this._handshakeLogger.debug('Token is manually controlled, refusing to invalidate it');
+      return false;
+    }
+
+    /** Somebody else already replaced it: a retry will pick up whatever they produced */
+    if (!this._isSubjectInitialized || this.value.token !== token) {
+      this._handshakeLogger.debug('Stored token is not the rejected one any more, a retry will use the current one');
+      return true;
+    }
+
+    this._handshakeLogger.info('Invalidating the rejected token');
+    await this.clear();
+
+    return true;
+  }
+
+
+  /**
    * Check the validity of a token specification object
    * @param specification
    */
@@ -468,15 +594,56 @@ export default class TokenHandshake<UserData extends AnyObject, StoreData extend
    * provided withing configuration
    */
   public async getSpecification(): Promise<TokenSpecification> {
+    /**
+     * A token that is already valid needs no coordination whatsoever.
+     *
+     * This check sits above the Deferred on purpose. Reaching the retrieval below allocates a Deferred —
+     * and with it a Promise and the catch handler attached to it — then walks an async function with a
+     * try/finally, all to hand back a value that was sitting right here. Since every concurrent caller
+     * runs this same check, there is nothing to collapse and nothing to settle: skipping the machinery
+     * changes no behaviour, it just stops paying for it on the overwhelmingly common path.
+     *
+     * ⚠️ Gated on the storage being initialized, and that guard is not optional. Reading 'value' before the
+     * first storage read completes throws, and a client asks for its first token *during* boot — which is
+     * exactly when that read is still in flight. The retrieval below awaits initialization for this very
+     * reason; a fast path that skipped the await broke every request issued at startup against a storage
+     * slower than a synchronous one, which is to say against React Native's.
+     */
+    if (this._isSubjectInitialized) {
+      const inMemoryToken = this.value;
+
+      if (this.isValid(inMemoryToken)) {
+        return inMemoryToken;
+      }
+    }
+
     this._handshakeLogger.info('Loading Token');
 
     /** Check if a deferred promise already exists, return the pending request */
-    if (this._getDeferred && this._getDeferred.isPending) {
+    if (this._getDeferred?.isPending) {
       this._handshakeLogger.info('A deferred request for the Token already exists. Wait for it');
+      return this._getDeferred.promise;
     }
 
-    /** Return the deferred function or the defaults retrieve token function */
-    return this._getDeferred?.promise ?? await this._retrieveValidToken();
+    /** Start a retrieval, and register the Deferred every caller of this method waits on */
+    this._initializeDeferredPromise();
+    const deferred = this._getDeferred!;
+
+    /**
+     * Every caller waits on the Deferred, the one that started the retrieval included.
+     *
+     * It used to hand the retrieval promise straight back to the first caller and the Deferred to
+     * everybody after it, which meant the first caller was not covered by the Deferred at all: settling
+     * it — from `clear`, from `dispose`, from a failure elsewhere — moved every waiter except the one
+     * that had actually asked. One settlement point removes that asymmetry, and it is what lets
+     * `dispose()` unblock a caller instead of leaving it holding a promise nothing will ever settle.
+     *
+     * The retrieval's own rejection is swallowed here because the Deferred already carries it; awaiting
+     * it as well would only produce a duplicate unhandled rejection.
+     */
+    this._retrieveValidToken().catch(() => undefined);
+
+    return deferred.promise;
   }
 
 
@@ -485,7 +652,10 @@ export default class TokenHandshake<UserData extends AnyObject, StoreData extend
    * @param request
    * @param transporterType
    */
-  public async appendToken(request: AxiosRequestConfig, transporterType: UseTokenTransporter) {
+  public async appendToken(
+    request: TransportRequestConfig,
+    transporterType: UseTokenTransporter
+  ): Promise<TokenSpecification | undefined> {
     /** Get the Transporter */
     const transporter = this._getTransporterConfiguration(transporterType);
 
@@ -543,6 +713,14 @@ export default class TokenHandshake<UserData extends AnyObject, StoreData extend
       default:
         throw new Error(`Invalid Transporter Type Found : ${(transporter as any).type}`);
     }
+
+    /**
+     * Hand the attached token back to the caller.
+     *
+     * The client keeps it so that, if the server answers 401, it can invalidate *that* token rather than
+     * whatever the handshake happens to hold by then — see 'invalidateIfCurrent'.
+     */
+    return specification;
   }
 
 

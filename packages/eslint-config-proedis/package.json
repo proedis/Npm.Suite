@@ -1,32 +1,54 @@
 {
   "name": "eslint-config-proedis",
   "version": "2.2.3",
-  "description": "Proedis ESLint configuration with TypeScript and optionally NextJS support",
+  "description": "Proedis ESLint flat configuration for TypeScript and React projects",
   "keywords": [
     "proedis",
     "eslint",
     "eslintconfig",
+    "eslint-config",
+    "eslint-flat-config",
     "config",
     "javascript",
     "typescript",
+    "react",
     "styleguide"
   ],
   "license": "MIT",
+  "type": "module",
   "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./package.json": "./package.json"
+  },
   "scripts": {
     "build": "node ../../scripts/compile-plain.js"
   },
+  "dependencies": {
+    "@eslint/js": "^9.39.4",
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.11.0",
+    "typescript-eslint": "^8.67.0"
+  },
+  "devDependencies": {
+    "eslint": "9.39.4",
+    "eslint-config-airbnb-base": "15.0.0",
+    "typescript": "5.9.3"
+  },
   "proedisMetadata": {
-    "reflectPeerDependencies": [
-      "root:@typescript-eslint/eslint-plugin",
-      "root:@typescript-eslint/parser",
-      "root:eslint",
-      "root:eslint-config-airbnb-typescript",
-      "root:eslint-plugin-import",
-      "root:eslint-plugin-react",
-      "root:eslint-plugin-react-hooks"
-    ],
-    "noMain": "true"
+    "reflectPeerDependencies": {
+      "eslint": {
+        "range": ">=9.0.0 <10.0.0"
+      },
+      "typescript": {
+        "range": ">=5.2.0",
+        "optional": true
+      }
+    },
+    "noMain": true
   },
   "gitHead": "e5cd5bc288cc6ba93f716278a9401c9a45abc0e8"
 }

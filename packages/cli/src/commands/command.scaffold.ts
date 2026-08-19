@@ -32,6 +32,13 @@ export class ScaffoldCommand extends AbstractCommand<ScaffoldActionInput> {
         new Argument('<element>', 'The element to scaffold').argRequired().choices(ELEMENTS)
       )
       .description('Scaffold elements using API source')
+      /**
+       * Providing every answer upfront is what makes the command usable from a script or from
+       * CI: each option below skips the prompt that would have asked for it.
+       */
+      .option('--host <host>', 'The host serving the definition, skipping its prompt')
+      .option('--endpoint <endpoint>', 'The endpoint serving the definition, skipping its prompt')
+      .option('-y, --yes', 'Answer every optional prompt affirmatively')
       .action(async (element: ScaffoldActionInput['element'], options: any) => {
         /** Assert desired element is valid */
         if (!ELEMENTS.includes(element)) {

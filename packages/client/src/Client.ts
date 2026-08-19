@@ -1,5 +1,4 @@
-import axios from 'axios';
-import type { AxiosInstance, AxiosRequestConfig, AxiosResponse, GenericAbortSignal } from 'axios';
+
 
 import { plainToInstance } from 'class-transformer';
 
@@ -7,7 +6,11 @@ import { Observable } from 'rxjs';
 
 import type { AnyObject } from '@proedis/types';
 
-import { Deferred, hasEqualHash, isNil, isObject, isValidString, mergeObjects, will, isBrowser } from '@proedis/utils';
+import { Deferred, hasEqualHash, isNil, isObject, isValidString, mergeObjects, will } from '@proedis/utils';
+import type { WillResult } from '@proedis/utils';
+
+import type { GenericAbortSignal, TransportRequestConfig } from './lib/Transport/Transport.types';
+import Transport from './lib/Transport/Transport';
 
 import Logger from './lib/Logger/Logger';
 import Options from './lib/Options/Options';
@@ -32,7 +35,6 @@ import type {
 } from './Client.types';
 
 import type { TokenSpecification } from './lib/TokenHandshake/TokenHandshake.types';
-import RequestSubscriber from './Client.RequestSubscriber';
 
 
 /* --------
@@ -70,9 +72,17 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
    * @param sliceSize Slice size used to aggregate bytes
    */
   public static blobFromBase64(base64Data: string, contentType: string | null, sliceSize: number = 512): Blob {
-    /** Check code is running on browser */
-    if (!isBrowser) {
-      throw new Error('Client.blobFromBase64 method could be used only on Browser');
+    /**
+     * Assert the runtime can decode base64 at all.
+     *
+     * This used to be gated on 'isBrowser' and reached for 'window.atob', which made the whole base64
+     * upload path browser only for no reason other than the property lookup: 'atob' is a global in every
+     * browser, in Node 16 and up, and in React Native from 0.74. Probing for the function instead of for
+     * the platform is both more honest and more portable — and where it genuinely is missing, the message
+     * now says what is missing rather than where you are.
+     */
+    if (typeof atob !== 'function') {
+      throw new Error('Client.blobFromBase64 requires a global \'atob\' function, missing in this runtime');
     }
 
     /**
@@ -103,7 +113,7 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
     })();
 
     /** Create the blob from content */
-    const binaryString = window.atob(content);
+    const binaryString = atob(content);
 
     /** Create the blob using right ContentType */
     const byteArrays = [];
@@ -161,7 +171,7 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
 
     /** If the object is an Array, loop through each value */
     if (Array.isArray(object) && typeof parentKey === 'string') {
-      if (!!object.length) {
+      if (object.length) {
         object.forEach((item, index) => {
           /** Create the key based on item index */
           const key = `${parentKey}[${index}]`;
@@ -222,7 +232,7 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
   // ----
   // Internal properties
   // ----
-  private readonly _axios: AxiosInstance;
+  private readonly _transport: Transport;
 
   private _clientInitializationDeferred: Deferred<UserData | null> | undefined;
 
@@ -284,7 +294,7 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
     }
 
     /** Create the client and store default requests options */
-    this._axios = this._createAxiosInstance(_settings.requests);
+    this._transport = this._createTransport(_settings.requests);
     this._defaultsRequestConfig = _settings.requests.defaults;
 
     /** Save initial client state */
@@ -297,9 +307,7 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
 
     /** Initialize the client */
     this._initializeClient()
-      .then((userData) => {
-        return this._updateUserData(userData);
-      })
+      .then((userData) => this._updateUserData(userData))
       .catch((error) => {
         this._initLogger.error('Unhandled exception occurred while initializing the Client', error);
       })
@@ -371,12 +379,12 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
 
   /**
    * Use settings provided by 'requests' options key to build
-   * a new Axios instance that could be used to perform request
+   * a new Transport instance that could be used to perform request
    * to API BackEnd server
    * @param settings
    * @private
    */
-  private _createAxiosInstance(settings: ClientSettings<UserData, StoredData, Tokens>['requests']): AxiosInstance {
+  private _createTransport(settings: ClientSettings<UserData, StoredData, Tokens>['requests']): Transport {
     /** Parse the server configuration settings */
     const serverSettings = new Options(settings.server);
 
@@ -393,22 +401,18 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
       namespace && `/${Client.sanitizeUrl(namespace)}`
     ].filter(isValidString).join('');
 
-    this._initLogger.info(`AxiosInstance will be created using BaseURL ${urlParts}`);
+    this._initLogger.info(`Transport will be created using BaseURL ${urlParts}`);
 
     /**
-     * In some system, the Axios module will be imported using 'default', try to assert the create function exists
-     * Take this code as an experimental work-around
+     * Build the transport.
+     *
+     * The interop dance that used to sit here — probing for a 'default' property before reaching for
+     * 'create' — went away with the library that needed it.
      */
-    const createAxios = typeof (axios as unknown as { default?: typeof axios }).default?.create === 'function'
-      ? (axios as unknown as { default?: typeof axios }).default!.create
-      : axios.create;
-
-    /** Return the Axios Instance */
-    return createAxios({
-      ...settings.axiosConfig,
-      baseURL       : urlParts,
-      timeout       : serverSettings.getOrDefault('timeout', 'number', 30_000),
-      validateStatus: (status) => status >= 200 && status < 300
+    return new Transport({
+      baseUrl : urlParts,
+      timeout : serverSettings.getOrDefault('timeout', 'number', 30_000),
+      defaults: settings.transportConfig
     });
   }
 
@@ -426,7 +430,7 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
         ? {
           ...curr,
           hasAuth : true,
-          userData: userData
+          userData
         }
         : {
           ...curr,
@@ -479,7 +483,7 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
     }
 
     /** Get the extractor from settings */
-    const extract = !!this._settings.userDataExtractor
+    const extract = this._settings.userDataExtractor
       ? (typeof this._settings.userDataExtractor === 'function'
         ? this._settings.userDataExtractor
         : this._settings.userDataExtractor[authAction])
@@ -539,17 +543,17 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
   // ----
 
   /**
-   * Return the baseUrl used by the internal axios instance
+   * Return the baseUrl used by the internal transport
    * to perform http requests
    */
   public get baseUrl(): string {
-    const { baseURL } = this._axios.defaults;
+    const { baseUrl } = this._transport;
 
-    if (!baseURL) {
+    if (!baseUrl) {
       throw new Error('client.baseUrl is unusable because no URL has been set.');
     }
 
-    return baseURL;
+    return baseUrl;
   }
 
 
@@ -567,17 +571,8 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
     name: string,
     value: string | string[] | number | boolean | null
   ): Client<UserData, StoredData, Tokens> {
-    /** If a null value has been provided, remove the header */
-    if (isNil(value)) {
-      if (name in this._axios.defaults.headers) {
-        delete this._axios.defaults.headers[name];
-      }
-
-      return this;
-    }
-
-    /** Add the new header to defaults */
-    this._axios.defaults.headers[name] = value;
+    /** The transport treats a nil value as a removal, so both cases are one call */
+    this._transport.useHeader(name, value);
 
     return this;
   }
@@ -660,10 +655,24 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
    * @param config
    */
   public compileRequest<R>(config: ClientRequest<UserData, StoredData, Tokens, R>): ClientRequestConfig<Tokens, R> {
-    return mergeObjects<ClientRequestConfig<Tokens, R>>(
-      this._defaultsRequestConfig || {},
-      typeof config === 'function' ? config(this) : config
-    );
+    const compiled = typeof config === 'function' ? config(this) : config;
+
+    /**
+     * Only merge when there is something to merge with.
+     *
+     * The saving is small — a deep merge of a request configuration measures under a microsecond — but the
+     * point is not the microsecond. 'params' is handed to the transport by reference and a query
+     * transporter writes the token into it, so that write was landing on a *copy* purely because the merge
+     * happened to produce one. Copying it here says so out loud, instead of leaving the safety of a
+     * mutation depending on an unrelated function two files away.
+     */
+    if (!this._defaultsRequestConfig) {
+      return compiled.params
+        ? { ...compiled, params: { ...compiled.params } }
+        : { ...compiled };
+    }
+
+    return mergeObjects<ClientRequestConfig<Tokens, R>>(this._defaultsRequestConfig, compiled);
   }
 
 
@@ -709,9 +718,27 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
     config: ClientRequest<UserData, StoredData, Tokens, Response>,
     abortSignal?: GenericAbortSignal
   ): Promise<Response> {
+    return this._performRequest<Response>(config, abortSignal, true);
+  }
+
+
+  /**
+   * Perform a request, optionally allowing one refresh-and-retry on a rejected token.
+   *
+   * @param config The request to perform
+   * @param abortSignal An external signal aborting the request
+   * @param allowUnauthorizedRetry Whether a 401 may trigger a token refresh and a single retry. The retry
+   *   itself is issued with this off, which is what bounds the whole thing to one extra round trip.
+   * @private
+   */
+  private async _performRequest<Response>(
+    config: ClientRequest<UserData, StoredData, Tokens, Response>,
+    abortSignal: GenericAbortSignal | undefined,
+    allowUnauthorizedRetry: boolean
+  ): Promise<Response> {
     /** Assert the client has been loaded */
-    if (!this._axios) {
-      this._requestLogger.error('AxiosInstance is not ready. Check your configuration');
+    if (!this._transport) {
+      this._requestLogger.error('Transport is not ready. Check your configuration');
       throw new Error('Client has not been initialized');
     }
 
@@ -727,9 +754,9 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
       useTokens
     } = compiledRequest;
 
-    /** Sanitize the URL and create the base AxiosRequestConfig */
+    /** Sanitize the URL and create the base request configuration */
     const url = Client.sanitizeUrl(initialUrl ?? '');
-    const axiosRequestConfig: AxiosRequestConfig = {
+    const transportRequestConfig: TransportRequestConfig = {
       ...requestConfig,
       url,
       method,
@@ -770,25 +797,34 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
           });
         });
 
-        /** Add the new form data to axios request config */
-        axiosRequestConfig.data = formData;
+        /** Add the new form data to the request configuration */
+        transportRequestConfig.data = formData;
       }
       else {
-        axiosRequestConfig.data = data;
+        transportRequestConfig.data = data;
       }
     }
 
-    /** Set the right header while sending data as FormData */
-    if (axiosRequestConfig.data && axiosRequestConfig.data instanceof FormData && !(axiosRequestConfig.headers?.['Content-Type'])) {
-      axiosRequestConfig.headers = {
-        ...axiosRequestConfig.headers,
-        ['Content-Type']: 'multipart/form-data'
-      };
-    }
+    /**
+     * The 'Content-Type' of a multipart body is deliberately not set here.
+     *
+     * It used to be set to 'multipart/form-data' whenever the body was a FormData, and that worked only
+     * because axios rewrote the header itself: a multipart body carries a boundary that only the platform
+     * can generate, so the header has to be left for it to fill in. Setting it by hand produces a request
+     * no server can parse — and the transport strips it defensively for the same reason.
+     */
 
-    this._requestLogger.debug('Created base AxiosRequestConfig from user request', compiledRequest);
+    this._requestLogger.debug('Created base request configuration from user request', compiledRequest);
 
-    /** Use the underlying axios instance to make the request */
+    /**
+     * The tokens actually attached to this request, and the value each one carried.
+     *
+     * Kept so that a 401 can invalidate precisely what was sent, rather than whatever the handshake holds
+     * by the time the rejection arrives.
+     */
+    const attachedTokens: { name: Tokens; token: string }[] = [];
+
+    /** Use the underlying transport to make the request */
     try {
       /** Check if some tokens must be appended to the request */
       if (isObject(useTokens)) {
@@ -797,15 +833,19 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
           const transporter = useTokens[tokenName];
 
           if (transporter) {
-            await this._getTokenHandshake(tokenName).appendToken(axiosRequestConfig, transporter);
+            const attached = await this._getTokenHandshake(tokenName).appendToken(transportRequestConfig, transporter);
+
+            if (attached?.token) {
+              attachedTokens.push({ name: tokenName, token: attached.token });
+            }
           }
         }
       }
 
-      this._requestLogger.debug(`Performing a ${method} request to ${url}`, axiosRequestConfig);
+      this._requestLogger.debug(`Performing a ${method} request to ${url}`, transportRequestConfig);
 
       /** Await for the response */
-      const response = (await this._axios(axiosRequestConfig)) as AxiosResponse<Response>;
+      const response = await this._transport.request<Response>(transportRequestConfig);
 
       this._requestLogger.debug(`Received response from ${url}`, response);
 
@@ -814,14 +854,66 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
         : response.data;
     }
     catch (error) {
+      const requestError = RequestError.fromError(error);
+
+      /**
+       * A 401 on a request that carried a token means the server disagrees with us about it, and one retry
+       * is worth attempting.
+       *
+       * The token is judged expired *locally*, from its 'expiresAt' and the configured threshold. A server
+       * can reject a token that looks perfectly valid from here — a revoked session, a clock skew, an
+       * invalidation from somewhere else — and until now that request simply failed, permanently, with a
+       * token sitting in storage that would keep being sent.
+       *
+       * Four guards, all of them deliberate:
+       *
+       * - only 401. A 403 says authenticated but not allowed, and refreshing changes nothing about that
+       * - only when a token was actually attached: a 401 on an anonymous request is the server's answer,
+       *   not a stale credential
+       * - only once, because the retry runs with 'allowUnauthorizedRetry' off. A grant request is itself a
+       *   request and may carry other tokens, so a chain is possible — but each link retries at most once,
+       *   which bounds it by the number of tokens rather than leaving it open
+       * - never after the caller aborted, which would turn a cancelled request into two
+       */
+      const shouldRetry = allowUnauthorizedRetry
+        && requestError.statusCode === 401
+        && attachedTokens.length > 0
+        && !abortSignal?.aborted;
+
+      if (shouldRetry && await this._invalidateRejectedTokens(attachedTokens)) {
+        this._requestLogger.info(`Retrying the ${method} request to ${url} with a refreshed token`);
+
+        return this._performRequest<Response>(config, abortSignal, false);
+      }
+
       /** Error message will be shown only once the client is fully loaded */
       if (this.state.value.isLoaded) {
         this._requestLogger.error(`Error received from ${url}`, error);
       }
 
       /** Throw the error as RequestError object */
-      throw RequestError.fromError(error);
+      throw requestError;
     }
+  }
+
+
+  /**
+   * Drop every token a rejected request had carried, and report whether anything was actually dropped.
+   *
+   * Each handshake compares before clearing, so a token another request has already refreshed is left
+   * alone — and that case still counts as retryable, because the retry will send whatever the refresh
+   * produced. A 'false' means the handshake refuses to take part at all, which today only a manually
+   * controlled token does.
+   *
+   * @param attachedTokens The tokens the rejected request carried
+   * @private
+   */
+  private async _invalidateRejectedTokens(attachedTokens: { name: Tokens; token: string }[]): Promise<boolean> {
+    const outcomes = await Promise.all(
+      attachedTokens.map(({ name, token }) => this._getTokenHandshake(name).invalidateRejectedToken(token))
+    );
+
+    return outcomes.some(Boolean);
   }
 
 
@@ -837,14 +929,24 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
   public async safeRequest<Response>(
     config: ClientRequest<UserData, StoredData, Tokens, Response>,
     abortSignal?: GenericAbortSignal
-  ): Promise<[ RequestError | null, Response ]> {
-    const [ error, response ] = await will(this.request<Response>(config, abortSignal));
-
-    if (error) {
-      return [ RequestError.fromError(error), null as Response ];
+  ): Promise<WillResult<Response, RequestError>> {
+    /**
+     * The result is a discriminated tuple, so checking the error narrows the response.
+     *
+     * It used to be typed '[ RequestError | null, Response ]' and return 'null as Response' on failure —
+     * a response that was declared present and was not. Callers who read it without checking the error
+     * first were holding a null the compiler swore was a value.
+     */
+    try {
+      return [ null, await this.request<Response>(config, abortSignal) ];
     }
-
-    return [ error, response ];
+    catch (error) {
+      /**
+       * Normalized rather than passed through: 'request' throws a RequestError from its own catch, but the
+       * initialization guard above it throws a plain Error, which would otherwise escape untranslated.
+       */
+      return [ RequestError.fromError(error), null ];
+    }
   }
 
 
@@ -858,11 +960,41 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
    * @param config
    */
   public request$<Response>(config: ClientRequest<UserData, StoredData, Tokens, Response>): Observable<Response> {
-    return new Observable<Response>((observer) => (
-      new RequestSubscriber<Response>(observer, (abortController) => (
-        this.request(config, abortController.signal)
-      ))
-    ));
+    return new Observable<Response>((subscriber) => {
+      const abortController = new AbortController();
+
+      let hasSettled = false;
+
+      /**
+       * Emit through the subscriber rxjs handed over, never through a raw observer.
+       *
+       * A dedicated `RequestSubscriber` class used to sit here: it took the observer, called
+       * `super(observer)` to become a Subscriber, and then emitted on the *observer* directly while using
+       * itself purely as an unsubscribe handle — rxjs accepts anything with an `unsubscribe` method as a
+       * teardown, which is what made that work. Nothing was broken, because rxjs wraps whatever a caller
+       * subscribes with and its wrappers ignore emissions once closed; but the Subscriber it built was
+       * dead weight, and the arrangement leaned on that guard rather than on the contract.
+       *
+       * This is the contract: emit on the subscriber, return the teardown.
+       */
+      this.request(config, abortController.signal)
+        .then((response) => {
+          hasSettled = true;
+          subscriber.next(response);
+          subscriber.complete();
+        })
+        .catch((error) => {
+          hasSettled = true;
+          subscriber.error(error);
+        });
+
+      /** Unsubscribing aborts a request still in flight, and only then */
+      return () => {
+        if (!hasSettled) {
+          abortController.abort();
+        }
+      };
+    });
   }
 
 
@@ -876,6 +1008,55 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
 
     /** Remove user data object from current client state */
     await this._updateUserData(null);
+  }
+
+
+  /**
+   * Release this client and everything it owns.
+   *
+   * Disposes every token handshake and both storages, which completes their subjects and releases every
+   * subscription taken out on `client.state` and `client.storage`. Any token retrieval still in flight is
+   * rejected rather than left hanging.
+   *
+   * Reach for it wherever a client stops being the current one instead of the process ending: a hot
+   * reload replacing it, a tenant switch building a new one, a test case tearing its fixture down. There
+   * was no way to do this before, so each of those left the previous client's subjects alive together
+   * with whatever had subscribed to them.
+   *
+   * Calling it twice is a no-op. The client is not reusable afterwards.
+   *
+   * @example
+   * useEffect(() => {
+   *   const client = buildClient();
+   *
+   *   return () => client.dispose();
+   * }, []);
+   */
+  public dispose(): void {
+    if (this.state.isDisposed) {
+      return;
+    }
+
+    this._initLogger.debug('Disposing the Client');
+
+    /** Settle a client initialization still running, so nothing stays blocked on it */
+    if (this._clientInitializationDeferred?.isPending) {
+      this._clientInitializationDeferred.promise.catch(() => {
+        this._initLogger.debug('Initialization abandoned because the Client was disposed');
+      });
+
+      this._clientInitializationDeferred.reject(new Error('Client was disposed before initializing'));
+    }
+
+    this._clientInitializationDeferred = undefined;
+
+    /** Release the handshakes first: each one rejects its pending token retrieval */
+    this._tokensHandshake.forEach((handshake) => handshake.dispose());
+    this._tokensHandshake.clear();
+
+    /** …then the two storages the client owns directly */
+    this.storage.dispose();
+    this.state.dispose();
   }
 
 

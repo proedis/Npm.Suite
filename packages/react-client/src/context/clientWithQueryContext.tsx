@@ -79,7 +79,7 @@ export function useClientQuery<R = unknown>(
 
   /** Apply transformer to data */
   const memoizedData = React.useMemo(
-    () => data && transformer ? plainToInstance(transformer, data) as R : data,
+    () => (data && transformer ? plainToInstance(transformer, data) as R : data),
     [ data, transformer ]
   );
 
@@ -141,7 +141,7 @@ export function useClientMutation<D, R = unknown>(
  * Client with Query Provider
  * -------- */
 
-interface ClientWithQueryProviderProps extends ClientProviderProps {
+export interface ClientWithQueryProviderProps extends ClientProviderProps {
   /** Setup a custom QueryClientProvider component */
   queryClientProviderComponent?: React.FunctionComponent<QueryClientProviderProps>;
 
