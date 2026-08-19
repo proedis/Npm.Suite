@@ -141,7 +141,7 @@ export function useClientMutation<D, R = unknown>(
  * Client with Query Provider
  * -------- */
 
-interface ClientWithQueryProviderProps extends ClientProviderProps {
+export interface ClientWithQueryProviderProps extends ClientProviderProps {
   /** Setup a custom QueryClientProvider component */
   queryClientProviderComponent?: React.FunctionComponent<QueryClientProviderProps>;
 

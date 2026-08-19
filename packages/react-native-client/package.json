@@ -30,9 +30,6 @@
       "@proedis/client": {
         "from": "self"
       },
-      "react": {
-        "range": ">=18.0.0 <20.0.0"
-      },
       "@react-native-async-storage/async-storage": {
         "range": ">=1.18.0 <4.0.0"
       }
