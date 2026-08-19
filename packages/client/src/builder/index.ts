@@ -157,12 +157,11 @@ export default class ClientBuilder<
    */
   public withToken<T extends string>(
     name: T,
-    /* eslint-disable @typescript-eslint/indent */
     configuration: Builder<
       TokenHandshakeConfiguration<UserData, StoredData, Tokens | T>,
       TokenHandshakeConfiguration<UserData, StoredData, Tokens>
     >
-    /* eslint-enable */
+
   ): ClientBuilder<UserData, StoredData, Tokens | T> {
     /** Create a new configuration for the token */
     const currentConfiguration = this._tokens.get(name as any);

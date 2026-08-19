@@ -32,7 +32,6 @@ import type {
 } from './Client.types';
 
 import type { TokenSpecification } from './lib/TokenHandshake/TokenHandshake.types';
-import RequestSubscriber from './Client.RequestSubscriber';
 
 
 /* --------
@@ -161,7 +160,7 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
 
     /** If the object is an Array, loop through each value */
     if (Array.isArray(object) && typeof parentKey === 'string') {
-      if (!!object.length) {
+      if (object.length) {
         object.forEach((item, index) => {
           /** Create the key based on item index */
           const key = `${parentKey}[${index}]`;
@@ -297,9 +296,7 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
 
     /** Initialize the client */
     this._initializeClient()
-      .then((userData) => {
-        return this._updateUserData(userData);
-      })
+      .then((userData) => this._updateUserData(userData))
       .catch((error) => {
         this._initLogger.error('Unhandled exception occurred while initializing the Client', error);
       })
@@ -426,7 +423,7 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
         ? {
           ...curr,
           hasAuth : true,
-          userData: userData
+          userData
         }
         : {
           ...curr,
@@ -479,7 +476,7 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
     }
 
     /** Get the extractor from settings */
-    const extract = !!this._settings.userDataExtractor
+    const extract = this._settings.userDataExtractor
       ? (typeof this._settings.userDataExtractor === 'function'
         ? this._settings.userDataExtractor
         : this._settings.userDataExtractor[authAction])
@@ -782,7 +779,7 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
     if (axiosRequestConfig.data && axiosRequestConfig.data instanceof FormData && !(axiosRequestConfig.headers?.['Content-Type'])) {
       axiosRequestConfig.headers = {
         ...axiosRequestConfig.headers,
-        ['Content-Type']: 'multipart/form-data'
+        'Content-Type': 'multipart/form-data'
       };
     }
 
@@ -858,11 +855,41 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
    * @param config
    */
   public request$<Response>(config: ClientRequest<UserData, StoredData, Tokens, Response>): Observable<Response> {
-    return new Observable<Response>((observer) => (
-      new RequestSubscriber<Response>(observer, (abortController) => (
-        this.request(config, abortController.signal)
-      ))
-    ));
+    return new Observable<Response>((subscriber) => {
+      const abortController = new AbortController();
+
+      let hasSettled = false;
+
+      /**
+       * Emit through the subscriber rxjs handed over, never through a raw observer.
+       *
+       * A dedicated `RequestSubscriber` class used to sit here: it took the observer, called
+       * `super(observer)` to become a Subscriber, and then emitted on the *observer* directly while using
+       * itself purely as an unsubscribe handle — rxjs accepts anything with an `unsubscribe` method as a
+       * teardown, which is what made that work. Nothing was broken, because rxjs wraps whatever a caller
+       * subscribes with and its wrappers ignore emissions once closed; but the Subscriber it built was
+       * dead weight, and the arrangement leaned on that guard rather than on the contract.
+       *
+       * This is the contract: emit on the subscriber, return the teardown.
+       */
+      this.request(config, abortController.signal)
+        .then((response) => {
+          hasSettled = true;
+          subscriber.next(response);
+          subscriber.complete();
+        })
+        .catch((error) => {
+          hasSettled = true;
+          subscriber.error(error);
+        });
+
+      /** Unsubscribing aborts a request still in flight, and only then */
+      return () => {
+        if (!hasSettled) {
+          abortController.abort();
+        }
+      };
+    });
   }
 
 
@@ -876,6 +903,55 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
 
     /** Remove user data object from current client state */
     await this._updateUserData(null);
+  }
+
+
+  /**
+   * Release this client and everything it owns.
+   *
+   * Disposes every token handshake and both storages, which completes their subjects and releases every
+   * subscription taken out on `client.state` and `client.storage`. Any token retrieval still in flight is
+   * rejected rather than left hanging.
+   *
+   * Reach for it wherever a client stops being the current one instead of the process ending: a hot
+   * reload replacing it, a tenant switch building a new one, a test case tearing its fixture down. There
+   * was no way to do this before, so each of those left the previous client's subjects alive together
+   * with whatever had subscribed to them.
+   *
+   * Calling it twice is a no-op. The client is not reusable afterwards.
+   *
+   * @example
+   * useEffect(() => {
+   *   const client = buildClient();
+   *
+   *   return () => client.dispose();
+   * }, []);
+   */
+  public dispose(): void {
+    if (this.state.isDisposed) {
+      return;
+    }
+
+    this._initLogger.debug('Disposing the Client');
+
+    /** Settle a client initialization still running, so nothing stays blocked on it */
+    if (this._clientInitializationDeferred?.isPending) {
+      this._clientInitializationDeferred.promise.catch(() => {
+        this._initLogger.debug('Initialization abandoned because the Client was disposed');
+      });
+
+      this._clientInitializationDeferred.reject(new Error('Client was disposed before initializing'));
+    }
+
+    this._clientInitializationDeferred = undefined;
+
+    /** Release the handshakes first: each one rejects its pending token retrieval */
+    this._tokensHandshake.forEach((handshake) => handshake.dispose());
+    this._tokensHandshake.clear();
+
+    /** …then the two storages the client owns directly */
+    this.storage.dispose();
+    this.state.dispose();
   }
 
 

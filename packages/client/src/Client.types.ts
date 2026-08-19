@@ -126,7 +126,7 @@ export interface ServerData {
  * -------- */
 export type AuthActionType = 'login' | 'signup';
 
-export type AuthAction<T extends Function> = Partial<Record<AuthActionType, T>> | T;
+export type AuthAction<T extends (...args: any[]) => any> = Partial<Record<AuthActionType, T>> | T;
 
 
 /* --------
@@ -142,11 +142,10 @@ export type AuthorizedClientState<UserData extends AnyObject> = {
   userData: UserData;
 };
 
-export type ClientState<UserData extends AnyObject> =
-  {
-    isReady: boolean,
-    isLoaded: boolean
-  }
+export type ClientState<UserData extends AnyObject> = {
+  isReady: boolean,
+  isLoaded: boolean
+}
   & (UnauthorizedClientState | AuthorizedClientState<UserData>);
 
 

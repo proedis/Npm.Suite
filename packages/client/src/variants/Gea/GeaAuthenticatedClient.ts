@@ -1,6 +1,6 @@
+import { isBrowser, isValidString } from '@proedis/utils';
 import ClientBuilder from '../../builder';
 
-import { isBrowser, isValidString } from '@proedis/utils';
 
 import {
   bearerTransporter,

@@ -23,7 +23,6 @@
     "@proedis/types": "^1.4.0",
     "@proedis/utils": "1.6.0",
     "axios": "^1.7.4",
-    "logdown": "^3.3.1",
     "store2": "^2.14.3"
   },
   "proedisMetadata": {
