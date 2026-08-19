@@ -167,8 +167,8 @@ export class InitAction extends AbstractAction<InitActionInput> {
 
       if (!areDependenciesInstalled) {
         console.error(
-          `${chalk.red.bold(`Initialization failed: ${name}`)}:\n` +
-          chalk.red('Packages installation process exit with an error')
+          `${chalk.red.bold(`Initialization failed: ${name}`)}:\n${
+            chalk.red('Packages installation process exit with an error')}`
         );
         return;
       }

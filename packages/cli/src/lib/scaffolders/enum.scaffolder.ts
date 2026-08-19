@@ -65,9 +65,9 @@ export class EnumScaffolder extends AbstractedScaffolder {
     /** Start to process to write enums definition */
     console.info();
     console.info(`All paths will be resolved from root ${chalk.green(relative(cwd(), root))}:`);
-    console.info(` - Saving Constants in ${chalk.cyan('./' + relative(root, constantsPath))}`);
-    console.info(` - Saving Enums in ${chalk.cyan('./' + relative(root, enumsPath))}`);
-    console.info(` - Saving Utilities in ${chalk.cyan('./' + relative(root, typesPath))}`);
+    console.info(` - Saving Constants in ${chalk.cyan(`./${relative(root, constantsPath)}`)}`);
+    console.info(` - Saving Enums in ${chalk.cyan(`./${relative(root, enumsPath)}`)}`);
+    console.info(` - Saving Utilities in ${chalk.cyan(`./${relative(root, typesPath)}`)}`);
     console.info();
 
     /** Clean all directories and recreate */
@@ -217,8 +217,8 @@ export class EnumScaffolder extends AbstractedScaffolder {
 
     /** Ask user if it must compile shared objects color and icons */
     const mustContinue = await askForConfirmation(
-      'Do you want to generate SharedObjects utilities like colors and icons? ' +
-      'Mantine and FontAwesome are required to continue: without those packages utilities won\'t be usable.'
+      'Do you want to generate SharedObjects utilities like colors and icons? '
+      + 'Mantine and FontAwesome are required to continue: without those packages utilities won\'t be usable.'
     );
 
     if (!mustContinue) {
@@ -242,8 +242,8 @@ export class EnumScaffolder extends AbstractedScaffolder {
 
     /** Ask user if it must compile configuration for modeler */
     const generateConfigurationFile = await askForConfirmation(
-      'Do you want to generate Modeler Configuration file? ' +
-      '@proedis/modeler is required to continue: without those packages utilities won\'t be usable.'
+      'Do you want to generate Modeler Configuration file? '
+      + '@proedis/modeler is required to continue: without those packages utilities won\'t be usable.'
     );
 
     if (!generateConfigurationFile) {
@@ -304,9 +304,9 @@ export class EnumScaffolder extends AbstractedScaffolder {
       )));
     if (malformedKeys.length) {
       throw new Error(
-        'Invalid SharedObjects response: ' +
-        'expecting all values to be an object implementing { name: string, label: string, value: number }. ' +
-        `Found invalid elements in [${malformedKeys.join(', ')}]`
+        'Invalid SharedObjects response: '
+        + 'expecting all values to be an object implementing { name: string, label: string, value: number }. '
+        + `Found invalid elements in [${malformedKeys.join(', ')}]`
       );
     }
 

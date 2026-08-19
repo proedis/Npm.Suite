@@ -18,8 +18,15 @@ const bootstrap = async () => {
   /** Create the Commander program to parse arguments */
   const { program } = commander;
 
-  /** Update the program version using current package.json */
+  /**
+   * Update the program version using current package.json.
+   *
+   * 'require' rather than an import: this package is published CommonJS only, its own manifest sits
+   * outside the compiled sources, and resolving it statically would inline the whole file into the
+   * bundle at build time instead of reading the installed one at run time.
+   */
   program.version(
+    // eslint-disable-next-line global-require, @typescript-eslint/no-require-imports
     require('../package.json').version,
     '-v, --version',
     'Output the current version.'

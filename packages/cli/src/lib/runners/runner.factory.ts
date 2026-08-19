@@ -20,7 +20,7 @@ export class RunnerFactory {
         return new PnpmRunner();
 
       default:
-        throw new Error('Unsupported runner: ${runner}');
+        throw new Error(`Unsupported runner: ${runner}`);
     }
   }
 

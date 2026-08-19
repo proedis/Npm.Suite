@@ -22,7 +22,7 @@ export async function spinnerFeedbackFunction<T>(
       );
 
       /** Execute the action with the custom resolve function */
-      return action(innerResolve, innerReject);
+      action(innerResolve, innerReject);
     })
       .then(({ data, successMessage }) => {
         /** Change the feedback spinner to the success status */

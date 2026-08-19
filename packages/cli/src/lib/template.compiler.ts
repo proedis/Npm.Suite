@@ -302,7 +302,7 @@ export class TemplateCompiler {
         /** Create the output path */
         const outputPath = resolve(root, ...(descriptor.path || []), outputName);
         /** Write the file */
-        return resolveTemplate(this.writeFile(outputPath, file, undefined, options.noOverride));
+        resolveTemplate(this.writeFile(outputPath, file, undefined, options.noOverride));
       })
     ));
 
@@ -350,7 +350,7 @@ export class TemplateCompiler {
     if (isFileModified && avoidOverriding) {
       console.info(
         chalk.yellow(
-          `File ${path} already exists and won\'t be overridden`
+          `File ${path} already exists and won't be overridden`
         )
       );
 
@@ -390,8 +390,7 @@ export class TemplateCompiler {
   public async lintAndFixFiles(paths: SavedFile[]) {
     /** Filter keeping only valid paths */
     const fixablePaths = paths.filter((path) => (
-      typeof path === 'string' && FIXABLE_EXTENSIONS.includes(extname(path)))
-    ) as string[];
+      typeof path === 'string' && FIXABLE_EXTENSIONS.includes(extname(path)))) as string[];
 
     /** Assert at least one file exist */
     if (!fixablePaths.length) {

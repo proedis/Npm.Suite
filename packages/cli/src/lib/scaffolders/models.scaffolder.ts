@@ -1,6 +1,7 @@
 import { existsSync, rmSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
+import { globSync } from 'glob';
 import { AbstractedScaffolder } from './lib';
 import { spinnerFeedbackFunction } from '../../ui';
 
@@ -8,7 +9,6 @@ import { ModelsRepository } from './lib/models/ModelsRepository';
 
 import type { OpenApiDocument, RouteParameterSchema, PathMethodDescriptor } from './types/openapi';
 import { type SavedFile, TemplateCompiler } from '../template.compiler';
-import { globSync } from 'glob';
 
 
 /* --------
@@ -335,6 +335,8 @@ export class ModelsScaffolder extends AbstractedScaffolder {
 
       case 'boolean':
         return 'boolean';
+
+      // no default
     }
   }
 

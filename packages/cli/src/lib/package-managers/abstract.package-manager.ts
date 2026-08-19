@@ -254,7 +254,8 @@ export abstract class AbstractPackageManager {
           new Promise<void>(async (resolve) => {
             /** Before resolving exact version of the peerDependency, check if this is optional or not */
             if ((packagePeerDependenciesMeta as any)?.[peerDependencyName]?.optional) {
-              return resolve();
+              resolve();
+              return;
             }
 
             /** Extract the required version from peerDependencies */
@@ -262,7 +263,8 @@ export abstract class AbstractPackageManager {
 
             /** If peerDependency is already satisfied, abort */
             if (this.isDependencySatisfied({ name: peerDependencyName, version: requiredVersion })) {
-              return resolve();
+              resolve();
+              return;
             }
 
             /** Get the latest version for the peerDependency */
@@ -276,7 +278,7 @@ export abstract class AbstractPackageManager {
               version: peerDependencyVersion
             });
 
-            return resolve();
+            resolve();
           })
         ))
       );
@@ -455,10 +457,10 @@ export abstract class AbstractPackageManager {
       spinner.fail();
       console.error(
         chalk.red(
-          'Packages installation failed!\n' +
-          'In case you don\'t see any errors above, consider manually running the failed command ' +
-          `${chalk.bold(this.runner.rawFullCommand(command))} ` +
-          'to see more details on why it errored out.'
+          'Packages installation failed!\n'
+          + 'In case you don\'t see any errors above, consider manually running the failed command '
+          + `${chalk.bold(this.runner.rawFullCommand(command))} `
+          + 'to see more details on why it errored out.'
         )
       );
       return false;

@@ -26,11 +26,12 @@
   },
   "scripts": {
     "release:graph": "nx graph",
-    "release:lint": "eslint ./packages",
+    "release:lint": "eslint .",
     "release:version": "lerna version",
     "release:build": "lerna run build",
     "release:verify": "node ./scripts/verify-artifacts.mjs",
-    "release:publish": "lerna publish from-package --contents build"
+    "release:publish": "lerna publish from-package --contents build",
+    "rules:sync": "node ./scripts/sync-airbnb-rules.mjs"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^29.0.3",
@@ -40,16 +41,10 @@
     "@tanstack/react-query": "^5.101.4",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "@typescript-eslint/eslint-plugin": "6.10.0",
-    "@typescript-eslint/parser": "6.10.0",
     "class-transformer": "^0.5.1",
     "dayjs": "^1.11.12",
-    "eslint": "8.53.0",
-    "eslint-config-airbnb-typescript": "17.1.0",
+    "eslint": "9.39.4",
     "eslint-config-proedis": "*",
-    "eslint-plugin-import": "2.29.0",
-    "eslint-plugin-react": "7.33.2",
-    "eslint-plugin-react-hooks": "4.6.0",
     "lerna": "^10.0.0",
     "react": "19.2.5",
     "react-dom": "19.2.5",

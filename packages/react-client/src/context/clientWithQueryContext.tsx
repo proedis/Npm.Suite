@@ -79,7 +79,7 @@ export function useClientQuery<R = unknown>(
 
   /** Apply transformer to data */
   const memoizedData = React.useMemo(
-    () => data && transformer ? plainToInstance(transformer, data) as R : data,
+    () => (data && transformer ? plainToInstance(transformer, data) as R : data),
     [ data, transformer ]
   );
 

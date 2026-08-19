@@ -27,12 +27,12 @@ export class EnumModel extends AbstractedModel<EnumSchema> {
         if (Array.isArray(this.schema.enum)) {
           return [
             `export type ${this.name} =`,
-            this.schema.enum.map(name => `  | '${name}'`).join('\n') + ';\n'
+            `${this.schema.enum.map(name => `  | '${name}'`).join('\n')};\n`
           ].join('\n');
         }
-        else {
-          return `export type ${this.name} = ${this.schema.type};\n`;
-        }
+
+        return `export type ${this.name} = ${this.schema.type};\n`;
+
 
       case 'array':
         return `export type ${this.name} = ${this.schema.items.type}[];\n`;

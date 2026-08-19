@@ -91,7 +91,7 @@ export class Project {
 
     const srcPath = Project.getFirstPathFor('src', 'directory');
 
-    this._rootDirectory = !!srcPath ? resolve(srcPath, '..') : cwd();
+    this._rootDirectory = srcPath ? resolve(srcPath, '..') : cwd();
 
     return this._rootDirectory;
   }
@@ -140,8 +140,8 @@ export class Project {
 
     if (!packageJsonPath) {
       throw new Error(
-        'Could not find a valid package.json in this project. ' +
-        'You must initialize one package.json file before continue.'
+        'Could not find a valid package.json in this project. '
+        + 'You must initialize one package.json file before continue.'
       );
     }
 
