@@ -92,16 +92,34 @@ working, since nx builds its own PATH.
 
 ### Release
 
-Releasing is manual and run step by step — there is deliberately no aggregate `release` script:
-
 ```bash
+yarn release:preflight  # lint + build + verify, before anything is bumped
 yarn release:version    # lerna version, interactive per package
-yarn release:build
-yarn release:verify
-yarn release:publish    # lerna publish from-package --contents build
+yarn release:finalize   # build + verify + publish
 ```
 
-Publishing therefore ships the generated `build/` directory, never the repo source.
+**There is deliberately no single `release` script, and the reason is the order of the steps.**
+`lerna version` bumps, commits, tags and — with no `--no-push` in `lerna.json` or in the script —
+**pushes**, so the irreversible half of a release is the *first* thing that runs, while
+`release:verify` only speaks two steps later. Chaining the whole thing with `&&` would not create
+that problem, but it would automate it: a red verify would leave version commits and one tag per
+package already on the remote for a release that cannot be published, to be undone by hand.
+
+The order cannot simply be rearranged either. `createPackageJson` copies `version` from the source
+manifest, so artifacts built before `lerna version` would carry the previous number: the build has
+to happen after the bump.
+
+Hence the two halves. `release:preflight` checks everything a release can fail on **except** the
+version strings, which is nearly all of it — the missing README that kept this repository from
+releasing would have surfaced there rather than after tagging. `release:finalize` aggregates the
+tail, which is safe to group because both `build` and `verify` are idempotent and
+`lerna publish from-package` compares each local version against the registry: it publishes only
+what is missing and is a no-op on a re-run.
+
+What stays manual is the seam between them — the one place a human decision belongs, between the
+interactive bump of eleven packages and pushing them to npm.
+
+Publishing ships the generated `build/` directory, never the repo source.
 
 `--exact` was dropped from `release:version`, so lerna now writes `^x.y.z` instead of `x.y.z` into
 sibling ranges (in `dependencies` *and* `devDependencies`), letting consumers dedupe a single

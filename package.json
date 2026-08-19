@@ -27,9 +27,11 @@
   "scripts": {
     "release:graph": "nx graph",
     "release:lint": "eslint .",
+    "release:preflight": "yarn release:lint && yarn release:build && yarn release:verify",
     "release:version": "lerna version",
     "release:build": "lerna run build",
     "release:verify": "node ./scripts/verify-artifacts.mjs",
+    "release:finalize": "yarn release:build && yarn release:verify && yarn release:publish",
     "release:publish": "lerna publish from-package --contents build",
     "rules:sync": "node ./scripts/sync-airbnb-rules.mjs"
   },
