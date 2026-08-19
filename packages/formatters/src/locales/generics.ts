@@ -1,31 +1,32 @@
+/* --------
+ * Locale Primitives
+ * -------- */
+
+/** The locales the formatters ship translations for */
 export type Locale = 'it' | 'en';
 
-export type LocaleTransformer = ((value: number) => string);
-
-export type LocaleDictionary<TKeys extends string> = Record<TKeys, LocaleTransformer>;
-
-export type LocaleDictionaries<TDictionary extends LocaleDictionary<string>> = Record<Locale, TDictionary>;
+/** A set of translations, one entry per supported locale */
+export type LocaleDictionaries<TDictionary> = Record<Locale, TDictionary>;
 
 
-export function extractLocaleDictionary<TReturn extends LocaleDictionary<string>>(
-  dictionaries: LocaleDictionaries<TReturn>
-): (locale: Locale) => TReturn {
+/* --------
+ * Resolution
+ * -------- */
 
-  return function getDictionary(locale) {
-    /** Try to get the dictionary from the collection */
-    let dictionary = dictionaries[locale];
-
-    /** Assert it exists */
-    if (!dictionary) {
-      global.console.warn(
-        `You're trying to use an invalid locale: '${locale}' is not recognized. Falling back to 'en'`
-      );
-
-      dictionary = dictionaries.en;
-    }
-
-    /** Return the found dictionary */
-    return dictionary;
-  };
-
+/**
+ * Pick the translations for a locale, falling back to English.
+ *
+ * The fallback is silent, and deliberately so: `Locale` is a literal union, so an unknown value can
+ * only reach here from untyped JavaScript, and a formatter called from a render path is the wrong
+ * place to either throw or write to the console on every single call.
+ *
+ * @param dictionaries The available translations
+ * @param locale The requested locale
+ * @returns The translations for that locale, or the English ones
+ */
+export function resolveLocaleDictionary<TDictionary>(
+  dictionaries: LocaleDictionaries<TDictionary>,
+  locale: Locale
+): TDictionary {
+  return dictionaries[locale] ?? dictionaries.en;
 }
