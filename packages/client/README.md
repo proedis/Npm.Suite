@@ -339,7 +339,8 @@ useTokens: { accessToken: true, apiKey: 'query', refreshToken: false }
 
 #### What happens on a request that needs a token
 
-1. A valid stored token is used as it is.
+1. A valid stored token is used as it is — and that path is deliberately short, costing about a
+   microsecond, because it is the one nearly every request takes.
 2. Otherwise the extractors are tried, in order.
 3. Otherwise the `grant` request runs — and its response is offered to every **other** handshake too,
    which is how one call can deliver several tokens.
@@ -347,7 +348,34 @@ useTokens: { accessToken: true, apiKey: 'query', refreshToken: false }
    `invalidateAuthOnGrantError` is off — the whole authentication is flushed.
 
 Concurrent requests are collapsed: while a token is being retrieved, every other caller waits on the
-same operation. Five parallel requests needing the same expired token produce **one** grant.
+same operation. Ten parallel requests needing the same expired token produce **one** grant.
+
+#### And when the server disagrees: the 401 retry
+
+A token is judged expired *locally*, from its `expiresAt` and the `validityThreshold`. A server can
+perfectly well reject one that looks valid from here — a revoked session, a clock skew, an invalidation
+that happened somewhere else. So a **401 on a request that carried a token** drops that token and retries
+the request once:
+
+```
+GET /projects  ─ 401 ──►  drop the rejected token  ──►  grant  ──►  GET /projects  ─ 200
+```
+
+Four guards, and each one is there for a reason:
+
+| Guard | Why |
+| --- | --- |
+| only `401` | a `403` says authenticated but not allowed, and refreshing changes nothing about that |
+| only when a token was attached | a 401 on an anonymous request is the server's answer, not a stale credential |
+| exactly one retry | the retry itself cannot retry. A grant is a request too and may carry other tokens, so a chain is possible — but each link retries once, which bounds it by the number of tokens |
+| never after an abort | a cancelled request must not become two |
+
+Ten requests rejected together still produce **one** refresh: each handshake compares the rejected token
+against what it currently holds before dropping anything, so the second rejection to arrive does not throw
+away the fresh token the first one just obtained — it simply waits for it.
+
+⚠️ `isManuallyControlled` is the opt-out. A token the application sets itself is never dropped and never
+triggers a retry, which is what that flag has always meant.
 
 ### 🧭 The `Client` instance
 
@@ -380,7 +408,7 @@ same operation. Five parallel requests needing the same expired token produce **
 | --- | --- |
 | `getToken(name)` | a valid token specification, granting one if needed |
 | `setToken(name, specification)` | store a token explicitly |
-| `getTokenHandshake(name)` | the handshake itself, for `clear()`, `isValid()` and the rest |
+| `getTokenHandshake(name)` | the handshake itself, for `clear()`, `isValid()`, `invalidateRejectedToken()` and the rest |
 
 #### State and storage
 
@@ -529,6 +557,7 @@ And the bug fixes, three of which changed behaviour you may have worked around:
 | Concurrent callers got `undefined` as an error | The caller that started a retrieval received a `RequestError`; everybody waiting alongside it received nothing at all. |
 | `Logger.configure` did nothing after the first logger existed | Each logger snapshotted the defaults in its constructor, so configuring from a second client's settings was ignored. |
 | No way to release a client | There is `dispose()` now. A client replaced by a hot reload or a tenant switch used to leave its subjects alive together with every subscriber. |
+| A server-rejected token failed permanently | Nothing handled a 401: a token the server refused while still looking locally valid kept being sent, and every request carrying it failed. There is now one refresh-and-retry, with the guards described [above](#and-when-the-server-disagrees-the-401-retry). |
 | A caller could corrupt client state by accident | The store shared nested objects with whatever was passed to `set`, so mutating your own object afterwards wrote into client state, bypassing `set` and `transact` — nothing persisted, nothing emitted. |
 | A **subscriber** could corrupt it too | A BehaviorSubject keeps the value it emitted, so what a subscriber received was what the store held. Emitted and initial values are now frozen, which turns that silent corruption into a `TypeError`. Legitimate writes are unaffected: `set` and `transact` both work on a writable copy. |
 | `safeRequest` declared a response that was not there | It was typed `[ RequestError \| null, Response ]` and returned `null as Response` on failure, so a caller reading the response without checking the error held a null the compiler swore was a value. It is a discriminated tuple now. |

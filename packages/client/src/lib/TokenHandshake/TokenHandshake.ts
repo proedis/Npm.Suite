@@ -496,6 +496,44 @@ export default class TokenHandshake<UserData extends AnyObject, StoreData extend
 
 
   /**
+   * React to a token of this handshake having been rejected by the server, and say whether the request that
+   * carried it is worth retrying.
+   *
+   * The comparison is the compare-and-swap behind the client's retry on a 401. Several requests can be in
+   * flight carrying the same token and all of them can come back rejected, so three situations have to be
+   * told apart — and collapsing them wrongly is how a retry either storms the grant endpoint or gives up
+   * on requests it could have saved:
+   *
+   * - **the stored token is the rejected one** — drop it, and retry. This is the first rejection to arrive
+   * - **the stored token is something else already** — a sibling rejection got here first and either
+   *   refreshed it or is refreshing it right now. Nothing to drop, and retrying is exactly right: the
+   *   attempt will wait on that same refresh and send whatever comes out of it
+   * - **the token is manually controlled** — the application owns its lifecycle, so it is neither dropped
+   *   nor retried. This flag is the opt-out for the whole behaviour
+   *
+   * @param token The token string the caller sent, and got rejected
+   * @returns Whether a retry is worth attempting
+   */
+  public async invalidateRejectedToken(token: string): Promise<boolean> {
+    if (this._configuration.getOrDefault('isManuallyControlled', 'boolean', false)) {
+      this._handshakeLogger.debug('Token is manually controlled, refusing to invalidate it');
+      return false;
+    }
+
+    /** Somebody else already replaced it: a retry will pick up whatever they produced */
+    if (!this._isSubjectInitialized || this.value.token !== token) {
+      this._handshakeLogger.debug('Stored token is not the rejected one any more, a retry will use the current one');
+      return true;
+    }
+
+    this._handshakeLogger.info('Invalidating the rejected token');
+    await this.clear();
+
+    return true;
+  }
+
+
+  /**
    * Check the validity of a token specification object
    * @param specification
    */
@@ -614,7 +652,10 @@ export default class TokenHandshake<UserData extends AnyObject, StoreData extend
    * @param request
    * @param transporterType
    */
-  public async appendToken(request: TransportRequestConfig, transporterType: UseTokenTransporter) {
+  public async appendToken(
+    request: TransportRequestConfig,
+    transporterType: UseTokenTransporter
+  ): Promise<TokenSpecification | undefined> {
     /** Get the Transporter */
     const transporter = this._getTransporterConfiguration(transporterType);
 
@@ -672,6 +713,14 @@ export default class TokenHandshake<UserData extends AnyObject, StoreData extend
       default:
         throw new Error(`Invalid Transporter Type Found : ${(transporter as any).type}`);
     }
+
+    /**
+     * Hand the attached token back to the caller.
+     *
+     * The client keeps it so that, if the server answers 401, it can invalidate *that* token rather than
+     * whatever the handshake happens to hold by then — see 'invalidateIfCurrent'.
+     */
+    return specification;
   }
 
 

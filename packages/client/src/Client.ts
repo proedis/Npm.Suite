@@ -718,6 +718,24 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
     config: ClientRequest<UserData, StoredData, Tokens, Response>,
     abortSignal?: GenericAbortSignal
   ): Promise<Response> {
+    return this._performRequest<Response>(config, abortSignal, true);
+  }
+
+
+  /**
+   * Perform a request, optionally allowing one refresh-and-retry on a rejected token.
+   *
+   * @param config The request to perform
+   * @param abortSignal An external signal aborting the request
+   * @param allowUnauthorizedRetry Whether a 401 may trigger a token refresh and a single retry. The retry
+   *   itself is issued with this off, which is what bounds the whole thing to one extra round trip.
+   * @private
+   */
+  private async _performRequest<Response>(
+    config: ClientRequest<UserData, StoredData, Tokens, Response>,
+    abortSignal: GenericAbortSignal | undefined,
+    allowUnauthorizedRetry: boolean
+  ): Promise<Response> {
     /** Assert the client has been loaded */
     if (!this._transport) {
       this._requestLogger.error('Transport is not ready. Check your configuration');
@@ -798,6 +816,14 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
 
     this._requestLogger.debug('Created base request configuration from user request', compiledRequest);
 
+    /**
+     * The tokens actually attached to this request, and the value each one carried.
+     *
+     * Kept so that a 401 can invalidate precisely what was sent, rather than whatever the handshake holds
+     * by the time the rejection arrives.
+     */
+    const attachedTokens: { name: Tokens; token: string }[] = [];
+
     /** Use the underlying transport to make the request */
     try {
       /** Check if some tokens must be appended to the request */
@@ -807,7 +833,11 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
           const transporter = useTokens[tokenName];
 
           if (transporter) {
-            await this._getTokenHandshake(tokenName).appendToken(transportRequestConfig, transporter);
+            const attached = await this._getTokenHandshake(tokenName).appendToken(transportRequestConfig, transporter);
+
+            if (attached?.token) {
+              attachedTokens.push({ name: tokenName, token: attached.token });
+            }
           }
         }
       }
@@ -824,14 +854,66 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
         : response.data;
     }
     catch (error) {
+      const requestError = RequestError.fromError(error);
+
+      /**
+       * A 401 on a request that carried a token means the server disagrees with us about it, and one retry
+       * is worth attempting.
+       *
+       * The token is judged expired *locally*, from its 'expiresAt' and the configured threshold. A server
+       * can reject a token that looks perfectly valid from here — a revoked session, a clock skew, an
+       * invalidation from somewhere else — and until now that request simply failed, permanently, with a
+       * token sitting in storage that would keep being sent.
+       *
+       * Four guards, all of them deliberate:
+       *
+       * - only 401. A 403 says authenticated but not allowed, and refreshing changes nothing about that
+       * - only when a token was actually attached: a 401 on an anonymous request is the server's answer,
+       *   not a stale credential
+       * - only once, because the retry runs with 'allowUnauthorizedRetry' off. A grant request is itself a
+       *   request and may carry other tokens, so a chain is possible — but each link retries at most once,
+       *   which bounds it by the number of tokens rather than leaving it open
+       * - never after the caller aborted, which would turn a cancelled request into two
+       */
+      const shouldRetry = allowUnauthorizedRetry
+        && requestError.statusCode === 401
+        && attachedTokens.length > 0
+        && !abortSignal?.aborted;
+
+      if (shouldRetry && await this._invalidateRejectedTokens(attachedTokens)) {
+        this._requestLogger.info(`Retrying the ${method} request to ${url} with a refreshed token`);
+
+        return this._performRequest<Response>(config, abortSignal, false);
+      }
+
       /** Error message will be shown only once the client is fully loaded */
       if (this.state.value.isLoaded) {
         this._requestLogger.error(`Error received from ${url}`, error);
       }
 
       /** Throw the error as RequestError object */
-      throw RequestError.fromError(error);
+      throw requestError;
     }
+  }
+
+
+  /**
+   * Drop every token a rejected request had carried, and report whether anything was actually dropped.
+   *
+   * Each handshake compares before clearing, so a token another request has already refreshed is left
+   * alone — and that case still counts as retryable, because the retry will send whatever the refresh
+   * produced. A 'false' means the handshake refuses to take part at all, which today only a manually
+   * controlled token does.
+   *
+   * @param attachedTokens The tokens the rejected request carried
+   * @private
+   */
+  private async _invalidateRejectedTokens(attachedTokens: { name: Tokens; token: string }[]): Promise<boolean> {
+    const outcomes = await Promise.all(
+      attachedTokens.map(({ name, token }) => this._getTokenHandshake(name).invalidateRejectedToken(token))
+    );
+
+    return outcomes.some(Boolean);
   }
 
 
