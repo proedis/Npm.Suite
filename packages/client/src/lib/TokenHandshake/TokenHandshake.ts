@@ -285,9 +285,23 @@ export default class TokenHandshake<UserData extends AnyObject, StoreData extend
     // ----
     // Use token stored into local storage
     // ----
-    if (this.isValid(this.value)) {
+    const inMemoryToken = this.value;
+
+    if (this.isValid(inMemoryToken)) {
       this._handshakeLogger.debug('In Memory Token is valid');
-      return this._consolidateToken(this.value);
+
+      /**
+       * Nothing to consolidate: this token *is* what the storage already holds.
+       *
+       * It used to go through '_consolidateToken' regardless, which means 'transact' cloned the
+       * specification and 'persist' hashed it against itself only to conclude that nothing had changed and
+       * return. Every request carrying a token paid for that — measured at roughly 19µs per token, on the
+       * main thread, to compare a value with itself. The Deferred still has to be settled, because callers
+       * that arrived while this was running are waiting on it.
+       */
+      this._resolveDeferredPromise(inMemoryToken);
+
+      return inMemoryToken;
     }
 
 
@@ -542,6 +556,29 @@ export default class TokenHandshake<UserData extends AnyObject, StoreData extend
    * provided withing configuration
    */
   public async getSpecification(): Promise<TokenSpecification> {
+    /**
+     * A token that is already valid needs no coordination whatsoever.
+     *
+     * This check sits above the Deferred on purpose. Reaching the retrieval below allocates a Deferred —
+     * and with it a Promise and the catch handler attached to it — then walks an async function with a
+     * try/finally, all to hand back a value that was sitting right here. Since every concurrent caller
+     * runs this same check, there is nothing to collapse and nothing to settle: skipping the machinery
+     * changes no behaviour, it just stops paying for it on the overwhelmingly common path.
+     *
+     * ⚠️ Gated on the storage being initialized, and that guard is not optional. Reading 'value' before the
+     * first storage read completes throws, and a client asks for its first token *during* boot — which is
+     * exactly when that read is still in flight. The retrieval below awaits initialization for this very
+     * reason; a fast path that skipped the await broke every request issued at startup against a storage
+     * slower than a synchronous one, which is to say against React Native's.
+     */
+    if (this._isSubjectInitialized) {
+      const inMemoryToken = this.value;
+
+      if (this.isValid(inMemoryToken)) {
+        return inMemoryToken;
+      }
+    }
+
     this._handshakeLogger.info('Loading Token');
 
     /** Check if a deferred promise already exists, return the pending request */

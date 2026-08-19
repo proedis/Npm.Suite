@@ -140,7 +140,21 @@ export default class Logger {
       ...this._defaultConfiguration,
       ...configuration
     };
+
+    /** Drop the resolved defaults, so the next read rebuilds them from what was just set */
+    Logger._defaultOptions = undefined;
   }
+
+
+  /**
+   * The default configuration, resolved once.
+   *
+   * Every logger without a pinned configuration reads through here, which is what makes a later
+   * 'configure' take effect on loggers that already exist. Caching it matters because the alternative was
+   * allocating an Options wrapper **per log call** — including the calls that are below the threshold and
+   * print nothing, which is most of them in production.
+   */
+  private static _defaultOptions: Options<LoggerOptions> | undefined;
 
 
   // ----
@@ -212,7 +226,13 @@ export default class Logger {
    * `Logger.configure` take effect on it.
    */
   private get _options(): Options<LoggerOptions> {
-    return this._ownOptions ?? new Options(Logger._defaultConfiguration);
+    if (this._ownOptions) {
+      return this._ownOptions;
+    }
+
+    Logger._defaultOptions ??= new Options(Logger._defaultConfiguration);
+
+    return Logger._defaultOptions;
   }
 
 

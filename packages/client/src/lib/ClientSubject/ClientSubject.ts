@@ -123,6 +123,19 @@ export default abstract class ClientSubject<T> {
   }
 
 
+  /**
+   * Whether the subject exists yet, and `value` can therefore be read.
+   *
+   * Reading `value` before initialization throws, which is the right thing for a programming error and the
+   * wrong thing for a fast path: a caller that would rather skip work when the value is already there
+   * needs to ask first. It stays protected because it is an implementation detail — a consumer awaits
+   * `isInitialized()` instead.
+   */
+  protected get _isSubjectInitialized(): boolean {
+    return !!this._internalSubject;
+  }
+
+
   public get value(): T {
     return this._subject.value;
   }

@@ -655,10 +655,24 @@ export default class Client<UserData extends AnyObject, StoredData extends AnyOb
    * @param config
    */
   public compileRequest<R>(config: ClientRequest<UserData, StoredData, Tokens, R>): ClientRequestConfig<Tokens, R> {
-    return mergeObjects<ClientRequestConfig<Tokens, R>>(
-      this._defaultsRequestConfig || {},
-      typeof config === 'function' ? config(this) : config
-    );
+    const compiled = typeof config === 'function' ? config(this) : config;
+
+    /**
+     * Only merge when there is something to merge with.
+     *
+     * The saving is small — a deep merge of a request configuration measures under a microsecond — but the
+     * point is not the microsecond. 'params' is handed to the transport by reference and a query
+     * transporter writes the token into it, so that write was landing on a *copy* purely because the merge
+     * happened to produce one. Copying it here says so out loud, instead of leaving the safety of a
+     * mutation depending on an unrelated function two files away.
+     */
+    if (!this._defaultsRequestConfig) {
+      return compiled.params
+        ? { ...compiled, params: { ...compiled.params } }
+        : { ...compiled };
+    }
+
+    return mergeObjects<ClientRequestConfig<Tokens, R>>(this._defaultsRequestConfig, compiled);
   }
 
 
