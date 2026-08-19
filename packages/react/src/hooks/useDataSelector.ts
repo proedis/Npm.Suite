@@ -127,10 +127,11 @@ export function useDataSelector<T>(
   /**
    * Notify the consumer once per actual change, from a single place.
    *
-   * The callback used to fire synchronously inside the setter, which left the data-driven invalidation
-   * above unreported — the selection could be cleared by a data change without anybody being told.
-   * Watching the resolved value covers both paths, and fires after the commit that made the change
-   * real.
+   * There used to be two sources for this callback — a synchronous call inside the setter and the
+   * reconciliation effect calling that same setter — and between them they reported things that were not
+   * changes: selecting what was already selected notified, clearing an already empty selection notified
+   * twice, and resolving `defaultSelected` against the data notified at mount. Watching the resolved
+   * value reports each transition exactly once, after the commit that made it real.
    */
   const lastNotifiedSelection = React.useRef(selected);
 
@@ -152,9 +153,26 @@ export function useDataSelector<T>(
 
 
   // ----
-  // Clear Selected on Unmount
+  // Unmount Notification
   // ----
-  useUnmountEffect(clearSelected);
+  /**
+   * Report the selection as gone when the component unmounts.
+   *
+   * This was `useUnmountEffect(clearSelected)`, and it notified only as a side effect of how the
+   * callback used to be wired: `clearSelected` went through the setter, and the setter notified
+   * synchronously. Now that notifying belongs to an effect — and effects do not run on the way out —
+   * that call became inert, which dropped a notification every consumer had always received.
+   *
+   * It fires unconditionally, which is what the old path did: it resolved `undefined` through
+   * `getSourceItem` and reported it even when nothing was selected to begin with.
+   */
+  useUnmountEffect(() => {
+    const { current: currentUserDefinedOnSelectChange } = userDefinedOnSelectChange;
+
+    if (typeof currentUserDefinedOnSelectChange === 'function') {
+      currentUserDefinedOnSelectChange(undefined);
+    }
+  });
 
 
   // ----
