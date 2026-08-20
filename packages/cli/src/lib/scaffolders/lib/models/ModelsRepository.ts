@@ -26,15 +26,32 @@ export class ModelsRepository {
    * @param components
    * @param root
    */
-  constructor(components: Components, private readonly root: string) {
+  /**
+   * Create the Model Repository using components
+   * @param components
+   * @param root
+   * @param requestTypes The schemas an operation accepts as a body, which carry no attribute of
+   *   their own: a client calling that endpoint needs them just as much as it needs the responses
+   */
+  constructor(
+    components: Components,
+    private readonly root: string,
+    requestTypes: ReadonlySet<string> = new Set()
+  ) {
     Object.entries(components.schemas)
       .forEach(([ name, schema ]) => {
         /** If the schema is an enum, create the enum model */
         if ('x-api-enum' in schema && !schema['x-enum-described']) {
           this.models.push(new EnumModel(name, schema, this));
+          return;
         }
         /** If is a DTO object model, place into models */
         if ('x-api-response-dto' in schema && !!schema['x-api-response-dto']) {
+          this.models.push(new ObjectModel(name, schema, this));
+          return;
+        }
+        /** A body the API accepts is a model too, described by the same extensions minus the claim */
+        if (requestTypes.has(name) && schema.type === 'object' && 'x-element-namespace' in schema) {
           this.models.push(new ObjectModel(name, schema, this));
         }
       });

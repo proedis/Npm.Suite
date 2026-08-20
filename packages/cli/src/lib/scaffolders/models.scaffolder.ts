@@ -94,10 +94,114 @@ export class ModelsScaffolder extends AbstractedScaffolder {
     this.wipeDirectories([ modelsPath ]);
 
     /** Create the Model Repository with downloaded data, and render every model */
-    const modelsRepository = new ModelsRepository(openApiDocument.components, modelsPath);
+    const modelsRepository = new ModelsRepository(
+      openApiDocument.components,
+      modelsPath,
+      ModelsScaffolder.collectReferencedTypes(openApiDocument)
+    );
     const models = modelsRepository.build();
 
     return [ ...models, this.generateBarrel(modelsPath, models) ];
+  }
+
+
+  /**
+   * Collect every schema an operation names in its contract, on either side.
+   *
+   * They are recognised by being referenced, not by their name: a convention on the suffix would
+   * work today and miss the first type that is named differently. Both directions count — a type
+   * is needed by whoever calls the endpoint whether it travels in the body or comes back as the
+   * answer, and only some of them carry the attribute that used to be the only way in.
+   *
+   * @param document The OpenApi document
+   */
+  private static collectReferencedTypes(document: OpenApiDocument): Set<string> {
+    const paths: Record<string, Record<string, any>> = document.paths as any;
+    const schemas: Record<string, any> = (document.components?.schemas as any) ?? {};
+
+    const contracts = Object.values(paths).flatMap((pathItem) => Object
+      .values(pathItem)
+      .flatMap((operation: any) => {
+        const body = ModelsScaffolder.readSchemaReference(operation?.requestBody?.content?.['application/json']?.schema);
+
+        /** The success response, whether it answers with the type or with a collection of it */
+        const success = Object.entries(operation?.responses ?? {})
+          .filter(([ code ]) => code.startsWith('2'))
+          .flatMap(([ , response ]: [ string, any ]) => {
+            const schema = response?.content?.['application/json']?.schema;
+
+            return [
+              ModelsScaffolder.readSchemaReference(schema),
+              ModelsScaffolder.readSchemaReference(schema?.items)
+            ];
+          });
+
+        return [ body, ...success ];
+      })
+      .filter((name): name is string => !!name));
+
+    /**
+     * Follow the references out of every body until nothing new turns up.
+     *
+     * Stopping at the named types is not enough: each reaches others through its properties, and a
+     * model whose dependency was never generated makes the whole run fail while resolving it — so
+     * the closure is the only set that renders.
+     */
+    const collected = new Set<string>(contracts);
+    const pending = [ ...contracts ];
+
+    while (pending.length) {
+      const name = pending.pop() as string;
+
+      ModelsScaffolder.readNestedReferences(schemas[name]).forEach((reference) => {
+        if (!collected.has(reference)) {
+          collected.add(reference);
+          pending.push(reference);
+        }
+      });
+    }
+
+    return collected;
+  }
+
+
+  /** The name a schema reference points at, reading through the allOf Swashbuckle wraps it in */
+  private static readSchemaReference(schema: any): string | null {
+    if (!schema) {
+      return null;
+    }
+
+    const reference = schema.$ref
+      ?? (Array.isArray(schema.allOf) && schema.allOf.length === 1 ? schema.allOf[0]?.$ref : null);
+
+    return typeof reference === 'string' ? reference.split('/').pop() ?? null : null;
+  }
+
+
+  /** Every reference reachable from a schema, at any depth */
+  private static readNestedReferences(schema: any): string[] {
+    const found: string[] = [];
+
+    const walk = (node: any): void => {
+      if (Array.isArray(node)) {
+        node.forEach(walk);
+        return;
+      }
+
+      if (typeof node !== 'object' || node === null) {
+        return;
+      }
+
+      if (typeof node.$ref === 'string') {
+        found.push(node.$ref.split('/').pop() as string);
+      }
+
+      Object.values(node).forEach(walk);
+    };
+
+    walk(schema);
+
+    return found;
   }
 
 

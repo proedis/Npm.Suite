@@ -56,7 +56,13 @@ export type EnumSchema = EnumSchemaXData & ({
  * Represents a parseable schema object extended with custom data.
  */
 export type ObjectSchemaXData = SchemaXData & {
-  'x-api-response-dto': true
+  /**
+   * Only a response dto claims to be one.
+   *
+   * A schema accepted as a request body is a model as well, and it carries no such claim: it is
+   * recognised by being referenced from a requestBody, so the flag cannot be required here.
+   */
+  'x-api-response-dto'?: true
 };
 
 export type EnumSchemaXData = SchemaXData & {

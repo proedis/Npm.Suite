@@ -6,7 +6,7 @@ import chalk from 'chalk';
 
 import type { Class } from 'type-fest';
 
-import { EnumScaffolder, ModelsScaffolder } from '../lib';
+import { EnumScaffolder, HooksScaffolder, ModelsScaffolder } from '../lib';
 import type { AbstractedScaffolder, LintOutcome, ScaffolderOptions, WritePlanInspection, WriteStats } from '../lib';
 
 import { AbstractAction } from './lib';
@@ -23,7 +23,7 @@ export interface ScaffoldActionInput {
   check?: boolean;
 
   /** The element to scaffold */
-  element: 'enums' | 'models';
+  element: 'enums' | 'hooks' | 'models';
 
   /** The endpoint serving the definition, which skips its prompt */
   endpoint?: string;
@@ -70,6 +70,9 @@ export class ScaffoldAction extends AbstractAction<ScaffoldActionInput> {
     switch (inputs.getOption('element')) {
       case 'enums':
         return this.scaffoldElement(EnumScaffolder, options);
+
+      case 'hooks':
+        return this.scaffoldElement(HooksScaffolder, options);
 
       case 'models':
         return this.scaffoldElement(ModelsScaffolder, options);
