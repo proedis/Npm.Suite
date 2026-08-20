@@ -14,13 +14,15 @@ thing in all of them.** 🧬
 
 ## ✨ What's in the box
 
-Eleven types. No runtime logic, no dependencies, nothing to configure. 🪶
+Fifteen types. No runtime logic, no dependencies, nothing to configure. 🪶
 
 - **Absence** — `Nullable`, `Nillable`
 - **Value shapes** — `Primitive`, `Awaitable`
 - **Object shapes** — `AnyObject`, `ValueOf`, `DeepPartial`
 - **Object navigation** — `ObjectPath`, `ValueAtPath`, the pair that makes `getValueAt('a.b.c')`
   type safe
+- **Key extraction** — `RequiredKeys`, `UnionToTuple`, `IsSingleMember`, `RootPathFor`, the
+  type-level arithmetic a generated API surface needs
 - **Classes** — `Instantiable`
 - **Environment** — `Environment`
 
@@ -126,6 +128,57 @@ type Paths = ObjectPath<{ server: { port: number }; tags: string[] }>;
 The type of the value found at a given path. Pair it with `ObjectPath<T>` to type an accessor whose
 return type follows its argument, the way `getValueAt` and `setValueAt` in
 [`@proedis/utils`](https://www.npmjs.com/package/@proedis/utils) do.
+
+### Key extraction
+
+The four that exist because generated code asks questions about its own shape, and re-deriving them
+per project is how a project ends up with three slightly different versions.
+
+#### `RequiredKeys<T>`
+
+The keys an object demands, as a literal union — `never` when it demands nothing. That is what lets
+a signature make its own parameter optional exactly when the shape it describes has no required key:
+
+```ts
+type Query = { page?: number; sort?: string };
+type Route = { id: string; tab?: string };
+
+type A = RequiredKeys<Query>;  // never
+type B = RequiredKeys<Route>;  // 'id'
+
+declare function build<P>(path: string, ...params: RequiredKeys<P> extends never ? [ P? ] : [ P ]): string;
+
+build<Query>('/projects');              // ok, the query is optional
+build<Route>('/projects/{id}');         // error, the route params are not
+```
+
+#### `UnionToTuple<U>` and `IsSingleMember<U>`
+
+```ts
+type Methods = UnionToTuple<'GET' | 'POST'>;   // ['GET', 'POST'] — or ['POST', 'GET']
+type One = IsSingleMember<'GET'>;              // true
+type Two = IsSingleMember<'GET' | 'POST'>;     // false
+```
+
+`IsSingleMember` answers the question `T extends U` cannot: a union is assignable to itself, so
+counting the members is the only way. The use case is a generated operation — one that documents a
+single HTTP method can have that method defaulted, one that documents several cannot.
+
+`UnionToTuple` is what makes the count possible, riding the contravariance of function parameters to
+peel off one member at a time. ⚠️ The resulting order is an implementation detail of the compiler:
+treat it as a set that happens to have a `length`, never as a list.
+
+#### `RootPathFor<U, Suffix>`
+
+```ts
+type Paths = 'projects' | 'projects/{id}' | 'tasks' | 'tasks/{id}';
+
+type Roots = RootPathFor<Paths, '/{id}'>;
+// 'projects' | 'tasks'
+```
+
+Given every path an API documents, it answers which resources have a given sub-route, and hands back
+the prefix — so the parent path can be built from the child one instead of being spelled twice.
 
 ### Classes
 

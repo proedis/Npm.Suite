@@ -181,3 +181,93 @@ export const ObjectPath = String;
  */
 export type ValueAtPath<TObject extends AnyObject, ValuePath extends ObjectPath<TObject>> = PathValue<TObject, ValuePath>;
 export const ValueAtPath = Object;
+
+/* --------
+ * Key Extraction
+ * -------- */
+
+/**
+ * The keys an object requires, as a literal union.
+ *
+ * The complement of `Partial`, read at the type level: it answers "does this shape demand anything
+ * from me?", which is what lets a generic signature make its own parameter optional only when the
+ * shape it describes has no required key.
+ *
+ * @example
+ * type Query = { page?: number; sort?: string };
+ * type Route = { id: string; tab?: string };
+ *
+ * type A = RequiredKeys<Query>;  // never
+ * type B = RequiredKeys<Route>;  // 'id'
+ *
+ * declare function build<P>(path: string, ...params: RequiredKeys<P> extends never ? [ P? ] : [ P ]): string;
+ */
+export type RequiredKeys<TObject> = {
+  [K in keyof TObject]-?: {} extends Pick<TObject, K> ? never : K;
+}[keyof TObject];
+export const RequiredKeys = String;
+
+
+/**
+ * A union turned into a tuple of its members.
+ *
+ * Built on the contravariance of function parameters: distributing the union into
+ * `(k: U) => void` and then inferring back out of the intersection yields **one** member at a
+ * time, which recursion peels off until nothing is left. There is no supported way to do this,
+ * which is why it is written once here instead of being rediscovered per project.
+ *
+ * ⚠️ The member order is an implementation detail of the compiler — treat the result as a set that
+ * happens to have a `length`, never as an ordered list.
+ *
+ * @example
+ * type Methods = UnionToTuple<'GET' | 'POST'>;
+ * // ['GET', 'POST'] — or ['POST', 'GET']. Do not rely on which
+ */
+export type UnionToTuple<TUnion> = UnionToTupleRecursive<TUnion, []>;
+export const UnionToTuple = Array;
+
+type UnionToFunction<TUnion> = TUnion extends any ? (k: TUnion) => void : never;
+type UnionToIntersection<TUnion> = UnionToFunction<TUnion> extends ((k: infer I) => void) ? I : never;
+type ExtractParameter<TFunction> = TFunction extends { (a: infer A): void } ? A : never;
+
+type ExtractOneMember<TUnion> = ExtractParameter<UnionToIntersection<UnionToFunction<TUnion>>>;
+type WithoutOneMember<TUnion> = Exclude<TUnion, ExtractOneMember<TUnion>>;
+
+type UnionToTupleRecursive<TUnion, TResult extends any[]> =
+  WithoutOneMember<TUnion> extends never
+    ? [ ExtractOneMember<TUnion>, ...TResult ]
+    : UnionToTupleRecursive<WithoutOneMember<TUnion>, [ ExtractOneMember<TUnion>, ...TResult ]>;
+
+
+/**
+ * Whether a union has exactly one member.
+ *
+ * The question a generated API surface keeps asking: an operation that documents a single HTTP
+ * method can have that method defaulted, one that documents several cannot. `T extends U` cannot
+ * answer it — a union is assignable to itself — so the union has to be counted.
+ *
+ * @example
+ * type One = IsSingleMember<'GET'>;          // true
+ * type Two = IsSingleMember<'GET' | 'POST'>; // false
+ */
+export type IsSingleMember<TUnion> = UnionToTuple<TUnion> extends [ any ] ? true : false;
+export const IsSingleMember = Boolean;
+
+
+/**
+ * Every member of a string union that ends with a given suffix, with the suffix cut off.
+ *
+ * Written for a union of route paths: given every path an API documents, it answers "which
+ * resources have a `/{id}` route", and hands back the prefix so the parent path can be built from
+ * the child one.
+ *
+ * @example
+ * type Paths = 'projects' | 'projects/{id}' | 'tasks' | 'tasks/{id}';
+ *
+ * type Roots = RootPathFor<Paths, '/{id}'>;
+ * // 'projects' | 'tasks'
+ */
+export type RootPathFor<TUnion extends string, TSuffix extends string> = {
+  [K in TUnion]: K extends `${infer TRoot}${TSuffix}` ? TRoot : never;
+}[TUnion];
+export const RootPathFor = String;
