@@ -17,12 +17,13 @@ properly.** 🧰
 | Module | Entry point | What lives there |
 | --- | --- | --- |
 | **array** | `@proedis/utils/array` | `sorter` — a chainable, multi-criteria sorter — and `areArraysStrictEqual` |
-| **object** | `@proedis/utils/object` | `getValueAt` / `setValueAt` typed path access, `mergeObjects`, `deepClone`, `deepFreeze`, `isObject`, `isPlainObject`, `AugmentedMap` — zero runtime dependencies beyond `get-value`, `set-value` and `ts-deepmerge` |
+| **object** | `@proedis/utils/object` | `getValueAt` / `setValueAt` typed path access, `mergeObjects`, `deepClone`, `deepFreeze`, `getObjectDiff`, `isObject`, `isPlainObject`, `AugmentedMap` — zero runtime dependencies beyond `get-value`, `set-value` and `ts-deepmerge` |
 | **promise** | `@proedis/utils/promise` | `will` — errors as values — and `Deferred` |
 | **guard** | `@proedis/utils/guard` | `Guard`, a fluent way to assert an invariant and throw a specific error |
 | **hash** | `@proedis/utils/hash` | `getHash`, `hasEqualHash` |
 | **string** | `@proedis/utils/string` | `toKebabCase`, `isValidString`, `isValidGuid` |
 | **runtime** | `@proedis/utils/runtime` | `isBrowser` |
+| **dom** | `@proedis/utils/dom` | `downloadBlob`, `openBlankTab`, `redirectTabToBlob` — the three browser gestures around a `Blob`, popup blocker included |
 | *(root)* | `@proedis/utils` | everything above, plus `isNil` |
 
 Every module is importable on its own, and the package is marked side-effect free, so a bundler
@@ -126,6 +127,17 @@ The path is autocompleted and compile checked against the object, and the value 
 path — both directions. `setValueAt` creates missing intermediate objects along the way, and
 **mutates the source unless you pass `{ immutable: true }`**.
 
+### 🧮 `getObjectDiff(original, updated)`
+
+```ts
+getObjectDiff({ a: 1, b: 2 }, { a: 1, b: 3 });
+// [ { key: 'b', value: 3 } ]
+```
+
+Shallow, and by reference (`!==`) on purpose: next to an immutable state update, a value that was
+replaced shows up and a nested object left alone does not. Keys present in only one of the two are
+reported with the updated value — `undefined` when the key was removed.
+
 ### 🤝 The rest of `object`
 
 | Function | Notes |
@@ -136,6 +148,34 @@ path — both directions. `setValueAt` creates missing intermediate objects alon
 | `isObject(value)` | Non nil, non array object. A `Date` passes: it *is* an object. |
 | `isPlainObject(value)` | Object literal or null-prototype object only. The one to use before iterating own keys. |
 | `AugmentedMap` | A `Map` with `getOrAdd(key, factory)`, where the factory runs **only** on a miss. |
+
+### 💾 `dom` — handing a `Blob` to the browser
+
+```ts
+import { downloadBlob, openBlankTab, redirectTabToBlob } from '@proedis/utils/dom';
+
+/** save it */
+downloadBlob(report, 'report-2026-08.xlsx');
+
+/** or show it in a new tab */
+const tab = openBlankTab();          // BEFORE the await, always
+redirectTabToBlob(tab, await renderPdf(data));
+```
+
+| Function | What it does |
+| --- | --- |
+| `downloadBlob(blob, filename)` | Saves the blob as a file. Revokes the object URL immediately — safe, because the download is already handed over when `click()` returns |
+| `openBlankTab()` | Opens a blank tab and returns it. Throws when the popup was blocked |
+| `redirectTabToBlob(tab, blob)` | Points that tab at the blob. Revokes the URL after a minute |
+
+⚠️ **`openBlankTab()` must be called before any `await`.** A browser only allows `window.open` while
+it can still attribute the call to the user's click; the first `await` ends that window and every
+later `window.open` is blocked — silently, on some browsers. Hence the two-step shape: open the tab,
+*then* generate the document, then point the tab at it. The delayed revoke in `redirectTabToBlob` is
+load-bearing for the same reason: the tab is still navigating when the call returns, and revoking
+right away leaves the user looking at an empty tab.
+
+All three throw outside a browser rather than dereferencing `document`.
 
 ### ⏳ `promise`
 

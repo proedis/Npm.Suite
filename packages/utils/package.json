@@ -38,6 +38,7 @@
     },
     "exports": [
       "array",
+      "dom",
       "guard",
       "hash",
       "object",
