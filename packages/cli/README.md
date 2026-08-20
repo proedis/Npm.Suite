@@ -25,7 +25,7 @@ One binary, three commands, all fed by the same API. 📡
 | --- | --- | --- |
 | `proedis scaffold enums` | the shared objects definition | typed enum unions, their constants, and the `@proedis/modeler` configuration |
 | `proedis scaffold models` | the OpenAPI document | `class-transformer` models, their barrel, and the endpoint namespaces |
-| `proedis scaffold hooks` | the OpenAPI document | one named React Query hook per operation, grouped by tag |
+| `proedis scaffold hooks` | the OpenAPI document | a named hook, query key and arguments per operation, grouped by resource |
 
 They build on each other, so run them in that order: the hooks import the models, and the models
 carry the enums.
@@ -207,13 +207,17 @@ Cannot map property 'Job.payload': no property type handles {"type":"file","null
 
 ### 🪝 `scaffold hooks`
 
-One hook per operation, named after the operation itself and grouped into a file per tag, under
-`src/`:
+One hook per operation, named after the operation itself and grouped by the **resource** it acts
+on — the first static segment of its route — under `src/`:
 
 | Path | Holds |
 | --- | --- |
-| `hooks/scaffold/<tag>.ts` | every hook of that tag, with the models it needs imported once |
+| `hooks/scaffold/<resource>.ts` | every operation of that resource, with the models it needs imported once |
 | `hooks/scaffold/index.ts` | the barrel |
+
+⚠️ The tag would be the natural grouping and is not used: on a document where it is empty for most
+operations, everything piles into one file of fifteen thousand lines. The resource is always there,
+and it is how a hook gets looked up.
 
 Which hook it becomes follows the method and the answer:
 
@@ -221,22 +225,55 @@ Which hook it becomes follows the method and the answer:
 | --- | --- |
 | `GET` | `useClientQuery<Dto>`, with the model as its `transformer` |
 | `GET` answering with a page | `usePaginatedClientQuery<Item>`, taking a `PaginatedRequest` |
-| `POST` `PUT` `PATCH` `DELETE` | `useClientMutation<Body, Response>` |
+| `POST` `PUT` `PATCH` `DELETE` | `useClientMutation<Body, Response>`, handing the payload to the request |
+
+Every query is written in three pieces, because the hook is not the only way to spend them:
 
 ```ts
+export function getSingleActivityQueryKey(id?: string): string[] {
+  const key: string[] = [];
+  key.push('activities');
+  if (id === undefined) { return key; }
+  key.push(id);
+  return key;
+}
+
+export function getSingleActivityQueryArgs(id: string) {
+  return [ getSingleActivityQueryKey(id), { transformer: ActivityCompleteDto } ] as const;
+}
+
 export function useGetSingleActivity(
   id: string,
   options?: Parameters<typeof useClientQuery<ActivityCompleteDto>>[2],
 ) {
-  return useClientQuery<ActivityCompleteDto>([ 'activities', id ], { transformer: ActivityCompleteDto }, options);
+  return useClientQuery<ActivityCompleteDto>(...getSingleActivityQueryArgs(id), options);
 }
 ```
 
-The query key is the route split on slashes with its parameters in place, so nothing rebuilds the
-url at runtime, and the options type is derived from the hook being called — no internal type is
-imported to spell it out. A page is queried through `usePaginatedClientQuery`, whose transformer
-describes the **item**: the envelope stays generic, which is why no class is generated per page
-shape.
+**The key** takes every route parameter as optional and stops at the first one missing: in full it
+is the key of one entry, empty it is the prefix every entry under it shares. That is what
+invalidation runs on — `@proedis/react-query` treats a key as a prefix filter — so invalidating a
+resource is calling its key function with nothing:
+
+```ts
+const invalidateEveryActivity = useQueryInvalidation([ getSingleActivityQueryKey() ]);
+const invalidateThisActivity = useQueryInvalidation([ getSingleActivityQueryKey(id) ]);
+```
+
+**The arguments** are the key and the request config, ready to spread. Anything built on
+`useClientQuery` takes the same pair and decides the options itself, instead of repeating the key
+and the transformer of an endpoint it does not own:
+
+```ts
+export function useActivityWhileVisible(id: string, isVisible: boolean) {
+  return useClientQuery(...getSingleActivityQueryArgs(id), { enabled: isVisible, staleTime: 30_000 });
+}
+```
+
+The key is the route split on slashes with its parameters in place, so nothing rebuilds the url at
+runtime, and the options type is derived from the hook being called — no internal type is imported
+to spell it out. A page is queried through `usePaginatedClientQuery`, whose transformer describes
+the **item**: the envelope stays generic, which is why no class is generated per page shape.
 
 #### 🏷️ Where the names come from
 
@@ -288,6 +325,7 @@ gone: `scaffold` is the whole surface.
 | --- | --- |
 | Runtime | Node `>=22.13.0` |
 | Generated code needs | `@proedis/modeler`, plus `@proedis/react-client` for the hooks |
+| Keys pair well with | `@proedis/react-query`, whose invalidation takes them as prefix filters |
 | Formatting needs | any resolvable `eslint`, 8 or 9, flat config or eslintrc |
 | `typescript` | `>=5.2.0` |
 

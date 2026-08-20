@@ -35,8 +35,8 @@ interface EndpointDescriptor {
   /** The path segments the query key is built from, version prefix excluded */
   segments: string[];
 
-  /** The tag grouping the operation, which decides the file it lands in */
-  tag: string;
+  /** The resource the operation belongs to, which decides the file it lands in */
+  resource: string;
 }
 
 const QUERY_METHOD = 'GET';
@@ -96,14 +96,20 @@ export class HooksScaffolder extends AbstractedScaffolder {
 
     const endpoints = HooksScaffolder.disambiguate(HooksScaffolder.describeEndpoints(openApiDocument));
 
-    /** Group by tag: one file per area keeps the imports of a hook next to its siblings */
-    const byTag = endpoints.reduce<Record<string, EndpointDescriptor[]>>((acc, endpoint) => ({
+    /**
+     * Group by resource, not by tag.
+     *
+     * The tag would be the natural choice and on this document it is empty for almost every
+     * operation, which piles them all into one file of fifteen thousand lines. The first static
+     * segment of the route is always there, and it is also how someone looks a hook up.
+     */
+    const byResource = endpoints.reduce<Record<string, EndpointDescriptor[]>>((acc, endpoint) => ({
       ...acc,
-      [endpoint.tag]: [ ...(acc[endpoint.tag] ?? []), endpoint ]
+      [endpoint.resource]: [ ...(acc[endpoint.resource] ?? []), endpoint ]
     }), {});
 
-    const files = Object.entries(byTag)
-      .map(([ tag, tagEndpoints ]) => HooksScaffolder.renderTagFile(hooksPath, tag, tagEndpoints, this.modelsSpecifier));
+    const files = Object.entries(byResource)
+      .map(([ resource, group ]) => HooksScaffolder.renderResourceFile(hooksPath, resource, group, this.modelsSpecifier));
 
     this.plan.add(...files, HooksScaffolder.renderBarrel(hooksPath, files));
   }
@@ -166,8 +172,8 @@ export class HooksScaffolder extends AbstractedScaffolder {
           requestType      : HooksScaffolder.readRequestType(operation),
           returnsCollection: response.returnsCollection,
           returnsPage      : response.returnsPage,
-          segments         : HooksScaffolder.readSegments(path),
-          tag              : (operation.tags?.[0] as string) || 'common'
+          resource         : HooksScaffolder.readResource(path),
+          segments         : HooksScaffolder.readSegments(path)
         } ];
       }));
   }
@@ -232,6 +238,12 @@ export class HooksScaffolder extends AbstractedScaffolder {
   /** The same normalisation the namespaces use, so a key here matches a Path there */
   private static readSegments(path: string): string[] {
     return path.replace(/(^\/v\d+\/)|(^\/)/, '').split('/').filter(Boolean);
+  }
+
+
+  /** The first static segment of the route: the resource every operation under it acts on */
+  private static readResource(path: string): string {
+    return HooksScaffolder.readSegments(path).find((segment) => !segment.startsWith('{')) ?? 'common';
   }
 
 
@@ -301,9 +313,9 @@ export class HooksScaffolder extends AbstractedScaffolder {
    * slashes with the route parameters in place — the same shape `useClientQuery` expects, so
    * nothing has to reconstruct the url at runtime.
    */
-  private static renderTagFile(
+  private static renderResourceFile(
     root: string,
-    tag: string,
+    resource: string,
     endpoints: EndpointDescriptor[],
     modelsSpecifier: string
   ): PlannedFile {
@@ -334,14 +346,99 @@ export class HooksScaffolder extends AbstractedScaffolder {
       ...endpoints
         .slice()
         .sort((left, right) => left.name.localeCompare(right.name))
-        .flatMap((endpoint) => [ ...HooksScaffolder.renderHook(endpoint), '' ])
+        .flatMap((endpoint) => [
+          ...HooksScaffolder.renderQueryKey(endpoint),
+          '',
+          /** A mutation has no query to describe, and a page is described by its own hook */
+          ...(endpoint.method === QUERY_METHOD && !endpoint.returnsPage
+            ? [ ...HooksScaffolder.renderQueryArgs(endpoint), '' ]
+            : []),
+          ...HooksScaffolder.renderHook(endpoint),
+          ''
+        ])
     ].join('\n');
 
     return {
       content,
       noOverride: false,
-      path      : resolve(root, `${HooksScaffolder.toKebabCase(tag)}.ts`)
+      path      : resolve(root, `${HooksScaffolder.toKebabCase(resource)}.ts`)
     };
+  }
+
+
+  /**
+   * Render the query key of an endpoint as a function of its route parameters.
+   *
+   * Every parameter is optional, and the key stops at the first one missing: called in full it is
+   * the key of that one entry, called empty it is the prefix every entry under it shares. That is
+   * what invalidation needs — `useQueryInvalidation` treats a key as a prefix filter — so
+   * invalidating a resource means calling the same function with nothing.
+   */
+  private static renderQueryKey(endpoint: EndpointDescriptor): string[] {
+    const { name, params, segments } = endpoint;
+
+    const args = params.map((param) => `${HooksScaffolder.toCamelCase(param)}?: string`).join(', ');
+
+    /**
+     * Build the key segment by segment, returning as soon as a parameter is missing.
+     *
+     * Truncating is the whole point: everything after a missing parameter belongs to a deeper
+     * route, so keeping the static segments that follow would produce a key matching nothing.
+     */
+    const body: string[] = [];
+    let pending: string[] = [];
+
+    segments.forEach((segment) => {
+      if (!segment.startsWith('{')) {
+        pending.push(`'${segment}'`);
+        return;
+      }
+
+      const param = HooksScaffolder.toCamelCase(segment.slice(1, -1));
+
+      if (pending.length) {
+        body.push(`  key.push(${pending.join(', ')});`);
+        pending = [];
+      }
+
+      body.push(`  if (${param} === undefined) { return key; }`, `  key.push(${param});`);
+    });
+
+    if (pending.length) {
+      body.push(`  key.push(${pending.join(', ')});`);
+    }
+
+    return [
+      `export function ${HooksScaffolder.toFunctionName(name)}QueryKey(${args}): string[] {`,
+      '  const key: string[] = [];',
+      ...body,
+      '  return key;',
+      '}'
+    ];
+  }
+
+
+  /**
+   * Render the arguments the endpoint is queried with: its key, and the request config carrying
+   * the transformer.
+   *
+   * The generated hook is one way to spend them, and not the only one: anything building on
+   * `useClientQuery` — a wrapper adding a select, one holding several queries together, a hook
+   * with different options — takes the same pair and decides the rest itself, instead of
+   * repeating the key and the transformer of an endpoint it does not own.
+   */
+  private static renderQueryArgs(endpoint: EndpointDescriptor): string[] {
+    const { name, params, itemType } = endpoint;
+
+    const signature = params.map((param) => `${HooksScaffolder.toCamelCase(param)}: string`).join(', ');
+    const keyCall = `${HooksScaffolder.toFunctionName(name)}QueryKey(${params.map((param) => HooksScaffolder.toCamelCase(param)).join(', ')})`;
+    const config = itemType ? `{ transformer: ${itemType} }` : 'undefined';
+
+    return [
+      `export function ${HooksScaffolder.toFunctionName(name)}QueryArgs(${signature}) {`,
+      `  return [ ${keyCall}, ${config} ] as const;`,
+      '}'
+    ];
   }
 
 
@@ -353,9 +450,8 @@ export class HooksScaffolder extends AbstractedScaffolder {
       ? (returnsCollection ? `${itemType}[]` : itemType)
       : 'unknown';
 
-    const key = `[ ${endpoint.segments.map((segment) => (segment.startsWith('{')
-      ? segment.slice(1, -1).replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())
-      : `'${segment}'`)).join(', ')} ]`;
+    /** The hook calls the exported key function, so the segments are written once */
+    const key = `${HooksScaffolder.toFunctionName(name)}QueryKey(${params.map((param) => HooksScaffolder.toCamelCase(param)).join(', ')})`;
 
     const args = params.map((param) => `${HooksScaffolder.toCamelCase(param)}: string`);
 
@@ -381,11 +477,13 @@ export class HooksScaffolder extends AbstractedScaffolder {
     }
 
     if (method === QUERY_METHOD) {
+      const argsCall = `${HooksScaffolder.toFunctionName(name)}QueryArgs(${params.map((param) => HooksScaffolder.toCamelCase(param)).join(', ')})`;
+
       return [
         `export function use${name}(`,
         ...[ ...args, `options?: Parameters<typeof useClientQuery<${responseType}>>[2]` ].map((arg) => `  ${arg},`),
         ') {',
-        `  return useClientQuery<${responseType}>(${key}, ${requestConfig}, options);`,
+        `  return useClientQuery<${responseType}>(...${argsCall}, options);`,
         '}'
       ];
     }
@@ -446,6 +544,12 @@ export class HooksScaffolder extends AbstractedScaffolder {
 
   private static toKebabCase(value: string): string {
     return value.trim().replace(/\s+/g, '-').replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+  }
+
+
+  /** The exported function name of an operation: its name, lowercased on the first letter */
+  private static toFunctionName(name: string): string {
+    return name.charAt(0).toLowerCase() + name.slice(1);
   }
 
 
