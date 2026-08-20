@@ -39,6 +39,9 @@ export class ScaffoldCommand extends AbstractCommand<ScaffoldActionInput> {
       .option('--host <host>', 'The host serving the definition, skipping its prompt')
       .option('--endpoint <endpoint>', 'The endpoint serving the definition, skipping its prompt')
       .option('-y, --yes', 'Answer every optional prompt affirmatively')
+      .option('--spec <file>', 'Generate from a definition on disk, instead of downloading one')
+      .option('--save-spec <file>', 'Save the downloaded definition, so a later run can be fed from it')
+      .option('--check', 'Report what a run would change and write nothing, failing when it would')
       .action(async (element: ScaffoldActionInput['element'], options: any) => {
         /** Assert desired element is valid */
         if (!ELEMENTS.includes(element)) {

@@ -1,11 +1,14 @@
 import console from 'node:console';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, relative, resolve } from 'node:path';
+import { cwd } from 'node:process';
 
 import chalk from 'chalk';
 
 import type { Project } from '../../project';
 import type { TemplateCompiler } from '../../template.compiler';
 import { WritePlan } from '../../write-plan';
-import type { WritePlanResult } from '../../write-plan';
+import type { WritePlanInspection, WritePlanResult } from '../../write-plan';
 
 import { askForConfirmation, spinnerFeedbackFunction } from '../../../ui';
 
@@ -19,11 +22,20 @@ export interface ScaffolderOptions {
   /** Answer every optional prompt affirmatively, for unattended runs */
   autoConfirm?: boolean;
 
+  /** Report what a run would change and write nothing */
+  check?: boolean;
+
   /** The endpoint the definition is downloaded from */
   endpoint?: string;
 
   /** The host the definition is downloaded from */
   host?: string;
+
+  /** Where to save the downloaded definition, so a later run can be fed from it */
+  saveSpec?: string;
+
+  /** A definition on disk to generate from, instead of downloading one */
+  spec?: string;
 }
 
 /** The two answers every scaffolder needs to reach its source */
@@ -95,6 +107,22 @@ export abstract class AbstractedScaffolder {
   }
 
 
+  /**
+   * Render everything and report what committing would change, leaving the disk untouched.
+   *
+   * This is what makes the generated code verifiable in a pipeline: the definition is read from
+   * a file, the output is rendered and compared, and a project whose generated code lags behind
+   * its definition fails the check instead of being noticed months later.
+   */
+  public async check(): Promise<WritePlanInspection> {
+    await this.build();
+
+    console.info();
+
+    return this.plan.inspect();
+  }
+
+
   // ----
   // Shared Phases
   // ----
@@ -110,6 +138,27 @@ export abstract class AbstractedScaffolder {
    * @return The downloaded document
    */
   protected async getSource<T>(validate: (source: unknown) => T): Promise<T> {
+    /**
+     * A definition on disk short-circuits the whole download: no prompt, no host, no network.
+     *
+     * This is the path a pipeline takes, where there is no API to ask and the definition is
+     * whatever the repository committed.
+     */
+    if (this.options.spec) {
+      const path = resolve(cwd(), this.options.spec);
+
+      if (!existsSync(path)) {
+        throw new Error(`No ${this.sourceName} found at ${path}`);
+      }
+
+      const source = validate(JSON.parse(readFileSync(path, 'utf-8')));
+
+      console.info();
+      console.info(chalk.cyan(this.describeSource(source)));
+
+      return source;
+    }
+
     /** Resolve host and endpoint, asking only for what the command line did not provide */
     const answers = await this.project.getPromptWithCachedDefaults<SourceAnswers>(
       this.cacheKey,
@@ -163,6 +212,21 @@ export abstract class AbstractedScaffolder {
 
     /** Reject a document of the wrong shape before anything gets erased on disk */
     const source = validate(downloaded);
+
+    /**
+     * Save the definition next to the code generated from it, when asked.
+     *
+     * The two belong together: committing the definition is what lets anyone regenerate the same
+     * output later, and lets a pipeline check the output without reaching the API.
+     */
+    if (this.options.saveSpec) {
+      const path = resolve(cwd(), this.options.saveSpec);
+
+      mkdirSync(dirname(path), { recursive: true });
+      writeFileSync(path, `${JSON.stringify(downloaded, null, 2)}\n`, 'utf-8');
+
+      console.info(chalk.cyan(`Saved the ${this.sourceName} to ${relative(cwd(), path)}`));
+    }
 
     /** Only a configuration that produced a valid document is worth remembering */
     this.project.persistPromptAnswers(this.cacheKey, answers);

@@ -1,6 +1,6 @@
 import console from 'node:console';
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { dirname, relative } from 'node:path';
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { dirname, relative, resolve } from 'node:path';
 import { cwd } from 'node:process';
 
 import chalk from 'chalk';
@@ -46,6 +46,15 @@ export interface WriteStats {
 
   /** Files left untouched because they belong to the user */
   preserved: number;
+}
+
+/** What a commit would do, were it run now */
+export interface WritePlanInspection extends WritePlanResult {
+  /** Whether the files on disk already match what the plan would write */
+  isUpToDate: boolean;
+
+  /** Files living inside a mirrored directory that the plan no longer renders */
+  stale: string[];
 }
 
 export interface WritePlanResult {
@@ -120,12 +129,65 @@ export class WritePlan {
   // ----
 
   /**
+   * Answer what a commit would do, without doing it.
+   *
+   * The comparison is the same one `commit` performs, which is the point: a check that reasoned
+   * differently from the write would eventually disagree with it, and the disagreement would
+   * surface as a pipeline failing on a project that is actually up to date.
+   *
+   * A wiped directory is not read here — nothing is emptied — so a file that only exists on disk
+   * because it is stale is reported through `stale`, which a commit would have silently removed.
+   */
+  public inspect(): WritePlanInspection {
+    const stats: WriteStats = { created: 0, updated: 0, unchanged: 0, preserved: 0 };
+    const written: WrittenFile[] = [];
+
+    this._files.forEach((file) => {
+      const previousContent = existsSync(file.path) ? WritePlan.readFileOrNull(file.path) : null;
+      const existedBefore = previousContent !== null;
+
+      if (existedBefore && file.noOverride) {
+        stats.preserved += 1;
+        written.push({ action: 'preserved', path: file.path });
+        return;
+      }
+
+      const action: WrittenFileAction = !existedBefore ? 'created'
+        : previousContent === file.content ? 'unchanged'
+          : 'updated';
+
+      stats[action] += 1;
+      written.push({ action, path: file.path });
+    });
+
+    /** Anything inside a mirrored directory that the plan does not account for is left over */
+    const planned = new Set(this._files.map((file) => file.path));
+
+    const stale = this._directoriesToWipe
+      .filter((path) => existsSync(path))
+      .flatMap((path) => WritePlan.listFilesRecursively(path))
+      .filter((path) => !planned.has(path));
+
+    return { stats, written, stale, isUpToDate: !stats.created && !stats.updated && !stale.length };
+  }
+
+
+  /**
    * Apply the whole plan: read the current state, empty the directories, write every file.
    *
    * The state is read **before** the wipe on purpose: a file inside a directory about to be
    * emptied would otherwise always look new, and the comparison that tells an actual change from
    * a rewrite would be lost exactly where it matters most.
    */
+  private static listFilesRecursively(directory: string): string[] {
+    return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+      const path = resolve(directory, entry.name);
+
+      return entry.isDirectory() ? WritePlan.listFilesRecursively(path) : [ path ];
+    });
+  }
+
+
   public commit(): WritePlanResult {
     /** Snapshot the current state while it is still there */
     const previousState = new Map<string, string | null>(

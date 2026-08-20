@@ -1,11 +1,13 @@
 import console from 'node:console';
+import { relative } from 'node:path';
+import process, { cwd } from 'node:process';
 
 import chalk from 'chalk';
 
 import type { Class } from 'type-fest';
 
 import { EnumScaffolder, ModelsScaffolder } from '../lib';
-import type { AbstractedScaffolder, LintOutcome, ScaffolderOptions, WriteStats } from '../lib';
+import type { AbstractedScaffolder, LintOutcome, ScaffolderOptions, WritePlanInspection, WriteStats } from '../lib';
 
 import { AbstractAction } from './lib';
 import type { ActionInputs } from './lib';
@@ -17,6 +19,9 @@ import { spinnerFeedbackFunction } from '../ui';
  * Internal Types
  * -------- */
 export interface ScaffoldActionInput {
+  /** Report what a run would change and write nothing */
+  check?: boolean;
+
   /** The element to scaffold */
   element: 'enums' | 'models';
 
@@ -25,6 +30,12 @@ export interface ScaffoldActionInput {
 
   /** The host serving the definition, which skips its prompt */
   host?: string;
+
+  /** Where to save the downloaded definition */
+  saveSpec?: string;
+
+  /** A definition on disk to generate from, instead of downloading one */
+  spec?: string;
 
   /** Answer every optional prompt affirmatively */
   yes?: boolean;
@@ -48,8 +59,11 @@ export class ScaffoldAction extends AbstractAction<ScaffoldActionInput> {
     /** Carry down what the command line already answered */
     const options: ScaffolderOptions = {
       autoConfirm: !!inputs.getOption('yes'),
+      check      : !!inputs.getOption('check'),
       endpoint   : inputs.getOption('endpoint'),
-      host       : inputs.getOption('host')
+      host       : inputs.getOption('host'),
+      saveSpec   : inputs.getOption('saveSpec'),
+      spec       : inputs.getOption('spec')
     };
 
     /** Use switch case to use the right scaffold */
@@ -74,6 +88,12 @@ export class ScaffoldAction extends AbstractAction<ScaffoldActionInput> {
     options: ScaffolderOptions
   ): Promise<void> {
     const scaffolder = new Scaffolder(this.project, this.compiler, options);
+
+    /** A check renders the same output and reports on it, without writing or linting anything */
+    if (options.check) {
+      ScaffoldAction.reportCheck(await scaffolder.check());
+      return;
+    }
 
     /**
      * Render everything, then write everything.
@@ -127,6 +147,40 @@ export class ScaffoldAction extends AbstractAction<ScaffoldActionInput> {
     });
 
     ScaffoldAction.printSummary(stats, lintState.outcome);
+  }
+
+
+  /**
+   * Report an inspection and set the exit code, so a pipeline can rely on it.
+   *
+   * The failure names the files that are behind: a check that only said 'out of date' would
+   * leave whoever reads the log to diff the whole output by hand.
+   *
+   * @param inspection What committing the plan would have done
+   */
+  private static reportCheck(inspection: WritePlanInspection): void {
+    const { stats, written, stale, isUpToDate } = inspection;
+
+    if (isUpToDate) {
+      console.info(chalk.green(`Generated code is up to date: ${stats.unchanged} files match the definition`));
+      return;
+    }
+
+    console.info(chalk.red('Generated code does not match the definition.'));
+    console.info();
+
+    written
+      .filter((file) => file.action === 'created' || file.action === 'updated')
+      .forEach((file) => console.info(
+        chalk.yellow(`  ${file.action === 'created' ? 'missing' : 'stale '} ${relative(cwd(), file.path)}`)
+      ));
+
+    stale.forEach((path) => console.info(chalk.yellow(`  orphan ${relative(cwd(), path)}`)));
+
+    console.info();
+    console.info(`Run the same command without ${chalk.bold('--check')} to bring it back in line.`);
+
+    process.exitCode = 1;
   }
 
 
