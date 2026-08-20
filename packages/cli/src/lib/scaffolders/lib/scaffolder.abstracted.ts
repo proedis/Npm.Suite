@@ -92,6 +92,23 @@ export abstract class AbstractedScaffolder {
   // ----
 
   /**
+   * Where the generated code belongs.
+   *
+   * A single package project has one source directory and that is the answer. A monorepo does
+   * not: models and hooks live in different packages, so the destination is configurable per
+   * command through the 'output' key of its section in '.proedis.yml', relative to the project
+   * root. Without it nothing changes for anyone.
+   */
+  protected get outputDirectory(): string {
+    const configured = this.project.getSettings(this.cacheKey).output;
+
+    return typeof configured === 'string' && configured
+      ? resolve(this.project.rootDirectory, configured)
+      : this.project.srcDirectory;
+  }
+
+
+  /**
    * Render everything, then write everything.
    *
    * The two halves are deliberately separate: generation used to write as it rendered, so an

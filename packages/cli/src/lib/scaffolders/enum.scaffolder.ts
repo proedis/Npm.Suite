@@ -60,7 +60,7 @@ export class EnumScaffolder extends AbstractedScaffolder {
     const sharedObjects = await this.getSource<SharedObjects>(EnumScaffolder.assertSharedObjects);
 
     /** Build the folders path */
-    const root = this.project.srcDirectory;
+    const root = this.outputDirectory;
     const interfacesPath = resolve(root, 'interfaces');
 
     const typesPath = resolve(interfacesPath, 'shared-objects');
@@ -265,7 +265,7 @@ export class EnumScaffolder extends AbstractedScaffolder {
       noOverride: true
     });
 
-    generatedFiles.push(await configurationCompiler.plan('modeler.configuration.ts', this.project.srcDirectory));
+    generatedFiles.push(await configurationCompiler.plan('modeler.configuration.ts', this.outputDirectory));
 
     return generatedFiles.filter((file): file is PlannedFile => file !== null);
   }

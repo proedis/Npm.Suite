@@ -254,6 +254,19 @@ export class Project {
 
 
   /**
+   * The settings remembered under a key, whatever put them there.
+   *
+   * Answers are one source, a hand written file is the other: a project that generates into
+   * somewhere other than the defaults says so here, and nothing prompts for it.
+   *
+   * @param promptName The key the settings live under
+   */
+  public getSettings(promptName: string): Record<string, any> {
+    return this.readSettings()[promptName] ?? {};
+  }
+
+
+  /**
    * Ask a set of questions, defaulting each one to the answer remembered from the last run.
    *
    * Answers are **not** written back here: persisting them is `persistPromptAnswers`, which the
@@ -305,7 +318,15 @@ export class Project {
    */
   public persistPromptAnswers(promptName: string, answers: Record<string, any>): void {
     const settings = this.readSettings();
-    settings[promptName] = answers;
+
+    /**
+     * Merge, never replace.
+     *
+     * The same section holds what was asked and what was written by hand — where the generated
+     * code belongs, for one — and replacing it wholesale erased the second the first time the
+     * first succeeded.
+     */
+    settings[promptName] = { ...settings[promptName], ...answers };
 
     writeFileSync(this._settingsPath, yaml.stringify(settings), 'utf-8');
   }

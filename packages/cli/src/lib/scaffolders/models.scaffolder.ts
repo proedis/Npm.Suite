@@ -48,7 +48,7 @@ export class ModelsScaffolder extends AbstractedScaffolder {
     const openApiDocument = await this.getSource<OpenApiDocument>(ModelsScaffolder.assertOpenApiDocument);
 
     /** Get the root folder to use to write/update models */
-    const root = this.project.srcDirectory;
+    const root = this.outputDirectory;
 
     /** Render every model and the namespaces, adding them to the plan */
     this.plan.add(...this.generateModels(root, openApiDocument));

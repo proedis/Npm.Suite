@@ -72,10 +72,24 @@ export class HooksScaffolder extends AbstractedScaffolder {
   }
 
 
+  /**
+   * What the generated hooks import their models from.
+   *
+   * Inside one package it is a relative path. Across a monorepo it is the name of the package
+   * holding them, which no path can reach: `models` in this command's section of '.proedis.yml'
+   * says which, and without it the relative path is assumed.
+   */
+  private get modelsSpecifier(): string {
+    const configured = this.project.getSettings(this.cacheKey).models;
+
+    return typeof configured === 'string' && configured ? configured : '../../models/scaffold';
+  }
+
+
   protected async build(): Promise<void> {
     const openApiDocument = await this.getSource<OpenApiDocument>(HooksScaffolder.assertOpenApiDocument);
 
-    const hooksPath = resolve(this.project.srcDirectory, 'hooks', 'scaffold');
+    const hooksPath = resolve(this.outputDirectory, 'hooks', 'scaffold');
 
     /** The whole folder mirrors the API, so it is rebuilt rather than merged */
     this.wipeDirectories([ hooksPath ]);
@@ -89,7 +103,7 @@ export class HooksScaffolder extends AbstractedScaffolder {
     }), {});
 
     const files = Object.entries(byTag)
-      .map(([ tag, tagEndpoints ]) => HooksScaffolder.renderTagFile(hooksPath, tag, tagEndpoints));
+      .map(([ tag, tagEndpoints ]) => HooksScaffolder.renderTagFile(hooksPath, tag, tagEndpoints, this.modelsSpecifier));
 
     this.plan.add(...files, HooksScaffolder.renderBarrel(hooksPath, files));
   }
@@ -287,7 +301,12 @@ export class HooksScaffolder extends AbstractedScaffolder {
    * slashes with the route parameters in place — the same shape `useClientQuery` expects, so
    * nothing has to reconstruct the url at runtime.
    */
-  private static renderTagFile(root: string, tag: string, endpoints: EndpointDescriptor[]): PlannedFile {
+  private static renderTagFile(
+    root: string,
+    tag: string,
+    endpoints: EndpointDescriptor[],
+    modelsSpecifier: string
+  ): PlannedFile {
     const models = Array.from(new Set(
       endpoints.flatMap((endpoint) => [ endpoint.itemType, endpoint.requestType ]).filter(Boolean) as string[]
     )).sort();
@@ -310,7 +329,7 @@ export class HooksScaffolder extends AbstractedScaffolder {
       `import { ${clientImports} } from '@proedis/react-client';`,
       '',
       ...typeImports,
-      ...(models.length ? [ `import { ${models.join(', ')} } from '../../models/scaffold';`, '' ] : []),
+      ...(models.length ? [ `import { ${models.join(', ')} } from '${modelsSpecifier}';`, '' ] : []),
       '',
       ...endpoints
         .slice()
