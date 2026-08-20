@@ -1,0 +1,33 @@
+{
+  "name": "@proedis/zod",
+  "version": "0.1.0",
+  "description": "Zod 4 introspection for UI: one field descriptor per schema path, so a form control reads its label and its bounds from the schema",
+  "keywords": [
+    "proedis",
+    "zod",
+    "schema",
+    "forms",
+    "introspection"
+  ],
+  "license": "MIT",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "rollup --config ../../rollup.config.mjs"
+  },
+  "devDependencies": {
+    "@proedis/tsconfig": "^2.0.0",
+    "rollup": "^4.62.4"
+  },
+  "proedisMetadata": {
+    "reflectPeerDependencies": {
+      "zod": {
+        "range": "^4.0.0"
+      }
+    },
+    "exports": [
+      "fields",
+      "validators"
+    ],
+    "sideEffects": false
+  }
+}
