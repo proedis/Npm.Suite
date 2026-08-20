@@ -1,0 +1,49 @@
+{
+  "name": "@proedis/react-query",
+  "version": "0.1.0",
+  "description": "Query suspense over useClientQuery and gated cache invalidation for @tanstack/react-query, with every view injected by the host app",
+  "keywords": [
+    "proedis",
+    "react",
+    "react-query",
+    "tanstack",
+    "invalidation",
+    "suspense"
+  ],
+  "license": "MIT",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "rollup --config ../../rollup.config.mjs"
+  },
+  "devDependencies": {
+    "@proedis/client": "^3.0.0",
+    "@proedis/react": "^2.0.0",
+    "@proedis/react-client": "^4.0.0",
+    "@proedis/tsconfig": "^2.0.0",
+    "rollup": "^4.62.4"
+  },
+  "proedisMetadata": {
+    "reflectPeerDependencies": {
+      "@proedis/client": {
+        "from": "self"
+      },
+      "@proedis/react": {
+        "from": "self"
+      },
+      "@proedis/react-client": {
+        "from": "self"
+      },
+      "@tanstack/react-query": {
+        "range": "^5.0.0"
+      },
+      "react": {
+        "range": ">=18.0.0 <20.0.0"
+      }
+    },
+    "exports": [
+      "invalidation",
+      "suspense"
+    ],
+    "sideEffects": false
+  }
+}
