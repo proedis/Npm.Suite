@@ -77,6 +77,50 @@ const HAS_TYPES_SETTINGS = existsSync(TSCONFIG_DECLARATION_PATH);
 // ----
 // Rollup Configurations
 // ----
+/* --------
+ * Output Plugins
+ * -------- */
+
+/**
+ * Put back the module-level directives rollup drops.
+ *
+ * Rollup hoists `'use client'` out of a module and warns about it — a warning this config already
+ * silences below — but it does not re-emit it, so a package whose hooks are client-only publishes
+ * them unmarked, and a Next consumer importing them from a server component gets an error on the
+ * first import. Measured on `@proedis/ui-core`: the directive was in the source and absent from the
+ * output.
+ *
+ * With `preserveModules` each chunk comes from one module, so the directive is read back from that
+ * module's source. It is prepended **without a newline**: the directive has to be the first
+ * statement, and adding a line would shift every sourcemap mapping in the chunk. The cost is that
+ * column positions on the first line are off by the length of the directive, which is the smallest
+ * inaccuracy available here.
+ */
+function preserveModuleDirectives() {
+  const DIRECTIVE = /^\s*(['"])(use client|use server)\1\s*;?/;
+
+  return {
+    name: 'preserve-module-directives',
+
+    renderChunk(code, chunk) {
+      const moduleId = chunk.facadeModuleId ?? chunk.moduleIds?.[0];
+
+      if (!moduleId || !existsSync(moduleId)) {
+        return null;
+      }
+
+      const directive = readFileSync(moduleId, 'utf-8').match(DIRECTIVE);
+
+      if (!directive || DIRECTIVE.test(code)) {
+        return null;
+      }
+
+      return { code: `'${directive[2]}';${code}`, map: null };
+    }
+  };
+}
+
+
 const buildConfiguration = defineConfig({
 
   // Set the file input, the package barrel plus every published subpath barrel
@@ -94,7 +138,8 @@ const buildConfiguration = defineConfig({
     exports        : 'auto',
     dir            : `${OUTPUT_DIRECTORY}/${format}`,
     preserveModules: true,
-    sourcemap      : true
+    sourcemap      : true,
+    plugins        : [ preserveModuleDirectives() ]
   })),
 
   // Strip useless warnings
