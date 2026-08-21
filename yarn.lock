@@ -1807,7 +1807,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@proedis/react-client@workspace:packages/react-client":
+"@proedis/react-client@npm:^4.0.0, @proedis/react-client@workspace:packages/react-client":
   version: 0.0.0-use.local
   resolution: "@proedis/react-client@workspace:packages/react-client"
   dependencies:
@@ -1828,6 +1828,18 @@ __metadata:
     "@proedis/tsconfig": "npm:^2.0.0"
     "@proedis/utils": "npm:^2.0.0"
     "@react-native-async-storage/async-storage": "npm:1.24.0"
+    rollup: "npm:^4.62.4"
+  languageName: unknown
+  linkType: soft
+
+"@proedis/react-query@workspace:packages/react-query":
+  version: 0.0.0-use.local
+  resolution: "@proedis/react-query@workspace:packages/react-query"
+  dependencies:
+    "@proedis/client": "npm:^3.0.0"
+    "@proedis/react": "npm:^2.0.0"
+    "@proedis/react-client": "npm:^4.0.0"
+    "@proedis/tsconfig": "npm:^2.0.0"
     rollup: "npm:^4.62.4"
   languageName: unknown
   linkType: soft
@@ -1888,6 +1900,18 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@proedis/ui-core@workspace:packages/ui-core":
+  version: 0.0.0-use.local
+  resolution: "@proedis/ui-core@workspace:packages/ui-core"
+  dependencies:
+    "@proedis/tsconfig": "npm:^2.0.0"
+    clsx: "npm:^2.1.1"
+    cpy-cli: "npm:5.0.0"
+    rollup: "npm:^4.62.4"
+    tailwind-merge: "npm:^3.6.0"
+  languageName: unknown
+  linkType: soft
+
 "@proedis/utils@npm:^2.0.0, @proedis/utils@workspace:packages/utils":
   version: 0.0.0-use.local
   resolution: "@proedis/utils@workspace:packages/utils"
@@ -1904,6 +1928,15 @@ __metadata:
     rollup: "npm:^4.62.4"
     set-value: "npm:^4.1.0"
     ts-deepmerge: "npm:^7.0.1"
+  languageName: unknown
+  linkType: soft
+
+"@proedis/zod@workspace:packages/zod":
+  version: 0.0.0-use.local
+  resolution: "@proedis/zod@workspace:packages/zod"
+  dependencies:
+    "@proedis/tsconfig": "npm:^2.0.0"
+    rollup: "npm:^4.62.4"
   languageName: unknown
   linkType: soft
 
@@ -9835,6 +9868,13 @@ __metadata:
   version: 1.0.0
   resolution: "supports-preserve-symlinks-flag@npm:1.0.0"
   checksum: 10c0/6c4032340701a9950865f7ae8ef38578d8d7053f5e10518076e6554a9381fa91bd9c6850193695c141f32b21f979c985db07265a758867bac95de05f7d8aeb39
+  languageName: node
+  linkType: hard
+
+"tailwind-merge@npm:^3.6.0":
+  version: 3.6.0
+  resolution: "tailwind-merge@npm:3.6.0"
+  checksum: 10c0/a728d929f4786bcb48641db4228cc8c006a7545491783a658fb4d24d177dab960620991d17805a047309228de50ab949ca8d9e112c30183da0432367796ae186
   languageName: node
   linkType: hard
 

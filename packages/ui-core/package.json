@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@proedis/tsconfig": "^2.0.0",
+    "cpy-cli": "5.0.0",
     "rollup": "^4.62.4"
   },
   "proedisMetadata": {
