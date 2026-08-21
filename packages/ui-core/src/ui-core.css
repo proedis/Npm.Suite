@@ -1,0 +1,158 @@
+/*
+ * @proedis/ui-core — the stylesheet the primitives read.
+ * =====================================================================
+ * Import it into the Tailwind entry CSS, not as a plain stylesheet: it uses Tailwind
+ * directives, so a browser loading it directly does nothing useful.
+ *
+ *   @import 'tailwindcss';
+ *   @import '@proedis/ui-core/ui-core.css';
+ *
+ * Four layers, in this order, and the order matters:
+ *
+ *   1. @source          → lets Tailwind see the classes this package writes
+ *   2. @theme inline    → the CONTRACT: registers the semantic tokens as utilities
+ *   3. :root / .dark    → the DEFAULTS: neutral, and overridable by redeclaring them after the import
+ *   4. @utility         → the custom utilities the components use
+ *
+ * Overriding anything is one declaration in your own CSS, after the import:
+ *
+ *   :root {
+ *     --border: oklch(0.9 0.02 264);
+ *     --radius: 1rem;                 // moves the whole radius scale
+ *   }
+ */
+
+/* ============================================================
+ * 1. Sources
+ * ============================================================ */
+
+/*
+ * Two different problems, two directives.
+ *
+ * `@source "."` covers the classes written literally in the components — `flex`, `bg-border`,
+ * `max-w-7xl`. A relative source resolves against THIS file, so it points at this package wherever
+ * it is installed, and the consumer has nothing to declare. It works in both layouts because the
+ * stylesheet always ships next to the code it describes.
+ *
+ * `@source inline(...)` covers the classes the primitives build from their props at runtime, which
+ * no scanner can find in the source. The listed values ARE the scale: `SpacingValue` and
+ * `ColumnsValue` in TypeScript declare exactly this set, so a value with no CSS behind it fails to
+ * compile instead of silently rendering nothing. Change one, change both.
+ */
+@source ".";
+
+@source inline("{sm:,md:,lg:,xl:,2xl:,}flex-row");
+@source inline("{sm:,md:,lg:,xl:,2xl:,}flex-col");
+@source inline("{sm:,md:,lg:,xl:,2xl:,}gap-{0,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,12,14,16}");
+@source inline("{sm:,md:,lg:,xl:,2xl:,}grid-cols-{1,2,3,4,5,6,7,8,9,10,11,12}");
+@source inline("{sm:,md:,lg:,xl:,2xl:,}divide-x");
+@source inline("{sm:,md:,lg:,xl:,2xl:,}divide-y");
+@source inline("{sm:,md:,lg:,xl:,2xl:,}divide-x-0");
+@source inline("{sm:,md:,lg:,xl:,2xl:,}divide-y-0");
+
+/*
+ * Dark mode as a class on an ancestor, which is what makes a theme switch a single attribute write.
+ * Redeclare it after the import to change the strategy (`prefers-color-scheme`, a data attribute).
+ */
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================
+ * 2. The contract
+ * ============================================================ */
+
+/*
+ * `inline` is NOT optional here, and getting it wrong breaks every override silently.
+ *
+ * With `inline`, the emitted utility is `border-color: var(--border)` — it references the raw
+ * variable, so a later `:root` in the consumer's CSS wins by cascade and the whole theme follows.
+ * Without it, the utility would emit `var(--color-border)` and redeclaring `--border` would change
+ * nothing at all.
+ *
+ * Five tokens, and they are the only thing this package asks of a theme. Every one of them is used
+ * by a component that ships here — nothing is declared "just in case".
+ */
+@theme inline {
+  /* Divider, and the rules Stack draws between its children */
+  --color-border: var(--border);
+  /* The recessed surface behind a LabeledContent icon */
+  --color-input: var(--input);
+  /* The ink of a value */
+  --color-foreground: var(--foreground);
+  /* A quiet label, a divider caption, the scrollbar thumb */
+  --color-muted-foreground: var(--muted-foreground);
+
+  /*
+   * ⚠️ The one place this package REPLACES a Tailwind default scale rather than adding to it: after
+   * the import, `rounded-lg` follows `--radius` instead of Tailwind's own value. That is the point —
+   * one knob moves the corner language of the whole interface — but it is a real footprint, so it is
+   * stated here rather than discovered. Redeclare the individual steps to opt out.
+   */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* ============================================================
+ * 3. The defaults
+ * ============================================================ */
+
+/*
+ * Neutral on purpose. They exist so the primitives work with no configuration — and they are
+ * deliberately anonymous, so nobody mistakes them for a design decision.
+ *
+ * The values reference Tailwind's OWN palette instead of hardcoding `oklch(...)`: the shade names
+ * stay self-documenting, a project that themed the palette is followed automatically, and there is
+ * one less set of magic numbers to keep in sync.
+ */
+:root {
+  --border: var(--color-zinc-200);
+  --input: var(--color-zinc-200);
+  --foreground: var(--color-zinc-900);
+  --muted-foreground: var(--color-zinc-500);
+  --radius: 0.625rem;
+}
+
+.dark {
+  /* A hairline of light over a dark canvas reads better than a grey that turns muddy */
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --foreground: var(--color-zinc-50);
+  --muted-foreground: var(--color-zinc-400);
+}
+
+/* ============================================================
+ * 4. Utilities
+ * ============================================================ */
+
+/*
+ * The thin scrollbar `ScrollArea` asks for, and any scroll container can reuse.
+ *
+ * It reads the semantic token rather than a fixed grey, so it follows the theme — including dark
+ * mode — without a second declaration. `color-mix` keeps the thumb visible on both canvases.
+ */
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklab, var(--muted-foreground) 35%, transparent) transparent;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--muted-foreground) 35%, transparent);
+    border-radius: 9999px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in oklab, var(--muted-foreground) 55%, transparent);
+  }
+}
