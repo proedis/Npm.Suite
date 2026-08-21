@@ -26,6 +26,7 @@ No UI kit, no styling, no opinions about how anything looks. 🎨
 | **Ref hooks** | `useSyncedRef`, `useForkRef` |
 | **Effect hooks** | `useEnhancedEffect`, `useUnmountEffect`, `useDebouncedCallback` |
 | **DOM hooks** | `useEvent`, `useClickOutside`, `useWindowSize`, `useElementType` |
+| **Measurement** | `useAutoSizer` — the room an element has, kept up to date; `getAncestorsSpace` |
 
 ## 📦 Installation
 
@@ -150,6 +151,7 @@ providers at the root of an app into a single element.
 | `useClickOutside(target, callback)` | the outside-click primitive behind every dropdown |
 | `useWindowSize(options?)` | viewport size, debounced |
 | `useElementType(props, default)` | resolve the `as` prop into the element to render |
+| `useAutoSizer(options?)` | the room an element has, in pixels, kept up to date — see below |
 
 💡 Several of these are built on `useSyncedRef`, and that is the pattern worth internalising: keep the
 *subscription* stable and let it read a moving value, instead of tearing it down whenever the value
@@ -158,6 +160,54 @@ changes.
 ⚠️ Read a `useSyncedRef` container from an effect, a handler or a cleanup — **not while rendering**. The
 value is written during render, which is what makes it current for the commit it belongs to, and a
 render that gets discarded leaves the container holding something that was never committed.
+
+### 📐 `useAutoSizer(options?)`
+
+The replacement for `height: calc(100vh - 320px)`.
+
+A virtualized table, a map or a chart needs a pixel height; the height available depends on
+everything rendered above it; and that number is not a constant — a filter bar wraps onto a second
+line, a sidebar collapses, a notification appears, the font finally loads.
+
+```tsx
+const [ AutoSizer, { height } ] = useAutoSizer({ minHeight: 240 });
+
+return (
+  <AutoSizer>
+    <VirtualizedTable height={height} rows={rows} />
+  </AutoSizer>
+);
+```
+
+Each axis answers with **the room left between the element and the far edge of the viewport**, minus
+what the ancestors still need for their own padding, margin and border. That subtraction is the
+point: without it a table filling "the rest of the screen" overflows its card by exactly the card's
+padding, and the page grows a scrollbar nobody asked for.
+
+| Option | Effect |
+| --- | --- |
+| `fixedHeight` / `fixedWidth` | pin an axis and skip its computation |
+| `minHeight` / `maxHeight`, `minWidth` / `maxWidth` | clamp the result |
+| `useOwnHeight` / `useOwnWidth` | measure the element itself instead of the room around it |
+| `disabled` | stop measuring, keeping the last size — for a collapsed panel or a hidden tab |
+
+Options are read through a ref, so changing them mid-life is safe and never re-subscribes anything.
+
+**What it watches**: the element and its parent through a `ResizeObserver`, the viewport through a
+resize listener, and its own visibility through an `IntersectionObserver` — so a tab that was hidden
+when it mounted measures itself the moment it is shown, instead of reporting zero until the next
+window resize. Measurements are coalesced into one animation frame, because a resize observer fires
+several times per frame while a layout settles.
+
+The returned component is a plain `div` that forwards its ref and every prop, and its **identity is
+stable**: a component whose identity changes remounts its subtree, which for a virtualized table
+means losing the scroll position on every resize.
+
+`getAncestorsSpace(element)` is that subtraction on its own, for anything sizing an element it does
+not own — a canvas, a third-party widget.
+
+⚠️ Server-side it reports the `fixed*` values, or zero: there is nothing to measure until the effect
+runs. Give the sized content a sensible `minHeight` if the first paint matters.
 
 ## 🔀 Migrating to 2.x
 

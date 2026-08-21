@@ -1,5 +1,7 @@
 export * from './useAutoControlledState';
 
+export * from './useAutoSizer';
+
 export * from './useClickOutside';
 
 export * from './useDataManager';
