@@ -21,6 +21,7 @@ behave like sets, and .NET durations that survive a round trip.** 🧩
 | `Flags` | a set of enums that *is* an `Array`, with `hasAll` / `hasAny` / `toggleFlag` and friends |
 | `TimeSpan` | a .NET style duration, parsed and rendered as `[-][d.]hh:mm:ss.fff` |
 | `AsDayJs` `AsEnum` `AsFlags` `AsTimeSpan` | the decorators that wire all of the above into a model |
+| `defineVirtuals` | computed properties installed **on** a model, reaching every instance built from a payload |
 
 ## 📦 Installation
 
@@ -200,6 +201,75 @@ a string context gives the formatted duration.
 
 `AsDayJs` handles arrays as well as single values. Every decorator accepts the `Transform` options —
 minus `toClassOnly` and `toPlainOnly`, which each decorator declares for itself.
+
+### 🪄 `defineVirtuals`
+
+A virtual is a property computed on this side that belongs to the model itself: a display name, a
+derived flag, a total. Declaring it **on the model**, rather than on a type extending it, is what
+makes it reach every instance the transformer builds, the ones nested in a relation included, with
+nothing to unwrap where it is used.
+
+It matters most with a **generated** model, which cannot be edited and comes back overwritten on the
+next run. Two halves, in a file of your own beside the generated one:
+
+```ts
+import { defineVirtuals } from '@proedis/modeler';
+
+import { AccountDto } from '../scaffold/AccountDto';
+
+
+declare module '../scaffold/AccountDto' {
+  interface AccountDto {
+    readonly displayName: string;
+  }
+}
+
+defineVirtuals(AccountDto, {
+  displayName() {
+    return [ this.lastName, this.firstName ].filter(Boolean).join(' ');
+  }
+});
+```
+
+The `declare module` **declares** what the model gains: an interface merges with the class of the same
+name, so `displayName` is a property of `AccountDto` and not of something derived from it. The call
+**implements** it, and is checked against the declaration: a name no interface declares, or a getter
+answering with the wrong type, does not compile.
+
+Augment the module that *declares* the class, not a barrel re-exporting it: a re-export is not a
+declaration, so the interface would land beside the class instead of merging into it.
+
+| | |
+| --- | --- |
+| on an instance from `from()`, on a collection, on a relation | yes |
+| in `toObject()`, `toJSON()`, `hash()`, `Object.keys` | **no**, the getters are not enumerable |
+| after `clone()` | yes, they live on the prototype |
+| assignment | refused, by the type and at runtime |
+
+A value computed here does not travel back to the server, which is the point: the payload of a `PUT`
+stays the one the API expects.
+
+Two things to know before using it:
+
+**Declare virtuals `readonly`.** Beyond being true, it is what turns a collision into a compile
+error. The day the payload starts carrying a field of that name, its own value shadows the getter and
+the virtual stops being applied, silently. A `readonly` declaration cannot merge with the writable
+field the payload brings, so the build stops instead. Without it, nothing does.
+
+**A module that only installs virtuals has to be evaluated.** Nothing imports it for a value, so
+import it for its side effect where the models are, from the barrel everything goes through:
+
+```ts
+import '../virtuals';
+```
+
+Skipped, the type still promises the property and every instance answers `undefined`, which is worse
+than not having the virtual at all.
+
+With generated models, keep those files in one directory and let the generator wire the import: given
+`models/virtuals/`, `@proedis/cli` builds its barrel and has the barrel of the models import it. If
+your models live in a package declaring `"sideEffects": false`, exclude that path, or the bundler is
+free to drop the import in a production build.
 
 ## 🔀 Migrating to 2.x
 
