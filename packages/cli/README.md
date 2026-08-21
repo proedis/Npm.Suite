@@ -25,7 +25,7 @@ One binary, three commands, all fed by the same API. 📡
 | --- | --- | --- |
 | `proedis scaffold enums` | the shared objects definition | typed enum unions, their constants, and the `@proedis/modeler` configuration |
 | `proedis scaffold models` | the OpenAPI document | `class-transformer` models, their barrel, and the endpoint namespaces |
-| `proedis scaffold hooks` | the OpenAPI document | a named hook, query key and arguments per operation, grouped by resource |
+| `proedis scaffold hooks` | the OpenAPI document | a named hook, query key, arguments and props type per operation, grouped by resource |
 
 They build on each other, so run them in that order: the hooks import the models, and the models
 carry the enums.
@@ -227,36 +227,64 @@ Which hook it becomes follows the method and the answer:
 | `GET` answering with a page | `usePaginatedClientQuery<Item>`, taking a `PaginatedRequest` |
 | `POST` `PUT` `PATCH` `DELETE` | `useClientMutation<Body, Response>`, handing the payload to the request |
 
-Every query is written in three pieces, because the hook is not the only way to spend them:
+Every query is written in three pieces, because the hook is not the only way to spend them, plus a
+props type the three of them share:
 
 ```ts
-export function getSingleActivityQueryKey(id?: string): string[] {
-  const key: string[] = [];
-  key.push('activities');
-  if (id === undefined) { return key; }
-  key.push(id);
-  return key;
+export type GetSingleActivityProps = {
+  id: string;
+};
+
+export function getSingleActivityQueryKey(id: string): string[];
+export function getSingleActivityQueryKey(props: GetSingleActivityProps): string[];
+export function getSingleActivityQueryKey(idOrProps: string | GetSingleActivityProps): string[] {
+  const { id } = typeof idOrProps === 'object'
+    ? idOrProps
+    : { id: idOrProps } as GetSingleActivityProps;
+
+  return [ 'activities', id ];
 }
 
-export function getSingleActivityQueryArgs(id: string) {
-  return [ getSingleActivityQueryKey(id), { transformer: ActivityCompleteDto } ] as const;
-}
+export function getSingleActivityQueryArgs(id: string): readonly [ string[], { transformer: typeof ActivityCompleteDto } ];
+export function getSingleActivityQueryArgs(props: GetSingleActivityProps): readonly [ string[], { transformer: typeof ActivityCompleteDto } ];
+export function getSingleActivityQueryArgs(idOrProps: string | GetSingleActivityProps) /* … */
 
-export function useGetSingleActivity(
-  id: string,
-  options?: Parameters<typeof useClientQuery<ActivityCompleteDto>>[2],
-) {
+export function useGetSingleActivity(id: string, options?: Options): ReturnType<typeof useClientQuery<ActivityCompleteDto>>;
+export function useGetSingleActivity(props: GetSingleActivityProps, options?: Options): ReturnType<typeof useClientQuery<ActivityCompleteDto>>;
+export function useGetSingleActivity(idOrProps: string | GetSingleActivityProps, options?: Options) {
+  const { id } = typeof idOrProps === 'object'
+    ? idOrProps
+    : { id: idOrProps } as GetSingleActivityProps;
+
   return useClientQuery<ActivityCompleteDto>(...getSingleActivityQueryArgs(id), options);
 }
 ```
 
-**The key** takes every route parameter as optional and stops at the first one missing: in full it
-is the key of one entry, empty it is the prefix every entry under it shares. That is what
-invalidation runs on — `@proedis/react-query` treats a key as a prefix filter — so invalidating a
-resource is calling its key function with nothing:
+**The props type** is what makes the operation nameable from outside. A component that renders one
+activity declares its own props with it, and hands them over as they are — no destructuring to call
+the hook, and nothing to keep in sync when the operation gains a parameter:
 
 ```ts
-const invalidateEveryActivity = useQueryInvalidation([ getSingleActivityQueryKey() ]);
+export interface ActivityCardProps extends GetSingleActivityProps {
+  readonly compact?: boolean;
+}
+
+export function useActivityCard(props: ActivityCardProps) {
+  return useGetSingleActivity(props);
+}
+```
+
+**Both shapes are accepted** by all three functions: one argument each, or the props object.
+Route parameters are **required** in either — a key missing one of them is not the key of anything,
+and making them optional only makes that mistake callable.
+
+**The key** is the route split on slashes with its parameters in place, so nothing rebuilds the url
+at runtime. Invalidating one entry is calling it; invalidating the whole resource is a separate
+function, one per file, because it is a different request and should be spelled out rather than be
+the result of a forgotten argument — `@proedis/react-query` treats a key as a prefix filter:
+
+```ts
+const invalidateEveryActivity = useQueryInvalidation([ activitiesQueryKey() ]);
 const invalidateThisActivity = useQueryInvalidation([ getSingleActivityQueryKey(id) ]);
 ```
 
@@ -270,10 +298,11 @@ export function useActivityWhileVisible(id: string, isVisible: boolean) {
 }
 ```
 
-The key is the route split on slashes with its parameters in place, so nothing rebuilds the url at
-runtime, and the options type is derived from the hook being called — no internal type is imported
-to spell it out. A page is queried through `usePaginatedClientQuery`, whose transformer describes
-the **item**: the envelope stays generic, which is why no class is generated per page shape.
+Every signature declares its return type, derived from the function being called — an overload
+without one is silently `any`, which would throw away the typing this whole chain exists for, and no
+internal type is imported to spell it out. A page is queried through `usePaginatedClientQuery`, whose
+transformer describes the **item**: the envelope stays generic, which is why no class is generated
+per page shape.
 
 #### 🏷️ Where the names come from
 

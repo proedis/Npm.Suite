@@ -10,6 +10,14 @@ import type { PlannedFile } from '../write-plan';
  * Internal Types
  * -------- */
 /** One endpoint, reduced to what generating a hook for it needs */
+/** A parameter a function takes after its route parameters: the options, and the page request */
+interface TrailingParam {
+  isOptional?: boolean;
+  name: string;
+  type: string;
+}
+
+
 interface EndpointDescriptor {
   /** The DTO the endpoint answers with, already unwrapped from an array */
   itemType: string | null;
@@ -343,10 +351,12 @@ export class HooksScaffolder extends AbstractedScaffolder {
       ...typeImports,
       ...(models.length ? [ `import { ${models.join(', ')} } from '${modelsSpecifier}';`, '' ] : []),
       '',
+      ...HooksScaffolder.renderResourceKey(resource, endpoints),
       ...endpoints
         .slice()
         .sort((left, right) => left.name.localeCompare(right.name))
         .flatMap((endpoint) => [
+          ...(endpoint.params.length ? [ ...HooksScaffolder.renderPropsType(endpoint), '' ] : []),
           ...HooksScaffolder.renderQueryKey(endpoint),
           '',
           /** A mutation has no query to describe, and a page is described by its own hook */
@@ -367,76 +377,93 @@ export class HooksScaffolder extends AbstractedScaffolder {
 
 
   /**
-   * Render the query key of an endpoint as a function of its route parameters.
+   * Render the key shared by every operation of the resource: its prefix.
    *
-   * Every parameter is optional, and the key stops at the first one missing: called in full it is
-   * the key of that one entry, called empty it is the prefix every entry under it shares. That is
-   * what invalidation needs — `useQueryInvalidation` treats a key as a prefix filter — so
-   * invalidating a resource means calling the same function with nothing.
+   * `useQueryInvalidation` filters by key prefix, so this is what invalidating the whole resource
+   * asks for. It is a function of its own rather than a parameterless call of an operation key,
+   * because invalidating everything should be spelled out, not the result of a forgotten argument.
    */
-  private static renderQueryKey(endpoint: EndpointDescriptor): string[] {
-    const { name, params, segments } = endpoint;
+  private static renderResourceKey(resource: string, endpoints: EndpointDescriptor[]): string[] {
+    const functionName = `${HooksScaffolder.toCamelCase(resource)}QueryKey`;
 
-    const args = params.map((param) => `${HooksScaffolder.toCamelCase(param)}?: string`).join(', ');
+    /** An operation named after its own resource already owns the name: leave it alone */
+    const isTaken = endpoints.some((endpoint) => `${HooksScaffolder.toFunctionName(endpoint.name)}QueryKey` === functionName);
 
-    /**
-     * Build the key segment by segment, returning as soon as a parameter is missing.
-     *
-     * Truncating is the whole point: everything after a missing parameter belongs to a deeper
-     * route, so keeping the static segments that follow would produce a key matching nothing.
-     */
-    const body: string[] = [];
-    let pending: string[] = [];
-
-    segments.forEach((segment) => {
-      if (!segment.startsWith('{')) {
-        pending.push(`'${segment}'`);
-        return;
-      }
-
-      const param = HooksScaffolder.toCamelCase(segment.slice(1, -1));
-
-      if (pending.length) {
-        body.push(`  key.push(${pending.join(', ')});`);
-        pending = [];
-      }
-
-      body.push(`  if (${param} === undefined) { return key; }`, `  key.push(${param});`);
-    });
-
-    if (pending.length) {
-      body.push(`  key.push(${pending.join(', ')});`);
+    if (isTaken || !HooksScaffolder.isValidIdentifier(HooksScaffolder.toCamelCase(resource))) {
+      return [];
     }
 
     return [
-      `export function ${HooksScaffolder.toFunctionName(name)}QueryKey(${args}): string[] {`,
-      '  const key: string[] = [];',
-      ...body,
-      '  return key;',
-      '}'
+      `export function ${functionName}(): string[] {`,
+      `  return [ '${resource}' ];`,
+      '}',
+      ''
     ];
   }
 
 
   /**
-   * Render the arguments the endpoint is queried with: its key, and the request config carrying
-   * the transformer.
+   * Render the query key of an endpoint as a function of its route parameters.
    *
-   * The generated hook is one way to spend them, and not the only one: anything building on
-   * `useClientQuery` — a wrapper adding a select, one holding several queries together, a hook
-   * with different options — takes the same pair and decides the rest itself, instead of
-   * repeating the key and the transformer of an endpoint it does not own.
+   * Parameters are required: a key missing one of them is not the key of anything, and making them
+   * optional only makes that mistake callable. Invalidating a whole resource is a different request
+   * and has its own function — see `renderResourceKey`.
    */
+  private static renderQueryKey(endpoint: EndpointDescriptor): string[] {
+    const { name, params, segments } = endpoint;
+
+    const functionName = `${HooksScaffolder.toFunctionName(name)}QueryKey`;
+
+    const parts = segments.map((segment) => (segment.startsWith('{')
+      ? HooksScaffolder.toCamelCase(segment.slice(1, -1))
+      : `'${segment}'`));
+
+    /** Without parameters there is nothing to overload: the key is the same every time */
+    if (!params.length) {
+      return [
+        `export function ${functionName}(): string[] {`,
+        `  return [ ${parts.join(', ')} ];`,
+        '}'
+      ];
+    }
+
+    return [
+      ...HooksScaffolder.renderOverloadSignatures(endpoint, functionName, [], ': string[]'),
+      `export function ${functionName}(${HooksScaffolder.renderImplementationParams(endpoint, [])}): string[] {`,
+      ...HooksScaffolder.renderPropsNarrowing(endpoint, []),
+      `  return [ ${parts.join(', ')} ];`,
+      '}'
+    ];
+  }
+
+
   private static renderQueryArgs(endpoint: EndpointDescriptor): string[] {
     const { name, params, itemType } = endpoint;
 
-    const signature = params.map((param) => `${HooksScaffolder.toCamelCase(param)}: string`).join(', ');
-    const keyCall = `${HooksScaffolder.toFunctionName(name)}QueryKey(${params.map((param) => HooksScaffolder.toCamelCase(param)).join(', ')})`;
+    const functionName = `${HooksScaffolder.toFunctionName(name)}QueryArgs`;
+    const keyFunction = `${HooksScaffolder.toFunctionName(name)}QueryKey`;
     const config = itemType ? `{ transformer: ${itemType} }` : 'undefined';
 
+    const call = params.length
+      ? `${keyFunction}(${params.map((param) => HooksScaffolder.toCamelCase(param)).join(', ')})`
+      : `${keyFunction}()`;
+
+    /** Spelled out because an overload without a return type is silently 'any' */
+    const returns = `: readonly [ string[], ${itemType ? `{ transformer: typeof ${itemType} }` : 'undefined'} ]`;
+
+    if (!params.length) {
+      return [
+        `export function ${functionName}()${returns} {`,
+        `  return [ ${call}, ${config} ] as const;`,
+        '}'
+      ];
+    }
+
     return [
-      `export function ${HooksScaffolder.toFunctionName(name)}QueryArgs(${signature}) {`,
-      `  return [ ${keyCall}, ${config} ] as const;`,
+      ...HooksScaffolder.renderOverloadSignatures(endpoint, functionName, [], returns),
+      `export function ${functionName}(${HooksScaffolder.renderImplementationParams(endpoint, [])})${returns} {`,
+      ...HooksScaffolder.renderPropsNarrowing(endpoint, []),
+      `  return [ ${call}, ${config} ] as const;`,
       '}'
     ];
   }
@@ -445,72 +472,105 @@ export class HooksScaffolder extends AbstractedScaffolder {
   private static renderHook(endpoint: EndpointDescriptor): string[] {
     const { name, params, itemType, returnsCollection, requestType, method } = endpoint;
 
-    /** The response type as the hook declares it: the DTO, or a collection of it */
+    const functionName = `use${name}`;
+
     const responseType = itemType
       ? (returnsCollection ? `${itemType}[]` : itemType)
       : 'unknown';
 
-    /** The hook calls the exported key function, so the segments are written once */
-    const key = `${HooksScaffolder.toFunctionName(name)}QueryKey(${params.map((param) => HooksScaffolder.toCamelCase(param)).join(', ')})`;
+    const argNames = params.map((param) => HooksScaffolder.toCamelCase(param)).join(', ');
 
-    const args = params.map((param) => `${HooksScaffolder.toCamelCase(param)}: string`);
-
-    /** The transformer is what turns the payload into the generated class, dates and enums included */
-    const requestConfig = itemType ? `{ transformer: ${itemType} }` : 'undefined';
-
-    /**
-     * A page is queried through the paginated hook, whose transformer describes the item: the
-     * envelope stays a generic and its metadata passes through untouched.
-     */
+    /** A page is queried through the paginated hook, whose transformer describes the item */
     if (endpoint.returnsPage) {
-      return [
-        `export function use${name}(`,
-        ...[
-          ...args,
-          'pagination: PaginatedRequest',
-          `options?: Parameters<typeof usePaginatedClientQuery<${itemType ?? 'unknown'}>>[3]`
-        ].map((arg) => `  ${arg},`),
-        ') {',
-        `  return usePaginatedClientQuery<${itemType ?? 'unknown'}>(${key}, pagination, ${requestConfig}, options);`,
-        '}'
+      const item = itemType ?? 'unknown';
+      const trailing: TrailingParam[] = [
+        { name: 'pagination', type: 'PaginatedRequest' },
+        { isOptional: true, name: 'options', type: `Parameters<typeof usePaginatedClientQuery<${item}>>[3]` }
       ];
+      const body = `  return usePaginatedClientQuery<${item}>(${HooksScaffolder.toFunctionName(name)}QueryKey(${argNames}), pagination, ${itemType ? `{ transformer: ${itemType} }` : 'undefined'}, options);`;
+
+      return HooksScaffolder.assembleFunction(
+        endpoint,
+        functionName,
+        trailing,
+        `: ReturnType<typeof usePaginatedClientQuery<${item}>>`,
+        body
+      );
     }
 
     if (method === QUERY_METHOD) {
-      const argsCall = `${HooksScaffolder.toFunctionName(name)}QueryArgs(${params.map((param) => HooksScaffolder.toCamelCase(param)).join(', ')})`;
-
-      return [
-        `export function use${name}(`,
-        ...[ ...args, `options?: Parameters<typeof useClientQuery<${responseType}>>[2]` ].map((arg) => `  ${arg},`),
-        ') {',
-        `  return useClientQuery<${responseType}>(...${argsCall}, options);`,
-        '}'
+      const trailing: TrailingParam[] = [
+        { isOptional: true, name: 'options', type: `Parameters<typeof useClientQuery<${responseType}>>[2]` }
       ];
+      const body = `  return useClientQuery<${responseType}>(...${HooksScaffolder.toFunctionName(name)}QueryArgs(${argNames}), options);`;
+
+      return HooksScaffolder.assembleFunction(
+        endpoint,
+        functionName,
+        trailing,
+        `: ReturnType<typeof useClientQuery<${responseType}>>`,
+        body
+      );
     }
 
-    /** A mutation carries its payload as the mutate argument, so the body type is the first generic */
     const payloadType = requestType ?? 'void';
 
     /**
      * The payload has to be handed to the request explicitly: the hook builds the config from what
-     * this callback returns, and a callback that ignores its argument sends the request with no
-     * body at all — which the server answers as a validation error nobody can trace back to here.
+     * this callback returns, and a callback ignoring its argument sends the request with no body.
      */
     const mutationConfig = requestType
       ? `(data) => ({ data${itemType ? `, transformer: ${itemType}` : ''} })`
-      : (itemType ? `() => (${requestConfig})` : 'undefined');
+      : (itemType ? `() => ({ transformer: ${itemType} })` : 'undefined');
 
-    return [
-      `export function use${name}(`,
-      ...[ ...args, `options?: Parameters<typeof useClientMutation<${payloadType}, ${responseType}>>[3]` ]
-        .map((arg) => `  ${arg},`),
-      ') {',
+    const trailing: TrailingParam[] = [
+      { isOptional: true, name: 'options', type: `Parameters<typeof useClientMutation<${payloadType}, ${responseType}>>[3]` }
+    ];
+    const body = [
       `  return useClientMutation<${payloadType}, ${responseType}>(`,
-      `    ${key},`,
+      `    ${HooksScaffolder.toFunctionName(name)}QueryKey(${argNames}),`,
       `    '${method}',`,
       `    ${mutationConfig},`,
       '    options',
-      '  );',
+      '  );'
+    ].join('\n');
+
+    return HooksScaffolder.assembleFunction(
+      endpoint,
+      functionName,
+      trailing,
+      `: ReturnType<typeof useClientMutation<${payloadType}, ${responseType}>>`,
+      body
+    );
+  }
+
+
+  /**
+   * Assemble a function taking its parameters either way, with the body written once.
+   *
+   * Without route parameters there is nothing to overload and the plain declaration is emitted:
+   * two signatures for a function that takes only its options would be noise.
+   */
+  private static assembleFunction(
+    endpoint: EndpointDescriptor,
+    functionName: string,
+    trailing: TrailingParam[],
+    returns: string,
+    body: string
+  ): string[] {
+    if (!endpoint.params.length) {
+      return [
+        `export function ${functionName}(${HooksScaffolder.renderTrailing(trailing)})${returns} {`,
+        body,
+        '}'
+      ];
+    }
+
+    return [
+      ...HooksScaffolder.renderOverloadSignatures(endpoint, functionName, trailing, returns),
+      `export function ${functionName}(${HooksScaffolder.renderImplementationParams(endpoint, trailing)})${returns} {`,
+      ...HooksScaffolder.renderPropsNarrowing(endpoint, trailing),
+      body,
       '}'
     ];
   }
@@ -544,6 +604,128 @@ export class HooksScaffolder extends AbstractedScaffolder {
 
   private static toKebabCase(value: string): string {
     return value.trim().replace(/\s+/g, '-').replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+  }
+
+
+  /**
+   * The type naming the route parameters of an operation, shared by all three of its functions.
+   *
+   * It exists to be used: a component receiving the identifiers a query is built from declares
+   * them with this instead of restating `{ id: string }` and drifting from it later.
+   */
+  private static renderPropsType(endpoint: EndpointDescriptor): string[] {
+    const { name, params } = endpoint;
+
+    const members = params
+      .map((param) => `  ${HooksScaffolder.toCamelCase(param)}: string;`)
+      .join('\n');
+
+    return [
+      `export type ${name}Props = {`,
+      members,
+      '};'
+    ];
+  }
+
+
+  /** Declare the trailing parameters the way they appear in a signature */
+  private static renderTrailing(trailing: TrailingParam[]): string {
+    return trailing.map((param) => `${param.name}${param.isOptional ? '?' : ''}: ${param.type}`).join(', ');
+  }
+
+
+  /** The two ways an operation takes its parameters: one argument each, or the props object */
+  private static renderOverloadSignatures(
+    endpoint: EndpointDescriptor,
+    functionName: string,
+    trailing: TrailingParam[],
+    returns: string
+  ): string[] {
+    const { name, params } = endpoint;
+
+    const single = params.map((param) => `${HooksScaffolder.toCamelCase(param)}: string`).join(', ');
+    const declared = HooksScaffolder.renderTrailing(trailing);
+    const suffix = declared ? `${params.length ? ', ' : ''}${declared}` : '';
+
+    return [
+      `export function ${functionName}(${single}${suffix})${returns};`,
+      `export function ${functionName}(props: ${name}Props${suffix})${returns};`
+    ];
+  }
+
+
+  /**
+   * Whether the implementation has to collect its arguments as a rest parameter.
+   *
+   * With one route parameter the two shapes agree on every position and the arguments can be named.
+   * From the second one on they do not: `useX(id, estateId, options)` and `useX(props, options)` put
+   * `options` in different places, and no fixed parameter list is compatible with both.
+   */
+  private static usesRestArguments(endpoint: EndpointDescriptor, trailing: TrailingParam[]): boolean {
+    return endpoint.params.length > 1 && trailing.length > 0;
+  }
+
+
+  /** Narrow the two ways into the parameters themselves, which every body starts from */
+  private static renderPropsNarrowing(endpoint: EndpointDescriptor, trailing: TrailingParam[]): string[] {
+    const { name, params } = endpoint;
+
+    if (!params.length) {
+      return [];
+    }
+
+    const names = params.map((param) => HooksScaffolder.toCamelCase(param));
+    const first = names[0] as string;
+    const usesRest = HooksScaffolder.usesRestArguments(endpoint, trailing);
+
+    /** Read from the rest parameter, or from the argument standing in for it */
+    const source = (index: number): string => (usesRest ? `args[${index - 1}]` : `${names[index]}Arg`);
+
+    const narrowed = [
+      `  const { ${names.join(', ')} } = typeof ${first}OrProps === 'object'`,
+      `    ? ${first}OrProps`,
+      `    : { ${names.map((paramName, index) => `${paramName}: ${index ? source(index) : `${first}OrProps`}`).join(', ')} } as ${name}Props;`,
+      ''
+    ];
+
+    if (!usesRest) {
+      return narrowed;
+    }
+
+    /** The trailing arguments follow the parameters, so where they start depends on the shape used */
+    const tuple = trailing.map((param) => `${param.type}${param.isOptional ? ' | undefined' : ''}`).join(', ');
+
+    return [
+      ...narrowed,
+      `  const [ ${trailing.map((param) => param.name).join(', ')} ] = (typeof ${first}OrProps === 'object'`,
+      '    ? args',
+      `    : args.slice(${params.length - 1})) as [ ${tuple} ];`,
+      ''
+    ];
+  }
+
+
+  /** The parameter list of the implementation signature, which accepts both shapes */
+  private static renderImplementationParams(endpoint: EndpointDescriptor, trailing: TrailingParam[]): string {
+    const { name, params } = endpoint;
+    const declared = HooksScaffolder.renderTrailing(trailing);
+
+    if (!params.length) {
+      return declared;
+    }
+
+    const names = params.map((param) => HooksScaffolder.toCamelCase(param));
+    const first = names[0] as string;
+    const head = `${first}OrProps: string | ${name}Props`;
+
+    if (HooksScaffolder.usesRestArguments(endpoint, trailing)) {
+      return `${head}, ...args: unknown[]`;
+    }
+
+    /** Suffixed because the destructuring above binds the plain names in the same scope */
+    const rest = names.slice(1).map((paramName) => `${paramName}Arg?: string`);
+
+    return [ head, ...rest, declared ].filter(Boolean).join(', ');
   }
 
 
