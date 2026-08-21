@@ -78,7 +78,8 @@ export function base(options = {}) {
  *
  * Everything {@link base} carries, plus the React and React Hooks layers — including the compiler
  * era hook rules introduced by version 7 of the hooks plugin, which are stricter than most people
- * expect the first time they run them.
+ * expect the first time they run them — and the Tailwind layer, which fails an arbitrary value in a
+ * class.
  *
  * @param {object} [options] Preset options
  * @param {string[]} [options.files] File patterns to lint, defaults to every JavaScript and
@@ -111,6 +112,7 @@ export function react(options = {}) {
     commonLayers(resolved),
     configs.react(options.reactVersion ?? 'detect'),
     configs.reactOverrides,
-    configs.reactHooks
+    configs.reactHooks,
+    configs.tailwind
   );
 }

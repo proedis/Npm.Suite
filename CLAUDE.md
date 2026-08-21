@@ -325,7 +325,7 @@ are written and correct, only unformatted.
 ### The shared ESLint config lints this repository
 
 `eslint-config-proedis` is consumed by the root `eslint.config.mjs`, so any change to it is felt here
-first. Four things about it are load-bearing:
+first. Five things about it are load-bearing:
 
 **Layer order is the whole mechanism.** For any file, the last flat-config entry that matches wins.
 The presets therefore apply the upstream recommended sets, then the vendored Airbnb decisions, then
@@ -349,6 +349,17 @@ That last one is why `operator-linebreak` deliberately relaxes Airbnb's `'=': 'n
 a long generic type alias has nowhere to go but the next line, and the rule cannot tell an alias from
 an assignment. **A consequence to remember: an `eslint-disable` comment naming a core formatting rule
 stops suppressing anything.** ESLint reports those itself, as unused disable directives.
+
+**An arbitrary Tailwind value is an error, and that rule is the `proedis/tailwind` block.** A
+`no-restricted-syntax` selector over string literals and template elements, matching `-[…]` **not**
+followed by a colon — which is what separates a value (`size-[18px]`) from a variant
+(`data-[state=open]:`, `[&_svg]:`, `min-[600px]:`, `has-[input:focus]:`). Validated against both sets
+before being added, and it is in the **React preset only**, since a project without JSX has no class
+attribute for it to fire on. It re-enables a rule the shared layers switch off, so a consumer
+declaring its own `no-restricted-syntax` selectors replaces these rather than adding to them. The
+reason it exists as a rule rather than a convention is that the convention had already been stated
+and broken: `@proedis/ui-core` shipped `size-[18px]`, `text-[13px]` and `max-w-[96rem]`, each of them
+a length with no name, invisible to a theme.
 
 **Version 2 never actually applied Airbnb.** It extended `eslint-config-airbnb-typescript/base`,
 which carries only the TypeScript overrides and not the Airbnb rule sets, so the suite had never been

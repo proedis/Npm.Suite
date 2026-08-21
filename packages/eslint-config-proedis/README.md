@@ -23,6 +23,7 @@ sync.** 🧹
   TypeScript and JSX syntax instead of guessing at it
 - **Composable by construction** — the presets return plain flat config arrays, plus the individual
   blocks and the plugin instances, so nothing is a closed box 🔓
+- **One Tailwind decision**, in the React preset: an arbitrary value in a class is an error 🚫
 
 Flat config only, ESLint 9. No type aware linting: it needs a tsconfig per lint run and turns a two
 second lint into a full typecheck, which your build already does, and does better.
@@ -124,6 +125,9 @@ export default proedis.defineConfig(
 );
 ```
 
+The React preset adds `proedis.configs.react(version)`, `reactOverrides`, `reactHooks` and
+`tailwind` after those, in that order.
+
 There is also `proedis.configs.commonjs(patterns)`, for the paths you know are CommonJS — a linter
 reading one file at a time cannot tell, since a `.js` file's module system comes from the nearest
 `package.json`:
@@ -149,7 +153,7 @@ The parts you will actually notice, all of them enforced:
 | `console` | `console.error` only |
 | Underscore prefix | allowed everywhere — it *is* the marker for anything private |
 
-## 🧠 Three decisions worth knowing about
+## 🧠 Four decisions worth knowing about
 
 **Formatting comes from `@stylistic`, not from ESLint core.** Core deprecated every formatting rule
 in 9 and removed them in 10, and `@typescript-eslint` dropped its own copies in v8. The `@stylistic`
@@ -166,6 +170,22 @@ here under `lib/airbnb`, regenerated with `yarn rules:sync`, with the formatting
 **Some rules the compiler already enforces are switched off** — deliberately, and *after* the Airbnb
 layer, because whichever entry comes last wins. `typescript-eslint` publishes exactly this list, and
 leaving it on means every DOM type used in a type position is reported as an undefined variable.
+
+**An arbitrary value in a Tailwind class is an error.** `size-[18px]`, `text-[13px]`,
+`max-w-[96rem]` are lengths invented at the call site: they have no name, so no theme can reach them
+and no consumer can retune them, and an interface stops being made of tokens one class at a time
+with nothing reporting it. The escalation is a token, a step of an existing scale, a **new declared
+token**, and only then an arbitrary value.
+
+Arbitrary **variants** are a different construct and stay allowed — `[&_svg]:size-4`,
+`data-[state=open]:bg-muted`, `has-[input:focus]:ring`, `min-[600px]:flex`,
+`supports-[display:grid]:grid` are selectors, not invented design values. What separates the two is
+the colon: a variant is followed by one, a value is not, which is the whole rule. It reads string
+literals and template elements, so a class assembled in a `cn()` call or a variant map is checked as
+well as one written in `className`, and it lives in the React preset only — a project with no JSX has
+no class attribute for it to fire on. ⚠️ It re-enables `no-restricted-syntax`, which the shared
+layers turn off: a project that sets its own selectors after the preset replaces these rather than
+adding to them.
 
 ## 🔀 Migrating from 2.x
 

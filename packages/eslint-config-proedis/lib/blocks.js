@@ -548,3 +548,46 @@ export const reactHooks = {
     ]
   }
 };
+
+
+/**
+ * The Tailwind layer, and it carries exactly one decision: an arbitrary value in a class is a
+ * defect, not a shortcut.
+ *
+ * `size-[18px]`, `text-[13px]`, `max-w-[96rem]` are lengths invented at the call site. They have no
+ * name, so no theme can reach them, no consumer can retune them and nothing tells you the interface
+ * has stopped being made of tokens — it degrades silently, one class at a time. The escalation is
+ * always the same: an existing token, a step of an existing scale, a **new declared token** in the
+ * design system, and only once all three are established as impossible, an arbitrary value.
+ *
+ * Arbitrary **variants** are a different construct and stay allowed: `[&_svg]:size-4`,
+ * `data-[state=open]:bg-muted`, `has-[input:focus]:ring`, `min-[600px]:flex` are selectors, not
+ * invented design values. That is what the negative lookahead separates — a variant is followed by
+ * `:`, a value is not. Measured against both sets rather than assumed.
+ *
+ * Not part of {@link base}: a project with no JSX has no class attribute for this to fire on.
+ */
+
+/** The offending shape: `-[…]` NOT followed by a colon, i.e. a value rather than a variant */
+const ARBITRARY_VALUE = '-\\[[^\\]]*\\](?![:\\]])';
+
+const ARBITRARY_VALUE_MESSAGE = 'Arbitrary value in a Tailwind class. Use a token, a step of an '
+  + 'existing scale, or declare a new token in the design system. An arbitrary value is the last '
+  + 'resort, and only once the other three are established as impossible.';
+
+export const tailwind = {
+  name : 'proedis/tailwind',
+  rules: {
+    'no-restricted-syntax': [
+      'error',
+      {
+        message : ARBITRARY_VALUE_MESSAGE,
+        selector: `Literal[value=/${ARBITRARY_VALUE}/]`
+      },
+      {
+        message : ARBITRARY_VALUE_MESSAGE,
+        selector: `TemplateElement[value.raw=/${ARBITRARY_VALUE}/]`
+      }
+    ]
+  }
+};
