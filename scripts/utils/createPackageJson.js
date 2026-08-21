@@ -199,15 +199,55 @@ module.exports = function createPackageJson(packagePath, buildPath) {
    * moduleResolution predates 'exports' resolves the runtime file through its bundler anyway,
    * but would find no declaration for '<name>/<subpath>' without it.
    */
+  /**
+   * Stylesheets the package publishes, declared through 'proedisMetadata.styles' as file names
+   * copied into each output directory by the 'assets' step.
+   *
+   * They need their own entries because the 'exports' map is a gate, not a hint: a consumer's
+   * '@import "@proedis/ui-core/ui-core.css"' resolves through it, and a path that is not listed is
+   * refused even though the file is right there in the tarball. There is no import/require
+   * distinction for CSS, so one target is enough — the ESM directory when it exists, since a
+   * bundler is what resolves this in practice.
+   */
+  const styleEntries = proedisMetadata.styles ?? [];
+  const styleDirectory = hasEsm ? 'esm' : 'cjs';
+
+  /**
+   * The root entry point, with the stylesheet reachable from the **package name alone**.
+   *
+   * `@import '@proedis/ui-core'` and `import { Stack } from '@proedis/ui-core'` are the same
+   * specifier resolved under different conditions: a CSS resolver asks for 'style' and never for
+   * 'import', a bundler asks the opposite. Declaring both on '.' is what lets one name serve both,
+   * and it is how 'tailwindcss' itself ships its own `index.css`.
+   *
+   * Order matters, because the first matching condition wins: 'types' stays ahead of everything, and
+   * 'style' ahead of the runtime entries.
+   */
+  const buildRootExportConditions = () => {
+    const conditions = buildExportConditions('index');
+
+    if (!styleEntries.length) {
+      return conditions;
+    }
+
+    const { types, ...runtime } = conditions;
+
+    return { types, style: `./${styleDirectory}/${styleEntries[0]}`, ...runtime };
+  };
+
   const mainReference = !proedisMetadata.noMain
     ? {
       main   : hasCjs ? './cjs/index.js' : './esm/index.js',
       ...(hasEsm ? { module: './esm/index.js' } : {}),
       types  : './types/index.d.ts',
+      ...(styleEntries.length ? { style: `./${styleDirectory}/${styleEntries[0]}` } : {}),
       exports: {
-        '.': buildExportConditions('index'),
+        '.': buildRootExportConditions(),
         ...Object.fromEntries(subpathEntries.map((subpath) => (
           [ `./${subpath}`, buildExportConditions(`${subpath}/index`) ]
+        ))),
+        ...Object.fromEntries(styleEntries.map((style) => (
+          [ `./${style}`, `./${styleDirectory}/${style}` ]
         ))),
         './package.json': './package.json'
       },
