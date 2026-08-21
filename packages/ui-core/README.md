@@ -177,8 +177,9 @@ for them. Overriding is one declaration **after** the import:
 @import '@proedis/ui-core';
 
 :root {
+  --background: oklch(0.99 0.005 264);
   --border: oklch(0.9 0.02 264);
-  --radius: 1rem;              /* moves the whole radius scale */
+  --radius-scale: 1.6;         /* moves the whole radius scale, every step at once */
 }
 
 .dark {
@@ -186,21 +187,39 @@ for them. Overriding is one declaration **after** the import:
 }
 ```
 
+Three colour families and one line colour:
+
 | Token | Read by |
 | --- | --- |
-| `--border` | `Divider`, and the rules `Stack divided` draws |
-| `--input` | the recessed surface behind a `LabeledContent` icon |
+| `--background` | nothing here — the canvas is yours to paint. See below |
 | `--foreground` | the ink of a value |
+| `--muted` | the recessed surface behind a `LabeledContent` icon |
 | `--muted-foreground` | a quiet label, a divider caption, the scrollbar thumb |
-| `--radius` | the whole `--radius-*` scale, derived from this one value |
+| `--border` | `Divider`, and the rules `Stack divided` draws |
+| `--radius-scale` | a unitless multiplier over the whole `--radius-*` scale |
 
-Five tokens, and every one of them is used by a component that ships here — nothing is declared just
-in case. The defaults reference Tailwind's **own** palette (`var(--color-zinc-200)`) rather than
-hardcoding `oklch(...)`, so the shade names stay readable and a themed palette is followed for free.
+`--background` is the one entry with no component behind it, and that is deliberate: `--foreground`
+means nothing without naming what it sits on, so the pair is a **contract** rather than a token a
+component reads. Declaring half of it would be the actual defect. Everything else on the list is
+read by something that ships here — nothing is declared just in case.
 
-⚠️ Two things this stylesheet does beyond declaring tokens, both deliberate and both worth knowing:
-it sets `@custom-variant dark (&:is(.dark *))`, and it **replaces** Tailwind's `--radius-*` scale
-with one derived from `--radius`. Redeclare either after the import to opt out.
+The defaults reference Tailwind's **own** palette (`var(--color-zinc-100)`) rather than hardcoding
+`oklch(...)`, so the shade names stay readable and a themed palette is followed for free.
+
+⚠️ Two things this stylesheet does beyond declaring tokens, both deliberate and both worth knowing.
+It sets `@custom-variant dark (&:is(.dark *))`. And it re-emits Tailwind's whole `--radius-*` scale
+through `--radius-scale` — every step, `xs` included — so that one declaration moves the corner
+language of the interface. At the default `1` each step is **exactly** the value Tailwind
+documents: `rounded-md` is `0.375rem`. Redeclare either to opt out.
+
+One exception to the knob, and it is Tailwind's, not ours: the bare `rounded` is a legacy alias
+emitting a hardcoded `0.25rem` and does **not** follow `--radius-scale`. Write `rounded-sm` — same
+value, and it does follow. Everything built from a named step, directional variants included
+(`rounded-t-md`), behaves.
+
+The scale is deliberately *not* anchored the way shadcn/ui anchors it (`lg` = a `--radius` length,
+the rest derived with `± 2px`): that shifts every name one step off the documented value, so its
+`md` is Tailwind's `lg`. A scale whose names lie is a defect nobody finds without opening the docs.
 
 ## 🤝 Compatibility
 

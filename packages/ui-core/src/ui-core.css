@@ -18,7 +18,7 @@
  *
  *   :root {
  *     --border: oklch(0.9 0.02 264);
- *     --radius: 1rem;                 // moves the whole radius scale
+ *     --radius-scale: 1.6;            // moves the whole radius scale, every step at once
  *   }
  */
 
@@ -68,32 +68,55 @@
  * Without it, the utility would emit `var(--color-border)` and redeclaring `--border` would change
  * nothing at all.
  *
- * Five tokens, and they are the only thing this package asks of a theme. Every one of them is used
- * by a component that ships here — nothing is declared "just in case".
+ * Three colour families and one line colour, and they are the only thing this package asks of a
+ * theme: `background` / `foreground` for the canvas and its ink, `muted` / `muted-foreground` for
+ * the quiet register, `border` for a rule. Every consumer redeclares all of them.
+ *
+ * ⚠️ `--background` is the one token here with no component reading it, and it is deliberate: the
+ * canvas is the consumer's to paint, but `--foreground` is meaningless without naming what it sits
+ * on. The pair is a contract, not a component's token — declaring half of it would be the real
+ * defect. Everything else on this list is read by something that ships here.
  */
 @theme inline {
-  /* Divider, and the rules Stack draws between its children */
-  --color-border: var(--border);
-  /* The recessed surface behind a LabeledContent icon */
-  --color-input: var(--input);
+  /* The canvas. Nothing here paints it — see the note above */
+  --color-background: var(--background);
   /* The ink of a value */
   --color-foreground: var(--foreground);
+  /* The recessed surface behind a LabeledContent icon */
+  --color-muted: var(--muted);
   /* A quiet label, a divider caption, the scrollbar thumb */
   --color-muted-foreground: var(--muted-foreground);
+  /* Divider, and the rules Stack draws between its children */
+  --color-border: var(--border);
 
   /*
-   * ⚠️ The one place this package REPLACES a Tailwind default scale rather than adding to it: after
-   * the import, `rounded-lg` follows `--radius` instead of Tailwind's own value. That is the point —
-   * one knob moves the corner language of the whole interface — but it is a real footprint, so it is
-   * stated here rather than discovered. Redeclare the individual steps to opt out.
+   * The radius scale, re-emitted through a multiplier.
+   *
+   * ⚠️ Every step is DECLARED here, `xs` included, and at `--radius-scale: 1` each one is byte for
+   * byte Tailwind's own value — `rounded-md` is 0.375rem, exactly as the Tailwind documentation says.
+   * That is the whole point of this shape: the names keep meaning what a reader expects, while
+   * `--radius-scale` still moves the corner language of the entire interface with one declaration.
+   *
+   * The alternative — anchoring `lg` to a `--radius` length, which is what shadcn/ui does — was
+   * rejected on purpose: it shifts every name one step off the documented value (its `md` is
+   * Tailwind's `lg`), and a scale whose names lie is a defect nobody finds without opening the docs.
+   *
+   * The trade-off it costs: these eight numbers are a hardcoded copy of Tailwind 4's scale, so an
+   * upstream change to it has to be mirrored here by hand. Re-check them when bumping Tailwind.
+   *
+   * ⚠️ The bare `rounded` is a Tailwind legacy alias emitting a hardcoded `0.25rem`, not a step of
+   * this scale: it does NOT follow `--radius-scale`. `rounded-sm` is the same value and does. The
+   * directional variants (`rounded-t-md`, `rounded-l-2xl`) follow it correctly, as does everything
+   * else built from a named step; `rounded-none` and `rounded-full` are outside the scale by nature.
    */
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-xs: calc(0.125rem * var(--radius-scale));
+  --radius-sm: calc(0.25rem * var(--radius-scale));
+  --radius-md: calc(0.375rem * var(--radius-scale));
+  --radius-lg: calc(0.5rem * var(--radius-scale));
+  --radius-xl: calc(0.75rem * var(--radius-scale));
+  --radius-2xl: calc(1rem * var(--radius-scale));
+  --radius-3xl: calc(1.5rem * var(--radius-scale));
+  --radius-4xl: calc(2rem * var(--radius-scale));
 }
 
 /* ============================================================
@@ -109,19 +132,22 @@
  * one less set of magic numbers to keep in sync.
  */
 :root {
-  --border: var(--color-zinc-200);
-  --input: var(--color-zinc-200);
+  --background: var(--color-white);
   --foreground: var(--color-zinc-900);
+  --muted: var(--color-zinc-100);
   --muted-foreground: var(--color-zinc-500);
-  --radius: 0.625rem;
+  --border: var(--color-zinc-200);
+  /* Unitless: it multiplies the radius scale, and 1 leaves it exactly as Tailwind ships it */
+  --radius-scale: 1;
 }
 
 .dark {
-  /* A hairline of light over a dark canvas reads better than a grey that turns muddy */
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
+  --background: var(--color-zinc-950);
   --foreground: var(--color-zinc-50);
+  /* A veil of light over a dark canvas reads better than a grey, which turns muddy */
+  --muted: oklch(1 0 0 / 8%);
   --muted-foreground: var(--color-zinc-400);
+  --border: oklch(1 0 0 / 10%);
 }
 
 /* ============================================================

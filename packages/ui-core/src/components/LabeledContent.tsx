@@ -29,7 +29,7 @@ export interface LabeledContentProps extends Omit<React.ComponentProps<'div'>, '
 const LabeledIcon: React.FunctionComponent<{ icon: React.ReactNode }> = ({ icon }) => (
   <span
     className={cn(
-      'flex size-9 shrink-0 items-center justify-center rounded-xl bg-input/50 text-muted-foreground',
+      'flex size-9 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground',
       '[&_svg:not([class*=size-])]:size-[18px]'
     )}
   >
@@ -64,7 +64,7 @@ LabeledHeading.displayName = 'LabeledHeading';
 /**
  * A value with a label: the read-only counterpart of a form field.
  *
- * Reads `--input`, `--muted-foreground`, `--foreground` and the radius scale.
+ * Reads `--muted`, `--muted-foreground`, `--foreground` and the radius scale.
  */
 export function LabeledContent(props: LabeledContentProps): React.ReactNode {
 

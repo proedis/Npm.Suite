@@ -72,8 +72,26 @@ from `.` must stay renderable from a React Server Component.
   belt-and-braces.
 - **`min-h-0 min-w-0` on `ScrollArea` is load-bearing.** A flex child refuses to shrink below its
   content, so without it the scroll never engages and the parent grows instead.
-- **Every token declared is used.** Five, and each one is read by a component that ships here. A
-  token declared "for later" is a promise the package has no way to keep.
+- **Every token declared is used, with one stated exception.** Three colour families
+  (`background`/`foreground`, `muted`/`muted-foreground`) plus `border`, and every one of them is
+  read by a component that ships here **except `--background`**: nothing in this package paints a
+  canvas. It stays because `--foreground` is meaningless without naming what it sits on — the pair is
+  a contract, and declaring half of it is the real defect. That is the whole exception; a token
+  declared "for later" on any other grounds is a promise the package has no way to keep.
+- **`--input` is gone, and must not come back as a surface.** It had exactly one reader, the icon box
+  of `LabeledContent` (`bg-input/50`), which now reads `bg-muted`. The name was wrong: in the
+  convention it comes from, `--input` is the *border* colour of a form control, not a fill, so a
+  package with no form controls in it had no business declaring one. A recessed surface is `--muted`.
+- **The radius scale is a multiplier, not an anchor.** All eight steps are declared, `xs` included,
+  as `calc(<Tailwind's own value> * var(--radius-scale))`. At the default `1` every step equals what
+  the Tailwind docs state, so `rounded-md` is `0.375rem` — while one declaration still moves the
+  whole corner language. The shadcn/ui shape (`lg` anchored to a `--radius` length, the rest
+  `± 2px`) was tried first and removed: it shifts every name one step off the documented value, its
+  `md` being Tailwind's `lg`, and it left `xs` undeclared in the middle of a rebased scale. **Do not
+  reintroduce it.** The cost accepted in exchange is eight hardcoded copies of Tailwind's numbers:
+  re-check them against upstream when bumping Tailwind. This is the one place where the scale is a
+  contract for consumers rather than a token a component reads — only `xl` is used here, by
+  `LabeledContent`.
 - **The defaults reference Tailwind's palette**, not `oklch(...)` literals: the shade names stay
   self-documenting and a themed palette is followed for free. Verified that the referenced
   `--color-*` variables are not pruned.
