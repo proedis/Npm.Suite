@@ -184,7 +184,8 @@ Expects an OpenAPI document and writes, under `src/`:
 | Path | Holds |
 | --- | --- |
 | `models/scaffold/<namespace>/` | one `class-transformer` model per DTO, foldered by `x-element-namespace` |
-| `models/scaffold/index.ts` | the barrel |
+| `models/scaffold/index.ts` | the barrel, which installs the virtuals when there are any |
+| `models/virtuals/index.ts` | the barrel of your computed properties, when you have written any |
 | `namespaces/index.ts` | `Path`, `PathMethods`, `PathRouteParams`, `PathQueryParams` |
 
 OpenAPI types map like this:
@@ -204,6 +205,71 @@ does not compile:
 ```
 Cannot map property 'Job.payload': no property type handles {"type":"file","nullable":false}
 ```
+
+#### 🪄 Virtuals: what a generated model cannot say about itself
+
+A generated model describes the payload, and nothing else. A display name, a derived flag, a total are
+none of the API's business, and putting them in a type that *extends* the model does not work: the
+hooks answer with the generated one, and so does every relation nested inside it.
+
+`defineVirtuals`, from `@proedis/modeler`, declares them **on** the model instead. This command does
+not write those files: it finds them and wires them up. Create one yourself, named after the model it
+belongs to, under `models/virtuals/`:
+
+```ts
+// src/models/virtuals/AccountCompleteDto.ts
+import { defineVirtuals } from '@proedis/modeler';
+
+import { AccountCompleteDto } from '../scaffold/responses/accounts/AccountCompleteDto';
+
+
+declare module '../scaffold/responses/accounts/AccountCompleteDto' {
+  interface AccountCompleteDto {
+    readonly displayName: string;
+  }
+}
+
+defineVirtuals(AccountCompleteDto, {
+  displayName() {
+    return [ this.lastName, this.firstName ].filter(Boolean).join(' ');
+  }
+});
+```
+
+From there `displayName` is a property of `AccountCompleteDto`: every hook answering with one has it,
+every relation carrying one has it, and it is absent from `toObject` and from anything sent back.
+`@proedis/modeler` documents the mechanism; three things are this command's business.
+
+**Where the file goes, and what it is called.** `models/virtuals/`, beside the generated folder rather
+than inside it, because `models/scaffold/` is emptied on every run. One file per model, named exactly
+after it: that convention is what the next two points rely on.
+
+**Run `scaffold models` again after adding the first one.** It then writes `models/virtuals/index.ts`,
+importing every file there, and has the barrel of the models import *that*, first thing:
+
+```ts
+import '../virtuals';
+```
+
+Installing a virtual is a side effect, so something has to import it, and this is the file everything
+else goes through. Left to whoever needs a computed property, the type would promise it in files where
+nobody had imported anything, and every instance would answer `undefined`. A project with no virtuals
+gets none of this: no folder, no import, no trace. ⚠️ If you move the models into a package declaring
+`"sideEffects": false`, exclude that path or a production bundle may drop the import.
+
+**A run refuses to generate a model that would shadow one of its own virtuals.** The day the API
+starts sending a field of that name, the payload wins at runtime and the getter is never reached.
+Nothing else would have said so:
+
+```
+The document now describes a property declared as a virtual: RegistryMinimalDto.displayName.
+The payload would shadow the getter, so the virtual would never be reached: remove it from
+the virtuals file, and read the value the server sends.
+```
+
+Declare virtuals `readonly`. It is what makes that same collision a compile error too, and not only a
+caught one on the next scaffold: the writable field the payload brings cannot merge with a `readonly`
+declaration.
 
 ### 🪝 `scaffold hooks`
 
@@ -330,7 +396,8 @@ server stops returning has to disappear here too.
 
 Two files are the exception — `shared-objects.colors.ts` and `shared-objects.icons.ts` — plus
 `modeler.configuration.ts`. They are yours, they are reported as `kept`, and they are never
-overwritten. ⚠️ Which also means **an existing project will not pick up an upstream change to those
+overwritten. The virtuals under `models/virtuals/` are never touched either: they are read, and only
+their barrel is generated. ⚠️ Which also means **an existing project will not pick up an upstream change to those
 templates**: delete them to have them regenerated.
 
 ### 🧹 Formatting

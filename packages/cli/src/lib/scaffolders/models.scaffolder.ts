@@ -1,4 +1,5 @@
-import { relative, resolve, sep as pathSeparator } from 'node:path';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { basename, relative, resolve, sep as pathSeparator } from 'node:path';
 
 import { AbstractedScaffolder } from './lib';
 
@@ -50,8 +51,18 @@ export class ModelsScaffolder extends AbstractedScaffolder {
     /** Get the root folder to use to write/update models */
     const root = this.outputDirectory;
 
-    /** Render every model and the namespaces, adding them to the plan */
-    this.plan.add(...this.generateModels(root, openApiDocument));
+    /** Render every model, its barrel and the virtuals, adding them to the plan */
+    const modelsPath = resolve(root, 'models', 'scaffold');
+    const models = this.generateModels(modelsPath, openApiDocument);
+
+    /** Planned first: whether anything installs virtuals is what the barrel needs to know */
+    const virtuals = this.generateVirtuals(root, models);
+
+    this.plan.add(
+      ...models,
+      this.generateBarrel(modelsPath, models, virtuals.length > 0),
+      ...virtuals
+    );
 
     const namespaces = this.generateNamespaces(root, openApiDocument);
 
@@ -87,9 +98,7 @@ export class ModelsScaffolder extends AbstractedScaffolder {
   }
 
 
-  private generateModels(root: string, openApiDocument: OpenApiDocument): PlannedFile[] {
-    const modelsPath = resolve(root, 'models', 'scaffold');
-
+  private generateModels(modelsPath: string, openApiDocument: OpenApiDocument): PlannedFile[] {
     /** Declare the entire models folder as rebuilt from scratch */
     this.wipeDirectories([ modelsPath ]);
 
@@ -99,9 +108,8 @@ export class ModelsScaffolder extends AbstractedScaffolder {
       modelsPath,
       ModelsScaffolder.collectReferencedTypes(openApiDocument)
     );
-    const models = modelsRepository.build();
 
-    return [ ...models, this.generateBarrel(modelsPath, models) ];
+    return modelsRepository.build();
   }
 
 
@@ -214,15 +222,22 @@ export class ModelsScaffolder extends AbstractedScaffolder {
    *
    * @param folder The directory the models belong in
    * @param models The rendered models
+   * @param hasVirtuals Whether anything installs computed properties on them
    */
-  private generateBarrel(folder: string, models: PlannedFile[]): PlannedFile {
+  private generateBarrel(folder: string, models: PlannedFile[], hasVirtuals: boolean): PlannedFile {
     const files = models
       .map((model) => `./${relative(folder, model.path).split(pathSeparator).join('/')}`)
       .sort((a, b) => a.localeCompare(b));
 
     const content: string[] = [
       TemplateCompiler.getDisclaimer(),
-      ''
+      '',
+      /**
+       * Installing the virtuals is a side effect, so it has to be imported to happen. It is imported
+       * here, and first, because this is the file everything else goes through: left to whoever needs
+       * a computed property, the type would promise it in places where no one had.
+       */
+      ...(hasVirtuals ? [ 'import \'../virtuals\';', '' ] : [])
     ];
 
     files.map((file) => file.replace(/\.ts/i, '')).forEach((file) => {
@@ -236,6 +251,202 @@ export class ModelsScaffolder extends AbstractedScaffolder {
       content   : content.join('\n'),
       noOverride: false,
       path      : resolve(folder, 'index.ts')
+    };
+  }
+
+
+  /**
+   * Plan the barrel installing the virtuals, when there are any.
+   *
+   * A virtual is a property computed on this side that belongs to the model itself, declared by
+   * merging an interface into it. Those files are written by hand and this command does not create
+   * them: it finds them, and wires them up. They live beside the generated folder rather than inside
+   * it, because that one is emptied on every run.
+   *
+   * Nothing is planned when the directory holds none, so a project not using virtuals carries no
+   * trace of them. Adding the first file, and running again, is what brings the barrel and its
+   * import into being.
+   *
+   * @param root The output root the models are written under
+   * @param models The rendered models, which say what each class now carries
+   */
+  private generateVirtuals(root: string, models: PlannedFile[]): PlannedFile[] {
+    const virtualsPath = resolve(root, 'models', 'virtuals');
+
+    /** One file per model, named after it: what makes both the barrel and the check possible */
+    const names = ModelsScaffolder.readVirtualModels(virtualsPath);
+
+    if (!names.length) {
+      return [];
+    }
+
+    /** A virtual whose name the payload now carries would never be reached: stop before writing */
+    ModelsScaffolder.assertNoShadowedVirtuals(virtualsPath, names, models);
+
+    return [ ModelsScaffolder.renderVirtualsBarrel(virtualsPath, names) ];
+  }
+
+
+  /**
+   * Read which models already have a virtuals file, from the directory itself.
+   *
+   * Unlike the models barrel this one cannot be derived from what was rendered: these files are the
+   * developer's, and the run that writes the barrel is not the run that created them.
+   *
+   * @param virtualsPath The virtuals directory
+   */
+  private static readVirtualModels(virtualsPath: string): string[] {
+    if (!existsSync(virtualsPath)) {
+      return [];
+    }
+
+    return readdirSync(virtualsPath)
+      .filter((file) => file.endsWith('.ts') && file !== 'index.ts')
+      .map((file) => basename(file, '.ts'))
+      .sort((left, right) => left.localeCompare(right));
+  }
+
+
+  /**
+   * Refuse to generate a model that would shadow one of its own virtuals.
+   *
+   * The payload wins that collision at runtime, and silently: the value from the server becomes an
+   * own property of the instance, which is found before the getter on the prototype. Declaring
+   * virtuals `readonly` makes the compiler catch it too, but only the compiler of whoever builds
+   * next, and only if the declaration says `readonly` in the first place.
+   *
+   * @param virtualsPath The virtuals directory
+   * @param existing The models having a virtuals file
+   * @param models The rendered models
+   */
+  private static assertNoShadowedVirtuals(virtualsPath: string, existing: string[], models: PlannedFile[]): void {
+    const shadowed = existing.flatMap((name) => {
+      const model = models.find((planned) => basename(planned.path, '.ts') === name);
+
+      /** A virtuals file of a model the document no longer describes is not this check's problem */
+      if (!model) {
+        return [];
+      }
+
+      const declared = ModelsScaffolder.readDeclaredVirtuals(readFileSync(resolve(virtualsPath, `${name}.ts`), 'utf-8'));
+      const generated = ModelsScaffolder.readModelMembers(model.content);
+
+      return [ ...declared ]
+        .filter((member) => generated.has(member))
+        .map((member) => `${name}.${member}`);
+    });
+
+    if (shadowed.length) {
+      throw new Error(
+        `The document now describes ${shadowed.length === 1 ? 'a property' : 'properties'} declared as `
+        + `${shadowed.length === 1 ? 'a virtual' : 'virtuals'}: ${shadowed.join(', ')}. `
+        + 'The payload would shadow the getter, so the virtual would never be reached: remove it from '
+        + 'the virtuals file, and read the value the server sends.'
+      );
+    }
+  }
+
+
+  /**
+   * Read the property names a virtuals file declares, ignoring what is commented out.
+   *
+   * @param content The content of the virtuals file
+   */
+  private static readDeclaredVirtuals(content: string): Set<string> {
+    /** Comments carry the template of the stub, which declares exactly what this looks for */
+    const code = content
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/\/\/.*$/gm, '');
+
+    const declared = new Set<string>();
+
+    for (const body of ModelsScaffolder.readInterfaceBodies(code)) {
+      for (const match of body.matchAll(/(?:^|;|\n)\s*(?:readonly\s+)?([A-Za-z_$][\w$]*)\s*[?!]?\s*:/g)) {
+        declared.add(match[1] as string);
+      }
+
+      for (const match of body.matchAll(/\bget\s+([A-Za-z_$][\w$]*)\s*\(/g)) {
+        declared.add(match[1] as string);
+      }
+    }
+
+    return declared;
+  }
+
+
+  /**
+   * Take the body of every interface in the source, matching braces rather than stopping at the
+   * first one: a member typed with an object literal closes a brace that is not the interface's.
+   *
+   * @param code The source to read
+   */
+  private static readInterfaceBodies(code: string): string[] {
+    const bodies: string[] = [];
+
+    for (const match of code.matchAll(/\binterface\s+[A-Za-z_$][\w$]*[^{]*\{/g)) {
+      let depth = 1;
+      let index = (match.index as number) + match[0].length;
+
+      const start = index;
+
+      while (index < code.length && depth > 0) {
+        if (code[index] === '{') {
+          depth += 1;
+        }
+        else if (code[index] === '}') {
+          depth -= 1;
+        }
+
+        index += 1;
+      }
+
+      bodies.push(code.slice(start, index - 1));
+    }
+
+    return bodies;
+  }
+
+
+  /**
+   * Read the property names a rendered model declares.
+   *
+   * @param content The rendered model
+   */
+  private static readModelMembers(content: string): Set<string> {
+    const members = new Set<string>();
+
+    for (const match of content.matchAll(/^\s*public\s+([A-Za-z_$][\w$]*)\s*[?!]?\s*[:=]/gm)) {
+      members.add(match[1] as string);
+    }
+
+    return members;
+  }
+
+
+  /**
+   * Render the barrel importing every virtuals file for its side effect.
+   *
+   * @param virtualsPath The virtuals directory
+   * @param names The models having a virtuals file
+   */
+  private static renderVirtualsBarrel(virtualsPath: string, names: string[]): PlannedFile {
+    /** Imported for the side effect of installing them, so there is nothing to export */
+    const imports = names
+      .slice()
+      .sort((left, right) => left.localeCompare(right))
+      .map((name) => `import './${name}';`);
+
+    const content = [
+      TemplateCompiler.getDisclaimer(),
+      '',
+      ...imports,
+      ''
+    ];
+
+    return {
+      content   : content.join('\n'),
+      noOverride: false,
+      path      : resolve(virtualsPath, 'index.ts')
     };
   }
 
