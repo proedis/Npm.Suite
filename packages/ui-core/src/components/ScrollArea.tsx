@@ -1,6 +1,11 @@
 import * as React from 'react';
 
+import { splitBaseProps } from '../lib/base';
 import { cn } from '../lib/cn';
+
+import type { PolymorphicProps } from '../lib/polymorphic';
+
+import type { BaseProps } from '../lib/base';
 
 
 /* --------
@@ -9,15 +14,16 @@ import { cn } from '../lib/cn';
 export type ScrollOrientation = 'vertical' | 'horizontal' | 'both';
 
 
-export interface ScrollAreaProps extends React.ComponentProps<'div'> {
+export interface StrictScrollAreaProps extends BaseProps {
   /** Cap the viewport, which is what gives the content something to scroll inside */
   maxHeight?: number | string;
 
   orientation?: ScrollOrientation;
 
-  /** Render as something else than a `div` */
-  as?: React.ElementType;
 }
+
+
+export type ScrollAreaProps<E extends React.ElementType = 'div'> = PolymorphicProps<E, StrictScrollAreaProps>;
 
 
 /* --------
@@ -44,7 +50,7 @@ const OVERFLOW: Record<ScrollOrientation, string> = {
  * `min-h-0 min-w-0` is not decoration — a flex child refuses to shrink below its content by default,
  * so without it the scroll never engages and the parent grows instead.
  */
-export function ScrollArea(props: ScrollAreaProps): React.ReactNode {
+export function ScrollArea<E extends React.ElementType = 'div'>(props: ScrollAreaProps<E>): React.ReactNode {
 
   // ----
   // Props Deconstruct
@@ -55,8 +61,10 @@ export function ScrollArea(props: ScrollAreaProps): React.ReactNode {
     maxHeight,
     orientation = 'vertical',
     style,
-    ...rest
-  } = props;
+    ...others
+  } = props as ScrollAreaProps<'div'>;
+
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -65,7 +73,7 @@ export function ScrollArea(props: ScrollAreaProps): React.ReactNode {
   return (
     <Component
       data-slot={'scroll-area'}
-      className={cn('scrollbar-thin min-h-0 min-w-0', OVERFLOW[orientation], className)}
+      className={cn('scrollbar-thin min-h-0 min-w-0', OVERFLOW[orientation], baseClasses, className)}
       style={{ ...(maxHeight === undefined ? {} : { maxHeight }), ...style }}
       {...rest}
     />

@@ -1,0 +1,7 @@
+{
+  "extends": "@proedis/tsconfig/react",
+  "include": [
+    "src",
+    "types.check.tsx"
+  ]
+}

@@ -1,22 +1,28 @@
 import * as React from 'react';
 
+import { splitBaseProps } from '../lib/base';
 import { cn } from '../lib/cn';
-import { columnsClasses, directionClasses, divideClasses, gapClasses } from '../lib/responsive';
+import {
+  alignClasses,
+  columnsClasses,
+  directionClasses,
+  divideClasses,
+  gapClasses,
+  justifyClasses
+} from '../lib/responsive';
 
-import type { ColumnsValue, Direction, Responsive, SpacingValue } from '../lib/responsive';
+import type { BaseProps } from '../lib/base';
+
+import type { PolymorphicProps } from '../lib/polymorphic';
+import type { Align, ColumnsValue, Direction, Justify, Responsive, SpacingValue } from '../lib/responsive';
 
 
 /* --------
  * Types Definition
  * -------- */
-export type StackAlign = 'start' | 'center' | 'end' | 'stretch' | 'baseline';
-
-export type StackJustify = 'start' | 'center' | 'end' | 'between' | 'around' | 'evenly';
-
-
-export interface StackProps extends React.ComponentProps<'div'> {
+export interface StrictStackProps extends BaseProps {
   /** Cross-axis alignment */
-  align?: StackAlign;
+  align?: Responsive<Align>;
 
   /** Equal columns. Declaring it switches the stack to a grid, where `direction` no longer applies */
   columns?: Responsive<ColumnsValue>;
@@ -31,35 +37,14 @@ export interface StackProps extends React.ComponentProps<'div'> {
   gap?: Responsive<SpacingValue>;
 
   /** Main-axis distribution */
-  justify?: StackJustify;
-
-  /** Render as something else than a `div` */
-  as?: React.ElementType;
+  justify?: Responsive<Justify>;
 
   /** Let a horizontal stack wrap onto several lines */
   wrap?: boolean;
 }
 
 
-/* --------
- * Constants Definition
- * -------- */
-const ALIGN: Record<StackAlign, string> = {
-  baseline: 'items-baseline',
-  center  : 'items-center',
-  end     : 'items-end',
-  start   : 'items-start',
-  stretch : 'items-stretch'
-};
-
-const JUSTIFY: Record<StackJustify, string> = {
-  around : 'justify-around',
-  between: 'justify-between',
-  center : 'justify-center',
-  end    : 'justify-end',
-  evenly : 'justify-evenly',
-  start  : 'justify-start'
-};
+export type StackProps<E extends React.ElementType = 'div'> = PolymorphicProps<E, StrictStackProps>;
 
 
 /* --------
@@ -78,7 +63,7 @@ const JUSTIFY: Record<StackJustify, string> = {
  * Declaring `columns` turns it into a grid of equal columns; `direction` is then meaningless and
  * ignored.
  */
-export function Stack(props: StackProps): React.ReactNode {
+export function Stack<E extends React.ElementType = 'div'>(props: StackProps<E>): React.ReactNode {
 
   // ----
   // Props Deconstruct
@@ -93,8 +78,10 @@ export function Stack(props: StackProps): React.ReactNode {
     gap,
     justify,
     wrap = false,
-    ...rest
-  } = props;
+    ...others
+  } = props as StackProps<'div'>;
+
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -112,15 +99,15 @@ export function Stack(props: StackProps): React.ReactNode {
     /** In grid mode the rules ride the column axis, because there is no single direction to follow */
     ...(divided ? [ 'divide-border', ...(isGrid ? [ 'divide-x' ] : divideClasses(direction)) ] : []),
 
-    align && ALIGN[align],
-    justify && JUSTIFY[justify]
+    ...alignClasses(align),
+    ...justifyClasses(justify)
   ];
 
 
   // ----
   // Component Render
   // ----
-  return <Component data-slot={'stack'} className={cn(classes, className)} {...rest} />;
+  return <Component data-slot={'stack'} className={cn(classes, baseClasses, className)} {...rest} />;
 
 }
 

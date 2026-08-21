@@ -1,48 +1,33 @@
 import * as React from 'react';
 
+import { splitBaseProps } from '../lib/base';
 import { cn } from '../lib/cn';
-import { gapClasses } from '../lib/responsive';
+import { alignClasses, gapClasses, justifyClasses } from '../lib/responsive';
 
-import type { Responsive, SpacingValue } from '../lib/responsive';
+import type { PolymorphicProps } from '../lib/polymorphic';
 
-import type { StackAlign, StackJustify } from './Stack';
+import type { BaseProps } from '../lib/base';
+
+import type { Align, Justify, Responsive, SpacingValue } from '../lib/responsive';
 
 
 /* --------
  * Types Definition
  * -------- */
-export interface ClusterProps extends React.ComponentProps<'div'> {
-  align?: StackAlign;
+export interface StrictClusterProps extends BaseProps {
+  /** Cross-axis alignment */
+  align?: Responsive<Align>;
 
   /** Space between items, in Tailwind spacing steps */
   gap?: Responsive<SpacingValue>;
 
-  justify?: StackJustify;
+  /** Main-axis distribution */
+  justify?: Responsive<Justify>;
 
-  /** Render as something else than a `div` */
-  as?: React.ElementType;
 }
 
 
-/* --------
- * Constants Definition
- * -------- */
-const ALIGN: Record<StackAlign, string> = {
-  baseline: 'items-baseline',
-  center  : 'items-center',
-  end     : 'items-end',
-  start   : 'items-start',
-  stretch : 'items-stretch'
-};
-
-const JUSTIFY: Record<StackJustify, string> = {
-  around : 'justify-around',
-  between: 'justify-between',
-  center : 'justify-center',
-  end    : 'justify-end',
-  evenly : 'justify-evenly',
-  start  : 'justify-start'
-};
+export type ClusterProps<E extends React.ElementType = 'div'> = PolymorphicProps<E, StrictClusterProps>;
 
 
 /* --------
@@ -56,7 +41,7 @@ const JUSTIFY: Record<StackJustify, string> = {
  * own name because that combination is where a hand-written `flex flex-wrap items-center gap-2`
  * keeps reappearing.
  */
-export function Cluster(props: ClusterProps): React.ReactNode {
+export function Cluster<E extends React.ElementType = 'div'>(props: ClusterProps<E>): React.ReactNode {
 
   // ----
   // Props Deconstruct
@@ -67,8 +52,10 @@ export function Cluster(props: ClusterProps): React.ReactNode {
     className,
     gap = 2,
     justify = 'start',
-    ...rest
-  } = props;
+    ...others
+  } = props as ClusterProps<'div'>;
+
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -77,7 +64,7 @@ export function Cluster(props: ClusterProps): React.ReactNode {
   return (
     <Component
       data-slot={'cluster'}
-      className={cn('flex flex-wrap', gapClasses(gap), ALIGN[align], JUSTIFY[justify], className)}
+      className={cn('flex flex-wrap', gapClasses(gap), alignClasses(align), justifyClasses(justify), baseClasses, className)}
       {...rest}
     />
   );

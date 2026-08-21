@@ -4,6 +4,8 @@ import * as React from 'react';
 
 import { BREAKPOINT_WIDTHS, mediaQuery } from '../lib/responsive';
 
+import { useMediaQuery } from './useMediaQuery';
+
 import type { MediaBreakpoint } from '../lib/responsive';
 
 
@@ -91,30 +93,14 @@ export function useBreakpoint(breakpoint: MediaBreakpoint, options?: UseBreakpoi
 
 
   // ----
-  // Handlers
-  // ----
-  const subscribe = React.useCallback(
-    (onStoreChange: () => void) => {
-      const list = window.matchMedia(query);
-
-      list.addEventListener('change', onStoreChange);
-
-      return () => list.removeEventListener('change', onStoreChange);
-    },
-    [ query ]
-  );
-
-  const getSnapshot = React.useCallback(() => window.matchMedia(query).matches, [ query ]);
-
-
-  // ----
   // Hook Return
   // ----
 
   /**
-   * `useSyncExternalStore` instead of an effect with a `setState`: it gives a server snapshot for
-   * free, and it is the difference between a hydration-safe read and the mounted-guard dance.
+   * The subscription itself lives in `useMediaQuery`: this hook is the breakpoint vocabulary on top
+   * of it, nothing more. Both used to be the same forty lines, which is how the generic query stayed
+   * unreachable for so long.
    */
-  return React.useSyncExternalStore(subscribe, getSnapshot, () => false);
+  return useMediaQuery(query);
 
 }

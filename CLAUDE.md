@@ -227,6 +227,12 @@ the most likely way to break a package silently.
   rollup keeps the module graph but still elides a module that holds nothing but re-exports, and
   every one of these barrels is exactly that. Verified the hard way — the subpaths pointed at files
   that were never written, and `npm pack` + install outside the workspace is what caught it.
+- `styles: string[]` — stylesheets the package publishes, by file name. Each becomes an `exports`
+  subpath (`@proedis/ui-core/theme.css`), and the **first** one also becomes the `style` condition of
+  `exports['.']`, which is what makes `@import '@proedis/ui-core'` resolve to a stylesheet while
+  `import { Stack } from '@proedis/ui-core'` still resolves to the module: one name, two resolvers,
+  the way `tailwindcss` ships its own `index.css`. The files themselves are copied by the package's
+  own `build` script, exactly like `assets` below — this field only writes the manifest.
 - `assets: string[]` — file extensions that a build step copies into the output rather than
   rollup emitting them (the CLI's `.ejs` templates). `release:verify` then requires every
   matching file under `src/` to exist at the same relative path in each output directory.

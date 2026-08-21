@@ -1,12 +1,15 @@
 import * as React from 'react';
 
+import { splitBaseProps } from '../lib/base';
 import { cn } from '../lib/cn';
+
+import type { BaseProps } from '../lib/base';
 
 
 /* --------
  * Types Definition
  * -------- */
-export interface DividerProps extends Omit<React.ComponentProps<'div'>, 'children'> {
+export interface DividerProps extends Omit<React.ComponentProps<'div'>, 'children'>, BaseProps {
   /** A caption between two rules. Horizontal only — «oppure», «or», a section name */
   label?: React.ReactNode;
 
@@ -35,8 +38,10 @@ export function Divider(props: DividerProps): React.ReactNode {
     className,
     label,
     orientation = 'horizontal',
-    ...rest
+    ...others
   } = props;
+
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -48,7 +53,7 @@ export function Divider(props: DividerProps): React.ReactNode {
         aria-orientation={'vertical'}
         data-slot={'divider'}
         role={'separator'}
-        className={cn('w-px self-stretch bg-border', className)}
+        className={cn('w-px self-stretch bg-border', baseClasses, className)}
         {...rest}
       />
     );
@@ -60,7 +65,7 @@ export function Divider(props: DividerProps): React.ReactNode {
         aria-orientation={'horizontal'}
         data-slot={'divider'}
         role={'separator'}
-        className={cn('flex items-center gap-3', className)}
+        className={cn('flex items-center gap-3', baseClasses, className)}
         {...rest}
       >
         <span className={'h-px flex-1 bg-border'} />
@@ -75,7 +80,7 @@ export function Divider(props: DividerProps): React.ReactNode {
       aria-orientation={'horizontal'}
       data-slot={'divider'}
       role={'separator'}
-      className={cn('h-px w-full bg-border', className)}
+      className={cn('h-px w-full bg-border', baseClasses, className)}
       {...rest}
     />
   );

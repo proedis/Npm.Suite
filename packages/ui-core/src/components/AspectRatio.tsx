@@ -1,12 +1,15 @@
 import * as React from 'react';
 
+import { splitBaseProps } from '../lib/base';
 import { cn } from '../lib/cn';
+
+import type { BaseProps } from '../lib/base';
 
 
 /* --------
  * Types Definition
  * -------- */
-export interface AspectRatioProps extends React.ComponentProps<'div'> {
+export interface AspectRatioProps extends React.ComponentProps<'div'>, BaseProps {
   /** Width over height: `16 / 9`, `1`, `4 / 3` */
   ratio?: number;
 }
@@ -33,8 +36,10 @@ export function AspectRatio(props: AspectRatioProps): React.ReactNode {
     className,
     ratio = 16 / 9,
     style,
-    ...rest
+    ...others
   } = props;
+
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -43,7 +48,7 @@ export function AspectRatio(props: AspectRatioProps): React.ReactNode {
   return (
     <div
       data-slot={'aspect-ratio'}
-      className={cn('relative w-full overflow-hidden', className)}
+      className={cn('relative w-full overflow-hidden', baseClasses, className)}
       style={{ aspectRatio: String(ratio), ...style }}
       {...rest}
     >

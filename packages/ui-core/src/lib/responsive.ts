@@ -69,6 +69,20 @@ export type ColumnsValue = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
 export type Direction = 'horizontal' | 'vertical';
 
 
+/**
+ * Cross-axis alignment.
+ *
+ * Declared here rather than on a component because three of them share it, and the maps that turn
+ * these into classes were literally the same twenty lines in `Stack` and `Cluster` — in a package
+ * whose reason to exist is that five layout files were the same file twice.
+ */
+export type Align = 'start' | 'center' | 'end' | 'stretch' | 'baseline';
+
+
+/** Main-axis distribution */
+export type Justify = 'start' | 'center' | 'end' | 'between' | 'around' | 'evenly';
+
+
 /* --------
  * Helpers
  * -------- */
@@ -102,6 +116,29 @@ export function responsiveEntries<T>(value: Responsive<T> | undefined): [ Breakp
     .filter(breakpoint => map[breakpoint] !== undefined)
     .map(breakpoint => [ breakpoint, map[breakpoint] as T ]);
 }
+
+
+/* --------
+ * Constants
+ * -------- */
+
+/** The one place the alignment utilities are named. Both maps used to be duplicated per component */
+const ALIGN: Readonly<Record<Align, string>> = {
+  baseline: 'items-baseline',
+  center  : 'items-center',
+  end     : 'items-end',
+  start   : 'items-start',
+  stretch : 'items-stretch'
+};
+
+const JUSTIFY: Readonly<Record<Justify, string>> = {
+  around : 'justify-around',
+  between: 'justify-between',
+  center : 'justify-center',
+  end    : 'justify-end',
+  evenly : 'justify-evenly',
+  start  : 'justify-start'
+};
 
 
 /* --------
@@ -147,6 +184,24 @@ export function columnsClasses(columns: Responsive<ColumnsValue> | undefined): s
 /** `flex-row` / `flex-col`, responsive */
 export function directionClasses(direction: Responsive<Direction> | undefined): string[] {
   return responsiveClasses(direction, value => (value === 'horizontal' ? 'flex-row' : 'flex-col'));
+}
+
+
+/**
+ * `items-*`, responsive.
+ *
+ * Responsive on purpose, and it is the pair of `direction` that needed it most: a stack that turns
+ * from a column into a row at `lg` almost always wants `stretch` while it is a column and `center`
+ * once it is a row. It used to be the one half of that pair which could not follow.
+ */
+export function alignClasses(align: Responsive<Align> | undefined): string[] {
+  return responsiveClasses(align, value => ALIGN[value]);
+}
+
+
+/** `justify-*`, responsive */
+export function justifyClasses(justify: Responsive<Justify> | undefined): string[] {
+  return responsiveClasses(justify, value => JUSTIFY[value]);
 }
 
 

@@ -1,12 +1,17 @@
 import * as React from 'react';
 
+import { splitBaseProps } from '../lib/base';
 import { cn } from '../lib/cn';
+
+import type { BaseProps } from '../lib/base';
+
+import { Label } from './Label';
 
 
 /* --------
  * Types Definition
  * -------- */
-export interface LabeledContentProps extends Omit<React.ComponentProps<'div'>, 'title'> {
+export interface LabeledContentProps extends Omit<React.ComponentProps<'div'>, 'title'>, BaseProps {
   /** The value being labelled */
   children: React.ReactNode;
 
@@ -30,7 +35,7 @@ const LabeledIcon: React.FunctionComponent<{ icon: React.ReactNode }> = ({ icon 
   <span
     className={cn(
       'flex size-9 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground',
-      '[&_svg:not([class*=size-])]:size-[18px]'
+      '[&_svg:not([class*=size-])]:size-4.5'
     )}
   >
     {icon}
@@ -40,29 +45,16 @@ const LabeledIcon: React.FunctionComponent<{ icon: React.ReactNode }> = ({ icon 
 LabeledIcon.displayName = 'LabeledIcon';
 
 
-/**
- * The label is deliberately **quiet** — secondary colour, light weight — so the value reads as the
- * prominent element. That is the opposite emphasis of a form label, and it is the whole reason this
- * component exists instead of a `<label>`.
- */
-const LabeledHeading: React.FunctionComponent<Pick<LabeledContentProps, 'description' | 'label'>> = (props) => (
-  <span className={'flex min-w-0 flex-col gap-0.5'}>
-    <span className={'text-[13px] leading-snug font-medium text-muted-foreground'}>{props.label}</span>
-    {props.description !== null && props.description !== undefined && (
-      <span className={'text-xs leading-snug text-muted-foreground/70'}>{props.description}</span>
-    )}
-  </span>
-);
-
-LabeledHeading.displayName = 'LabeledHeading';
-
-
 /* --------
  * Component Definition
  * -------- */
 
 /**
  * A value with a label: the read-only counterpart of a form field.
+ *
+ * The label goes through `Label` in its **quiet** emphasis, which is the whole reason that component
+ * has two: here the value is the prominent element and a label competing with it flattens the pair.
+ * It renders as a `span`, since there is no control to point at.
  *
  * Reads `--muted`, `--muted-foreground`, `--foreground` and the radius scale.
  */
@@ -78,8 +70,10 @@ export function LabeledContent(props: LabeledContentProps): React.ReactNode {
     icon,
     inline = false,
     label,
-    ...rest
+    ...others
   } = props;
+
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -87,10 +81,10 @@ export function LabeledContent(props: LabeledContentProps): React.ReactNode {
   // ----
   if (inline) {
     return (
-      <div data-slot={'labeled-content'} className={cn('flex items-center justify-between gap-4', className)} {...rest}>
+      <div data-slot={'labeled-content'} className={cn('flex items-center justify-between gap-4', baseClasses, className)} {...rest}>
         <div className={'flex min-w-0 items-center gap-3'}>
           {icon !== null && icon !== undefined && <LabeledIcon icon={icon} />}
-          <LabeledHeading description={description} label={label} />
+          <Label as={'span'} description={description} emphasis={'quiet'}>{label}</Label>
         </div>
         <div className={'min-w-0 text-right text-sm font-semibold text-foreground'}>{children}</div>
       </div>
@@ -99,10 +93,10 @@ export function LabeledContent(props: LabeledContentProps): React.ReactNode {
 
   return (
     /** `items-start`, so the icon indents the whole column: label, description and value stay aligned */
-    <div data-slot={'labeled-content'} className={cn('flex items-start gap-3', className)} {...rest}>
+    <div data-slot={'labeled-content'} className={cn('flex items-start gap-3', baseClasses, className)} {...rest}>
       {icon !== null && icon !== undefined && <LabeledIcon icon={icon} />}
       <div className={'flex min-w-0 flex-1 flex-col gap-1'}>
-        <LabeledHeading description={description} label={label} />
+        <Label as={'span'} description={description} emphasis={'quiet'}>{label}</Label>
         <div className={'text-sm font-semibold text-foreground'}>{children}</div>
       </div>
     </div>

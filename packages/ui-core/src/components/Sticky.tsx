@@ -1,6 +1,11 @@
 import * as React from 'react';
 
+import { splitBaseProps } from '../lib/base';
 import { cn } from '../lib/cn';
+
+import type { PolymorphicProps } from '../lib/polymorphic';
+
+import type { BaseProps } from '../lib/base';
 
 import type { SpacingValue } from '../lib/responsive';
 
@@ -8,7 +13,7 @@ import type { SpacingValue } from '../lib/responsive';
 /* --------
  * Types Definition
  * -------- */
-export interface StickyProps extends React.ComponentProps<'div'> {
+export interface StrictStickyProps extends BaseProps {
   /** Distance from the edge, in Tailwind spacing steps */
   offset?: SpacingValue;
 
@@ -18,9 +23,10 @@ export interface StickyProps extends React.ComponentProps<'div'> {
   /** Stacking order */
   z?: number;
 
-  /** Render as something else than a `div` */
-  as?: React.ElementType;
 }
+
+
+export type StickyProps<E extends React.ElementType = 'div'> = PolymorphicProps<E, StrictStickyProps>;
 
 
 /* --------
@@ -41,7 +47,7 @@ const SPACING_STEP_REM = 0.25;
  * ⚠️ `position: sticky` does nothing when an ancestor clips its overflow. A sticky header that never
  * sticks is almost always an `overflow-hidden` two levels up, not a bug here.
  */
-export function Sticky(props: StickyProps): React.ReactNode {
+export function Sticky<E extends React.ElementType = 'div'>(props: StickyProps<E>): React.ReactNode {
 
   // ----
   // Props Deconstruct
@@ -53,8 +59,10 @@ export function Sticky(props: StickyProps): React.ReactNode {
     position = 'top',
     style,
     z = 10,
-    ...rest
-  } = props;
+    ...others
+  } = props as StickyProps<'div'>;
+
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -69,7 +77,7 @@ export function Sticky(props: StickyProps): React.ReactNode {
   return (
     <Component
       data-slot={'sticky'}
-      className={cn('sticky', className)}
+      className={cn('sticky', baseClasses, className)}
       style={{ ...(position === 'top' ? { top: edge } : { bottom: edge }), zIndex: z, ...style }}
       {...rest}
     />

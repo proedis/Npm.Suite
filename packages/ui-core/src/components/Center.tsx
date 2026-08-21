@@ -1,12 +1,17 @@
 import * as React from 'react';
 
+import { splitBaseProps } from '../lib/base';
 import { cn } from '../lib/cn';
+
+import type { PolymorphicProps } from '../lib/polymorphic';
+
+import type { BaseProps } from '../lib/base';
 
 
 /* --------
  * Types Definition
  * -------- */
-export interface CenterProps extends React.ComponentProps<'div'> {
+export interface StrictCenterProps extends BaseProps {
   /** Use `inline-flex`, so the box sits in a line of text instead of taking the row */
   inline?: boolean;
 
@@ -16,9 +21,10 @@ export interface CenterProps extends React.ComponentProps<'div'> {
   /** Give the box room to centre within. Any CSS length, or pixels as a number */
   minHeight?: number | string;
 
-  /** Render as something else than a `div` */
-  as?: React.ElementType;
 }
+
+
+export type CenterProps<E extends React.ElementType = 'div'> = PolymorphicProps<E, StrictCenterProps>;
 
 
 /* --------
@@ -32,7 +38,7 @@ export interface CenterProps extends React.ComponentProps<'div'> {
  * to centre within, centring is a no-op. `maxWidth` wraps the content in a column of its own, so the
  * text stays readable while the box keeps filling its parent.
  */
-export function Center(props: CenterProps): React.ReactNode {
+export function Center<E extends React.ElementType = 'div'>(props: CenterProps<E>): React.ReactNode {
 
   // ----
   // Props Deconstruct
@@ -45,8 +51,10 @@ export function Center(props: CenterProps): React.ReactNode {
     maxWidth,
     minHeight,
     style,
-    ...rest
-  } = props;
+    ...others
+  } = props as CenterProps<'div'>;
+
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -55,7 +63,7 @@ export function Center(props: CenterProps): React.ReactNode {
   return (
     <Component
       data-slot={'center'}
-      className={cn(inline ? 'inline-flex' : 'flex', 'items-center justify-center', className)}
+      className={cn(inline ? 'inline-flex' : 'flex', 'items-center justify-center', baseClasses, className)}
       style={{ ...(minHeight === undefined ? {} : { minHeight }), ...style }}
       {...rest}
     >

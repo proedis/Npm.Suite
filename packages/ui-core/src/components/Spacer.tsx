@@ -1,15 +1,21 @@
 import * as React from 'react';
 
+import { splitBaseProps } from '../lib/base';
 import { cn } from '../lib/cn';
+
+import type { PolymorphicProps } from '../lib/polymorphic';
+
+import type { BaseProps } from '../lib/base';
 
 
 /* --------
  * Types Definition
  * -------- */
-export interface SpacerProps extends React.ComponentProps<'div'> {
-  /** Render as something else than a `div` */
-  as?: React.ElementType;
+export interface StrictSpacerProps extends BaseProps {
 }
+
+
+export type SpacerProps<E extends React.ElementType = 'div'> = PolymorphicProps<E, StrictSpacerProps>;
 
 
 /* --------
@@ -21,7 +27,7 @@ export interface SpacerProps extends React.ComponentProps<'div'> {
  *
  * `aria-hidden`, because it carries nothing: it is layout, and a screen reader has no use for it.
  */
-export function Spacer(props: SpacerProps): React.ReactNode {
+export function Spacer<E extends React.ElementType = 'div'>(props: SpacerProps<E>): React.ReactNode {
 
   // ----
   // Props Deconstruct
@@ -29,14 +35,16 @@ export function Spacer(props: SpacerProps): React.ReactNode {
   const {
     as: Component = 'div',
     className,
-    ...rest
-  } = props;
+    ...others
+  } = props as SpacerProps<'div'>;
+
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
   // Component Render
   // ----
-  return <Component aria-hidden data-slot={'spacer'} className={cn('flex-1 self-stretch', className)} {...rest} />;
+  return <Component aria-hidden data-slot={'spacer'} className={cn('flex-1 self-stretch', baseClasses, className)} {...rest} />;
 
 }
 

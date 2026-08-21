@@ -1,6 +1,11 @@
 import * as React from 'react';
 
+import { splitBaseProps } from '../lib/base';
 import { cn } from '../lib/cn';
+
+import type { PolymorphicProps } from '../lib/polymorphic';
+
+import type { BaseProps } from '../lib/base';
 
 
 /* --------
@@ -9,16 +14,17 @@ import { cn } from '../lib/cn';
 export type ContainerSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
 
 
-export interface ContainerProps extends React.ComponentProps<'div'> {
+export interface StrictContainerProps extends BaseProps {
   /** Horizontal padding that grows with the viewport. On by default */
   padded?: boolean;
 
   /** How wide the content may get */
   size?: ContainerSize;
 
-  /** Render as something else than a `div` */
-  as?: React.ElementType;
 }
+
+
+export type ContainerProps<E extends React.ElementType = 'div'> = PolymorphicProps<E, StrictContainerProps>;
 
 
 /* --------
@@ -29,7 +35,7 @@ const SIZE: Record<ContainerSize, string> = {
   lg  : 'max-w-7xl',
   md  : 'max-w-5xl',
   sm  : 'max-w-3xl',
-  xl  : 'max-w-[96rem]'
+  xl  : 'max-w-8xl'
 };
 
 
@@ -41,7 +47,7 @@ const SIZE: Record<ContainerSize, string> = {
  * The centred, width-capped page wrapper. Constrains the content; the layout inside is a `Stack` or
  * a `Grid`.
  */
-export function Container(props: ContainerProps): React.ReactNode {
+export function Container<E extends React.ElementType = 'div'>(props: ContainerProps<E>): React.ReactNode {
 
   // ----
   // Props Deconstruct
@@ -51,8 +57,10 @@ export function Container(props: ContainerProps): React.ReactNode {
     className,
     padded = true,
     size = 'lg',
-    ...rest
-  } = props;
+    ...others
+  } = props as ContainerProps<'div'>;
+
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -61,7 +69,7 @@ export function Container(props: ContainerProps): React.ReactNode {
   return (
     <Component
       data-slot={'container'}
-      className={cn('mx-auto w-full', SIZE[size], padded && 'px-4 sm:px-6 lg:px-8', className)}
+      className={cn('mx-auto w-full', SIZE[size], padded && 'px-4 sm:px-6 lg:px-8', baseClasses, className)}
       {...rest}
     />
   );

@@ -14,16 +14,20 @@ compiler checks, and no design of their own.** 📐
 
 ## ✨ What's in the box
 
-Eleven primitives, the responsive machinery behind them, and the stylesheet they read. No icons, no
-buttons, no cards: this is the layer *under* a design system. 🧱
+Seventeen primitives, the responsive machinery behind them, and the stylesheet they read. No icons,
+no buttons, no cards: this is the layer *under* a design system. 🧱
 
 | | |
 | --- | --- |
-| **Layout** | `Stack` · `Grid` · `Cluster` · `Center` · `Container` · `Spacer` · `Sticky` · `AspectRatio` |
-| **Chrome** | `Divider` · `ScrollArea` · `LabeledContent` — the three that read a token |
+| **Layout** | `Box` · `Stack` · `Grid` · `Cluster` · `Center` · `Container` · `Split` · `Spacer` · `Sticky` · `AspectRatio` |
+| **Visibility** | `hideBelow` / `hideFrom` on every primitive, plus `VisuallyHidden` |
+| **Escapes** | `Bleed` · `SafeArea` — out of a padding, and out of the notch |
+| **Chrome** | `Divider` · `ScrollArea` · `Label` · `LabeledContent` — the four that read a token |
 | **Responsive** | `Responsive<T>`, the typed scales, and the class builders behind every prop |
 | **Utilities** | `cn` — class composition where the last conflicting utility wins |
-| **Hooks** | `useBreakpoint`, `useIsMobile` — the same breakpoint vocabulary, in JavaScript |
+| **Types** | `PolymorphicProps` — `as` typed by the element it renders, not by `div` |
+| **Hooks** | `useMediaQuery`, `useBreakpoint`, `useIsMobile`, `usePrefersReducedMotion` |
+| **Tokens** | a five token contract, or the **full vocabulary** through `theme.css` |
 
 ## 📦 Installation
 
@@ -46,6 +50,17 @@ conditions: a CSS resolver asks for `style`, a bundler asks for `import`. (The e
 That single line does three things: it lets Tailwind see the classes this package writes, it
 registers the token contract, and it declares neutral defaults for it. Nothing else to configure —
 no safelist to copy, no `@source` to add.
+
+**Or take the whole vocabulary**, which is the same stylesheet plus every semantic token the layer
+above these primitives needs — surfaces, primary and secondary, the four states, the focus ring:
+
+```css
+@import 'tailwindcss';
+@import '@proedis/ui-core/theme.css';
+```
+
+One or the other, never both: `theme.css` imports the base itself. See
+[The token contract](#-the-token-contract) for what each one declares and why they are two files.
 
 | Peer | Range |
 | --- | --- |
@@ -95,6 +110,65 @@ component silently losing its gap, with no error anywhere. The scale:
 | `columns` (`ColumnsValue`) | 1 → 12 |
 | breakpoints | `base` · `sm` · `md` · `lg` · `xl` · `2xl` |
 
+### Two props every primitive takes
+
+```tsx
+<Stack hideBelow={'lg'}>…</Stack>       // the desktop half of a layout
+<Cluster hideFrom={'md'}>…</Cluster>    // the mobile half
+<Grid hideBelow={'md'} hideFrom={'xl'}>…</Grid>   // only in between
+```
+
+They come from one shared contract, so they are on all of them: `Stack`, `Grid`, `Cluster`, `Center`,
+`Container`, `Split`, `Spacer`, `Sticky`, `AspectRatio`, `Divider`, `ScrollArea`, `Label`,
+`LabeledContent`, `Bleed`, `SafeArea` and `Box`. Not `VisuallyHidden`, where they would contradict the
+component.
+
+`hideBelow` compiles to a single `not-lg:hidden`, which applies `display: none` only inside a negated
+media query — so above the breakpoint nothing touches the element and it keeps its own display,
+whatever it is. That is why the same two props work identically on a flex stack, a grid and a
+`contents` wrapper, and why `<Stack hideBelow={'md'} className={'…'} />` cannot end up with a display
+its own classes disagree with.
+
+⚠️ Hiding is CSS. The children stay **mounted**: their effects run, their requests fire, their markup
+ships. Use `useIsMobile` and render nothing when a subtree has a cost.
+
+`Box` is the same two props on any element and nothing else. What it is **not** is a style-prop
+carrier: no `p`, `m`, `w`, `bg`, because in a Tailwind codebase `className` plus the conflict
+resolution in `cn` already is that system, and duplicating it as props buys a narrower API and a much
+larger safelist — `p` / `px` / `py` made responsive alone would be 324 rules, more than this package
+declares in total. Two things earn a place in the shared contract: a prop a consumer could not write
+as a literal class, or one that needs something the component knows and the caller does not.
+
+### `as` is typed by the element it renders
+
+```tsx
+<Stack as={'a'} href={'/reports'} download gap={4}>…</Stack>   // an anchor's attributes, available
+<Stack as={'section'} aria-label={'summary'}>…</Stack>
+<Container as={MyComponent} title={'required by MyComponent'} />
+```
+
+Every primitive with an `as` is generic in it, so the props it accepts are the props of the element it
+is actually rendering. `as={'span'}` refuses `href`; `as={'a'}` requires nothing but allows it; a
+component reached through `as` demands its own required props.
+
+The shape before this rejected the first line and accepted `<Stack as={'span'} onScroll={…} />`, which
+is the same mistake twice: the type described a `div` while the component rendered whatever it was
+told to.
+
+Each component exports two types. `StrictStackProps` is what `Stack` itself understands, which is the one
+to extend when wrapping it; `StackProps<E = 'div'>` is the whole surface. **The default type argument
+means nothing changes for you**: `StackProps` with no argument is still the div-flavoured props it
+always was.
+
+```ts
+import type { StrictStackProps, StackProps } from '@proedis/ui-core';
+
+interface CardProps extends StrictStackProps { title: string; }        // extending the own props
+const Wrapper = (props: StackProps) => <Stack {...props} />;         // still valid with no argument
+```
+
+`PolymorphicProps<E, Own>` is exported too, for a component of your own that wants the same treatment.
+
 ### `Stack`
 
 The workhorse. Children on an axis, with a responsive direction, gap and optional dividers.
@@ -105,7 +179,7 @@ The workhorse. Children on an axis, with a responsive direction, gap and optiona
 | `columns` | equal columns. Declaring it switches to a grid, and `direction` no longer applies. Responsive |
 | `gap` | responsive |
 | `divided` | a hairline between children, **following the active axis** |
-| `align` / `justify` | `items-*` / `justify-*` |
+| `align` / `justify` | `items-*` / `justify-*`. Responsive, which is what lets alignment follow a `direction` that changes |
 | `wrap` | let a horizontal stack wrap |
 | `as` | render as something else than a `div` |
 
@@ -133,10 +207,58 @@ for when the count per breakpoint *is* the design.
 | `AspectRatio` | holds an image, a map, a video or an embed at a fixed ratio |
 | `Divider` | a standalone hairline, optionally with a centred caption |
 | `ScrollArea` | native overflow with a thin themed scrollbar. No dependency, no virtual scrollbar |
+| `Split` | the two pane frame: one pane of a fixed width, one taking the rest. `collapseBelow` stacks them |
+| `Box` | any element with the shared props and nothing else: the bottom of the package |
+| `VisuallyHidden` | for a screen reader and not for the eye. `focusable` is the skip-link shape |
+| `Bleed` | escapes the parent's horizontal padding, so a band can reach the edge inside a padded page |
+| `SafeArea` | pads out of the notch and the home indicator |
+| `Label` | the name of something, with an optional line of detail. Two emphases, `strong` and `quiet` |
 | `LabeledContent` | a value with a quiet label: the read-only counterpart of a form field |
 
 For a rule *between* the children of a stack use `<Stack divided>`, not `Divider`: it draws with
 `divide-*`, so no separator element enters the tree and the first and last child never get one.
+
+### `Box`, and hiding a group
+
+`Box` renders any element with the shared props applied and no classes of its own, so it is where a
+plain element goes when it needs one of them, or where a one-off arrangement lives before it deserves
+a name.
+
+To hide a **group** rather than one component, ask for `contents`:
+
+```tsx
+<Stack direction={'horizontal'} gap={4}>
+  <Box className={'contents'} hideBelow={'lg'}>
+    <Toolbar />
+    <Filters />
+  </Box>
+</Stack>
+```
+
+With `display: contents` the wrapper stops existing as far as layout goes, so both children stay
+direct participants of the stack, gap included, and below `lg` the whole group disappears. ⚠️ That is
+right on a `Box` and wrong on a primitive that owns a layout: `contents` on a `Stack` would leave its
+own `gap` and alignment inert, which is a defect nothing reports.
+
+`VisuallyHidden` is the opposite of all of it: the content leaves the screen and **stays** in the
+accessibility tree. `display: none` would remove it from that too, which is precisely not the intent.
+
+### `Split` carries its rail as a prop
+
+```tsx
+<Split rail={<Navigation />} railWidth={'18rem'} collapseBelow={'lg'}>
+  <main>…</main>
+</Split>
+```
+
+The rail is a prop rather than the first child because with `side={'end'}` it has to come **after**
+the content in the DOM, so the reading order and the tab order match what the eye sees. Two children
+in a fixed order could only ever be reordered visually.
+
+The width travels as a custom property that a declared utility reads, instead of an inline
+`grid-template-columns`, and that indirection is what makes `collapseBelow` possible at all: a media
+query cannot live in an inline style, so the responsive half has to be a class — and a class cannot
+carry an arbitrary length.
 
 ### `cn`
 
@@ -152,16 +274,27 @@ the class and the override would silently stop working.
 ### Hooks — `@proedis/ui-core/hooks`
 
 ```tsx
-import { useBreakpoint, useIsMobile } from '@proedis/ui-core/hooks';
+import { useBreakpoint, useIsMobile, useMediaQuery, usePrefersReducedMotion } from '@proedis/ui-core/hooks';
 
-const isDesktop = useBreakpoint('lg');   // at or above lg
-const isMobile = useIsMobile();          // below md
+const isDesktop = useBreakpoint('lg');            // at or above lg
+const isMobile = useIsMobile();                   // below md
+const canHover = useMediaQuery('(hover: hover)'); // any query at all
+const still = usePrefersReducedMotion();          // for animation driven from JavaScript
 ```
 
-They read the widths from the `--breakpoint-*` theme variables first, so a project that moved the
-scale is followed instead of drifting from it, and fall back to Tailwind's defaults. Both answer
-`false` on the server and on the first client render: the layout settles after hydration rather than
-mismatching it.
+`useMediaQuery` is the primitive the other three are built on, and it is exported because a named
+breakpoint is not the only question worth asking: `print`, `(orientation: landscape)`,
+`(prefers-contrast: more)` and a width outside the theme's scale all end there.
+
+The breakpoint pair reads the widths from the `--breakpoint-*` theme variables first, so a project
+that moved the scale is followed instead of drifting from it, and falls back to Tailwind's defaults.
+Both answer `false` on the server and on the first client render: the layout settles after hydration
+rather than mismatching it.
+
+⚠️ `usePrefersReducedMotion` answers **`true`** there instead, and the asymmetry is deliberate: the
+two possible mistakes are not equivalent. Guessing "reduce" and correcting costs one frame of
+stillness; guessing the other way plays the animation this preference exists to prevent, to the
+person who asked for it not to.
 
 They live behind their own entry point on purpose — everything exported from the package root is
 renderable from a React Server Component, and a barrel re-exporting a hook would take that away.
@@ -197,6 +330,16 @@ Three colour families and one line colour:
 | `--muted-foreground` | a quiet label, a divider caption, the scrollbar thumb |
 | `--border` | `Divider`, and the rules `Stack divided` draws |
 | `--radius-scale` | a unitless multiplier over the whole `--radius-*` scale |
+| `--container-8xl` | the width of `Container size='xl'`, one step past Tailwind's own scale |
+| `--text-2xs` | the step below `text-xs`, read by the description line of `Label` |
+
+The last three are a **configuration** rather than a colour a component reads: they exist to be
+turned. `--container-8xl` is there because Tailwind's container scale stops at `7xl` (80rem) and the
+widest page this package offers is 96rem, the width of the `2xl` breakpoint. `--text-2xs` is there
+because a three level text hierarchy does not fit in Tailwind's scale: a label, a description under
+it and a value need three sizes, and the scale offers 12px and 14px with nothing between or below.
+Both replaced an arbitrary value written inside a component — `max-w-[96rem]`, `text-[13px]` — which
+is a length with no name: invisible to a theme, unreachable by anyone who wants it different.
 
 `--background` is the one entry with no component behind it, and that is deliberate: `--foreground`
 means nothing without naming what it sits on, so the pair is a **contract** rather than a token a
@@ -220,6 +363,52 @@ value, and it does follow. Everything built from a named step, directional varia
 The scale is deliberately *not* anchored the way shadcn/ui anchors it (`lg` = a `--radius` length,
 the rest derived with `± 2px`): that shifts every name one step off the documented value, so its
 `md` is Tailwind's `lg`. A scale whose names lie is a defect nobody finds without opening the docs.
+
+### The full vocabulary — `theme.css`
+
+The contract above is what the primitives in this package read, and it is deliberately small. The
+tokens an interface actually needs are more than five, and they have a habit of being invented
+separately in every application: measured across the three Proedis frontends already on Tailwind 4,
+the same 26 token vocabulary is declared in all three, copied from the same source, diverging exactly
+where each one improvised. One declares `--warning` and never registers `--color-warning`, so
+`bg-warning` does not exist there and its charts reach for `var(--warning)` by hand. One has
+`success` / `warning` / `info`, one has none of them. Three different names for the heading font.
+
+That is not a styling problem, it is one token spelt three ways, and no component here could have
+prevented it. So the vocabulary is named once, in a second stylesheet:
+
+```css
+@import 'tailwindcss';
+@import '@proedis/ui-core/theme.css';   /* the base stylesheet is inside this one */
+```
+
+| Family | Tokens |
+| --- | --- |
+| Raised surfaces | `--card`, `--popover`, each with its `-foreground` |
+| Action | `--primary`, `--secondary`, `--accent`, each with its `-foreground` |
+| States | `--destructive`, `--success`, `--warning`, `--info`, each with its `-foreground` |
+| Controls | `--input` (the **border** of a form control), `--ring` (the focus ring) |
+
+Every family is a **pair**, a surface and the ink that is legible on it, and both halves are always
+declared: half a pair is what produces the token nobody can use, a `--warning` that leaves every
+caller guessing whether black or white goes on top.
+
+The state hues have a default while nothing else brand-shaped does, and that is not an inconsistency:
+red for damage, amber for attention, green for success, blue for information is a convention this
+package did not invent. Which is also the reason two things are **not** in here:
+
+- **`--chart-1..5`.** A five step categorical ramp has no neutral default. Any value would be a
+  palette, and this package ships none; naming them without defaulting them would be a comment
+  pretending to be code.
+- **`--sidebar-*`.** Eight tokens that are one component's private slots rather than a semantic
+  vocabulary. They belong to whichever package ships that component.
+- **The font and the text scale.** A real decision about a typographic scale, and an open one.
+  `--text-2xs` above is the single step a component here needed, nothing more.
+
+⚠️ `--input` is back in this file after being **removed** from the base contract, and the two facts
+agree: there it was being used as a fill by the one component that read it, which is not what the
+name means. Here it is the border colour of a form control, read by a form layer that lives in
+another package. A recessed surface is `--muted`.
 
 ## 🤝 Compatibility
 

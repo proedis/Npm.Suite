@@ -49,6 +49,13 @@
 @source inline("{sm:,md:,lg:,xl:,2xl:,}divide-y");
 @source inline("{sm:,md:,lg:,xl:,2xl:,}divide-x-0");
 @source inline("{sm:,md:,lg:,xl:,2xl:,}divide-y-0");
+@source inline("{sm:,md:,lg:,xl:,2xl:,}items-{start,center,end,stretch,baseline}");
+@source inline("{sm:,md:,lg:,xl:,2xl:,}justify-{start,center,end,between,around,evenly}");
+@source inline("{sm:,md:,lg:,xl:,2xl:,}hidden");
+@source inline("not-{sm,md,lg,xl,2xl}:hidden");
+@source inline("{sm:,md:,lg:,xl:,2xl:,}split-cols");
+@source inline("{sm:,md:,lg:,xl:,2xl:,}split-cols-end");
+@source inline("-mx-{0,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,12,14,16}");
 
 /*
  * Dark mode as a class on an ancestor, which is what makes a theme switch a single attribute write.
@@ -119,6 +126,38 @@
   --radius-4xl: calc(2rem * var(--radius-scale));
 }
 
+/*
+ * The steps this package ADDS to Tailwind's own scales, as opposed to the tokens above, which
+ * override what a component reads.
+ *
+ * ⚠️ Deliberately NOT `inline`, and the reason is the opposite intent. An `inline` declaration
+ * substitutes the value straight into the utility and emits no variable, so there would be nothing
+ * left to override; a plain `@theme` emits the variable and has the utility reference it, so a
+ * project retunes a step by redeclaring one name. Overriding is `inline`, extending is not.
+ *
+ * Both exist because the alternative was an arbitrary value written inside a component
+ * (`max-w-[96rem]`, `text-[13px]`), which is a length with no name: invisible to a theme, and
+ * unreachable by any consumer who wants it different.
+ *
+ * `--container-8xl` is the width of `Container size='xl'`. Tailwind's container scale stops at `7xl`
+ * (80rem) and the widest page this package offers is 96rem, the width of the `2xl` breakpoint. The
+ * number is a hardcoded copy of `--breakpoint-2xl` on purpose: referencing that variable would
+ * depend on it surviving Tailwind's own pruning of unused theme variables.
+ *
+ * `--text-2xs` is the step below `text-xs`, and it exists because a three level text hierarchy does
+ * not fit in Tailwind's scale: `LabeledContent` needs a label, a description under it and a value,
+ * and the scale offers 12px and 14px with nothing between or below. The description is the quietest
+ * of the three, so it takes the step below. Named `2xs` after the way Tailwind's own container scale
+ * counts downwards (`2xs`, `3xs`), not `xxs`. The line height follows Tailwind's shape for these
+ * steps — a unitless ratio, expressed as the target divided by the size.
+ */
+@theme {
+  --container-8xl: 96rem;
+
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: calc(0.875 / 0.6875);
+}
+
 /* ============================================================
  * 3. The defaults
  * ============================================================ */
@@ -160,6 +199,53 @@
  * It reads the semantic token rather than a fixed grey, so it follows the theme — including dark
  * mode — without a second declaration. `color-mix` keeps the thumb visible on both canvases.
  */
+/*
+ * The two column frame of `Split`, as a utility rather than an inline `grid-template-columns`.
+ *
+ * The width arrives as `--split-rail`, set inline by the component. That indirection is what makes
+ * `collapseBelow` possible: a media query cannot live in an inline style, so the responsive half has
+ * to be a class — `grid-cols-1 lg:split-cols` — and a class cannot carry an arbitrary length.
+ */
+@utility split-cols {
+  grid-template-columns: var(--split-rail) 1fr;
+}
+
+@utility split-cols-end {
+  grid-template-columns: 1fr var(--split-rail);
+}
+
+/*
+ * The device's own furniture: the notch, the home indicator, the rounded corners.
+ *
+ * Declared here because `env()` has no Tailwind utility and the alternative was an arbitrary value at
+ * every call site. One name per edge combination, which is also one place to fix if the technique
+ * ever changes.
+ *
+ * ⚠️ `env(safe-area-inset-*)` is **zero** unless the document opted into the full viewport with
+ * `viewport-fit=cover` in its viewport meta tag. Without it these utilities are valid and do nothing.
+ */
+@utility p-safe {
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@utility px-safe {
+  padding-right: env(safe-area-inset-right);
+  padding-left: env(safe-area-inset-left);
+}
+
+@utility py-safe {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 @utility scrollbar-thin {
   scrollbar-width: thin;
   scrollbar-color: color-mix(in oklab, var(--muted-foreground) 35%, transparent) transparent;

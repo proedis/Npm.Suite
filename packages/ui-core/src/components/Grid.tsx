@@ -1,7 +1,12 @@
 import * as React from 'react';
 
+import { splitBaseProps } from '../lib/base';
 import { cn } from '../lib/cn';
 import { gapClasses } from '../lib/responsive';
+
+import type { PolymorphicProps } from '../lib/polymorphic';
+
+import type { BaseProps } from '../lib/base';
 
 import type { Responsive, SpacingValue } from '../lib/responsive';
 
@@ -9,7 +14,7 @@ import type { Responsive, SpacingValue } from '../lib/responsive';
 /* --------
  * Types Definition
  * -------- */
-export interface GridProps extends React.ComponentProps<'div'> {
+export interface StrictGridProps extends BaseProps {
   /** Space between cells, in Tailwind spacing steps */
   gap?: Responsive<SpacingValue>;
 
@@ -22,9 +27,10 @@ export interface GridProps extends React.ComponentProps<'div'> {
   /** How narrow a column may get before the grid wraps, in pixels */
   minColWidth?: number;
 
-  /** Render as something else than a `div` */
-  as?: React.ElementType;
 }
+
+
+export type GridProps<E extends React.ElementType = 'div'> = PolymorphicProps<E, StrictGridProps>;
 
 
 /* --------
@@ -41,7 +47,7 @@ export interface GridProps extends React.ComponentProps<'div'> {
  * `repeat(auto-fill, minmax(…, 1fr))` reflows a gallery at every width, which is what a card list
  * actually wants — as opposed to `Stack columns`, where the count per breakpoint is the design.
  */
-export function Grid(props: GridProps): React.ReactNode {
+export function Grid<E extends React.ElementType = 'div'>(props: GridProps<E>): React.ReactNode {
 
   // ----
   // Props Deconstruct
@@ -53,8 +59,10 @@ export function Grid(props: GridProps): React.ReactNode {
     gap = 4,
     minColWidth = 240,
     style,
-    ...rest
-  } = props;
+    ...others
+  } = props as GridProps<'div'>;
+
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -63,7 +71,7 @@ export function Grid(props: GridProps): React.ReactNode {
   return (
     <Component
       data-slot={'grid'}
-      className={cn('grid', gapClasses(gap), className)}
+      className={cn('grid', gapClasses(gap), baseClasses, className)}
       style={{
         /** `min(px, 100%)` is what keeps the single column from overflowing a very narrow screen */
         gridTemplateColumns: `repeat(auto-${fill}, minmax(min(${minColWidth}px, 100%), 1fr))`,

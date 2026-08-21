@@ -1,0 +1,184 @@
+/*
+ * @proedis/ui-core/theme.css — the full token vocabulary.
+ * =====================================================================
+ * The superset of `ui-core.css`: it imports it, then names the semantic tokens the layer
+ * ABOVE these primitives needs. Import this one instead of the other, never both.
+ *
+ *   @import 'tailwindcss';
+ *   @import '@proedis/ui-core/theme.css';
+ *
+ * Why it exists at all, given the invariant next door says every token declared is read by a
+ * component that ships here.
+ *
+ * Because the contract and the components have different lifetimes, and measurement settled it: the
+ * three Proedis frontends already on Tailwind 4 declare the SAME 26 token vocabulary, copied from
+ * the same source, and they diverge exactly where each one improvised. One declares `--warning` and
+ * never registers `--color-warning`, so `bg-warning` does not exist there and its charts reach for
+ * `var(--warning)` by hand. One has `success` / `warning` / `info`, one has none of them. Three
+ * different names for the heading font. That drift is not a styling problem, it is the same token
+ * spelt three ways, and no component in this package could ever have prevented it.
+ *
+ * So the invariant holds where it belongs — `ui-core.css` declares what its own primitives read —
+ * and this file is the other job: the vocabulary is named ONCE, here, before a fourth application
+ * invents `--danger`. Every token below is read by the layer above (form controls, surfaces,
+ * buttons), which is a different package and a different release, and that is the whole point.
+ *
+ * What is deliberately NOT here:
+ *
+ *   - `--chart-1..5`. A five step categorical ramp has no neutral default: any value would be a
+ *     palette, and this package ships none. Naming them without defaulting them would be a comment
+ *     pretending to be code.
+ *   - `--sidebar-*`. Eight tokens that are one component's private slots, not a semantic vocabulary.
+ *     They belong to whichever package ships that component.
+ *   - The font and text scale. That is a real decision about a typographic scale and it is open;
+ *     `--text-2xs` next door is the one step a component here needed, nothing more.
+ */
+
+@import './ui-core.css';
+
+/* ============================================================
+ * The contract
+ * ============================================================ */
+
+/*
+ * `inline` for the same reason as everything in `ui-core.css`: the emitted utility references the raw
+ * variable, so a consumer's later `:root` wins by cascade. See the note there — getting it wrong
+ * breaks every override in silence.
+ *
+ * Each family is a PAIR, surface plus the ink that is legible on it, and both halves are always
+ * declared. Half a pair is what produces the tokens nobody can use: a `--warning` with no
+ * `--warning-foreground` leaves every caller guessing whether black or white goes on top.
+ */
+@theme inline {
+  /* Raised surfaces: a card, a panel, anything that sits above the canvas */
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  /* Surfaces that float: a menu, a tooltip, a dialog */
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  /* The application's own voice: a primary button, a selected row, a focused tab */
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  /* The quieter action next to it */
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  /* Interaction feedback: a hover, a highlighted item, a keyboard-focused option */
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  /*
+   * The four states. Their hues are a CONVENTION rather than a brand — red for damage, amber for
+   * attention, green for success, blue for information is not a palette this package invented, which
+   * is why these have a default at all while the chart ramp does not.
+   */
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+
+  /*
+   * ⚠️ `--input` is the BORDER of a form control, not a fill. It is back here with the meaning it has
+   * in the convention it comes from, and `ui-core.css` is right to have dropped it: a package with no
+   * form controls had nothing to read it, and its one reader was using it as a surface. A recessed
+   * surface is `--muted`.
+   */
+  --color-input: var(--input);
+
+  /* The focus ring. One token, so every focusable thing in the interface agrees */
+  --color-ring: var(--ring);
+}
+
+/* ============================================================
+ * The defaults
+ * ============================================================ */
+
+/*
+ * Anonymous on purpose, like the ones next door: a greyscale interface with conventional state
+ * colours, so a consumer sees a working application before deciding anything, and nobody mistakes
+ * these values for a design decision. Replacing them is one `:root` after the import.
+ *
+ * They reference Tailwind's own palette rather than hardcoding `oklch(...)`, so the shade names stay
+ * readable and a project that themed the palette is followed for free.
+ */
+:root {
+  --card: var(--color-white);
+  --card-foreground: var(--color-zinc-900);
+
+  --popover: var(--color-white);
+  --popover-foreground: var(--color-zinc-900);
+
+  --primary: var(--color-zinc-900);
+  --primary-foreground: var(--color-zinc-50);
+
+  --secondary: var(--color-zinc-100);
+  --secondary-foreground: var(--color-zinc-900);
+
+  --accent: var(--color-zinc-100);
+  --accent-foreground: var(--color-zinc-900);
+
+  --destructive: var(--color-red-600);
+  --destructive-foreground: var(--color-white);
+
+  --success: var(--color-emerald-600);
+  --success-foreground: var(--color-white);
+
+  /* Amber carries dark ink at every usable weight: white on amber fails contrast in both themes */
+  --warning: var(--color-amber-500);
+  --warning-foreground: var(--color-zinc-950);
+
+  --info: var(--color-blue-600);
+  --info-foreground: var(--color-white);
+
+  /* Follows the line colour unless a project wants a control to read stronger than a divider */
+  --input: var(--border);
+
+  --ring: var(--color-zinc-400);
+}
+
+.dark {
+  /* A raised surface on a dark canvas is lighter, not darker: the light comes from above */
+  --card: var(--color-zinc-900);
+  --card-foreground: var(--color-zinc-50);
+
+  --popover: var(--color-zinc-900);
+  --popover-foreground: var(--color-zinc-50);
+
+  /* Inverted, so the primary action stays the highest contrast thing on the screen */
+  --primary: var(--color-zinc-50);
+  --primary-foreground: var(--color-zinc-900);
+
+  /* A wash of light rather than a grey, which turns muddy over a dark canvas */
+  --secondary: oklch(1 0 0 / 8%);
+  --secondary-foreground: var(--color-zinc-50);
+
+  --accent: oklch(1 0 0 / 12%);
+  --accent-foreground: var(--color-zinc-50);
+
+  /* The state hues lighten by one step: a 600 reads as a hole on a dark canvas */
+  --destructive: var(--color-red-500);
+  --destructive-foreground: var(--color-zinc-950);
+
+  --success: var(--color-emerald-500);
+  --success-foreground: var(--color-zinc-950);
+
+  --warning: var(--color-amber-400);
+  --warning-foreground: var(--color-zinc-950);
+
+  --info: var(--color-blue-400);
+  --info-foreground: var(--color-zinc-950);
+
+  --input: oklch(1 0 0 / 15%);
+
+  --ring: var(--color-zinc-500);
+}
