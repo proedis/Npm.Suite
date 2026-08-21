@@ -1,5 +1,7 @@
 export * from './Divider';
 
+export * from './Heading';
+
 export * from './IconBox';
 
 export * from './Label';

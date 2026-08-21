@@ -97,7 +97,9 @@ export function Label<E extends React.ElementType = 'label'>(props: LabelProps<E
       className={cn('flex min-w-0 flex-col gap-0.5', baseClasses, className)}
       {...rest}
     >
-      <span data-slot={'label-text'} className={cn('leading-snug', EMPHASIS[emphasis])}>
+      {/* The line height comes AFTER the emphasis: a size carries its own, and tailwind-merge
+          drops whichever of the two comes first. See the note in Heading. */}
+      <span data-slot={'label-text'} className={cn(EMPHASIS[emphasis], 'leading-snug')}>
         {children}
       </span>
 

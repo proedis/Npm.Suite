@@ -268,6 +268,16 @@ narrower stylesheet is the one you have to ask for.
   radius that `size` sets) is appended outside the `cva` call, where `tailwind-merge` resolves it on
   an order the file controls — inside one call the winner is the order of the config keys, which is a
   subtlety nobody should need to know to read the file.
+- **A line height goes AFTER the size, never before it.** A Tailwind size carries a line height of
+  its own, so `tailwind-merge` treats `text-base` as conflicting with `leading-*` and keeps only the
+  later one. `cva('leading-tight …', { variants: { size: { md: 'text-base' } } })` therefore emits
+  `text-foreground text-base font-semibold` — the `leading-tight` **gone**, silently, and the text
+  rendering at the size's default line height.
+
+  Measured, and it had already shipped: `Label` carried `cn('leading-snug', EMPHASIS[emphasis])` for
+  two commits with the `leading-snug` doing nothing. Both are fixed by putting the line height after
+  the size, and both now have a render assertion per size — which is the only way this defect is
+  visible, since the code reads correctly either way.
 - **Every variant is reported as a `data-*` attribute, and that is the theming surface.** Tailwind
   emits its utilities inside `@layer utilities` — measured, not assumed — so a plain **unlayered** rule
   in a consumer's stylesheet beats them with no specificity contest and no `!important`:
@@ -294,6 +304,12 @@ narrower stylesheet is the one you have to ask for.
   invisible to the scanner, so a missing safelist entry is a silently absent style. Before adding
   one, check whether the consumer could write it literally in `className` instead, where `@source "."`
   finds it for free.
+- **A compound's parts carry their own variants; nothing is inherited.** `Heading.Title` and
+  `Heading.Description` each take a `size`, and the pair does not hand one down. The two ways to share
+  it are both worse: a context is client-only and takes the tier out of a Server Component, and a
+  descendant class on the parent (`[&>[data-slot=heading-title]]:text-lg`) has more specificity than
+  the child's own utility, so the parent would silently beat an explicit `size` on the child. Two
+  explicit props beat one knob that cannot be overridden.
 - **`useMediaQuery` is the primitive; the other three are vocabulary on top of it.** The subscription
   used to be duplicated inside `useBreakpoint`, which is how a generic query stayed unreachable.
   ⚠️ `usePrefersReducedMotion` passes a server snapshot of **`true`**, alone among these hooks: the

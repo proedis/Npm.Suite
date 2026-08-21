@@ -33,7 +33,7 @@ things are*, `components` answers *what they look like*, and `hooks` is the clie
 | **Layout** | `Box` · `Stack` · `Grid` · `Cluster` · `Center` · `Container` · `Split` · `Spacer` · `Sticky` · `AspectRatio` |
 | **Visibility** | `hideBelow` / `hideFrom` on every primitive, plus `VisuallyHidden` |
 | **Escapes** | `Bleed` · `SafeArea` — out of a padding, and out of the notch |
-| **Components** | `IconBox` · `Spinner` · `Divider` · `ScrollArea` · `Label` · `LabeledContent` |
+| **Components** | `Heading` · `IconBox` · `Spinner` · `Divider` · `ScrollArea` · `Label` · `LabeledContent` |
 | **Responsive** | `Responsive<T>`, the typed scales, and the class builders behind every prop |
 | **Utilities** | `cn` — class composition where the last conflicting utility wins |
 | **Types** | `PolymorphicProps` — `as` typed by the element it renders, not by `div` |
@@ -222,6 +222,7 @@ for when the count per breakpoint *is* the design.
 | `VisuallyHidden` | for a screen reader and not for the eye. `focusable` is the skip-link shape |
 | `Bleed` | escapes the parent's horizontal padding, so a band can reach the edge inside a padded page |
 | `SafeArea` | pads out of the notch and the home indicator |
+| `Heading` | the typographic pair: `Heading.Title` and `Heading.Description` |
 | `IconBox` | the frame around a single icon: `fill × tone × size`, plus `shape` and a `halo` |
 | `Spinner` | a CSS ring, no icon library. `label` makes it announced, its absence makes it decorative |
 | `Label` | the name of something, with an optional line of detail. Two emphases, `strong` and `quiet` |
@@ -229,6 +230,45 @@ for when the count per breakpoint *is* the design.
 
 For a rule *between* the children of a stack use `<Stack divided>`, not `Divider`: it draws with
 `divide-*`, so no separator element enters the tree and the first and last child never get one.
+
+### `Heading`, the typographic pair
+
+```tsx
+<Heading>
+  <Heading.Title>Mezzi in servizio</Heading.Title>
+  <Heading.Description>Aggiornato 2 minuti fa</Heading.Description>
+</Heading>
+
+<Heading gap={2}>
+  <Heading.Title size={'xl'}>Nessun risultato</Heading.Title>
+  <Heading.Description size={'md'} lines={2}>Prova a rimuovere un filtro</Heading.Description>
+</Heading>
+```
+
+| | Values |
+| --- | --- |
+| `Heading` | `gap`, a spacing step. Defaults to `0.5` |
+| `.Title` | `size`: `sm` · `md` · `lg` · `xl`, and `lines`: `1` · `2` · `3` to clamp |
+| `.Description` | `size`: `xs` · `sm` · `md`, same `lines` |
+
+The parts are reached **through the dot** and are not flat exports, so one import gets the whole pair.
+Their types are exported flat, because a type cannot be reached through a value namespace:
+`StrictHeadingTitleProps` to extend, `HeadingTitleProps` to forward.
+
+Every size is a **named step**, never a length. That is the whole point: the day a typographic scale
+lands in this package, every heading in every application follows it without one call site changing —
+the same way they already follow `--radius-scale`.
+
+⚠️ `Heading.Title` renders a **`div`**, not an `h3`. The heading level of a title depends on the
+document outline around it, which the component cannot see: the same card is an `h2` on its own page
+and an `h3` inside a section. Pass `as={'h2'}` where the outline is known, and nothing where the text
+is a label rather than a heading — a wrong level is worse for a screen reader than no level at all.
+
+Each part carries its **own** `size` rather than inheriting one from the pair, and that is not an
+oversight: sharing it downwards would need a context, which is client-only and would take the tier out
+of a Server Component, or a descendant class on the parent — and a descendant selector has more
+specificity than the child's own utility, so the parent would silently win over an explicit `size`.
+Two explicit props beat one knob that cannot be overridden.
 
 ### `IconBox`, and the tone vocabulary
 

@@ -14,9 +14,17 @@
 
 import * as React from 'react';
 
-import { Box, Container, IconBox, Label, Spinner, Stack, VisuallyHidden } from './src';
+import { Box, Container, Heading, IconBox, Label, Spinner, Stack, VisuallyHidden } from './src';
 
 import type { StackProps } from './src';
+
+/*
+ * The parts of a compound are reachable through the dot and nowhere else, so this import has to fail.
+ * Asserting it on an undeclared identifier would prove nothing — a typo errors the same way — while
+ * an import names the package's actual export surface.
+ */
+// @ts-expect-error a compound's parts are not flat exports
+import { HeadingTitle as flatPart } from './src';
 
 
 /* --------
@@ -99,6 +107,31 @@ const wrongSpinnerLabel = <Spinner label={<span>no</span>} />;
 
 
 /* --------
+ * A compound reached through the dot keeps every check
+ * -------- */
+const pair = (
+  <Heading gap={2}>
+    <Heading.Title size={'xl'} lines={2}>Title</Heading.Title>
+    <Heading.Description size={'xs'}>Description</Heading.Description>
+  </Heading>
+);
+
+const headingAs = <Heading as={'hgroup'}><Heading.Title as={'h2'}>T</Heading.Title></Heading>;
+
+/** @ts-expect-error the title has four steps and 'xs' is not one of them: that one belongs to the description */
+const titleWrongSize = <Heading.Title size={'xs'}>no</Heading.Title>;
+
+/** @ts-expect-error and the description does not go up to 'xl' */
+const descriptionWrongSize = <Heading.Description size={'xl'}>no</Heading.Description>;
+
+/** @ts-expect-error the clamp is a closed set, not a number */
+const wrongLines = <Heading.Title lines={4}>no</Heading.Title>;
+
+/** @ts-expect-error the gap of a heading is a spacing step, and 13 is not one */
+const wrongGapValue = <Heading gap={13}>no</Heading>;
+
+
+/* --------
  * A component, not only an intrinsic element
  * -------- */
 interface CustomProps {
@@ -118,6 +151,7 @@ const missingComponentProp = <Container as={Custom} size={'xl'} />;
  * Keep the compiler from pruning the assertions
  * -------- */
 export const CHECKED = [
+  pair, headingAs, titleWrongSize, descriptionWrongSize, wrongLines, wrongGapValue, flatPart,
   softMuted, solidDestructive, emptyState, wrongToneName, wrongFill, spinner, wrongSpinnerLabel,
   anchorStack, sectionStack, plainStack, wrongAttribute, wrongAttributeToo,
   scaleRespected, outsideTheScale, outsideTheColumns, outsideTheScaleResponsive,
