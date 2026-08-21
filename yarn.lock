@@ -1900,11 +1900,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@proedis/ui-core@workspace:packages/ui-core":
+"@proedis/ui@workspace:packages/ui":
   version: 0.0.0-use.local
-  resolution: "@proedis/ui-core@workspace:packages/ui-core"
+  resolution: "@proedis/ui@workspace:packages/ui"
   dependencies:
     "@proedis/tsconfig": "npm:^2.0.0"
+    class-variance-authority: "npm:^0.7.1"
     clsx: "npm:^2.1.1"
     cpy-cli: "npm:5.0.0"
     rollup: "npm:^4.62.4"
@@ -3544,6 +3545,15 @@ __metadata:
   version: 0.5.1
   resolution: "class-transformer@npm:0.5.1"
   checksum: 10c0/19809914e51c6db42c036166839906420bb60367df14e15f49c45c8c1231bf25ae661ebe94736ee29cc688b77101ef851a8acca299375cc52fc141b64acde18a
+  languageName: node
+  linkType: hard
+
+"class-variance-authority@npm:^0.7.1":
+  version: 0.7.1
+  resolution: "class-variance-authority@npm:0.7.1"
+  dependencies:
+    clsx: "npm:^2.1.1"
+  checksum: 10c0/0f438cea22131808b99272de0fa933c2532d5659773bfec0c583de7b3f038378996d3350683426b8e9c74a6286699382106d71fbec52f0dd5fbb191792cccb5b
   languageName: node
   linkType: hard
 

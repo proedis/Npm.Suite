@@ -228,9 +228,9 @@ the most likely way to break a package silently.
   every one of these barrels is exactly that. Verified the hard way — the subpaths pointed at files
   that were never written, and `npm pack` + install outside the workspace is what caught it.
 - `styles: string[]` — stylesheets the package publishes, by file name. Each becomes an `exports`
-  subpath (`@proedis/ui-core/theme.css`), and the **first** one also becomes the `style` condition of
-  `exports['.']`, which is what makes `@import '@proedis/ui-core'` resolve to a stylesheet while
-  `import { Stack } from '@proedis/ui-core'` still resolves to the module: one name, two resolvers,
+  subpath (`@proedis/ui/theme.css`), and the **first** one also becomes the `style` condition of
+  `exports['.']`, which is what makes `@import '@proedis/ui'` resolve to a stylesheet while
+  `import { Stack } from '@proedis/ui'` still resolves to the module: one name, two resolvers,
   the way `tailwindcss` ships its own `index.css`. The files themselves are copied by the package's
   own `build` script, exactly like `assets` below — this field only writes the manifest.
 - `assets: string[]` — file extensions that a build step copies into the output rather than
@@ -364,7 +364,7 @@ before being added, and it is in the **React preset only**, since a project with
 attribute for it to fire on. It re-enables a rule the shared layers switch off, so a consumer
 declaring its own `no-restricted-syntax` selectors replaces these rather than adding to them. The
 reason it exists as a rule rather than a convention is that the convention had already been stated
-and broken: `@proedis/ui-core` shipped `size-[18px]`, `text-[13px]` and `max-w-[96rem]`, each of them
+and broken: `@proedis/ui` shipped `size-[18px]`, `text-[13px]` and `max-w-[96rem]`, each of them
 a length with no name, invisible to a theme.
 
 **Version 2 never actually applied Airbnb.** It extended `eslint-config-airbnb-typescript/base`,
