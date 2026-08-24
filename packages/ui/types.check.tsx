@@ -111,10 +111,14 @@ const wrongSpinnerLabel = <Spinner label={<span>no</span>} />;
  * -------- */
 const pair = (
   <Heading gap={2}>
+    <Heading.Eyebrow>Eyebrow</Heading.Eyebrow>
     <Heading.Title size={'xl'} lines={2}>Title</Heading.Title>
     <Heading.Description size={'xs'}>Description</Heading.Description>
   </Heading>
 );
+
+/** @ts-expect-error the eyebrow has two steps, and it never goes up to a title size */
+const eyebrowWrongSize = <Heading.Eyebrow size={'md'}>no</Heading.Eyebrow>;
 
 const headingAs = <Heading as={'hgroup'}><Heading.Title as={'h2'}>T</Heading.Title></Heading>;
 
@@ -151,7 +155,7 @@ const missingComponentProp = <Container as={Custom} size={'xl'} />;
  * Keep the compiler from pruning the assertions
  * -------- */
 export const CHECKED = [
-  pair, headingAs, titleWrongSize, descriptionWrongSize, wrongLines, wrongGapValue, flatPart,
+  pair, eyebrowWrongSize, headingAs, titleWrongSize, descriptionWrongSize, wrongLines, wrongGapValue, flatPart,
   softMuted, solidDestructive, emptyState, wrongToneName, wrongFill, spinner, wrongSpinnerLabel,
   anchorStack, sectionStack, plainStack, wrongAttribute, wrongAttributeToo,
   scaleRespected, outsideTheScale, outsideTheColumns, outsideTheScaleResponsive,

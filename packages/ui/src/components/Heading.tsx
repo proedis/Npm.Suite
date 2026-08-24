@@ -17,9 +17,11 @@ import type { SpacingValue } from '../core/responsive';
 /** One source per part, read by `cva` to apply and by the component to report */
 const DEFAULT_GAP: SpacingValue = 0.5;
 
-const DEFAULT_TITLE_SIZE = 'md';
+const DEFAULT_TITLE_SIZE = 'sm';
 
 const DEFAULT_DESCRIPTION_SIZE = 'sm';
+
+const DEFAULT_EYEBROW_SIZE = 'xs';
 
 /**
  * The line heights, appended **after** the size rather than declared in the `cva` base.
@@ -100,6 +102,37 @@ const descriptionVariants = cva('text-pretty text-muted-foreground', {
 });
 
 
+/**
+ * The eyebrow: the small uppercase line **above** the title.
+ *
+ * Both reference implementations have it in their list row, spelt almost identically
+ * (`truncate text-[0.625rem] tracking-wider uppercase`), and one of them uses the same register for
+ * the title of a card section. It reads as an eyebrow because of the case and the tracking, not
+ * because of the size — which is why it shares `--text-2xs` with the smallest description instead of
+ * asking for a step of its own.
+ *
+ * ⚠️ Muted, not coloured. One reference tints it `text-primary` and the other mutes it, and a tinted
+ * eyebrow is a product decision rather than a semantic: `className={'text-primary'}` is one class
+ * away, and a `tone` prop would be a knob added before anything needs it.
+ */
+const eyebrowVariants = cva('font-medium tracking-wider text-muted-foreground uppercase', {
+  variants       : {
+    lines: {
+      1: 'line-clamp-1',
+      2: 'line-clamp-2',
+      3: 'line-clamp-3'
+    },
+    size : {
+      xs: 'text-2xs',
+      sm: 'text-xs'
+    }
+  },
+  defaultVariants: {
+    size: DEFAULT_EYEBROW_SIZE
+  }
+});
+
+
 /* --------
  * Types Definition
  * -------- */
@@ -109,6 +142,12 @@ export interface StrictHeadingProps extends BaseProps {
 }
 
 export type HeadingProps<E extends React.ElementType = 'div'> = PolymorphicProps<E, StrictHeadingProps>;
+
+
+export interface StrictHeadingEyebrowProps extends BaseProps, VariantProps<typeof eyebrowVariants> {}
+
+export type HeadingEyebrowProps<E extends React.ElementType = 'div'> =
+  PolymorphicProps<E, StrictHeadingEyebrowProps>;
 
 
 export interface StrictHeadingTitleProps extends BaseProps, VariantProps<typeof titleVariants> {}
@@ -126,6 +165,50 @@ export type HeadingDescriptionProps<E extends React.ElementType = 'div'> =
 /* --------
  * Parts Definition
  * -------- */
+
+/**
+ * The line above the title: a category, a status, a section name.
+ *
+ * ⚠️ It is not a heading and must not be an `h*`: it labels the title that follows, which means a
+ * screen reader that met it as a heading would announce the wrong outline. It is also the register
+ * `Label` covers when the text labels a **control** rather than a title — same size, different job,
+ * and the difference is whether there is a `for` to point at.
+ */
+function HeadingEyebrow<E extends React.ElementType = 'div'>(
+  props: HeadingEyebrowProps<E>
+): React.ReactNode {
+
+  // ----
+  // Props Deconstruct
+  // ----
+  const {
+    as: Component = 'div',
+    className,
+    lines,
+    size = DEFAULT_EYEBROW_SIZE,
+    ...others
+  } = props as HeadingEyebrowProps<'div'>;
+
+  const { baseClasses, rest } = splitBaseProps(others);
+
+
+  // ----
+  // Component Render
+  // ----
+  return (
+    <Component
+      data-slot={'heading-eyebrow'}
+      data-lines={lines}
+      data-size={size}
+      className={cn(eyebrowVariants({ lines, size }), baseClasses, className)}
+      {...rest}
+    />
+  );
+
+}
+
+HeadingEyebrow.displayName = 'Heading.Eyebrow';
+
 
 /**
  * The prominent line of the pair.
@@ -211,19 +294,32 @@ HeadingDescription.displayName = 'Heading.Description';
  * -------- */
 
 /**
- * A title with an optional line under it: the typographic pair, and nothing else.
+ * A title, with an optional line above it and an optional line under it: the three text registers
+ * every row and every header is made of, and nothing else.
  *
  * ```tsx
- * <Heading>
- *   <Heading.Title>Mezzi in servizio</Heading.Title>
+ * <Heading>                                              // a list row: the default register
+ *   <Heading.Eyebrow>In servizio</Heading.Eyebrow>
+ *   <Heading.Title>FT-234-KL</Heading.Title>
+ *   <Heading.Description>Ultimo passaggio 12:04</Heading.Description>
+ * </Heading>
+ *
+ * <Heading>                                              // the header of a card
+ *   <Heading.Title size={'lg'}>Mezzi in servizio</Heading.Title>
  *   <Heading.Description>Aggiornato 2 minuti fa</Heading.Description>
  * </Heading>
  *
- * <Heading gap={2}>
+ * <Heading gap={2}>                                      // an empty state
  *   <Heading.Title size={'xl'}>Nessun risultato</Heading.Title>
  *   <Heading.Description size={'md'} lines={2}>Prova a rimuovere un filtro</Heading.Description>
  * </Heading>
  * ```
+ *
+ * ⚠️ The default title size is `sm`, and it is measured rather than chosen: both reference
+ * implementations write `text-sm font-semibold` for the title of a list row and something larger for
+ * the title of a card header. A list row is by far the more frequent of the two, so the frequent case
+ * writes no props and a header states `size={'lg'}`. A default of `md` — which is what this had at
+ * first — served neither.
  *
  * It exists because the pair is everywhere and the row it usually sits in is not: measured across the
  * two reference frontends, the pair appears in the header of a card, in a list row (as title plus
@@ -279,5 +375,6 @@ export function Heading<E extends React.ElementType = 'div'>(props: HeadingProps
 }
 
 Heading.displayName = 'Heading';
+Heading.Eyebrow = HeadingEyebrow;
 Heading.Title = HeadingTitle;
 Heading.Description = HeadingDescription;

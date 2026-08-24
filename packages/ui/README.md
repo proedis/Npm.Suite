@@ -222,7 +222,7 @@ for when the count per breakpoint *is* the design.
 | `VisuallyHidden` | for a screen reader and not for the eye. `focusable` is the skip-link shape |
 | `Bleed` | escapes the parent's horizontal padding, so a band can reach the edge inside a padded page |
 | `SafeArea` | pads out of the notch and the home indicator |
-| `Heading` | the typographic pair: `Heading.Title` and `Heading.Description` |
+| `Heading` | the three text registers: `Heading.Eyebrow`, `.Title`, `.Description` |
 | `IconBox` | the frame around a single icon: `fill × tone × size`, plus `shape` and a `halo` |
 | `Spinner` | a CSS ring, no icon library. `label` makes it announced, its absence makes it decorative |
 | `Label` | the name of something, with an optional line of detail. Two emphases, `strong` and `quiet` |
@@ -231,25 +231,38 @@ for when the count per breakpoint *is* the design.
 For a rule *between* the children of a stack use `<Stack divided>`, not `Divider`: it draws with
 `divide-*`, so no separator element enters the tree and the first and last child never get one.
 
-### `Heading`, the typographic pair
+### `Heading`, the three text registers
 
 ```tsx
-<Heading>
-  <Heading.Title>Mezzi in servizio</Heading.Title>
-  <Heading.Description>Aggiornato 2 minuti fa</Heading.Description>
+<Heading>                                          {/* a list row: the default register */}
+  <Heading.Eyebrow>In servizio</Heading.Eyebrow>
+  <Heading.Title>FT-234-KL</Heading.Title>
+  <Heading.Description>Ultimo passaggio 12:04</Heading.Description>
 </Heading>
 
-<Heading gap={2}>
-  <Heading.Title size={'xl'}>Nessun risultato</Heading.Title>
-  <Heading.Description size={'md'} lines={2}>Prova a rimuovere un filtro</Heading.Description>
+<Heading>                                          {/* the header of a card */}
+  <Heading.Title size={'lg'}>Mezzi in servizio</Heading.Title>
+  <Heading.Description>Aggiornato 2 minuti fa</Heading.Description>
 </Heading>
 ```
 
 | | Values |
 | --- | --- |
 | `Heading` | `gap`, a spacing step. Defaults to `0.5` |
-| `.Title` | `size`: `sm` · `md` · `lg` · `xl`, and `lines`: `1` · `2` · `3` to clamp |
-| `.Description` | `size`: `xs` · `sm` · `md`, same `lines` |
+| `.Eyebrow` | `size`: `xs` · `sm`. Uppercase, tracked, muted |
+| `.Title` | `size`: `sm` · `md` · `lg` · `xl`. Weight rises with size |
+| `.Description` | `size`: `xs` · `sm` · `md`. `text-pretty` by default |
+| all three | `lines`: `1` · `2` · `3` to clamp |
+
+⚠️ The default title size is **`sm`**, and it is measured rather than chosen: both reference
+implementations write `text-sm font-semibold` for the title of a list row and something larger for the
+title of a card header. A list row is by far the more frequent, so the frequent case writes no props
+and a header states `size={'lg'}`.
+
+The eyebrow reads as an eyebrow because of the case and the tracking, not the size — which is why it
+shares `--text-2xs` with the smallest description rather than asking for a step of its own. It is
+muted, not tinted: one reference colours it `text-primary`, the other mutes it, and a tinted eyebrow is
+a product decision that `className={'text-primary'}` covers.
 
 The parts are reached **through the dot** and are not flat exports, so one import gets the whole pair.
 Their types are exported flat, because a type cannot be reached through a value namespace:
