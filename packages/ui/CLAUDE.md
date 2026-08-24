@@ -25,7 +25,8 @@ So the boundary is now the tier, and the tiers are published subpaths:
 - **`layout`** — answers *where things are*: `Box`, `Stack`, `Grid`, `Cluster`, `Center`, `Container`,
   `Split`, `Spacer`, `Sticky`, `AspectRatio`, `Bleed`, `SafeArea`. No colour, no opinion.
 - **`components`** — answers *what things look like*: `Divider`, `ScrollArea`, `Label`,
-  `LabeledContent`, `VisuallyHidden`, `IconBox`, `Spinner`, and the compounds that come next.
+  `LabeledContent`, `VisuallyHidden`, `IconBox`, `Spinner`, `Heading`, `Item`, and the compounds that
+  come next.
 - **`hooks`** — client-only, `'use client'`.
 
 ⚠️ What is still outside, and this is the line that has **not** moved: anything that carries a
@@ -304,6 +305,33 @@ narrower stylesheet is the one you have to ask for.
   invisible to the scanner, so a missing safelist entry is a silently absent style. Before adding
   one, check whether the consumer could write it literally in `className` instead, where `@source "."`
   finds it for free.
+- **`Item` owns the truncation plumbing, and it is `grow`, not `flex-1`.** `grow min-w-0` on the
+  heading plus `shrink-0` on the tail is the whole reason the component exists rather than a `Cluster`
+  with three children: it is what makes a long title truncate instead of pushing the actions out of
+  the row, both references carry it three times per file, and a caller who forgets it breaks nothing
+  until some content length nobody tested.
+
+  ⚠️ `grow` rather than `flex-1` is what lets `direction` be **responsive for free**. `flex-1` sets
+  `flex-basis: 0`, whose behaviour in an auto-height column depends on intrinsic sizing; `grow` leaves
+  the basis alone and distributes only *positive* free space, of which an auto-height column has none.
+  So one pair of classes is correct in a row and inert in a column, and no per-breakpoint plumbing is
+  needed — which would have cost 12 safelist entries for a single prop.
+
+  ⚠️ The plumbing is a descendant selector, so its specificity (`0,2,0`) beats the child's own utility
+  (`0,1,0`): a `grow-0` in the heading's `className` loses. That is the price of the caller not having
+  to know the plumbing exists; the escape hatch is `className` on the `Item`.
+- **`interactive` is an affordance and never a semantic.** Both references derive it from
+  `clickable || onClick` and then put `role="button"`, `tabIndex` and a hand-written Enter/Space
+  handler on a `div`. That re-implements a button badly and breaks the moment the row holds a control
+  of its own, since a `button` inside a `button` is invalid — one of the two files carries a note to
+  itself about exactly that. Here `interactive` gives the cursor, the hover and the focus ring, and
+  the semantics stay with the caller: `as={'button'}` for a real button row, a router link around it
+  for a navigational one, neither for a row whose actions are the interactive part. **Do not add a
+  prop that fakes button semantics on a div.**
+- **`Item` has no chrome.** Both references give it `tone: flat | boxed`, where `boxed` is
+  `bg-card` + a radius + its own padding, which is a card. Composing is one element —
+  `<Surface><Item /></Surface>` — against a chrome duplicated in two places that then has to be kept
+  in step with the real one. `inset` stayed because row padding is a property of the row.
 - **A compound's parts carry their own variants; nothing is inherited.** `Heading.Title` and
   `Heading.Description` each take a `size`, and the pair does not hand one down. The two ways to share
   it are both worse: a context is client-only and takes the tier out of a Server Component, and a

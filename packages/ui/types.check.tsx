@@ -14,7 +14,7 @@
 
 import * as React from 'react';
 
-import { Box, Container, Heading, IconBox, Label, Spinner, Stack, VisuallyHidden } from './src';
+import { Box, Container, Heading, IconBox, Item, Label, Spinner, Stack, VisuallyHidden } from './src';
 
 import type { StackProps } from './src';
 
@@ -136,6 +136,37 @@ const wrongGapValue = <Heading gap={13}>no</Heading>;
 
 
 /* --------
+ * The row, and the semantics it refuses to fake
+ * -------- */
+const listRow = (
+  <Item interactive inset gap={3}>
+    <IconBox><svg /></IconBox>
+    <Heading><Heading.Title>FT-234-KL</Heading.Title></Heading>
+    <Item.Actions>{null}</Item.Actions>
+    <Item.Trailing>{null}</Item.Trailing>
+  </Item>
+);
+
+/** A row that IS a button says so with the element, and then `type` is available */
+const buttonRow = <Item as={'button'} type={'button'} interactive>row</Item>;
+
+const emptyStateRow = (
+  <Item direction={{ base: 'vertical', lg: 'horizontal' }} align={'center'} className={'text-center'}>
+    <IconBox size={'2xl'} halo><svg /></IconBox>
+  </Item>
+);
+
+/** @ts-expect-error 'type' is a button attribute, and a div is not a button */
+const divWithType = <Item type={'button'}>no</Item>;
+
+/** @ts-expect-error the gap is a spacing step */
+const itemWrongGap = <Item gap={13}>no</Item>;
+
+/** @ts-expect-error and there is no chrome: a boxed row is a Surface around it */
+const itemWrongTone = <Item tone={'boxed'}>no</Item>;
+
+
+/* --------
  * A component, not only an intrinsic element
  * -------- */
 interface CustomProps {
@@ -155,6 +186,7 @@ const missingComponentProp = <Container as={Custom} size={'xl'} />;
  * Keep the compiler from pruning the assertions
  * -------- */
 export const CHECKED = [
+  listRow, buttonRow, emptyStateRow, divWithType, itemWrongGap, itemWrongTone,
   pair, eyebrowWrongSize, headingAs, titleWrongSize, descriptionWrongSize, wrongLines, wrongGapValue, flatPart,
   softMuted, solidDestructive, emptyState, wrongToneName, wrongFill, spinner, wrongSpinnerLabel,
   anchorStack, sectionStack, plainStack, wrongAttribute, wrongAttributeToo,

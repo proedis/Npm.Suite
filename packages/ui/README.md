@@ -33,7 +33,7 @@ things are*, `components` answers *what they look like*, and `hooks` is the clie
 | **Layout** | `Box` · `Stack` · `Grid` · `Cluster` · `Center` · `Container` · `Split` · `Spacer` · `Sticky` · `AspectRatio` |
 | **Visibility** | `hideBelow` / `hideFrom` on every primitive, plus `VisuallyHidden` |
 | **Escapes** | `Bleed` · `SafeArea` — out of a padding, and out of the notch |
-| **Components** | `Heading` · `IconBox` · `Spinner` · `Divider` · `ScrollArea` · `Label` · `LabeledContent` |
+| **Components** | `Item` · `Heading` · `IconBox` · `Spinner` · `Divider` · `ScrollArea` · `Label` · `LabeledContent` |
 | **Responsive** | `Responsive<T>`, the typed scales, and the class builders behind every prop |
 | **Utilities** | `cn` — class composition where the last conflicting utility wins |
 | **Types** | `PolymorphicProps` — `as` typed by the element it renders, not by `div` |
@@ -222,6 +222,7 @@ for when the count per breakpoint *is* the design.
 | `VisuallyHidden` | for a screen reader and not for the eye. `focusable` is the skip-link shape |
 | `Bleed` | escapes the parent's horizontal padding, so a band can reach the edge inside a padded page |
 | `SafeArea` | pads out of the notch and the home indicator |
+| `Item` | the row: a leading visual, a block of text, a tail. `Item.Actions` and `Item.Trailing` |
 | `Heading` | the three text registers: `Heading.Eyebrow`, `.Title`, `.Description` |
 | `IconBox` | the frame around a single icon: `fill × tone × size`, plus `shape` and a `halo` |
 | `Spinner` | a CSS ring, no icon library. `label` makes it announced, its absence makes it decorative |
@@ -230,6 +231,65 @@ for when the count per breakpoint *is* the design.
 
 For a rule *between* the children of a stack use `<Stack divided>`, not `Divider`: it draws with
 `divide-*`, so no separator element enters the tree and the first and last child never get one.
+
+### `Item`, the row
+
+```tsx
+<Item interactive inset>
+  <IconBox><Truck /></IconBox>
+  <Heading>
+    <Heading.Eyebrow>In servizio</Heading.Eyebrow>
+    <Heading.Title>FT-234-KL</Heading.Title>
+    <Heading.Description>Ultimo passaggio 12:04</Heading.Description>
+  </Heading>
+  <Item.Actions>{actions}</Item.Actions>
+  <Item.Trailing><ChevronRight /></Item.Trailing>
+</Item>
+```
+
+Turn the axis and the same component is an empty state:
+
+```tsx
+<Item direction={'vertical'} gap={6} className={'text-center'}>
+  <IconBox size={'2xl'} tone={'primary'} halo><Inbox /></IconBox>
+  <Heading gap={2}>
+    <Heading.Title size={'xl'}>Nessun risultato</Heading.Title>
+    <Heading.Description size={'md'}>Prova a rimuovere un filtro</Heading.Description>
+  </Heading>
+</Item>
+```
+
+| Prop | |
+| --- | --- |
+| `direction` | `horizontal` (default) or `vertical`. Responsive |
+| `align` | cross-axis, defaults to `center`. Responsive |
+| `gap` | defaults to `3`. Responsive |
+| `inset` | row padding on the item itself, so an interactive hover fills the row edge to edge |
+| `interactive` | cursor, hover and focus ring. **Not** the semantics — see below |
+
+The leading visual needs no slot: `IconBox` and `Spinner` already refuse to shrink, so anything from
+this package is a direct child. What the component owns is the plumbing — `grow min-w-0` on the
+heading and `shrink-0` on the tail — which is what makes a long title **truncate** instead of pushing
+the actions out of the row. Both reference implementations carry it three times per file, and it is
+the part that is silently wrong when a caller forgets: nothing breaks, the row just overflows at some
+content length nobody tested.
+
+⚠️ **`interactive` is the affordance, not the semantics**, and this is the one place where `Item`
+deliberately does less than the implementations it comes from. They add `role="button"`, `tabIndex`
+and a hand-written Enter/Space handler to a `div`, which re-implements a button badly and breaks the
+moment the row contains a control of its own — a `button` inside a `button` is invalid. So:
+
+| A row that… | is written as |
+| --- | --- |
+| **is** a button, with no controls inside | `<Item as={'button'} type={'button'} interactive>` |
+| navigates | your router's link around it, `Item` presentational |
+| has its own actions | not clickable; the actions are |
+
+An `onClick` on a `div` is not reachable from a keyboard, and no prop here pretends otherwise.
+
+There is no `tone` either: a boxed row is a card, and there is a component for a card —
+`<Surface><Item /></Surface>` is one element instead of a chrome duplicated in two places that then
+have to be kept in step. `inset` stayed, because row padding belongs to the row.
 
 ### `Heading`, the three text registers
 

@@ -4,6 +4,8 @@ export * from './Heading';
 
 export * from './IconBox';
 
+export * from './Item';
+
 export * from './Label';
 
 export * from './LabeledContent';
