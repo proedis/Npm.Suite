@@ -68,7 +68,7 @@ The single source of truth. Everything else is this file plus a handful of overr
 | --- | --- | --- |
 | `target` | `ES2022` | Stable on purpose. A published library must never emit against a target that moves with the compiler, so every preset shares this one. Class static blocks are the binding constraint downstream: roughly Safari 16.4 / Chrome 94 / Node 16.11. |
 | `module` | `ESNext` | Leaves module handling to the bundler or to the emitting tool. |
-| `moduleResolution` | `node` | Classic Node resolution, kept for maximum reach on this preset. It ignores the `exports` field of your dependencies — see [`web`](#web) if that matters to you. |
+| `moduleResolution` | `bundler` | The modern algorithm, honouring the `exports` field of your dependencies. It was `node` (the classic algorithm) until 2.0.1: TypeScript 7 removed classic resolution outright, so a preset carrying it fails to load on the current compiler. `node16` is not an alternative here, because it requires `module` to be `Node16` and every preset in this package emits `ESNext`. |
 | `useDefineForClassFields` | `false` | **Load-bearing.** From `ES2022` TypeScript flips this to `true`, which initialises declared-but-unassigned class fields to `undefined` and quietly breaks every decorator-driven model. |
 | `experimentalDecorators` + `emitDecoratorMetadata` | `true` | Required by `class-transformer`, which the Proedis model and client layers are built on. |
 | `isolatedModules` | `true` | Each file must be transpilable on its own — which is exactly what esbuild, SWC and Babel do. Const enum re-export tricks are out. |
@@ -140,10 +140,14 @@ export function unsafeReset(): void {}
 
 ## 🧠 Two questions people always ask
 
-**"Why `moduleResolution: node` in `base`, in this decade?"**
-Because `base` is also what libraries emit their declarations with, and a declaration file that
-resolves through `exports` is unreadable to any consumer whose own project still uses classic
-resolution. The bundled presets (`web` and up) are free of that constraint, and use `bundler`.
+**"Why does `base` resolve like a bundler, when it is the preset for Node tools?"**
+Because as of 2.0.1 there is no third option. It used to be the classic `node` algorithm, on the
+argument that `base` is also what libraries emit their declarations with and a declaration file
+resolving through `exports` was unreadable to a consumer still on classic resolution. TypeScript 7
+removed that algorithm, and the only Node-shaped replacement, `node16`, requires `module` to be
+`Node16` — which would change the emit of every preset here. So `bundler` it is, and note that the
+algorithm is a *type-checking* concern: it decides how this project reads its dependencies, not how
+a consumer reads the declarations it emits.
 
 **"Can I turn on `noUncheckedIndexedAccess` / `exactOptionalPropertyTypes`?"**
 Yes, in your own `compilerOptions` — that is the whole point of extending. They are not in the
@@ -159,11 +163,23 @@ presets because switching them on across an existing codebase is a project, not 
 | `declaration` now sets `stripInternal` | Check that nothing you actually publish is documented as `@internal`. |
 | `react-native` no longer overrides `jsx` | Nothing on the automatic runtime. If your Babel setup is pinned to the classic runtime, set `"jsx": "react-native"` back in your own config. |
 
+## 🔀 Migrating to 2.0.1
+
+Two options TypeScript 7 **removed** were being set by `base`, which made every preset in this
+package fail to load on it with `TS5102` and `TS5108`. Neither can be neutralised by a consumer:
+an inherited removed option is an error, and re-declaring it as `false` only moves the error onto
+the consumer's own line.
+
+| Change | What to do |
+| --- | --- |
+| `downlevelIteration` is gone | Nothing. It has been a no-op for every preset here since `target` is `ES2022`: the flag only does something when downlevelling below ES2015. |
+| `base` uses `moduleResolution: "bundler"` instead of `"node"` | Nothing, if you build with a bundler: `web` and up already declared `bundler` themselves. On `base`, a dependency reached through a path its `exports` map does not declare now fails to resolve, which is the correct answer rather than a new restriction. |
+
 ## 🤝 Compatibility
 
 | Requirement | Range |
 | --- | --- |
-| `typescript` | `>=5.2.0` (peer) — 5.2 is where `extends` arrays became reliable |
+| `typescript` | `>=5.2.0` (peer) — 5.2 is where `extends` arrays became reliable, and 7.0 is where the removed options above stopped being loadable |
 | Emitted output runs on | Safari 16.4+ / Chrome 94+ / Node 16.11+ |
 
 ## 📄 License
