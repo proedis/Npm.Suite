@@ -14,7 +14,7 @@
 
 import * as React from 'react';
 
-import { Box, Container, Heading, IconBox, Item, Label, Spinner, Stack, VisuallyHidden } from './src';
+import { Box, Container, Heading, IconBox, Item, Label, Spinner, Stack, Surface, VisuallyHidden } from './src';
 
 import type { StackProps } from './src';
 
@@ -136,6 +136,40 @@ const wrongGapValue = <Heading gap={13}>no</Heading>;
 
 
 /* --------
+ * The card, and the 'default' that is not a step
+ * -------- */
+const card = (
+  <Surface elevation={'raised'} radius={'2xl'} loading loadingLabel={'Caricamento'}>
+    <Surface.Header>
+      <Heading><Heading.Title size={'lg'}>Mezzi</Heading.Title></Heading>
+    </Surface.Header>
+    <Surface.Separator />
+    <Surface.Section flush>{null}</Surface.Section>
+    <Surface.Separator type={'gap'} space={8} />
+    <Surface.Footer justify={'between'} muted>{null}</Surface.Footer>
+  </Surface>
+);
+
+/** `default` is a value of its own, which is what makes "no opinion" targetable */
+const noOpinion = <Surface elevation={'default'} radius={'default'} />;
+
+/** @ts-expect-error the modal elevation belongs to whichever package ships a dialog */
+const modalSurface = <Surface elevation={'modal'} />;
+
+/** @ts-expect-error the label is read out, so it is a string and not a node */
+const wrongLoadingLabel = <Surface loadingLabel={<span>no</span>} />;
+
+/** @ts-expect-error the separator has two kinds and neither is a hairline-with-room */
+const wrongSeparator = <Surface.Separator type={'both'} />;
+
+/** @ts-expect-error the space of a gap is a spacing step */
+const wrongSeparatorSpace = <Surface.Separator type={'gap'} space={13} />;
+
+/** The header is an Item, so it takes an Item's props */
+const headerIsAnItem = <Surface.Header direction={'vertical'} align={'start'} interactive />;
+
+
+/* --------
  * The row, and the semantics it refuses to fake
  * -------- */
 const listRow = (
@@ -186,7 +220,8 @@ const missingComponentProp = <Container as={Custom} size={'xl'} />;
  * Keep the compiler from pruning the assertions
  * -------- */
 export const CHECKED = [
-  listRow, buttonRow, emptyStateRow, divWithType, itemWrongGap, itemWrongTone,
+  card, noOpinion, modalSurface, wrongLoadingLabel, wrongSeparator, wrongSeparatorSpace,
+  headerIsAnItem, listRow, buttonRow, emptyStateRow, divWithType, itemWrongGap, itemWrongTone,
   pair, eyebrowWrongSize, headingAs, titleWrongSize, descriptionWrongSize, wrongLines, wrongGapValue, flatPart,
   softMuted, solidDestructive, emptyState, wrongToneName, wrongFill, spinner, wrongSpinnerLabel,
   anchorStack, sectionStack, plainStack, wrongAttribute, wrongAttributeToo,

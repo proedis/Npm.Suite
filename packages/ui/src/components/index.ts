@@ -14,4 +14,6 @@ export * from './ScrollArea';
 
 export * from './Spinner';
 
+export * from './Surface';
+
 export * from './VisuallyHidden';

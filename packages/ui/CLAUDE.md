@@ -25,8 +25,8 @@ So the boundary is now the tier, and the tiers are published subpaths:
 - **`layout`** — answers *where things are*: `Box`, `Stack`, `Grid`, `Cluster`, `Center`, `Container`,
   `Split`, `Spacer`, `Sticky`, `AspectRatio`, `Bleed`, `SafeArea`. No colour, no opinion.
 - **`components`** — answers *what things look like*: `Divider`, `ScrollArea`, `Label`,
-  `LabeledContent`, `VisuallyHidden`, `IconBox`, `Spinner`, `Heading`, `Item`, and the compounds that
-  come next.
+  `LabeledContent`, `VisuallyHidden`, `IconBox`, `Spinner`, `Heading`, `Item`, `Surface`, and the
+  compounds that come next.
 - **`hooks`** — client-only, `'use client'`.
 
 ⚠️ What is still outside, and this is the line that has **not** moved: anything that carries a
@@ -279,6 +279,20 @@ narrower stylesheet is the one you have to ask for.
   two commits with the `leading-snug` doing nothing. Both are fixed by putting the line height after
   the size, and both now have a render assertion per size — which is the only way this defect is
   visible, since the code reads correctly either way.
+- **A chrome variant carries a `default` value of its own.** `elevation` and `radius` on `Surface`
+  accept `default` and resolve it to the same classes as the step it equals, so a bare `<Surface />`
+  emits `data-elevation="default"` rather than `data-elevation="soft"`.
+
+  The point is what it makes targetable. Reporting the resolved step means "a card nobody had an
+  opinion about" and "a card that deliberately asked for `soft`" are the same attribute, so an
+  application restyling the first also restyles the second. With `default` as a value,
+  `[data-elevation='default']` is exactly the set an application wants to own.
+
+  ⚠️ This belongs to **chrome**, not to every variant. `elevation` and `radius` carry a house opinion
+  an application will want to redefine wholesale; `size`, `gap` and `tone` are steps the caller picked
+  from a scale, and there `data-size="md"` is worth more than `data-size="default"` because it says
+  what the thing *is*. The criterion: **is the default an opinion or a measurement?** And the two keys
+  must share one class constant, or `default` and the step it equals will drift into two appearances.
 - **Every variant is reported as a `data-*` attribute, and that is the theming surface.** Tailwind
   emits its utilities inside `@layer utilities` — measured, not assumed — so a plain **unlayered** rule
   in a consumer's stylesheet beats them with no specificity contest and no `!important`:
@@ -332,6 +346,20 @@ narrower stylesheet is the one you have to ask for.
   `bg-card` + a radius + its own padding, which is a card. Composing is one element —
   `<Surface><Item /></Surface>` — against a chrome duplicated in two places that then has to be kept
   in step with the real one. `inset` stayed because row padding is a property of the row.
+- **What goes between two sections is a component, not a prop.** `Surface.Separator` with
+  `type='divider' | 'gap'` replaces two machines the references built to encode the same decision once
+  for the whole card: one puts `divide-y` on the body, which nobody can opt out of per seam, and the
+  other carries nine `[&>[data-slot=…]]` margin rules to reproduce a rhythm the caller cannot see.
+  Placing the separator costs one element and makes the decision per seam, visible where it happens,
+  and mixable — a line here, room there. A `divider` renders `Divider`, so it arrives with
+  `role="separator"` already on it.
+  ⚠️ Consequence to keep: `Surface` therefore has **no** vertical rhythm of its own and **no** padding
+  of its own. The room lives in the parts, which is what lets a section go `flush` and give its edges
+  to a table without fighting a padding one level up.
+- **`Surface.Header` is an `Item`.** Not a shortcut — the finding the tier was built on: a card header
+  and a list row are the same three slots with the same truncation plumbing, and the only difference is
+  the register of the title. It renders an `Item`, forwards every one of its props, and replaces only
+  the `data-slot`, because a header is not a thing a consumer wants to catch with `[data-slot='item']`.
 - **A compound's parts carry their own variants; nothing is inherited.** `Heading.Title` and
   `Heading.Description` each take a `size`, and the pair does not hand one down. The two ways to share
   it are both worse: a context is client-only and takes the tier out of a Server Component, and a
@@ -409,6 +437,7 @@ The shape is the same in all seventeen, and every step of it is load-bearing. In
    | Kind of prop | Reported | Why |
    | --- | --- | --- |
    | closed set of values | always, **resolved** | an attribute that vanishes with the prop cannot be targeted, and the default is the case most worth retuning |
+   | a **chrome** variant | with a `default` member | so "no opinion" is targetable apart from an explicit step — see the invariant above |
    | boolean | only when `true` | the HTML idiom, and `[data-flush]` reads better than `[data-flush='false']` |
    | `Responsive<T>` | **never** | one attribute cannot hold `{ base: 2, lg: 6 }`; the per-breakpoint classes are the surface |
    | a free measure | **never** | `railWidth`, `maxHeight`, `ratio` are inline lengths — an inline style already beats any rule, so the prop is the surface |

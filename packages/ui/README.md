@@ -33,7 +33,7 @@ things are*, `components` answers *what they look like*, and `hooks` is the clie
 | **Layout** | `Box` · `Stack` · `Grid` · `Cluster` · `Center` · `Container` · `Split` · `Spacer` · `Sticky` · `AspectRatio` |
 | **Visibility** | `hideBelow` / `hideFrom` on every primitive, plus `VisuallyHidden` |
 | **Escapes** | `Bleed` · `SafeArea` — out of a padding, and out of the notch |
-| **Components** | `Item` · `Heading` · `IconBox` · `Spinner` · `Divider` · `ScrollArea` · `Label` · `LabeledContent` |
+| **Components** | `Surface` · `Item` · `Heading` · `IconBox` · `Spinner` · `Divider` · `ScrollArea` · `Label` · `LabeledContent` |
 | **Responsive** | `Responsive<T>`, the typed scales, and the class builders behind every prop |
 | **Utilities** | `cn` — class composition where the last conflicting utility wins |
 | **Types** | `PolymorphicProps` — `as` typed by the element it renders, not by `div` |
@@ -222,6 +222,7 @@ for when the count per breakpoint *is* the design.
 | `VisuallyHidden` | for a screen reader and not for the eye. `focusable` is the skip-link shape |
 | `Bleed` | escapes the parent's horizontal padding, so a band can reach the edge inside a padded page |
 | `SafeArea` | pads out of the notch and the home indicator |
+| `Surface` | the card: `Surface.Header`, `.Section`, `.Separator`, `.Footer`, plus `loading` |
 | `Item` | the row: a leading visual, a block of text, a tail. `Item.Actions` and `Item.Trailing` |
 | `Heading` | the three text registers: `Heading.Eyebrow`, `.Title`, `.Description` |
 | `IconBox` | the frame around a single icon: `fill × tone × size`, plus `shape` and a `halo` |
@@ -231,6 +232,68 @@ for when the count per breakpoint *is* the design.
 
 For a rule *between* the children of a stack use `<Stack divided>`, not `Divider`: it draws with
 `divide-*`, so no separator element enters the tree and the first and last child never get one.
+
+### `Surface`, the card
+
+```tsx
+<Surface elevation={'raised'}>
+  <Surface.Header>
+    <IconBox tone={'primary'}><Truck /></IconBox>
+    <Heading>
+      <Heading.Title size={'lg'}>Mezzi in servizio</Heading.Title>
+      <Heading.Description>Aggiornato 2 minuti fa</Heading.Description>
+    </Heading>
+    <Item.Actions>{actions}</Item.Actions>
+  </Surface.Header>
+
+  <Surface.Separator />
+  <Surface.Section>{content}</Surface.Section>
+
+  <Surface.Separator type={'gap'} space={8} />
+  <Surface.Section flush><DataTable /></Surface.Section>
+
+  <Surface.Footer justify={'between'}>{pagination}</Surface.Footer>
+</Surface>
+```
+
+| | |
+| --- | --- |
+| `Surface` | `elevation`: `default` · `flat` · `soft` · `raised` — `radius`: `default` · `none` · `lg` → `4xl` — `loading`, `loadingLabel` |
+| `.Header` | **an `Item`**, with the card's padding: every `Item` prop works on it |
+| `.Section` | the body. `flush` drops the padding so a table can reach the edges |
+| `.Separator` | `type`: `divider` (a hairline) or `gap` (`space`, a spacing step) |
+| `.Footer` | `justify`, and `muted` for a recessed row |
+
+**The Surface has no padding and no vertical rhythm of its own.** The room lives in the parts, which
+is what lets a section go `flush` without fighting a padding one level up, and the space between two
+parts is a `Separator` you place. The two implementations this comes from each encoded that decision
+once for the whole card — one with a `divide-y` nobody can opt out of, the other with nine descendant
+margin rules — and neither could put a line in one seam and room in the next.
+
+`Surface.Header` **is** an `Item`, which is the finding this tier was built on: a card header and a
+list row are the same three slots with the same truncation plumbing, and the only difference is the
+register of the title. So the header takes `direction`, `align`, `gap`, `interactive` and everything
+else a row takes.
+
+#### `default` is a value, not the absence of one
+
+```tsx
+<Surface />                        // data-elevation="default"  data-radius="default"
+<Surface elevation={'soft'} />     // data-elevation="soft"      — identical on screen
+```
+
+Both render the same shadow. They are **not** the same set to a stylesheet, and that is the point:
+
+```css
+[data-slot='surface'][data-elevation='default'] { box-shadow: var(--our-house-shadow); }
+```
+
+That rule owns every card nobody had an opinion about, and leaves alone every card that deliberately
+asked for `soft`. Reporting the resolved step would have made the two indistinguishable.
+
+⚠️ It is a **chrome** thing. `elevation` and `radius` carry a house opinion an app will want to
+redefine wholesale; `size`, `gap` and `tone` are steps you picked from a scale, and there
+`data-size="md"` is worth more than `data-size="default"` because it says what the thing is.
 
 ### `Item`, the row
 
