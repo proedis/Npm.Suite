@@ -228,7 +228,7 @@ for when the count per breakpoint *is* the design.
 | `IconBox` | the frame around a single icon: `fill × tone × size`, plus `shape` and a `halo` |
 | `Spinner` | a CSS ring, no icon library. `label` makes it announced, its absence makes it decorative |
 | `Label` | the name of something, with an optional line of detail. Two emphases, `strong` and `quiet` |
-| `LabeledContent` | a value with a quiet label: the read-only counterpart of a form field |
+| `LabeledContent` | a value with a quiet label: `LabeledContent.Label` and `.Value` |
 
 For a rule *between* the children of a stack use `<Stack divided>`, not `Divider`: it draws with
 `divide-*`, so no separator element enters the tree and the first and last child never get one.
@@ -291,9 +291,20 @@ Both render the same shadow. They are **not** the same set to a stylesheet, and 
 That rule owns every card nobody had an opinion about, and leaves alone every card that deliberately
 asked for `soft`. Reporting the resolved step would have made the two indistinguishable.
 
-⚠️ It is a **chrome** thing. `elevation` and `radius` carry a house opinion an app will want to
-redefine wholesale; `size`, `gap` and `tone` are steps you picked from a scale, and there
-`data-size="md"` is worth more than `data-size="default"` because it says what the thing is.
+There is a second reason, and it is the stronger one: your rule keeps meaning "the ones we did not
+decide" even if this package later changes which step the default is. A rule against
+`[data-elevation='soft']` would silently stop matching.
+
+⚠️ Only **four** props have it, and the list is deliberately short. A prop earns a `default` when its
+default is a **choice among named options** (not a step of a themeable scale), when you would plausibly
+write a rule for the unspecified case, and when that rule should survive this package changing its
+mind:
+
+| Has `default` | Does not, and why |
+| --- | --- |
+| `Surface.elevation` · `Surface.radius` · `Container.size` · `Label.emphasis` | `IconBox`'s `size` / `fill` / `tone` / `shape`, `Spinner.size`, every `Heading` size and every `gap` are **steps of a scale** — `--spacing`, `--radius-scale`, `--text-*` are the better lever, and `data-size="md"` says what the thing *is* |
+| | `Divider.orientation`, `ScrollArea.orientation`, `Sticky.position`, `Split.side`, `SafeArea.sides`, `Item.direction`, `Grid.fill` are **what you meant**, not a house look: nobody restyles "the dividers we did not give an orientation" |
+| | every boolean: `data-inset` is present or absent, and there is no third state to name |
 
 ### `Item`, the row
 
@@ -353,6 +364,37 @@ An `onClick` on a `div` is not reachable from a keyboard, and no prop here prete
 There is no `tone` either: a boxed row is a card, and there is a component for a card —
 `<Surface><Item /></Surface>` is one element instead of a chrome duplicated in two places that then
 have to be kept in step. `inset` stayed, because row padding belongs to the row.
+
+### `LabeledContent`, the pair with the emphasis inverted
+
+```tsx
+<LabeledContent>
+  <LabeledContent.Label>Totale raccolto</LabeledContent.Label>
+  <LabeledContent.Value>1.204 kg</LabeledContent.Value>
+</LabeledContent>
+
+<LabeledContent inline>                     {/* a settings row: name left, state right */}
+  <LabeledContent.Label>Notifiche push</LabeledContent.Label>
+  <LabeledContent.Value>Attive</LabeledContent.Value>
+</LabeledContent>
+```
+
+A `Heading` is a loud title with a quiet line under it. This is the opposite: a quiet name with a
+**loud value** under it, because here the value is the point and a label competing with it flattens the
+pair. Same two elements, opposite weights — which is why it is not a `Heading` with props.
+
+For the row with an icon, compose: `Item` grows a `LabeledContent` exactly as it grows a `Heading`.
+
+```tsx
+<Item align={'start'}>
+  <IconBox><Scale /></IconBox>
+  <LabeledContent>
+    <LabeledContent.Label>Totale raccolto</LabeledContent.Label>
+    <LabeledContent.Value>1.204 kg</LabeledContent.Value>
+  </LabeledContent>
+  <Item.Actions>{actions}</Item.Actions>
+</Item>
+```
 
 ### `Heading`, the three text registers
 

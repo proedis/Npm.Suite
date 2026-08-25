@@ -136,6 +136,30 @@ const wrongGapValue = <Heading gap={13}>no</Heading>;
 
 
 /* --------
+ * `default` is a value on the four props that earn it, and on no others
+ * -------- */
+const chromeDefaults = (
+  <React.Fragment>
+    <Surface elevation={'default'} radius={'default'} />
+    <Container size={'default'} />
+    <Label emphasis={'default'}>Email</Label>
+  </React.Fragment>
+);
+
+/** @ts-expect-error a measurement has no 'default': the scale is the lever, and data-size says what it is */
+const iconBoxNoDefault = <IconBox size={'default'}><svg /></IconBox>;
+
+/** @ts-expect-error neither does a typographic step */
+const titleNoDefault = <Heading.Title size={'default'}>no</Heading.Title>;
+
+/** @ts-expect-error nor a caller-intent prop: 'vertical' is what you meant, not a house opinion */
+const itemNoDefault = <Item direction={'default'}>no</Item>;
+
+/** @ts-expect-error nor the spinner's size */
+const spinnerNoDefault = <Spinner size={'default'} />;
+
+
+/* --------
  * The card, and the 'default' that is not a step
  * -------- */
 const card = (
@@ -220,6 +244,7 @@ const missingComponentProp = <Container as={Custom} size={'xl'} />;
  * Keep the compiler from pruning the assertions
  * -------- */
 export const CHECKED = [
+  chromeDefaults, iconBoxNoDefault, titleNoDefault, itemNoDefault, spinnerNoDefault,
   card, noOpinion, modalSurface, wrongLoadingLabel, wrongSeparator, wrongSeparatorSpace,
   headerIsAnItem, listRow, buttonRow, emptyStateRow, divWithType, itemWrongGap, itemWrongTone,
   pair, eyebrowWrongSize, headingAs, titleWrongSize, descriptionWrongSize, wrongLines, wrongGapValue, flatPart,

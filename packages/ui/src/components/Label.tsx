@@ -20,14 +20,20 @@ import type { BaseProps } from '../core/base';
  * label carries the meaning. A **data** label is the quiet one: the value next to it is the point,
  * and a label competing with it flattens the hierarchy.
  */
-export type LabelEmphasis = 'quiet' | 'strong';
+export type LabelEmphasis = 'default' | 'quiet' | 'strong';
 
 
 export interface StrictLabelProps extends BaseProps {
   /** A second line under the label: the unit, the format, where the value comes from */
   description?: React.ReactNode;
 
-  /** Defaults to `strong`, the form register */
+  /**
+   * Defaults to `default`, which renders the form register.
+   *
+   * A value of its own rather than the resolved step, so
+   * `[data-slot='label'][data-emphasis='default']` owns every label nobody had an opinion about — and
+   * keeps owning them if this package ever changes which register that is.
+   */
   emphasis?: LabelEmphasis;
 
 }
@@ -39,9 +45,13 @@ export type LabelProps<E extends React.ElementType = 'label'> = PolymorphicProps
 /* --------
  * Constants Definition
  * -------- */
+/** The house register, in one place, so `default` and the step it equals cannot drift apart */
+const DEFAULT_EMPHASIS_CLASS = 'text-sm font-medium text-foreground';
+
 const EMPHASIS: Readonly<Record<LabelEmphasis, string>> = {
-  quiet : 'text-xs font-medium text-muted-foreground',
-  strong: 'text-sm font-medium text-foreground'
+  default: DEFAULT_EMPHASIS_CLASS,
+  quiet  : 'text-xs font-medium text-muted-foreground',
+  strong : DEFAULT_EMPHASIS_CLASS
 };
 
 
@@ -80,7 +90,7 @@ export function Label<E extends React.ElementType = 'label'>(props: LabelProps<E
     children,
     className,
     description,
-    emphasis = 'strong',
+    emphasis = 'default',
     ...others
   } = props as LabelProps<'label'>;
 

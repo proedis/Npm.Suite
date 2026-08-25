@@ -11,14 +11,21 @@ import type { BaseProps } from '../core/base';
 /* --------
  * Types Definition
  * -------- */
-export type ContainerSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
+export type ContainerSize = 'default' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
 
 
 export interface StrictContainerProps extends BaseProps {
   /** Horizontal padding that grows with the viewport. On by default */
   padded?: boolean;
 
-  /** How wide the content may get */
+  /**
+   * How wide the content may get.
+   *
+   * `default` is a value of its own and the one you get by saying nothing, so
+   * `[data-slot='container'][data-size='default']` is exactly the set of pages nobody had an opinion
+   * about — and an application's rule for it keeps working if this package ever changes its mind about
+   * which step that is.
+   */
   size?: ContainerSize;
 
 }
@@ -30,12 +37,16 @@ export type ContainerProps<E extends React.ElementType = 'div'> = PolymorphicPro
 /* --------
  * Constants Definition
  * -------- */
+/** The house page width, in one place, so `default` and the step it equals cannot drift apart */
+const DEFAULT_SIZE_CLASS = 'max-w-7xl';
+
 const SIZE: Record<ContainerSize, string> = {
-  full: 'max-w-none',
-  lg  : 'max-w-7xl',
-  md  : 'max-w-5xl',
-  sm  : 'max-w-3xl',
-  xl  : 'max-w-8xl'
+  default: DEFAULT_SIZE_CLASS,
+  full   : 'max-w-none',
+  lg     : DEFAULT_SIZE_CLASS,
+  md     : 'max-w-5xl',
+  sm     : 'max-w-3xl',
+  xl     : 'max-w-8xl'
 };
 
 
@@ -56,7 +67,7 @@ export function Container<E extends React.ElementType = 'div'>(props: ContainerP
     as: Component = 'div',
     className,
     padded = true,
-    size = 'lg',
+    size = 'default',
     ...others
   } = props as ContainerProps<'div'>;
 

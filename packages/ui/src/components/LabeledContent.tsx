@@ -3,46 +3,100 @@ import * as React from 'react';
 import { splitBaseProps } from '../core/base';
 import { cn } from '../core/cn';
 
-import type { BaseProps } from '../core/base';
-
 import { Label } from './Label';
+
+import type { BaseProps } from '../core/base';
+import type { PolymorphicProps } from '../core/polymorphic';
+
+import type { LabelProps } from './Label';
 
 
 /* --------
  * Types Definition
  * -------- */
-export interface LabeledContentProps extends Omit<React.ComponentProps<'div'>, 'title'>, BaseProps {
-  /** The value being labelled */
-  children: React.ReactNode;
-
-  /** A second line under the label: the unit, the format, where the number comes from */
-  description?: React.ReactNode;
-
-  /** Shown left of the label, and it indents the whole text column */
-  icon?: React.ReactNode;
-
-  /** Label on the left, value on the right — the shape a settings or a summary row wants */
+export interface StrictLabeledContentProps extends BaseProps {
+  /** Label on the left, value on the right — the shape a settings row or a summary row wants */
   inline?: boolean;
-
-  label: React.ReactNode;
 }
+
+export type LabeledContentProps<E extends React.ElementType = 'div'> =
+  PolymorphicProps<E, StrictLabeledContentProps>;
+
+
+export type LabeledContentLabelProps<E extends React.ElementType = 'span'> = LabelProps<E>;
+
+
+export interface StrictLabeledContentValueProps extends BaseProps {}
+
+export type LabeledContentValueProps<E extends React.ElementType = 'div'> =
+  PolymorphicProps<E, StrictLabeledContentValueProps>;
 
 
 /* --------
- * Internal Components
+ * Parts Definition
  * -------- */
-const LabeledIcon: React.FunctionComponent<{ icon: React.ReactNode }> = ({ icon }) => (
-  <span
-    className={cn(
-      'flex size-9 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground',
-      '[&_svg:not([class*=size-])]:size-4.5'
-    )}
-  >
-    {icon}
-  </span>
-);
 
-LabeledIcon.displayName = 'LabeledIcon';
+/**
+ * The quiet half, which **is** a `Label` in its quiet emphasis rendered as a `span`.
+ *
+ * Quiet on purpose, and it is the whole reason this component exists rather than a `Heading`: the
+ * emphasis is inverted. A heading is a loud title with a quiet line under it; this is a quiet name
+ * with a loud value under it, because here the value is the point and a label competing with it
+ * flattens the pair. Same two elements, opposite weights.
+ *
+ * A `span` and not a `<label>`, because there is no control to point at — that is what `Label` itself
+ * is for, and the difference between the two is whether there is a `for`.
+ */
+function LabeledContentLabel<E extends React.ElementType = 'span'>(
+  props: LabeledContentLabelProps<E>
+): React.ReactNode {
+  const { className, ...rest } = props as LabeledContentLabelProps<'span'>;
+
+  return (
+    <Label
+      as={'span'}
+      data-slot={'labeled-content-label'}
+      emphasis={'quiet'}
+      className={cn('min-w-0', className)}
+      {...rest}
+    />
+  );
+}
+
+LabeledContentLabel.displayName = 'LabeledContent.Label';
+
+
+/** The loud half: the number, the date, the state */
+function LabeledContentValue<E extends React.ElementType = 'div'>(
+  props: LabeledContentValueProps<E>
+): React.ReactNode {
+
+  // ----
+  // Props Deconstruct
+  // ----
+  const {
+    as: Component = 'div',
+    className,
+    ...others
+  } = props as LabeledContentValueProps<'div'>;
+
+  const { baseClasses, rest } = splitBaseProps(others);
+
+
+  // ----
+  // Component Render
+  // ----
+  return (
+    <Component
+      data-slot={'labeled-content-value'}
+      className={cn('min-w-0 text-sm font-semibold text-foreground', baseClasses, className)}
+      {...rest}
+    />
+  );
+
+}
+
+LabeledContentValue.displayName = 'LabeledContent.Value';
 
 
 /* --------
@@ -52,61 +106,93 @@ LabeledIcon.displayName = 'LabeledIcon';
 /**
  * A value with a label: the read-only counterpart of a form field.
  *
- * The label goes through `Label` in its **quiet** emphasis, which is the whole reason that component
- * has two: here the value is the prominent element and a label competing with it flattens the pair.
- * It renders as a `span`, since there is no control to point at.
+ * ```tsx
+ * <LabeledContent>
+ *   <LabeledContent.Label>Totale raccolto</LabeledContent.Label>
+ *   <LabeledContent.Value>1.204 kg</LabeledContent.Value>
+ * </LabeledContent>
  *
- * Reads `--muted`, `--muted-foreground`, `--foreground` and the radius scale.
+ * <LabeledContent inline>                            // a settings row: name left, state right
+ *   <LabeledContent.Label>Notifiche push</LabeledContent.Label>
+ *   <LabeledContent.Value>Attive</LabeledContent.Value>
+ * </LabeledContent>
+ * ```
+ *
+ * ## What it stopped doing
+ *
+ * It used to take `icon` and render its own framed box for it — `size-9`, a radius, `bg-muted`, a
+ * glyph size — which is an `IconBox` written by hand before `IconBox` existed. Gone: the icon and the
+ * row around it belong to `Item`, which already owns the truncation plumbing this was reproducing.
+ *
+ * ```tsx
+ * <Item align={'start'}>
+ *   <IconBox><Scale /></IconBox>
+ *   <LabeledContent>
+ *     <LabeledContent.Label>Totale raccolto</LabeledContent.Label>
+ *     <LabeledContent.Value>1.204 kg</LabeledContent.Value>
+ *   </LabeledContent>
+ *   <Item.Actions>{…}</Item.Actions>
+ * </Item>
+ * ```
+ *
+ * `Item` grows this the same way it grows a `Heading`, so the pair takes the free space and the value
+ * truncates instead of pushing the actions out of the row.
+ *
+ * ⚠️ `inline` is still here rather than deferred to `Item`, and the reason is the axis: an inline
+ * `LabeledContent` puts the label and the value on **one** line with the value pushed to the far end,
+ * which is an arrangement of the pair itself. An `Item` around it would put the pair on one side and
+ * something else on the other.
  */
-export function LabeledContent(props: LabeledContentProps): React.ReactNode {
+export function LabeledContent<E extends React.ElementType = 'div'>(
+  props: LabeledContentProps<E>
+): React.ReactNode {
 
   // ----
   // Props Deconstruct
   // ----
   const {
-    children,
+    as: Component = 'div',
     className,
-    description,
-    icon,
     inline = false,
-    label,
     ...others
-  } = props;
+  } = props as LabeledContentProps<'div'>;
 
   const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
+  // Layout Computation
+  // ----
+
+  /**
+   * The inline arrangement pushes the value to the end and lets the label take the room, which is the
+   * mirror of the plumbing in `Item`: the growing half is the one that may truncate, the other never
+   * shrinks. Declared as descendant classes so no caller has to write them, at the known cost that
+   * their specificity beats the part's own `className`.
+   */
+  const arrangement = inline
+    ? cn(
+      'flex items-center justify-between gap-4',
+      '[&>[data-slot=labeled-content-label]]:grow',
+      '[&>[data-slot=labeled-content-value]]:shrink-0 [&>[data-slot=labeled-content-value]]:text-right'
+    )
+    : 'flex flex-col gap-1';
+
+
+  // ----
   // Component Render
   // ----
-  if (inline) {
-    return (
-      <div
-        data-slot={'labeled-content'}
-        data-inline={true}
-        className={cn('flex items-center justify-between gap-4', baseClasses, className)}
-        {...rest}
-      >
-        <div className={'flex min-w-0 items-center gap-3'}>
-          {icon !== null && icon !== undefined && <LabeledIcon icon={icon} />}
-          <Label as={'span'} description={description} emphasis={'quiet'}>{label}</Label>
-        </div>
-        <div className={'min-w-0 text-right text-sm font-semibold text-foreground'}>{children}</div>
-      </div>
-    );
-  }
-
   return (
-    /** `items-start`, so the icon indents the whole column: label, description and value stay aligned */
-    <div data-slot={'labeled-content'} className={cn('flex items-start gap-3', baseClasses, className)} {...rest}>
-      {icon !== null && icon !== undefined && <LabeledIcon icon={icon} />}
-      <div className={'flex min-w-0 flex-1 flex-col gap-1'}>
-        <Label as={'span'} description={description} emphasis={'quiet'}>{label}</Label>
-        <div className={'text-sm font-semibold text-foreground'}>{children}</div>
-      </div>
-    </div>
+    <Component
+      data-slot={'labeled-content'}
+      data-inline={inline || undefined}
+      className={cn('min-w-0', arrangement, baseClasses, className)}
+      {...rest}
+    />
   );
 
 }
 
 LabeledContent.displayName = 'LabeledContent';
+LabeledContent.Label = LabeledContentLabel;
+LabeledContent.Value = LabeledContentValue;

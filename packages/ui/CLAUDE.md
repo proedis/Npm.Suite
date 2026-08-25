@@ -288,11 +288,33 @@ narrower stylesheet is the one you have to ask for.
   application restyling the first also restyles the second. With `default` as a value,
   `[data-elevation='default']` is exactly the set an application wants to own.
 
-  ⚠️ This belongs to **chrome**, not to every variant. `elevation` and `radius` carry a house opinion
-  an application will want to redefine wholesale; `size`, `gap` and `tone` are steps the caller picked
-  from a scale, and there `data-size="md"` is worth more than `data-size="default"` because it says
-  what the thing *is*. The criterion: **is the default an opinion or a measurement?** And the two keys
-  must share one class constant, or `default` and the step it equals will drift into two appearances.
+  There is a second reason, and it is the stronger one: **it decouples an application's selector from
+  this package's choice.** A rule written against `[data-elevation='soft']` silently stops matching the
+  day the default here changes to `flat`; a rule written against `[data-elevation='default']` keeps
+  meaning "the ones we did not decide".
+
+  ⚠️ It is deliberately **not** on every variant, and the audit that fixed the list ran over all 22
+  components. Three questions, all three have to be yes:
+
+  1. Is the default a **choice among named options** rather than a step of a themeable scale? A scale
+     already has a better lever — `--spacing`, `--radius-scale`, the `--text-*` steps — and one
+     declaration there beats enumerating components.
+  2. Would an application plausibly write a rule for **the unspecified case**?
+  3. Would that rule survive this package changing its mind about which option the default is?
+
+  The four that pass: `Surface.elevation`, `Surface.radius`, `Container.size`, `Label.emphasis`.
+
+  What fails, and why it is worth knowing rather than re-deriving: `IconBox`'s `fill` / `tone` / `size`
+  / `shape` and `Spinner.size` and every `Heading` size are **steps**, so they fail (1) and
+  `data-size="md"` is worth more than `data-size="default"` because it says what the thing is;
+  `gap` on `Heading` and `Item` is a step of `--spacing`, same reason; `Divider.orientation`,
+  `ScrollArea.orientation`, `Sticky.position`, `Split.side`, `SafeArea.sides`, `Item.direction` and
+  `Grid.fill` are **what the caller meant**, not a house look, so they fail (2) — nobody restyles "the
+  dividers we did not give an orientation". Every boolean is out by construction: `data-inset` is
+  present or absent and there is no third state to name.
+
+  And the two keys must share one class constant, or `default` and the step it equals will drift into
+  two appearances.
 - **Every variant is reported as a `data-*` attribute, and that is the theming surface.** Tailwind
   emits its utilities inside `@layer utilities` — measured, not assumed — so a plain **unlayered** rule
   in a consumer's stylesheet beats them with no specificity contest and no `!important`:
@@ -360,6 +382,15 @@ narrower stylesheet is the one you have to ask for.
   and a list row are the same three slots with the same truncation plumbing, and the only difference is
   the register of the title. It renders an `Item`, forwards every one of its props, and replaces only
   the `data-slot`, because a header is not a thing a consumer wants to catch with `[data-slot='item']`.
+- **`LabeledContent` is a pair with the emphasis inverted, and nothing else.** A `Heading` is a loud
+  title with a quiet line under it; this is a quiet name with a **loud value** under it, because there
+  the value is the point. Same two elements, opposite weights, which is why it is not a `Heading` with
+  props.
+  ⚠️ It used to take an `icon` and render its own framed box for it — `size-9`, a radius, `bg-muted`,
+  a glyph size — which is an `IconBox` written by hand before `IconBox` existed. Both are gone: the
+  icon and the row belong to `Item`, whose plumbing grows a `[data-slot='labeled-content']` exactly as
+  it grows a `[data-slot='heading']`. `inline` stayed, because putting the label and the value on one
+  line is an arrangement of the pair itself and not of a row around it.
 - **A compound's parts carry their own variants; nothing is inherited.** `Heading.Title` and
   `Heading.Description` each take a `size`, and the pair does not hand one down. The two ways to share
   it are both worse: a context is client-only and takes the tier out of a Server Component, and a
@@ -437,7 +468,7 @@ The shape is the same in all seventeen, and every step of it is load-bearing. In
    | Kind of prop | Reported | Why |
    | --- | --- | --- |
    | closed set of values | always, **resolved** | an attribute that vanishes with the prop cannot be targeted, and the default is the case most worth retuning |
-   | a **chrome** variant | with a `default` member | so "no opinion" is targetable apart from an explicit step — see the invariant above |
+   | a variant that passes the three questions | with a `default` member | so "no opinion" is targetable apart from an explicit step, and survives this package changing its mind — see the invariant above |
    | boolean | only when `true` | the HTML idiom, and `[data-flush]` reads better than `[data-flush='false']` |
    | `Responsive<T>` | **never** | one attribute cannot hold `{ base: 2, lg: 6 }`; the per-breakpoint classes are the surface |
    | a free measure | **never** | `railWidth`, `maxHeight`, `ratio` are inline lengths — an inline style already beats any rule, so the prop is the surface |

@@ -24,7 +24,8 @@ const DEFAULT_GAP: SpacingValue = 3;
 /**
  * The plumbing, and the only reason this component exists rather than a `Cluster` with three children.
  *
- * `grow min-w-0` on the heading and `shrink-0` on the tail is what makes a long title **truncate**
+ * `grow min-w-0` on the text block — a `Heading` or a `LabeledContent`, whichever the caller put there
+ * — and `shrink-0` on the tail is what makes a long title **truncate**
  * instead of pushing the actions out of the row. Both reference implementations carry it, three times
  * per file, and it is the part that is silently wrong when a caller forgets it: nothing breaks, the row
  * just overflows its container at some content length nobody tested.
@@ -39,7 +40,10 @@ const DEFAULT_GAP: SpacingValue = 3;
  * `0,1,0`), so these beat a `grow-0` written in the heading's `className`. That is the price of the
  * caller not having to know about them; the escape hatch is `className` on the `Item` itself.
  */
-const SLOT_PLUMBING = '[&>[data-slot=heading]]:min-w-0 [&>[data-slot=heading]]:grow';
+const SLOT_PLUMBING = cn(
+  '[&>[data-slot=heading]]:min-w-0 [&>[data-slot=heading]]:grow',
+  '[&>[data-slot=labeled-content]]:min-w-0 [&>[data-slot=labeled-content]]:grow'
+);
 
 
 /* --------
