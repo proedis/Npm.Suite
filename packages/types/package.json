@@ -1,6 +1,6 @@
 {
   "name": "@proedis/types",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Shared TypeScript type primitives for the Proedis suite",
   "keywords": [
     "proedis",

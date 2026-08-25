@@ -1,6 +1,6 @@
 {
   "name": "@proedis/zod",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Zod 4 introspection for UI: one field descriptor per schema path, so a form control reads its label and its bounds from the schema",
   "keywords": [
     "proedis",

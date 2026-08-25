@@ -1,6 +1,6 @@
 {
   "name": "@proedis/ui",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "The interface layer of a Proedis frontend: layout primitives, the components that read the token contract, and the machinery behind both",
   "keywords": [
     "proedis",
