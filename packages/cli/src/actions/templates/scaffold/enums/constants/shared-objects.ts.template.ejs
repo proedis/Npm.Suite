@@ -189,7 +189,7 @@ type SharedObjectOption = {
 };
 
 type ZodSharedObject<%- '<T extends SharedObjectName>' %> =
-  & z.ZodEnum<[ ComposedSharedObjects[T], ...ComposedSharedObjects[T][] ]>
+  & z.ZodEnum<{ [ K in ComposedSharedObjects[T] ]: K }>
   & { data: SharedObject<%- '<ComposedSharedObjects[T]>' %>[] };
 
 function zodSharedObject<%- '<T extends SharedObjectName>' %>(
@@ -225,8 +225,8 @@ function zodSharedObject<%- '<T extends SharedObjectName>' %>(
   );
 
   /** Create the ZodEnum */
-  const zodEnum: z.ZodEnum<[ ComposedSharedObjects[T], ...ComposedSharedObjects[T][] ]> = z.enum(
-    sharedObject.map(s => s.value) as [ ComposedSharedObjects[T], ...ComposedSharedObjects[T][] ]
+  const zodEnum: z.ZodEnum<{ [ K in ComposedSharedObjects[T] ]: K }> = z.enum(
+    sharedObject.map(s => s.value) as ComposedSharedObjects[T][]
   );
 
   Object.defineProperty(zodEnum, 'data', {
