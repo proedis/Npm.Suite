@@ -14,7 +14,7 @@
 
 import * as React from 'react';
 
-import { Box, Container, Heading, IconBox, Item, Label, Spinner, Stack, Surface, VisuallyHidden } from './src';
+import { Badge, Box, Container, Heading, IconBox, Item, Label, Spinner, Stack, Surface, VisuallyHidden } from './src';
 
 import type { StackProps } from './src';
 
@@ -83,6 +83,36 @@ const skipLink = <VisuallyHidden as={'a'} focusable href={'#main'}>Skip to conte
 
 /** @ts-expect-error VisuallyHidden deliberately has no shared visibility props */
 const contradictoryProps = <VisuallyHidden hideBelow={'md'}>no</VisuallyHidden>;
+
+
+/* --------
+ * The badge shares the tone vocabulary, and the composition it exists for
+ * -------- */
+const badges = (
+  <React.Fragment>
+    <Badge>Bozza</Badge>
+    <Badge tone={'warning'} dot size={'sm'}>In ritardo</Badge>
+    <Badge tone={'destructive'} fill={'solid'} as={'a'} href={'/x'}>3</Badge>
+  </React.Fragment>
+);
+
+const titleWithBadge = (
+  <Heading>
+    <Stack direction={'horizontal'} align={'center'} gap={2}>
+      <Heading.Title lines={1}>FT-234-KL</Heading.Title>
+      <Badge tone={'warning'}>In ritardo</Badge>
+    </Stack>
+  </Heading>
+);
+
+/** @ts-expect-error the badge speaks the same closed tone vocabulary as everything else */
+const badgeWrongTone = <Badge tone={'danger'}>no</Badge>;
+
+/** @ts-expect-error and the same fill axis as IconBox: there is no 'outline' */
+const badgeWrongFill = <Badge fill={'outline'}>no</Badge>;
+
+/** @ts-expect-error a size is a step, so it has no 'default' either */
+const badgeNoDefault = <Badge size={'default'}>no</Badge>;
 
 
 /* --------
@@ -244,6 +274,7 @@ const missingComponentProp = <Container as={Custom} size={'xl'} />;
  * Keep the compiler from pruning the assertions
  * -------- */
 export const CHECKED = [
+  badges, titleWithBadge, badgeWrongTone, badgeWrongFill, badgeNoDefault,
   chromeDefaults, iconBoxNoDefault, titleNoDefault, itemNoDefault, spinnerNoDefault,
   card, noOpinion, modalSurface, wrongLoadingLabel, wrongSeparator, wrongSeparatorSpace,
   headerIsAnItem, listRow, buttonRow, emptyStateRow, divWithType, itemWrongGap, itemWrongTone,

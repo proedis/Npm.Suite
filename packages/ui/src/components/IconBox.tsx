@@ -7,6 +7,8 @@ import { cn } from '../core/cn';
 
 import type { BaseProps } from '../core/base';
 import type { PolymorphicProps } from '../core/polymorphic';
+import { TONE_COMPOUNDS } from '../core/tone';
+
 import type { Tone } from '../core/tone';
 
 
@@ -33,8 +35,9 @@ const DEFAULT_VARIANTS = {
 
 /**
  * Three axes, and they are deliberately independent: **how** it is filled, **which** tone, **how
- * big**. The fill × tone product is enumerated rather than computed, and that is the one decision in
- * this file worth defending.
+ * big**. The fill × tone product comes from `TONE_COMPOUNDS` in `core/tone.ts`, so this component and
+ * every other one offering a tone paints it identically; it is enumerated there rather than computed,
+ * and that is the one decision worth defending.
  *
  * The alternative both source implementations reached for is an indirection: inject the tone as CSS
  * custom properties (`--ic-c`, `--ic-csoft`, …) and write tone-agnostic classes like
@@ -90,38 +93,8 @@ const iconBoxVariants = cva(
       }
     },
 
-    compoundVariants: [
-      /* Solid: the tone carries the surface, its own foreground carries the glyph */
-      { fill: 'solid', tone: 'muted', class: 'bg-muted text-muted-foreground' },
-      { fill: 'solid', tone: 'secondary', class: 'bg-secondary text-secondary-foreground' },
-      { fill: 'solid', tone: 'primary', class: 'bg-primary text-primary-foreground' },
-      { fill: 'solid', tone: 'success', class: 'bg-success text-success-foreground' },
-      { fill: 'solid', tone: 'warning', class: 'bg-warning text-warning-foreground' },
-      { fill: 'solid', tone: 'destructive', class: 'bg-destructive text-destructive-foreground' },
-      { fill: 'solid', tone: 'info', class: 'bg-info text-info-foreground' },
-
-      /*
-       * Soft: a tenth of the tone behind the tone itself. The two quiet tones are the exception —
-       * `muted` and `secondary` ARE the quiet register, so a tenth of them is invisible and they
-       * keep their own surface at half strength instead.
-       */
-      { fill: 'soft', tone: 'muted', class: 'bg-muted/50 text-muted-foreground' },
-      { fill: 'soft', tone: 'secondary', class: 'bg-secondary/50 text-secondary-foreground' },
-      { fill: 'soft', tone: 'primary', class: 'bg-primary/10 text-primary' },
-      { fill: 'soft', tone: 'success', class: 'bg-success/10 text-success' },
-      { fill: 'soft', tone: 'warning', class: 'bg-warning/10 text-warning' },
-      { fill: 'soft', tone: 'destructive', class: 'bg-destructive/10 text-destructive' },
-      { fill: 'soft', tone: 'info', class: 'bg-info/10 text-info' },
-
-      /* Plain: no surface at all, the glyph keeps the footprint so a column of them stays aligned */
-      { fill: 'plain', tone: 'muted', class: 'text-muted-foreground' },
-      { fill: 'plain', tone: 'secondary', class: 'text-secondary-foreground' },
-      { fill: 'plain', tone: 'primary', class: 'text-primary' },
-      { fill: 'plain', tone: 'success', class: 'text-success' },
-      { fill: 'plain', tone: 'warning', class: 'text-warning' },
-      { fill: 'plain', tone: 'destructive', class: 'text-destructive' },
-      { fill: 'plain', tone: 'info', class: 'text-info' }
-    ],
+    /** Every `fill × tone` pair, from the one table the whole package paints tones with */
+    compoundVariants: [ ...TONE_COMPOUNDS ],
 
     defaultVariants: DEFAULT_VARIANTS
   }

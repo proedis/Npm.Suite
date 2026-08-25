@@ -56,7 +56,12 @@ const LINE_HEIGHT_DESCRIPTION = 'leading-snug';
  * `font-semibold`, a large one is `font-bold`. It is not exposed as its own axis until something needs
  * the combination the pair does not offer.
  */
-const titleVariants = cva('text-foreground', {
+/**
+ * `min-w-0` so the title is the element that absorbs the pressure when something sits beside it — a
+ * `Badge`, a count, an icon. A flex child refuses to shrink below its content without it, so the
+ * sibling would be pushed out of the row instead of the title truncating.
+ */
+const titleVariants = cva('min-w-0 text-foreground', {
   variants       : {
     lines: {
       1: 'line-clamp-1',

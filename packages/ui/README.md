@@ -33,7 +33,7 @@ things are*, `components` answers *what they look like*, and `hooks` is the clie
 | **Layout** | `Box` · `Stack` · `Grid` · `Cluster` · `Center` · `Container` · `Split` · `Spacer` · `Sticky` · `AspectRatio` |
 | **Visibility** | `hideBelow` / `hideFrom` on every primitive, plus `VisuallyHidden` |
 | **Escapes** | `Bleed` · `SafeArea` — out of a padding, and out of the notch |
-| **Components** | `Surface` · `Item` · `Heading` · `IconBox` · `Spinner` · `Divider` · `ScrollArea` · `Label` · `LabeledContent` |
+| **Components** | `Surface` · `Item` · `Heading` · `Badge` · `IconBox` · `Spinner` · `Divider` · `ScrollArea` · `Label` · `LabeledContent` |
 | **Responsive** | `Responsive<T>`, the typed scales, and the class builders behind every prop |
 | **Utilities** | `cn` — class composition where the last conflicting utility wins |
 | **Types** | `PolymorphicProps` — `as` typed by the element it renders, not by `div` |
@@ -225,6 +225,7 @@ for when the count per breakpoint *is* the design.
 | `Surface` | the card: `Surface.Header`, `.Section`, `.Separator`, `.Footer`, plus `loading` |
 | `Item` | the row: a leading visual, a block of text, a tail. `Item.Actions` and `Item.Trailing` |
 | `Heading` | the three text registers: `Heading.Eyebrow`, `.Title`, `.Description` |
+| `Badge` | a compact label: `fill × tone × size`, plus a leading `dot` |
 | `IconBox` | the frame around a single icon: `fill × tone × size`, plus `shape` and a `halo` |
 | `Spinner` | a CSS ring, no icon library. `label` makes it announced, its absence makes it decorative |
 | `Label` | the name of something, with an optional line of detail. Two emphases, `strong` and `quiet` |
@@ -447,6 +448,45 @@ oversight: sharing it downwards would need a context, which is client-only and w
 of a Server Component, or a descendant class on the parent — and a descendant selector has more
 specificity than the child's own utility, so the parent would silently win over an explicit `size`.
 Two explicit props beat one knob that cannot be overridden.
+
+### `Badge`, and one table for every tone
+
+```tsx
+<Badge>Bozza</Badge>
+<Badge tone={'warning'} dot>In ritardo</Badge>
+<Badge tone={'destructive'} fill={'solid'} size={'sm'}>3</Badge>
+```
+
+Same three axes as `IconBox` — `fill` (`solid` · `soft` · `plain`), `tone` (the seven), `size`
+(`sm` · `md` · `lg`) — and painted from the **same table**, `TONE_CLASSES` in `@proedis/ui/core`. That
+is why a `success` badge and a `success` icon box are the same green at the same strength. The two
+implementations this comes from each carried their own colour table and agreed with each other on none
+of them.
+
+Next to a title, which is what it was asked for:
+
+```tsx
+<Heading>
+  <Stack direction={'horizontal'} align={'center'} gap={2}>
+    <Heading.Title lines={1}>FT-234-KL</Heading.Title>
+    <Badge tone={'warning'}>In ritardo</Badge>
+  </Stack>
+  <Heading.Description>Ultimo passaggio 12:04</Heading.Description>
+</Heading>
+```
+
+A `Stack` and **not** a `Cluster`: a cluster wraps, so a long title would push the badge onto a second
+line instead of truncating. The title carries `min-w-0` and the badge carries `shrink-0`, so the
+pressure lands on the one that can absorb it.
+
+⚠️ **Static by nature.** A badge communicates, it is not clicked, and there is no `removable` with an
+`×` inside it: a control inside a label needs the label not to be a control, needs its own name, focus
+ring and keyboard path. A removable chip is a **button with a badge in it**. `as={'a'}` is there for a
+badge that navigates, and then the semantics are yours — the same rule as `Item`.
+
+Not here either, each for a reason: `loading` (a badge as a live region), `pulse` (a keyframe this
+stylesheet does not declare) and `count` / `iconOnly` (a second geometry where one digit is a circle).
+`dot` is here because it needs none of the three.
 
 ### `IconBox`, and the tone vocabulary
 

@@ -25,8 +25,8 @@ So the boundary is now the tier, and the tiers are published subpaths:
 - **`layout`** — answers *where things are*: `Box`, `Stack`, `Grid`, `Cluster`, `Center`, `Container`,
   `Split`, `Spacer`, `Sticky`, `AspectRatio`, `Bleed`, `SafeArea`. No colour, no opinion.
 - **`components`** — answers *what things look like*: `Divider`, `ScrollArea`, `Label`,
-  `LabeledContent`, `VisuallyHidden`, `IconBox`, `Spinner`, `Heading`, `Item`, `Surface`, and the
-  compounds that come next.
+  `LabeledContent`, `VisuallyHidden`, `IconBox`, `Spinner`, `Heading`, `Badge`, `Item`, `Surface`, and
+  the compounds that come next.
 - **`hooks`** — client-only, `'use client'`.
 
 ⚠️ What is still outside, and this is the line that has **not** moved: anything that carries a
@@ -341,6 +341,20 @@ narrower stylesheet is the one you have to ask for.
   invisible to the scanner, so a missing safelist entry is a silently absent style. Before adding
   one, check whether the consumer could write it literally in `className` instead, where `@source "."`
   finds it for free.
+- **One table paints every tone, in `core/tone.ts`.** `TONE_CLASSES` and the `TONE_COMPOUNDS` built
+  from it are what every `fill × tone` component reads, so a `success` badge and a `success` icon box
+  are the same green at the same strength. Two hand-maintained 21-row tables is the shape of the
+  problem this package exists to prevent — and it is exactly what the references have: one carries five
+  sets of CSS custom properties with `color-mix` expressions, the other four hand-written variants, and
+  they agree on none of them.
+  The classes stay **literal strings** in a file the scanner reads, so nothing needs a safelist entry: a
+  component builds its variants *from* the table rather than interpolating class names at runtime.
+  ⚠️ `IconBox` was refactored onto it and its 15 render cases plus the 35 slot cases stayed green
+  unchanged, which is what says the extraction was behaviour-neutral rather than hopeful.
+- **`Badge` is static, and the `×` is not coming back.** Both references say a badge communicates
+  rather than being clicked; one of them then puts a removable `×` button inside it. That is the `Item`
+  trap again: a control inside a label needs the label not to be a control, and needs its own name,
+  focus ring and keyboard path. A removable chip is a button with a badge in it.
 - **`Item` owns the truncation plumbing, and it is `grow`, not `flex-1`.** `grow min-w-0` on the
   heading plus `shrink-0` on the tail is the whole reason the component exists rather than a `Cluster`
   with three children: it is what makes a long title truncate instead of pushing the actions out of
