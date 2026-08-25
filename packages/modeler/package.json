@@ -1,6 +1,6 @@
 {
   "name": "@proedis/modeler",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Utilities to write and build model based on class-transformer",
   "keywords": [
     "proedis",
@@ -13,11 +13,11 @@
     "build": "rollup --config ../../rollup.config.mjs"
   },
   "dependencies": {
-    "@proedis/types": "^2.1.0",
-    "@proedis/utils": "^2.1.0"
+    "@proedis/types": "^2.1.1",
+    "@proedis/utils": "^2.1.1"
   },
   "devDependencies": {
-    "@proedis/tsconfig": "^2.0.0",
+    "@proedis/tsconfig": "^2.0.1",
     "rollup": "^4.62.4"
   },
   "proedisMetadata": {

@@ -1,6 +1,6 @@
 {
   "name": "@proedis/client",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "A client class that could be used while developing WebApp with built-in authentication token management",
   "keywords": [
     "proedis",
@@ -16,12 +16,12 @@
     "build": "rollup --config ../../rollup.config.mjs"
   },
   "devDependencies": {
-    "@proedis/tsconfig": "^2.0.0",
+    "@proedis/tsconfig": "^2.0.1",
     "rollup": "^4.62.4"
   },
   "dependencies": {
-    "@proedis/types": "^2.1.0",
-    "@proedis/utils": "^2.1.0",
+    "@proedis/types": "^2.1.1",
+    "@proedis/utils": "^2.1.1",
     "store2": "^2.14.3"
   },
   "proedisMetadata": {

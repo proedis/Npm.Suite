@@ -1,6 +1,6 @@
 {
   "name": "@proedis/ui",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "The interface layer of a Proedis frontend: layout primitives, the components that read the token contract, and the machinery behind both",
   "keywords": [
     "proedis",
@@ -21,7 +21,7 @@
     "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
-    "@proedis/tsconfig": "^2.0.0",
+    "@proedis/tsconfig": "^2.0.1",
     "cpy-cli": "5.0.0",
     "rollup": "^4.62.4"
   },
