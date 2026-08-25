@@ -1,6 +1,6 @@
 {
   "name": "@proedis/cli",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Proedis command line interface to scaffold projects, generate React components and build models from an OpenAPI specification",
   "keywords": [
     "proedis",
