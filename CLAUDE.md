@@ -4,11 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repository is
 
-`@proedis/suite` — a private Yarn 1 + Lerna monorepo that publishes the public `@proedis/*` npm
+`@proedis/suite` — a private Yarn 4 + Lerna monorepo that publishes the public `@proedis/*` npm
 packages (plus `eslint-config-proedis`). Nothing is deployed from here: the deliverable is a set of
 libraries consumed by Proedis applications. Versioning is **independent per package**.
-
-`apps/react-testing-app` is a throwaway Vite sandbox for manual verification, not a product.
 
 ## Commands
 
@@ -41,8 +39,6 @@ yarn release:graph                                 # nx graph
 # regenerate the vendored Airbnb rule sets inside eslint-config-proedis
 yarn rules:sync                                    # node ./scripts/sync-airbnb-rules.mjs
 
-# sandbox app
-yarn workspace react-testing-app dev               # vite on :3000
 ```
 
 Linting runs on **ESLint 9 with a flat config**: the root `eslint.config.mjs` consumes the
@@ -61,11 +57,16 @@ run first.
 Root `tsconfig.dev.json` extends the **base** preset (no `jsx`), so it cannot typecheck
 `packages/react*`. It is an IDE convenience only — always typecheck per package.
 
-`@proedis/tsconfig` splits along one line: `base` keeps `moduleResolution: node` (node10), because it
-is what a Node consumer and a declaration emit both need, while `web` and everything above it use
-`moduleResolution: bundler` — those projects are always behind Vite, webpack or Metro. `declaration`
-is **not** a preset but an overlay with no `extends` of its own, composed *last* in an `extends`
-array so its `noEmit: false` and `composite: true` win:
+`@proedis/tsconfig` resolves modules the same way everywhere: **every preset sets
+`moduleResolution: bundler`**, `base` included since 2.0.1. `base` used to keep the classic `node`
+algorithm, on the argument that it is what a Node consumer and a declaration emit both need;
+TypeScript 7 removed that algorithm outright, so a preset carrying it fails to load on the current
+compiler, and `node16` is not a replacement because it demands `module: Node16` while every preset
+here emits `ESNext`. Note what the setting decides: how a project reads *its* dependencies, not how a
+consumer reads the declarations it emits.
+
+`declaration` is **not** a preset but an overlay with no `extends` of its own, composed *last* in an
+`extends` array so its `noEmit: false` and `composite: true` win:
 
 ```json
 { "extends": [ "@proedis/tsconfig/react", "@proedis/tsconfig/declaration" ] }
@@ -85,7 +86,7 @@ the symlinked layout everything relies on.
 
 **Berry only exposes binaries a workspace declares.** Yarn 1 hoisted the root `node_modules/.bin`
 into every workspace script; Yarn 4 does not. Every package whose `build` invokes `rollup` therefore
-declares `rollup` as its own devDependency, and the sandbox app declares `eslint` and `typescript`.
+declares `rollup` as its own devDependency.
 This is easy to miss when adding a package, because it fails asymmetrically:
 `yarn workspace <name> build` reports `command not found: rollup` while `yarn release:build` keeps
 working, since nx builds its own PATH.
@@ -117,7 +118,7 @@ tail, which is safe to group because both `build` and `verify` are idempotent an
 what is missing and is a no-op on a re-run.
 
 What stays manual is the seam between them — the one place a human decision belongs, between the
-interactive bump of eleven packages and pushing them to npm.
+interactive bump of fourteen packages and pushing them to npm.
 
 Publishing ships the generated `build/` directory, never the repo source.
 
@@ -132,9 +133,9 @@ request, and on demand. **CI never publishes** — that was tried and pulled bac
 stays a deliberate local action.
 
 Should it ever be automated, the constraint to design around is that independent versioning
-creates **one tag per package** — the last release pushed 7 tags at the same commit, so
-`on: push: tags` would start 7 concurrent runs each trying to publish everything. The trigger has
-to be a branch push or a manual dispatch, with `lerna publish from-package`, which needs no tags:
+creates **one tag per package** — the last multi-package release pushed 13 tags at the same commit,
+so `on: push: tags` would start 13 concurrent runs each trying to publish everything. The trigger
+has to be a branch push or a manual dispatch, with `lerna publish from-package`, which needs no tags:
 it compares each local version against the registry, publishes only what is missing, and is a
 no-op on a re-run.
 
@@ -148,11 +149,14 @@ deliberately. The history still reads as Conventional Commits (and `lerna versio
 
 Two build strategies coexist:
 
-1. **Rollup packages** (`client`, `react-client`, `react-native-client`, `react`, `utils`,
-   `modeler`, `formatters`, `cli`): `rollup --config ../../rollup.config.mjs`, always executed from
-   the package's own cwd. The single root config derives everything from `process.cwd()`.
+1. **Rollup packages** — everything except the two below, so `client`, `react-client`,
+   `react-native-client`, `react`, `react-query`, `utils`, `types`, `modeler`, `formatters`, `zod`,
+   `ui` and `cli`: `rollup --config ../../rollup.config.mjs`, always executed from the package's own
+   cwd. The single root config derives everything from `process.cwd()`.
    Output: `build/cjs`, `build/esm` (both `preserveModules`, sourcemaps) and `build/types`.
-2. **Plain-copy packages** (`tsconfig`, `eslint-config-proedis`, `types`):
+   Two of them chain a copy step after rollup, for files rollup does not emit: `cli` its `.ejs`
+   templates, `ui` its `.css`.
+2. **Plain-copy packages** (`tsconfig`, `eslint-config-proedis`):
    `node ../../scripts/compile-plain.js` — wipes `build/`, copies every non-dotfile entry
    except `build/`, `node_modules/`, `package.json` and `tsconfig.*`, then writes a
    generated `package.json`. Entries are copied one at a time on purpose: `fs.cpSync`
@@ -210,11 +214,14 @@ the most likely way to break a package silently.
   downstream — a root `react` pin of `19.2.5` published `^19.2.5` and warned on every React 18
   and on 19.0.0–19.2.4. When `range` is omitted and the name is absent from the pool,
   `createPackageJson` **throws**.
-- `noMain: true` — skip the `main`/`module`/`types`/`exports` block (used by the config-only
-  packages and by `types`, which ships its `.ts` sources and keeps `main: index.ts`). It also
-  suppresses the per-directory `type` markers, which those packages must not have.
-- `sideEffects: false` — emitted verbatim so bundlers can tree-shake. Set on `utils`,
-  `formatters` and `react`; deliberately unset where module-level purity is not obvious.
+- `noMain: true` — skip the `main`/`module`/`types`/`exports` block. It also suppresses the
+  per-directory `type` markers, which those packages must not have. Three packages set it: the two
+  config-only ones (`tsconfig`, `eslint-config-proedis`) and `cli`, which is published bin-only.
+  ⚠️ `types` used to be on this list and is not any more: since 2.0.0 it is a rollup package like
+  the others, with a real `exports` map.
+- `sideEffects: false` — emitted verbatim so bundlers can tree-shake. Set on `types`, `utils`,
+  `formatters`, `react`, `react-query`, `zod` and `ui`; deliberately unset on `client`, `modeler`,
+  `react-client` and `react-native-client`, where module-level purity is not obvious.
 - `buildFormats: string[]` — which rollup output formats to emit, `['cjs', 'esm']` by
   default. The CLI sets `['cjs']`: consumed only through its `bin`, nothing referenced its
   ESM output and it was shipped as dead weight. A package narrowing this must also narrow
@@ -270,10 +277,12 @@ published tarball.
 
 ### Published entry points
 
-Rollup packages get `main`/`module`/`types` **and** an `exports` map. Both are required: the
-`@proedis/tsconfig` presets still set `moduleResolution: node`, which ignores `exports` entirely,
-so dropping the legacy fields would break every consumer on the current preset. Inside `exports`
-the `types` condition must stay first.
+Rollup packages get `main`/`module`/`types` **and** an `exports` map. Both are kept on purpose.
+The presets here no longer need the legacy fields — every one of them resolves with `bundler` since
+`@proedis/tsconfig` 2.0.1 — but a consumer is not obliged to use these presets, and a project still
+on classic resolution ignores `exports` entirely and would resolve nothing. The same reasoning puts
+every subpath into `typesVersions` next to `exports`. Inside `exports` the `types` condition must
+stay first.
 
 `producePackageFiles` also writes `{ "type": "module" }` into `build/esm` and
 `{ "type": "commonjs" }` into `build/cjs` on `writeBundle` — not `buildEnd`, where those
@@ -445,7 +454,7 @@ expose `Dayjs` at runtime, so the published constant was `undefined`.
 
 ### `useSyncedRef` is the backbone of the React hooks
 
-Six hooks in `@proedis/react` are built on it, and Orbit uses it directly in 13 places. It writes its
+Seven hooks in `@proedis/react` are built on it, and Orbit uses it directly in 13 places. It writes its
 ref **during render**, which is what makes the value current for the commit it belongs to — and which
 is why `react-hooks/refs` is suppressed inline, in that file, with the reasoning. Every alternative
 loses the guarantee the hook exists for: writing in an effect makes `current` lag one commit behind,
@@ -460,9 +469,20 @@ off, from outside the workspace; re-run it after touching any public React signa
 
 ### Peer compatibility policy
 
-Published peer ranges are deliberately wider than the versions pinned here: `react`/`react-dom`
-`>=18.0.0 <20.0.0`, `reflect-metadata` `^0.1.13 || ^0.2.0`, `@tanstack/react-query` `^5.0.0`,
-`rxjs` `^7.0.0`, `dayjs` `>=1.11.0`, `typescript` `>=5.2.0`.
+Published peer ranges are deliberately wider than the versions pinned here: `react`
+`>=18.0.0 <20.0.0`, `reflect-metadata` `^0.1.13 || ^0.2.0`, `class-transformer` `^0.5.1`,
+`@tanstack/react-query` `^5.0.0`, `rxjs` `^7.0.0`, `dayjs` `>=1.11.0`, `zod` `^4.0.0`,
+`tailwindcss` `^4.0.0`, `eslint` `>=9.0.0 <10.0.0`, `@react-native-async-storage/async-storage`
+`>=1.18.0 <4.0.0`, `typescript` `>=5.2.0`.
+
+⚠️ `react-dom` is **not** a peer of anything here and must not be added as one: no package in the
+suite imports it. The React range above covers `react` alone.
+
+The **in-suite** peers are the exception to the width, because they are reflected from the installed
+version rather than stated: `@proedis/client`, `@proedis/react`, `@proedis/react-client` are
+published as a caret over whatever this repository had at build time. That is why a README stating
+one of those ranges goes stale at the next cascade, and why they are worth re-reading from the built
+manifest rather than from memory.
 
 The React range is not a guess — it is verified by compiling the **emitted `.d.ts`** of `react`,
 `client` and `react-client` against `@types/react` 18 and 19 with `skipLibCheck: false`, from a
@@ -480,7 +500,7 @@ field — `dayjs.isDayjs` must see the consumer's own dayjs copy.
 ### Source-first resolution in-repo
 
 Every publishable package declares `"main": "src/index.ts"` (or `index.ts`). Inside the workspace,
-consumers — including the Vite app — compile sibling TypeScript **source** directly; there is no
+consumers compile sibling TypeScript **source** directly; there is no
 build step between packages during development. The compiled entry points only exist in the
 generated `build/package.json`.
 
@@ -493,14 +513,17 @@ Dependency direction is strictly one-way; `utils` and `types` are the leaves.
 | `@proedis/types` | Shared primitives (`AnyObject`, `Nullable`, `Nillable`, `Primitive`, `Awaitable`, `ValueOf`, `DeepPartial`, `Environment`, `Instantiable`, path types). A rollup package like the others since 2.0.0 — it used to ship raw `.ts`, which assumed every consumer's bundler was willing to transpile TypeScript found inside `node_modules`. Each type still has a runtime counterpart const, so a plain value import cannot resolve to nothing. |
 | `@proedis/tsconfig` | tsconfig presets: `base` → `web` → `react` → `react-native`, plus `declaration`. |
 | `eslint-config-proedis` | ESLint 9 **flat config**, ESM, self-contained: every plugin is a real dependency, so a consumer installs one package. `base()` / `react()` return plain config arrays; `configs.*` exposes the individual blocks and `plugins.*` the plugin instances, so nothing is a closed box. The Airbnb rule decisions are **vendored** under `lib/airbnb` (regenerate with `yarn rules:sync`) and all formatting goes through `@stylistic`. |
-| `@proedis/utils` | `Guard`, `AugmentedMap`, `Deferred`, `will`, `ArraySorter`, hashing, deep object access. Publishes a subpath per module (`array`, `guard`, `hash`, `object`, `promise`, `runtime`, `string`). |
+| `@proedis/utils` | `Guard`, `AugmentedMap`, `Deferred`, `will`, `sorter`, hashing, deep object access, the `Blob` gestures. Publishes a subpath per module (`array`, `dom`, `guard`, `hash`, `object`, `promise`, `runtime`, `string`). |
 | `@proedis/formatters` | Locale-aware duration/number/pluralize formatters. |
 | `@proedis/modeler` | `class-transformer` model base + decorators. Color/icon tokens are consumer-supplied via `ModelerOverride`, not typed against a UI kit. |
 | `@proedis/client` | The core: authenticated HTTP client over `fetch`. Zero HTTP dependencies — `store2` for browser storage is the only runtime one left besides the workspace packages. |
 | `@proedis/react` | Framework-agnostic React hooks/utils (`contextBuilder`, `useAutoControlledState`, shorthands). |
 | `@proedis/react-client` | React bindings for `@proedis/client` + `@tanstack/react-query` integration. |
 | `@proedis/react-native-client` | `AsyncStorage`-backed storage provider for `@proedis/client`. |
-| `@proedis/cli` | `proedis` binary: `scaffold enums` and `scaffold models`, both fed by an Orbit-style API. `init` and `generate` were removed unpublished. Published **bin-only**: `noMain`, `buildFormats: ['cjs']`, no declaration build — shipping types would force `@proedis/types`, `type-fest` and `@types/inquirer` into runtime deps for an API nobody imports. It is the only package declaring `engines` (Node `>=22.13.0`), which `createPackageJson` passes through untouched: a CLI that fails at runtime on an old Node should refuse to install instead, while the libraries must not inherit a floor that has nothing to do with them. ESLint is resolved from the *target* project at runtime, never bundled. |
+| `@proedis/react-query` | The query boundary and the gated cache invalidation, extracted from the `query-suspense` pattern Orbit had copy-pasted for years. Two subpaths: `suspense` presupposes `useClientQuery` and therefore sits beside `react-client`, `invalidation` works against a bare `QueryClient` and depends on nothing of the suite. Ships **no** visible component: the five views arrive from the host application. |
+| `@proedis/zod` | Schema in, field descriptor out, so a form reads its label, its requiredness and its bounds off the schema instead of repeating them per field. Two subpaths, `fields` and `validators`, and neither imports the other. **No runtime import of zod**, only `import type`, which is what makes it immune to two zod instances in one bundle. |
+| `@proedis/ui` | The interface layer a Proedis frontend starts from: twelve layout primitives, eleven components reading a token contract, the class machinery and the stylesheet behind all of it. Four subpaths (`core`, `layout`, `components`, `hooks`) plus two published stylesheets, with `theme.css` reachable from the package name alone. The root barrel stays renderable from a React Server Component, which is why the hooks are not in it. |
+| `@proedis/cli` | `proedis` binary: `scaffold enums`, `scaffold models` and `scaffold hooks`, all fed by an Orbit-style API. `init` and `generate` were removed unpublished. Published **bin-only**: `noMain`, `buildFormats: ['cjs']`, no declaration build — shipping types would force `@proedis/types`, `type-fest` and `@types/inquirer` into runtime deps for an API nobody imports. It is the only package declaring `engines` (Node `>=22.13.0`), which `createPackageJson` passes through untouched: a CLI that fails at runtime on an old Node should refuse to install instead, while the libraries must not inherit a floor that has nothing to do with them. ESLint is resolved from the *target* project at runtime, never bundled. |
 
 ## Architecture
 
@@ -566,14 +589,27 @@ generated by `init eslint` beyond one legacy file, no component tree in the shap
 the `package-managers/` and `runners/` layers, which went with it, along with `latest-version`,
 `package-json` and `semver`.
 
-Two layers remain, each with an `AbstractedX` base: `commands/` (commander wiring, argument
-validation) → `actions/` (orchestration) → `lib/` (`Project` for cwd-walking project discovery,
-`scaffolders/` for code generation, `TemplateCompiler`). Templates are `.ejs` files under
+`scaffold` takes **three elements**: `enums`, `models` and `hooks`, in that order of dependency —
+the hooks import the models, the models carry the enums. The layers each have an `AbstractedX` base:
+`commands/` (commander wiring, argument validation) → `actions/` (orchestration) → `lib/` (`Project`
+for cwd-walking project discovery, `scaffolders/` for code generation, `TemplateCompiler`), with
+`ui/` holding the spinners and the summary. Templates are `.ejs` files under
 `src/actions/templates/scaffold/`, copied into `build/cjs` by a step chained inside `build` — a new
 template directory needs no code change but **does** need that glob to still match.
 
+Four flags belong to the command rather than to any one scaffolder, and two of them are what makes
+the generated code verifiable where there is no API to ask: `--spec <file>` generates from a
+definition on disk instead of downloading one, `--save-spec <file>` writes the downloaded one next
+to the code, and `--check` reports what a run *would* change and writes nothing, exiting non-zero
+when it would. The check reports three kinds of drift, and the third is the one a file-by-file
+comparison misses: missing, stale, and **orphan** — a file inside a directory the definition no
+longer fills, which a real run would have deleted while emptying it.
+
 `scaffold models` downloads an OpenAPI document over HTTP and materialises `class-transformer`
-models from it (`lib/scaffolders/lib/models/`, one `*Property` class per OpenAPI primitive). The
+models from it (`lib/scaffolders/lib/models/`, one `*Property` class per OpenAPI primitive).
+`scaffold hooks` reads the same document and writes one hook, query key, arguments builder and props
+type per operation, grouped by the **resource** — the first static segment of the route — because the
+tag is empty for most operations on a real document and everything would pile into one file. The
 download goes through the platform's own `fetch` — `node-fetch` was a leftover from a Node without
 one, and the engines floor is 22.
 
@@ -610,7 +646,7 @@ rendered output genuinely differs from what is on disk.
 
 **A failure has to be visible.** `spinnerFeedbackFunction` used to be written as
 `new Promise(async (resolve) => …)`, whose executor rejection the Promise constructor discards: the
-returned promise never settled, and every failing path of both scaffolders surfaced as an unhandled
+returned promise never settled, and every failing path of every scaffolder surfaced as an unhandled
 rejection with an internal stack trace instead of the message that had been prepared for it. The
 same shape appeared in `saveAll`, where a template that failed to compile hung `Promise.all`
 forever. On top of that the entry point printed the error and returned, leaving the exit code at
@@ -627,8 +663,8 @@ edit — `shared-objects.colors` and `shared-objects.icons` — are the exceptio
 which also means **an existing project will not pick up a change to those two templates**: delete
 them to regenerate.
 
-Both scaffolders share `AbstractedScaffolder`, which owns the phases that were duplicated between
-them: the host/endpoint prompts, the download, the wipe, and the optional confirmations. Each
+All three scaffolders share `AbstractedScaffolder`, which owns the phases that would otherwise be
+duplicated: the host/endpoint prompts, the download, the wipe, and the optional confirmations. Each
 subclass states its `cacheKey`, its `sourceName`, a `describeSource` summarising what arrived
 (`Found 12 enums, 87 values.`) and its own validator. The answers reach `.proedis.yml` **after** a
 successful download, never before — writing on the way in remembered a host that had just failed
@@ -666,8 +702,9 @@ installed but undeclared, declared but not installed, absent everywhere.
 
 ## Conventions
 
-ESLint (airbnb-typescript + `lib/shared.js`) enforces some of the house style; the rest is manual
-and consistent everywhere — match the surrounding file.
+ESLint enforces some of the house style — the vendored Airbnb decisions under `lib/airbnb`, plus
+the Proedis adjustments in `lib/presets.js` and `lib/blocks.js` of `eslint-config-proedis`; the rest
+is manual and consistent everywhere — match the surrounding file.
 
 Enforced: 2-space indent, Stroustrup braces (`}` on its own line before `else`), spaces inside array
 brackets `[ 'a', 'b' ]`, `import type` for type-only imports (`consistent-type-imports`), max line

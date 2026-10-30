@@ -20,11 +20,12 @@ machine is ours. 🎛️
 | | |
 | --- | --- |
 | **The HOC** | `querySuspenseComponent` — pairs a component with the query arguments that feed it. This is how you use the package |
-| **Render helpers** | `suspendedComponent`, `useSuspendedContext` |
+| **Render helpers** | `suspendedComponent`, `useSuspendedContext`, and `SuspendedContext` itself for a consumer that would rather read it directly |
 | **Configuration** | `QuerySuspenseProvider` — **optional**, replaces the built-in views with your own |
 | **The engine** | `QuerySuspense`, and `resolveQueryView` — the branch order as a plain function |
 | **Invalidation** | `useQueryInvalidation`, `InvalidationQueue` — deduped, batched, deferrable |
-| **Gates** | `useInvalidationGate`, `useRefetchPause`, `refetchOnWindowFocusGate`, `PauseGate` |
+| **Gates** | `useInvalidationGate`, `useRefetchPause`, `refetchOnWindowFocusGate`, `PauseGate`, and `isRefetchPaused` to ask a `QueryClient` whether one query hash is currently held |
+| **Escape hatches** | `useQuerySuspenseConfig` — the resolved configuration, defaults merged under whatever the providers declared, never a hole; `renderViewNode` — turn a `SuspenseViewNode` into an element the way the engine does |
 
 Two entry points beyond the root, so a consumer can take one half without the other:
 `@proedis/react-query/suspense` and `@proedis/react-query/invalidation`.
@@ -285,9 +286,9 @@ side never share a queue, and a test that builds a client per case leaks nothing
 | --- | --- |
 | React | `>=18.0.0 <20.0.0` |
 | `@tanstack/react-query` | `^5.0.0` |
-| `@proedis/react` | `^2.0.0` |
-| `@proedis/react-client` / `@proedis/client` | `^4.0.0` / `^3.0.0` — `suspense` only |
-| TypeScript | `>=5.5` |
+| `@proedis/react` | `^2.1.1` |
+| `@proedis/react-client` / `@proedis/client` | `^4.1.1` / `^3.0.2` — `suspense` only |
+| TypeScript | `>=5.2.0`, the suite floor — the emitted declarations are compiled against it |
 | Runtime | ES2022 — Safari 16.4 / Chrome 94 / Node 16.11 |
 
 ## 📄 License

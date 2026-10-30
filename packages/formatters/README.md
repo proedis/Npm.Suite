@@ -155,8 +155,8 @@ dollars(9.5);   // '$9.50'
 Configuration layers at three points — the parent's defaults, the ones given to `create`, the ones
 passed to a single call — with the later always winning. ⚠️ The layering is a **shallow** spread, one
 level deep: a nested object in a configuration replaces its counterpart rather than merging with it.
-Every configuration in this package is flat, so this only matters if you build your own formatter on
-`instantiateFormatter`.
+Every configuration in this package is flat, so this never bites in practice; it would, on a
+formatter whose configuration carried a nested object.
 
 ### 🧮 Number coercion, everywhere
 

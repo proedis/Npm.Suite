@@ -410,10 +410,11 @@ the config lives at the root used to fail on every file.
 If ESLint cannot run, the scaffold still succeeds and says so — the files are correct, only
 unformatted.
 
-## 🔀 Migrating to 1.x
+## 🔀 Migrating to 2.x
 
-First public release. `init` and `generate` existed in the source but were never published, and are
-gone: `scaffold` is the whole surface.
+2.0.0 is the first published version: the package was developed in this repository for a while
+before it ever reached npm, so there is no 1.x to migrate from. `init` and `generate` existed in the
+source and were removed before that first release, which leaves `scaffold` as the whole surface.
 
 ## 🤝 Compatibility
 

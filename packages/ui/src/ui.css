@@ -90,7 +90,7 @@
   --color-background: var(--background);
   /* The ink of a value */
   --color-foreground: var(--foreground);
-  /* The recessed surface behind a LabeledContent icon */
+  /* The `muted` tone, the hover of an interactive Item, a recessed Surface.Footer */
   --color-muted: var(--muted);
   /* A quiet label, a divider caption, the scrollbar thumb */
   --color-muted-foreground: var(--muted-foreground);
@@ -195,12 +195,6 @@
  * ============================================================ */
 
 /*
- * The thin scrollbar `ScrollArea` asks for, and any scroll container can reuse.
- *
- * It reads the semantic token rather than a fixed grey, so it follows the theme — including dark
- * mode — without a second declaration. `color-mix` keeps the thumb visible on both canvases.
- */
-/*
  * The two column frame of `Split`, as a utility rather than an inline `grid-template-columns`.
  *
  * The width arrives as `--split-rail`, set inline by the component. That indirection is what makes
@@ -247,6 +241,12 @@
   padding-bottom: env(safe-area-inset-bottom);
 }
 
+/*
+ * The thin scrollbar `ScrollArea` asks for, and any scroll container can reuse.
+ *
+ * It reads the semantic token rather than a fixed grey, so it follows the theme — including dark
+ * mode — without a second declaration. `color-mix` keeps the thumb visible on both canvases.
+ */
 @utility scrollbar-thin {
   scrollbar-width: thin;
   scrollbar-color: color-mix(in oklab, var(--muted-foreground) 35%, transparent) transparent;

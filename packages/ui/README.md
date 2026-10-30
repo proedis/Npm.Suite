@@ -15,7 +15,7 @@ both.** 📐
 
 ## ✨ What's in the box
 
-Seventeen primitives, the machinery behind them, and the stylesheet they read, in four subpaths:
+Twenty-three primitives, the machinery behind them, and the stylesheet they read, in four subpaths:
 
 ```ts
 import { Stack, Divider } from '@proedis/ui';              // everything except the hooks
@@ -128,10 +128,11 @@ component silently losing its gap, with no error anywhere. The scale:
 <Grid hideBelow={'md'} hideFrom={'xl'}>…</Grid>   // only in between
 ```
 
-They come from one shared contract, so they are on all of them: `Stack`, `Grid`, `Cluster`, `Center`,
-`Container`, `Split`, `Spacer`, `Sticky`, `AspectRatio`, `Divider`, `ScrollArea`, `Label`,
-`LabeledContent`, `Bleed`, `SafeArea` and `Box`. Not `VisuallyHidden`, where they would contradict the
-component.
+They come from one shared contract, so they are on **every** component in the package but one:
+every primitive of the layout tier (`Box`, `Stack`, `Grid`, `Cluster`, `Center`, `Container`,
+`Split`, `Spacer`, `Sticky`, `AspectRatio`, `Bleed`, `SafeArea`) and every component of the other
+(`Surface`, `Item`, `Heading`, `Badge`, `IconBox`, `Spinner`, `Divider`, `ScrollArea`, `Label`,
+`LabeledContent`). Not `VisuallyHidden`, where they would contradict the component.
 
 `hideBelow` compiles to a single `not-lg:hidden`, which applies `display: none` only inside a negated
 media query — so above the breakpoint nothing touches the element and it keeps its own display,
@@ -145,9 +146,11 @@ ships. Use `useIsMobile` and render nothing when a subtree has a cost.
 `Box` is the same two props on any element and nothing else. What it is **not** is a style-prop
 carrier: no `p`, `m`, `w`, `bg`, because in a Tailwind codebase `className` plus the conflict
 resolution in `cn` already is that system, and duplicating it as props buys a narrower API and a much
-larger safelist — `p` / `px` / `py` made responsive alone would be 324 rules, more than this package
-declares in total. Two things earn a place in the shared contract: a prop a consumer could not write
-as a literal class, or one that needs something the component knows and the caller does not.
+larger safelist — `p` / `px` / `py` made responsive alone would be 324 entries, against the 341 this
+package safelists in total for every responsive prop it has.
+
+Two things earn a place in the shared contract: a prop a consumer could not write as a literal
+class, or one that needs something the component knows and the caller does not.
 
 ### `as` is typed by the element it renders
 
@@ -516,7 +519,8 @@ The icon arrives as a **child**, which is what keeps an icon library out of this
 is **non-interactive by design**: no hover, no press, no focus. A clickable icon is a button with an
 icon in it, and it needs a focus ring and an accessible name that a frame has no business owning.
 
-`halo` draws two concentric rings echoing the tone, for an empty state.
+`halo` draws two concentric rings echoing the tone, for an empty state. They are `scale-150` and
+`scale-200` of the box rather than a measured geometry, so they follow whatever the size scale says.
 
 #### Retuning a variant, without wrapping the component
 
@@ -541,8 +545,7 @@ Two knobs sit one level above that and cost nothing: `size-*` resolves through `
 radius through `--radius-scale`, so a project that wants the whole interface denser or rounder turns
 one variable instead of enumerating components. Reach for the attribute when *one* component in *one*
 variant has to differ, and for a wrapper when your application simply has different defaults — that is
-a decision of your app, not a value of the theme. They are `scale-150` and
-`scale-200` of the box rather than a measured geometry, so they follow whatever the size scale says.
+a decision of your app, not a value of the theme.
 
 ### `Box`, and hiding a group
 
@@ -596,6 +599,24 @@ cn('flex gap-4', condition && 'gap-8', className)
 **override** rather than an addition: `<Stack gap={4} className={'gap-8'} />` renders `gap-8`. Every
 primitive here builds classes and never inline styles for exactly that reason — a style would beat
 the class and the override would silently stop working.
+
+### The rest of `@proedis/ui/core`
+
+`cn` is the one most call sites touch, and it is not alone. The tier also publishes what the
+components build their classes with, for a primitive of your own that wants to behave the same way:
+
+| Export | Is |
+| --- | --- |
+| `splitBaseProps(props)` | pulls `hideBelow` / `hideFrom` out of a props object and hands back `{ baseClasses, rest }` |
+| `responsiveClasses(value, build)` | turns a `Responsive<T>` into the per-breakpoint classes, in cascade order |
+| `gapClasses`, `alignClasses`, `justifyClasses`, `directionClasses`, `columnsClasses`, `divideClasses` | the same, specialised per prop |
+| `breakpointPrefix(bp)`, `responsiveEntries(value)`, `toResponsiveMap(value)` | the pieces `responsiveClasses` is made of |
+| `BREAKPOINTS`, `BREAKPOINT_WIDTHS`, `mediaQuery(bp)` | the scale as data, and the media query behind a named breakpoint |
+| `TONE_CLASSES`, `TONE_COMPOUNDS`, `TONES` | the one tone table, ready to hand to a `cva` call of your own |
+
+⚠️ A class these builders produce needs a **safelist entry** in the stylesheet to have any CSS
+behind it, exactly as it does inside this package. They cover the scale declared in `ui.css` and
+nothing beyond it, which is also why the value types are unions rather than `number`.
 
 ### Hooks — `@proedis/ui/hooks`
 
@@ -693,9 +714,11 @@ export const AppIcon = (props: IconBoxProps) => <IconBox size={'sm'} tone={'prim
 
 Five lines, and the right answer more often than it looks: "our application always uses this
 combination" is a decision **of your application**, not a value of the theme. Every own-props type is
-exported for exactly this (`StrictIconBoxProps` to extend, `IconBoxProps` to forward), and so is every
-`cva` function (`iconBoxVariants`, `spinnerVariants`) if you would rather compose the classes than the
-component.
+exported for exactly this: `StrictIconBoxProps` to extend, `IconBoxProps` to forward.
+
+⚠️ The `cva` functions themselves (`iconBoxVariants`, `badgeVariants`, …) are **not** exported, and
+that is on purpose: they are the implementation of a variant matrix, not a contract. Compose the
+component, or reach for the `data-*` rule above when what you want is the classes.
 
 ### 5. The token contract, for the whole interface
 
@@ -745,18 +768,19 @@ Three colour families and one line colour:
 | --- | --- |
 | `--background` | nothing here — the canvas is yours to paint. See below |
 | `--foreground` | the ink of a value |
-| `--muted` | the recessed surface behind a `LabeledContent` icon |
+| `--muted` | the `muted` tone, the hover of an interactive `Item`, a recessed `Surface.Footer` |
 | `--muted-foreground` | a quiet label, a divider caption, the scrollbar thumb |
 | `--border` | `Divider`, and the rules `Stack divided` draws |
 | `--radius-scale` | a unitless multiplier over the whole `--radius-*` scale |
 | `--container-8xl` | the width of `Container size='xl'`, one step past Tailwind's own scale |
-| `--text-2xs` | the step below `text-xs`, read by the description line of `Label` |
+| `--text-2xs` | the step below `text-xs`: the description line of `Label`, the smallest `Heading.Eyebrow` and `Heading.Description`, a `sm` `Badge` |
 
 The last three are a **configuration** rather than a colour a component reads: they exist to be
 turned. `--container-8xl` is there because Tailwind's container scale stops at `7xl` (80rem) and the
 widest page this package offers is 96rem, the width of the `2xl` breakpoint. `--text-2xs` is there
 because a three level text hierarchy does not fit in Tailwind's scale: a label, a description under
 it and a value need three sizes, and the scale offers 12px and 14px with nothing between or below.
+Four places read it today, which is why it is a declared step and not a one-off.
 Both replaced an arbitrary value written inside a component — `max-w-[96rem]`, `text-[13px]` — which
 is a length with no name: invisible to a theme, unreachable by anyone who wants it different.
 
@@ -835,7 +859,7 @@ another package. A recessed surface is `--muted`.
 | --- | --- |
 | React | `>=18.0.0 <20.0.0` |
 | Tailwind | `^4.0.0` — the stylesheet uses `@source`, `@theme inline`, `@utility` and `@custom-variant` |
-| TypeScript | `>=5.5` |
+| TypeScript | `>=5.2.0`, the suite floor — the emitted declarations are compiled against it |
 | Runtime | ES2022. The package root is server-renderable; `/hooks` is client-only |
 
 ## 📄 License

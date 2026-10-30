@@ -1,20 +1,38 @@
 # Contributing
 
-When contributing to this repository, please first discuss the change you wish to make via issue,
-email, or any other method with the owners of this repository before making a change.
+This repository publishes the `@proedis/*` packages. Nothing is deployed from it, so a change here
+reaches a consumer only through a release, and a release is a deliberate manual act. Discuss a
+change that moves a public surface before writing it.
 
 Please note we have a code of conduct, please follow it in all your interactions with the project.
 
-## Pull Request Process
+## Before opening a pull request
 
-1. Ensure any install or build dependencies are removed before the end of the layer when doing a
-   build.
-2. Update the README.md with details of changes to the interface, this includes new environment
-   variables, exposed ports, useful file locations and container parameters.
-3. Increase the version numbers in any examples files and the README.md to the new version that this
-   Pull Request would represent. The versioning scheme we use is [SemVer](http://semver.org/).
-4. You may merge the Pull Request in once you have the sign-off of two other developers, or if you
-   do not have permission to do that, you may request the second reviewer to merge it for you.
+1. **Run the gate.** `yarn release:lint`, then `yarn release:build`, then `yarn release:verify`, or
+   `yarn release:preflight` for all three. There is no test runner here and there is not going to be
+   one: typecheck, lint and build *are* the verification. Typecheck a package from inside it, since
+   the root `tsconfig.dev.json` extends the base preset and cannot read JSX.
+2. **Document what you added.** A public export with no line in its package's `README.md` is an
+   export nobody will find. A decision that will look wrong to the next reader belongs in that
+   package's `CLAUDE.md`, next to the reason it is right.
+3. **Declare what you import.** A dependency used by the published type surface goes in
+   `dependencies`, not `devDependencies` — the emitted `.d.ts` keeps the import while the published
+   manifest drops the dev ones. `release:verify` fails on it, which is exactly what it is for.
+4. **Do not touch version numbers.** `lerna version` writes every one of them, in `package.json` and
+   in the sibling ranges, at release time. A version edited by hand is a conflict waiting at the
+   next bump. Versioning is independent per package and follows [SemVer](https://semver.org/).
+
+Commit messages read as [Conventional Commits](https://www.conventionalcommits.org/) and nothing
+enforces it: husky and commitlint were removed on purpose. Match the history.
+
+## Review and merge
+
+CI runs lint, build and verify on every push to `master` and on every pull request, and it **never
+publishes**. A pull request needs one approving review from another developer on the team before it
+is merged; merge it yourself once you have it, or ask the reviewer to.
+
+Releasing is not part of merging. It happens locally, from a clean `master`, and the procedure is in
+the [README](./README.md#-releasing).
 
 ## Code of Conduct
 
@@ -73,7 +91,7 @@ further defined and clarified by project maintainers.
 ### Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported by contacting the project team at [m.cavanna@proedis.net](m.cavanna@proedis.net). All
+reported by contacting the project team at [m.cavanna@proedis.net](mailto:m.cavanna@proedis.net). All
 complaints will be reviewed and investigated and will result in a response that
 is deemed necessary and appropriate to the circumstances. The project team is
 obligated to maintain confidentiality with regard to the reporter of an incident.

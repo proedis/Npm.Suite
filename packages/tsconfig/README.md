@@ -80,12 +80,14 @@ The single source of truth. Everything else is this file plus a handful of overr
 
 ### `web`
 
-`base`, plus the two things a bundled project needs:
+`base`, plus what a browser project needs:
 
-- `moduleResolution: "bundler"` — the modern algorithm. It honours the `exports` map of your
-  dependencies, which is how Vite, webpack and Rollup actually resolve modules at build time.
 - `lib: [ "DOM", "DOM.Iterable", "ESNext" ]` — browser globals, and types for JavaScript APIs
   newer than the `target`. Emit stays at ES2022; only the type surface is generous.
+
+It still declares `moduleResolution: "bundler"` explicitly, which since 2.0.1 only restates what
+`base` already sets: the line is kept so the preset stays readable on its own, and so that a future
+change to `base` cannot silently move a bundled project onto another algorithm.
 
 ### `react`
 

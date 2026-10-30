@@ -97,7 +97,7 @@ some bundler and transpiler combinations hand it over that way.
 
 | Requirement | Range |
 | --- | --- |
-| `@proedis/client` | `^2.5.0` |
+| `@proedis/client` | `^3.0.2` — reflected from this repository at build time, so it moves with every cascade |
 | `@react-native-async-storage/async-storage` | `>=1.18.0 <4.0.0` |
 | `typescript` | `>=5.2.0` |
 | Runtime | ES2022 — any Hermes or JSC build shipping with a supported React Native |

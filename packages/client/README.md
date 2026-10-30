@@ -100,6 +100,7 @@ Every method returns the builder, and the ones marked ⤳ change the resulting t
 | ⤳ `withToken(name, configuration)` | add a token, see [Token handshakes](#-token-handshakes) |
 | ⤳ `withoutToken(name)` | remove a token previously declared |
 | `defineApi(name, definition)` | declare one of the four built-in endpoints, see [Built-in endpoints](#built-in-endpoints) |
+| `removeApi(name)` | drop an endpoint a base builder had declared, so a derived client can refuse it |
 | `withDefaults(configure)` | request options merged into every request |
 | `withTransportDefault(configure)` | transport options applied to every request |
 | `useProvider(name, provider)` | replace an internal provider — `storage` is the only one |

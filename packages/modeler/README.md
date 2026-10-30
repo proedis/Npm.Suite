@@ -292,6 +292,28 @@ And three type corrections:
 | `DecoratorOptions` | written with `Exclude` where `Omit` was meant, so it removed nothing: `toClassOnly` and `toPlainOnly` were still accepted, and passing either one broke the transform direction. They are gone from the type, and the direction now wins over whatever options you pass. |
 | `Enum.is` / `isOneOf` | threw on a value outside the collection — and `isOneOf` threw or not depending on argument order. They return `false`. |
 
+### 🧷 `combineDecorators(...decorators)`
+
+Folds several property decorators into one, applied left to right. It is what every `As*` decorator
+in this package is built from — `AsDayJs` is a `Type` plus two `Transform`s behind one name — and it
+is exported so a project can do the same with a mapping of its own:
+
+```ts
+import { Transform, Type } from 'class-transformer';
+import { combineDecorators } from '@proedis/modeler';
+
+/** A decimal the API sends as a string, kept exact on the way back */
+export const AsDecimal = () => combineDecorators(
+  Type(() => String),
+  Transform(({ value }) => (value == null ? value : Number(value)), { toClassOnly: true }),
+  Transform(({ value }) => (value == null ? value : String(value)), { toPlainOnly: true })
+);
+```
+
+What it returns is an ordinary `PropertyDecorator`, so it composes with anything
+`class-transformer` accepts. ⚠️ The order is the order of application: a later `Transform` in the
+same direction overwrites what an earlier one produced.
+
 ## 🤝 Compatibility
 
 | Requirement | Range |

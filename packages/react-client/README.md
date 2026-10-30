@@ -24,6 +24,7 @@ endpoint.** ⚛️
 | `useClientToken` | one token's specification, as it changes |
 | `useClientQuery` | `useQuery`, with the endpoint built from the query key |
 | `useClientMutation` | `useMutation`, same idea |
+| `usePaginatedClientQuery` | the same, for an endpoint answering with a page: the transformer describes one **item** |
 | `useQueryClientOptions` | swap the QueryClient defaults at runtime, and put them back |
 | `createQueryClientDefaultOptions` | the defaults, if you would rather assemble the QueryClient yourself |
 
@@ -127,6 +128,26 @@ if (state.hasAuth) {
 `setStorage(key, value)` takes either a value or an updater — `setStorage('theme', c => c === 'dark'
 ? 'light' : 'dark')` — and returns the promise of the persist.
 
+### 📄 `usePaginatedClientQuery(key, pagination, requestConfig?, options?)`
+
+```tsx
+const { data } = usePaginatedClientQuery<Project>(
+  [ 'projects' ],
+  { _page: 0, _pageSize: 25, _orderBy: 'name' },
+  { transformer: Project }
+);
+
+data?.data;              // Project[], the items of the page
+data?.metadata;          // currentPage, hasNextPage, and the rest of the envelope
+```
+
+The `pagination` object is merged into the query string, and its three keys carry the underscore the
+API expects: `_page`, `_pageSize`, `_orderBy`. The **transformer describes a single item**, not the
+envelope — `PaginatedResponse<T>` stays generic, which is why nothing has to be generated per page
+shape. `PaginatedRequest`, `PaginatedResponse` and `PaginatedResponseMetadata` are exported with it.
+
+This is the hook `proedis scaffold hooks` writes for every `GET` that answers with a page.
+
 ### 📡 `useClientQuery(key, requestConfig?, options?)`
 
 The query key array, joined with `/`, **is** the endpoint:
@@ -204,8 +225,8 @@ is cheaper than hashing.
 | Requirement | Range |
 | --- | --- |
 | `react` | `>=18.0.0 <20.0.0` |
-| `@proedis/client` | `^2.5.0` |
-| `@proedis/react` | `^1.6.0` |
+| `@proedis/client` | `^3.0.2` |
+| `@proedis/react` | `^2.1.1` |
 | `@tanstack/react-query` | `^5.0.0` |
 | `class-transformer` | `^0.5.1` |
 | `reflect-metadata` | `^0.1.13 \|\| ^0.2.0` |
@@ -214,6 +235,10 @@ is cheaper than hashing.
 
 The React range is verified by compiling the emitted declarations against `@types/react` 18 and 19
 with `skipLibCheck` off, from outside the workspace.
+
+⚠️ The two `@proedis/*` ranges are **reflected from this repository at build time**, so they move
+with every version cascade. The published `package.json` is the authority; the table states what the
+latest release carries.
 
 ## 📄 License
 

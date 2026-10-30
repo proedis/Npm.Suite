@@ -14,10 +14,10 @@ keeping, because it is the kind of decision that gets reversed by accident later
 
 It moved when the package became **the layer a new Proedis frontend starts from** rather than the
 layer under someone else's design system. Before, `theme.css` named colours that no component here
-read, so "appearance" genuinely lived elsewhere. Now `IconBox` reads six colour families and `Surface`
-will read two more, and the tokens they need were **already declared and already measured**: the
-fifteen tokens the reference implementations read are exactly what `ui.css` and `theme.css` declare
-between them, with nothing missing.
+read, so "appearance" genuinely lived elsewhere. Now `IconBox` reads six colour families and
+`Surface` reads `card` / `card-foreground`, and the tokens they need were **already declared and
+already measured**: the fifteen tokens the reference implementations read are exactly what `ui.css`
+and `theme.css` declare between them, with nothing missing.
 
 So the boundary is now the tier, and the tiers are published subpaths:
 
@@ -207,11 +207,12 @@ narrower stylesheet is the one you have to ask for.
   Hiding stays CSS either way, so the children remain **mounted**: for a subtree with a cost, use
   `useIsMobile` and render nothing.
 - **The shared props live in `core/base.ts`, and `Box` carries no style props.** Adding a shared prop
-  is a change to that one file rather than to sixteen components, which is the whole point of the
+  is a change to that one file rather than to twenty-two components, which is the whole point of the
   helper; what is *not* the point is a component with style props. In a Tailwind codebase `className`
   plus the conflict resolution in `cn` already **is** the style-prop system, so a `Box` carrying `p`,
   `m`, `w`, `bg` would duplicate it with a narrower API and an appetite for safelist entries —
-  `p` / `px` / `py` made responsive alone is 324 rules, more than this stylesheet declares in total.
+  `p` / `px` / `py` made responsive alone is 324 entries, against the 341 this stylesheet safelists
+  in total for every responsive prop it has.
 
   Two things earn a place in `BaseProps`, and nothing else does: a prop a consumer **could not write
   as a literal class** (anything built from a value at runtime, invisible to the scanner), or one that
@@ -249,10 +250,12 @@ narrower stylesheet is the one you have to ask for.
   `Own` to `object` rather than to `BaseProps`: a constraint that forces a wrong API on one component
   is worse than a rule written down.
 - **A component with parts is a compound, reached through the dot.** `Surface`, `Surface.Header`,
-  `Surface.Title`: the parts are assigned as properties of the root and are **not** exported as flat
-  values, so one import gets the whole anatomy. Their **types** are exported flat
-  (`StrictSurfaceHeaderProps`, `SurfaceHeaderProps<E>`), because a type cannot be reached through a
-  value namespace and a wrapper needs them. Each part carries its own `displayName` in dotted form
+  `Surface.Section`, `Surface.Separator`, `Surface.Footer`: the parts are assigned as properties of
+  the root and are **not** exported as flat values, so one import gets the whole anatomy. Their
+  **types** are exported flat (`StrictHeadingTitleProps`, `HeadingTitleProps<E>`), because a type
+  cannot be reached through a value namespace and a wrapper needs them. A part that **is** another
+  component declares no own-props type of its own: `SurfaceHeaderProps` is an alias of `ItemProps`,
+  since the header is an `Item`. Each part carries its own `displayName` in dotted form
   (`'Surface.Header'`) so the React tree reads like the JSX.
   Verified that this survives the polymorphic generics: `<Surface.Header as={'a'} href={…} />` infers
   `E` through the property access, and the negative case still fails. ⚠️ The cost is real and it is
@@ -335,8 +338,8 @@ narrower stylesheet is the one you have to ask for.
   project that retunes either is followed for free. A private pixel value follows nothing. Per
   component variables stay right where there is **no scale to lean on**: `--split-rail` is the one in
   the package, because the width of a navigation rail is not a step of anything.
-- **A responsive prop costs breakpoints × values in the safelist.** The declared scale is now 327
-  rules, up from 216: responsive `align` and `justify` alone are 66. Every new responsive prop pays
+- **A responsive prop costs breakpoints × values in the safelist.** The declared scale is now 341
+  entries, up from 216: responsive `align` and `justify` alone are 66. Every new responsive prop pays
   that multiplication, and the payment is not optional — a class built from a prop at runtime is
   invisible to the scanner, so a missing safelist entry is a silently absent style. Before adding
   one, check whether the consumer could write it literally in `className` instead, where `@source "."`
@@ -419,7 +422,7 @@ narrower stylesheet is the one you have to ask for.
 
 ## Writing a new component
 
-The shape is the same in all seventeen, and every step of it is load-bearing. In order:
+The shape is the same in all twenty-three, and every step of it is load-bearing. In order:
 
 1. **Declare what the component owns, then compose the element onto it.**
    ```ts
@@ -530,7 +533,15 @@ making it valid for a moment: a type test that cannot fail is worth nothing.
 
 ## Verification
 
-No test runner in this repository. What was actually run when the package was written:
+No test runner in this repository. What follows is a **log**, not a description of the package as it
+stands: each entry records what was run at the moment the work it names landed, counts included. The
+numbers in it are therefore smaller than today's by construction, and the live figures belong in the
+invariants above, which is where to correct them. As of the Badge commit the stylesheet safelists
+**341 entries** and the two tiers hold 23 components.
+
+Re-run the whole list before touching anything the invariants call load-bearing.
+
+What was actually run when the package was written:
 
 - `npx tsc -p tsconfig.json` and `npx eslint packages/ui` — clean.
 - **The stylesheet compiled by real Tailwind** (4.3.0, through `compile()` with the package imported

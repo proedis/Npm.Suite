@@ -28,6 +28,7 @@ documentation.
 | [`@proedis/modeler`](./packages/modeler) [![npm](https://img.shields.io/npm/v/@proedis/modeler.svg?style=flat-square&color=cb3837)](https://www.npmjs.com/package/@proedis/modeler) | `class-transformer` models that speak .NET — `DateTime`, `TimeSpan`, `Enum`, `Flags` — with colour and icon tokens supplied by the application |
 | [`@proedis/utils`](./packages/utils) [![npm](https://img.shields.io/npm/v/@proedis/utils.svg?style=flat-square&color=cb3837)](https://www.npmjs.com/package/@proedis/utils) | `Guard`, `AugmentedMap`, `Deferred`, `ArraySorter`, hashing and deep object access. Publishes a subpath per module |
 | [`@proedis/formatters`](./packages/formatters) [![npm](https://img.shields.io/npm/v/@proedis/formatters.svg?style=flat-square&color=cb3837)](https://www.npmjs.com/package/@proedis/formatters) | Numbers and durations turned into strings a person actually reads, in Italian or English |
+| [`@proedis/zod`](./packages/zod) [![npm](https://img.shields.io/npm/v/@proedis/zod.svg?style=flat-square&color=cb3837)](https://www.npmjs.com/package/@proedis/zod) | Schema in, field descriptor out: a form reads its label, its requiredness and its bounds off the Zod schema instead of repeating them per field |
 | [`@proedis/types`](./packages/types) [![npm](https://img.shields.io/npm/v/@proedis/types.svg?style=flat-square&color=cb3837)](https://www.npmjs.com/package/@proedis/types) | The shared primitives everything else is written in terms of — `Nullable`, `AnyObject`, `Environment`, path types |
 
 ### ⚛️ React
@@ -37,6 +38,8 @@ documentation.
 | [`@proedis/react`](./packages/react) [![npm](https://img.shields.io/npm/v/@proedis/react.svg?style=flat-square&color=cb3837)](https://www.npmjs.com/package/@proedis/react) | Framework-agnostic hooks and utilities — `contextBuilder`, `useAutoControlledState`, the shorthand renderers |
 | [`@proedis/react-client`](./packages/react-client) [![npm](https://img.shields.io/npm/v/@proedis/react-client.svg?style=flat-square&color=cb3837)](https://www.npmjs.com/package/@proedis/react-client) | React bindings for the client, plus a react-query layer where the query key **is** the endpoint |
 | [`@proedis/react-native-client`](./packages/react-native-client) [![npm](https://img.shields.io/npm/v/@proedis/react-native-client.svg?style=flat-square&color=cb3837)](https://www.npmjs.com/package/@proedis/react-native-client) | The AsyncStorage-backed storage provider that makes the client persist on React Native |
+| [`@proedis/react-query`](./packages/react-query) [![npm](https://img.shields.io/npm/v/@proedis/react-query.svg?style=flat-square&color=cb3837)](https://www.npmjs.com/package/@proedis/react-query) | The query boundary that decides which of five views to render, and the gated cache invalidation next to it — no component, no styling, no copy |
+| [`@proedis/ui`](./packages/ui) [![npm](https://img.shields.io/npm/v/@proedis/ui.svg?style=flat-square&color=cb3837)](https://www.npmjs.com/package/@proedis/ui) | The interface layer a frontend starts from: layout primitives with responsive props the compiler checks, the components that read a token contract, and the Tailwind stylesheet behind both |
 
 ### 🛠️ Tooling
 

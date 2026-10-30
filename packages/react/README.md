@@ -19,7 +19,7 @@ No UI kit, no styling, no opinions about how anything looks. 🎨
 | | |
 | --- | --- |
 | **Contexts** | `contextBuilder` — a context and its hook, with a real error instead of `undefined` |
-| **Component props** | `UIComponentProps` / `UIVoidComponentProps`, the shared prop surface every component starts from |
+| **Component props** | `UIComponentProps` / `UIVoidComponentProps`, the composers every component's props are written with, over the `CoreUIComponentProps` / `CoreUIVoidComponentProps` surface they inherit |
 | **Shorthands** | `ShorthandItem`, `createShorthandFactory`, `creatableComponent` — accept props *or* a node for the same slot |
 | **Components** | `RenderWhen`, `compose` |
 | **State hooks** | `useAutoControlledState`, `useObjectState`, `useSafeState`, `useInputValue`, `useDataManager`, `useDataSelector` |

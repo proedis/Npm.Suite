@@ -83,6 +83,9 @@ sorter(users)
 | `thenBy(comparer)` / `thenByDescending(comparer)` | a tie breaker, chainable as many times as you like |
 | `sort(options?)` | runs the chain and returns a **new** array |
 
+`sorter()` is the way in; the classes behind it, `ArraySorter` and `ArraySorterStep`, are exported
+too, for a signature that has to name the chain it receives (`(chain: ArraySorter<Invoice>) => …`).
+
 `SortOptions`:
 
 | Option | Default | Meaning |
