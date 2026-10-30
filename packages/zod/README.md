@@ -189,13 +189,40 @@ it. So `nullableString(s => s.max(256))` validates at 256 characters while the d
 `maxLength`, and a control driven by the descriptor will not show the limit. When the control must
 display it, declare it on the field as well.
 
+## 🔒 Where the boundary is
+
+The package exports thirteen functions and the types they speak in, and nothing else. What stays
+inside is the structural view of Zod's `def` that makes the whole thing work without an
+`instanceof` — the wrapper set, the check readers, the nullish helper, the refinement bridge. A
+consumer building on those would turn a Zod rename into **their** breaking change as well as ours,
+which is the opposite of what this package is for.
+
+One type crosses on purpose. `ZodTypeLike` is the structural shape of a schema, and four signatures
+accept `z.ZodType | ZodTypeLike`, so a caller can hand over a schema from a Zod instance that is not
+the one this package was compiled against. That is the point of never importing Zod at runtime, and
+naming the type is what makes it usable.
+
+## 🔀 Migrating to 0.2
+
+The `fields` and `validators` barrels were re-exporting their implementation modules wholesale. They
+no longer do, which removes eight names that were never documented and never meant to be used:
+
+| Gone from the public surface | Instead |
+| --- | --- |
+| `WRAPPER_TYPES`, `orUndefined`, `getCheckDefs`, `findCheck` | the readers they feed: `describeField`, `describeSchema`, `describeShape`, `unwrapSchema` |
+| `ZodDefLike`, `ZodCheckLike`, `ZodCheckDef` | `ZodTypeLike`, which is still exported and is the only one a signature needs |
+| `applyDynamicRefine`, `IssueSink` | the validators themselves: every nullable one takes a `DynamicRefine` |
+
+`ZodTypeLike`, `DynamicRefine`, `UnwrappedSchema`, `FieldDescriptor` and every documented function
+are unchanged.
+
 ## 🤝 Compatibility
 
 | | |
 | --- | --- |
 | `zod` | `^4.0.0` (verified against 4.4.3) |
 | Entry points | `@proedis/zod`, `/fields`, `/validators` |
-| TypeScript | `>=5.5` |
+| TypeScript | `>=5.2.0`, the suite floor — the emitted declarations are compiled against it |
 | Runtime | ES2022, any JS runtime — no DOM, no React |
 
 ## 📄 License

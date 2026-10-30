@@ -12,6 +12,11 @@
  * `def.type` as a string keeps this package free of any runtime import of Zod.
  *
  * If a future Zod renames these, this file is the only place that breaks.
+ *
+ * ⚠️ **Nothing here is public API except `ZodTypeLike`**, which the barrel re-exports because four
+ * public signatures accept it. Everything else stops at the package boundary on purpose: these are
+ * the assumptions, and a consumer building on them would turn a Zod rename into their breaking
+ * change as well as ours. Import them from a sibling module, never widen the barrel.
  */
 export interface ZodCheckDef {
   check: string;

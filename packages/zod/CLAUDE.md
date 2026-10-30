@@ -46,6 +46,23 @@ to the rollup input, which the root config derives from the same field.
   bundle — the exact failure that made the Zod 3 ancestor fragile.
 - **`zod-internals.ts` is the blast radius.** Every structural assumption about `def`, its checks and
   Zod's public accessors lives there. A Zod release that renames something breaks one file.
+
+  ⚠️ **The barrel forwards exactly one name out of it, `ZodTypeLike`, and that is deliberate.**
+  `fields/index.ts` used to `export *` the whole file, which made `ZodCheckDef`, `ZodCheckLike`,
+  `ZodDefLike`, `WRAPPER_TYPES`, `orUndefined`, `getCheckDefs` and `findCheck` public API and turned
+  every Zod rename into a consumer's breaking change too — the opposite of a blast radius. The same
+  `export *` in `validators/index.ts` was publishing `applyDynamicRefine` and `IssueSink`, which are
+  the bridge, not a feature.
+
+  Both barrels now list what they forward. `ZodTypeLike` is there because `describeSchema`,
+  `describeField`, `tryDescribeField` and `describeShape` all accept `z.ZodType | ZodTypeLike`, and
+  `DynamicRefine` because every nullable validator takes one. **Do not widen either barrel back to
+  `export *`**: the published `exports` map carries no wildcard, so the barrel is the only way in,
+  and that is what keeps this file's assumptions inside the package.
+
+  Measured after the change: 13 runtime exports in both CJS and ESM, the eight names rejected by a
+  type probe compiled against the built `.d.ts`, and the probe confirmed able to fail (`TS2578` when
+  a directive goes unused).
 - **Public accessors first, checks second.** `.minLength`, `.maxValue`, `.isInt`, `.minDate` are
   documented Zod 4 API and are preferred wherever they exist. Checks are read only where no accessor
   does: array bounds (`min_length` / `max_length`), `multiple_of`, and the `string_format` check that
