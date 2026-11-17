@@ -95,8 +95,33 @@
    */
   --color-input: var(--input);
 
+  /* The border of a control under the pointer: one step stronger than `--input`, never a fill */
+  --color-input-hover: var(--input-hover);
+
+  /*
+   * The example text inside an empty control. Its own token because it is the one text colour a
+   * product may deliberately set below the contrast threshold (an example, never information), and
+   * that decision has to be visible as a declaration rather than hidden in an opacity.
+   */
+  --color-placeholder: var(--placeholder);
+
   /* The focus ring. One token, so every focusable thing in the interface agrees */
   --color-ring: var(--ring);
+}
+
+/*
+ * The heights of a control, a step the layer of interactive components ADDS rather than overrides,
+ * so plain `@theme`: the variable is emitted and `h-control-md` references it, which is what lets an
+ * application retune every control at once with one `:root` declaration.
+ *
+ * Three steps, shared by every control (a text field, a select, a button) so that two controls of
+ * the same size line up in a row whatever they are. A density is a decision of the product, which is
+ * why these are tokens and not a component's private value.
+ */
+@theme {
+  --spacing-control-sm: 2rem;
+  --spacing-control-md: 2.25rem;
+  --spacing-control-lg: 2.5rem;
 }
 
 /* ============================================================
@@ -142,6 +167,10 @@
 
   /* Follows the line colour unless a project wants a control to read stronger than a divider */
   --input: var(--border);
+  --input-hover: var(--color-zinc-400);
+
+  /* Lighter than `--muted-foreground`: an example in an empty field, never information */
+  --placeholder: var(--color-zinc-400);
 
   --ring: var(--color-zinc-400);
 }
@@ -179,6 +208,9 @@
   --info-foreground: var(--color-zinc-950);
 
   --input: oklch(1 0 0 / 15%);
+  --input-hover: oklch(1 0 0 / 30%);
+
+  --placeholder: var(--color-zinc-500);
 
   --ring: var(--color-zinc-500);
 }
