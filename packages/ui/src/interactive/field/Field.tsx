@@ -9,6 +9,7 @@ import { cn } from '../../core/cn';
 
 import {
   FieldControlContext,
+  FieldLabelNativeContext,
   FieldRegistryContext,
   FormErrorRegistryContext,
   useFieldControl,
@@ -120,6 +121,9 @@ const PART_PLACEMENT = [
   '*:data-[slot=field-error]:order-3 *:data-[slot=field-error]:col-span-1 *:data-[slot=field-error]:col-start-1',
   '*:data-[slot=field-counter]:order-3 *:data-[slot=field-counter]:col-span-1 *:data-[slot=field-counter]:col-start-2',
 
+  /* A single checkbox has no label above: its messages line up with its own label, 24px in */
+  'has-[>[data-slot=checkbox]]:*:data-[slot=field-description]:ps-6 has-[>[data-slot=checkbox]]:*:data-[slot=field-error]:ps-6',
+
   'in-data-[slot=form-section]:row-span-3 in-data-[slot=form-section]:grid-rows-subgrid',
   'in-data-[slot=form-section]:*:row-start-2',
   'in-data-[slot=form-section]:*:data-[slot=field-label]:row-start-1',
@@ -128,8 +132,19 @@ const PART_PLACEMENT = [
   'in-data-[slot=form-section]:*:data-[slot=field-counter]:row-start-3'
 ].join(' ');
 
-/** What can take the focus inside a field, first match wins */
-const FOCUSABLE = 'input:not([type="hidden"]):not(:disabled), textarea:not(:disabled), select:not(:disabled), [tabindex]:not([tabindex="-1"])';
+/**
+ * What takes the focus when an error summary points at the field: the element a control marks with
+ * `data-field-control`, and otherwise the first thing that can be focused.
+ */
+const FIELD_CONTROL = '[data-field-control]';
+
+const FOCUSABLE = [
+  'input:not([type="hidden"]):not(:disabled)',
+  'textarea:not(:disabled)',
+  'select:not(:disabled)',
+  'button:not(:disabled)',
+  '[tabindex]:not([tabindex="-1"])'
+].join(', ');
 
 
 /* --------
@@ -156,13 +171,16 @@ function FieldLabel(props: FieldLabelProps): React.ReactNode {
   // ----
   // Props Deconstruct
   // ----
-  const { children, className, required = false, ...rest } = props;
+  const { children, className, id, required = false, ...rest } = props;
 
 
   // ----
   // Internal Hooks
   // ----
   const registry = React.useContext(FieldRegistryContext);
+  const native = React.useContext(FieldLabelNativeContext);
+  const generatedId = React.useId();
+  const labelId = id ?? generatedId;
 
 
   // ----
@@ -178,6 +196,16 @@ function FieldLabel(props: FieldLabelProps): React.ReactNode {
     return () => registry.setRequired(false);
   }, [ registry, required ]);
 
+  useIsomorphicLayoutEffect(() => {
+    if (!registry) {
+      return undefined;
+    }
+
+    registry.setLabelId(labelId);
+
+    return () => registry.setLabelId(undefined);
+  }, [ registry, labelId ]);
+
 
   // ----
   // Component Render
@@ -185,6 +213,9 @@ function FieldLabel(props: FieldLabelProps): React.ReactNode {
   return (
     <FieldPrimitive.Label
       {...rest}
+      id={labelId}
+      nativeLabel={native}
+      render={native ? undefined : <div />}
       data-slot={'field-label'}
       data-required={required || undefined}
       /* The line height after the size: a size carries its own, and tailwind-merge keeps the last */
@@ -415,6 +446,8 @@ export function Field(props: FieldProps): React.ReactNode {
   // ----
   const [ required, setRequired ] = React.useState(false);
   const [ invalid, setInvalid ] = React.useState(false);
+  const [ nativeLabel, setNativeLabel ] = React.useState(true);
+  const [ labelId, setLabelId ] = React.useState<string | undefined>(undefined);
 
   const rootRef = React.useRef<HTMLDivElement>(null);
 
@@ -425,18 +458,21 @@ export function Field(props: FieldProps): React.ReactNode {
   const registry = React.useMemo<FieldRegistry>(() => ({
     setRequired,
     setInvalid,
+    setNativeLabel,
+    setLabelId,
     fieldId,
     getElement  : () => rootRef.current,
     focusControl: () => {
-      const control = rootRef.current?.querySelector<HTMLElement>(FOCUSABLE);
+      const root = rootRef.current;
+      const control = root?.querySelector<HTMLElement>(FIELD_CONTROL) ?? root?.querySelector<HTMLElement>(FOCUSABLE);
 
       control?.focus();
     }
   }), [ fieldId ]);
 
   const controlState = React.useMemo<FieldControlState>(
-    () => ({ required, invalid, disabled }),
-    [ required, invalid, disabled ]
+    () => ({ required, invalid, disabled, labelId }),
+    [ required, invalid, disabled, labelId ]
   );
 
 
@@ -465,7 +501,9 @@ export function Field(props: FieldProps): React.ReactNode {
     >
       <FieldRegistryContext.Provider value={registry}>
         <FieldControlContext.Provider value={controlState}>
-          {children}
+          <FieldLabelNativeContext.Provider value={nativeLabel}>
+            {children}
+          </FieldLabelNativeContext.Provider>
         </FieldControlContext.Provider>
       </FieldRegistryContext.Provider>
     </FieldPrimitive.Root>

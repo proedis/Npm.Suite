@@ -24,12 +24,17 @@
     "@base-ui/react": "1.7.0",
     "@proedis/tsconfig": "^2.0.1",
     "cpy-cli": "5.0.0",
+    "dayjs": "^1.11.12",
     "rollup": "^4.62.4"
   },
   "proedisMetadata": {
     "reflectPeerDependencies": {
       "@base-ui/react": {
         "range": "^1.7.0",
+        "optional": true
+      },
+      "dayjs": {
+        "range": "^1.11.0",
         "optional": true
       },
       "react": {
@@ -46,11 +51,21 @@
       "components",
       "hooks",
       "interactive/button",
+      "interactive/checkbox",
+      "interactive/combobox",
+      "interactive/date-picker",
       "interactive/field",
+      "interactive/file-upload",
       "interactive/form",
+      "interactive/multi-select",
+      "interactive/number-input",
       "interactive/password-input",
+      "interactive/radio",
       "interactive/search-input",
+      "interactive/select",
+      "interactive/switch",
       "interactive/text-input",
+      "interactive/textarea",
       "interactive/tooltip"
     ],
     "styles": [

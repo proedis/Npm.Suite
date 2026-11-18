@@ -40,7 +40,7 @@ things are*, `components` answers *what they look like*, and `hooks` is the clie
 | **Utilities** | `cn` — class composition where the last conflicting utility wins |
 | **Types** | `PolymorphicProps` — `as` typed by the element it renders, not by `div` |
 | **Hooks** | `useMediaQuery`, `useBreakpoint`, `useIsMobile`, `usePrefersReducedMotion` |
-| **Interactive** | `Tooltip` · `Button` · `IconButton` · `Form` · `Field` · `TextInput` · `PasswordInput` · `SearchInput`, on Base UI |
+| **Interactive** | `Tooltip` · `Button` · `IconButton` · `Form` · `Field` · `TextInput` · `PasswordInput` · `SearchInput` · `Textarea` · `NumberInput` · `Checkbox` · `RadioGroup` · `Switch` · `Select` · `MultiSelect` · `Combobox` · `DatePicker` · `FileUpload` · `AttachmentList`, on Base UI |
 | **Tokens** | a five token contract, or the **full vocabulary** through `theme.css` |
 
 ## 📦 Installation
@@ -80,6 +80,7 @@ One or the other, never both: the full sheet imports the narrow one itself. See
 | `react` | `>=18.0.0 <20.0.0` |
 | `tailwindcss` | `^4.0.0` |
 | `@base-ui/react` | `^1.7.0`, **optional**: only for the `interactive/*` subpaths |
+| `dayjs` | `^1.11.0`, **optional**: only for `interactive/date-picker`, with the locale loaded by the application |
 
 ⚠️ The stylesheet uses Tailwind directives. Loaded as a plain `<link>` it does nothing — it has to be
 imported where Tailwind compiles.
@@ -672,6 +673,16 @@ none of them is re-exported by the root barrel. Every module is client-only (`'u
 | `interactive/text-input` | `TextInput` (`.Action`), `textInputVariants` |
 | `interactive/password-input` | `PasswordInput` |
 | `interactive/search-input` | `SearchInput` |
+| `interactive/textarea` | `Textarea` |
+| `interactive/number-input` | `NumberInput` |
+| `interactive/checkbox` | `Checkbox`, `CheckboxGroup` (with a computed parent box) |
+| `interactive/radio` | `RadioGroup`, `Radio` (classic or `variant="card"`) |
+| `interactive/switch` | `Switch` |
+| `interactive/select` | `Select`, with a search past `searchThreshold` options |
+| `interactive/multi-select` | `MultiSelect` |
+| `interactive/combobox` | `Combobox`, one record or several (`multiple`) among results from the server |
+| `interactive/date-picker` | `DatePicker`, a date or a period (`mode="range"`); needs `dayjs` |
+| `interactive/file-upload` | `FileUpload`, `AttachmentList`, `validateFiles`, `acceptsFile` |
 
 ```tsx
 <TooltipProvider>                                   {/* once, above everything */}
@@ -708,6 +719,18 @@ What is worth knowing before using them:
   fields share three tracks per row (labels, controls, messages), so the controls stay aligned when a
   label wraps. A custom control reads `required`, `invalid` and `disabled` with `useFieldControl()`.
 - **Mount `TooltipProvider` once**: it groups the tooltips, so a row of icon buttons is one gesture.
+- **Values are plain data.** A date is `"2026-11-16"`, never a `Date`; a number is `number | null`,
+  where empty is not zero; a Select holds a key and a Combobox a key plus the record it shows.
+- **The lists keep the user's data.** A letter on a closed Select opens it and never changes the
+  value; leaving a Combobox without choosing gives the value back, and Esc never empties it.
+- **What is typed is checked as typed.** NumberInput refuses what would not make a number in the
+  language (in Italian a typed `1.5` is not 15) and takes a paste whole or not at all; DatePicker
+  writes its separators itself and reports a half or impossible date on leaving, through
+  `onValidityChange`, for the caller to word. A period is one field, `09/11/2026 – 22/11/2026`,
+  typed in a row: the end starts with the first digit after the year. A click in the text opens
+  the calendar and leaves the focus there to type; Alt ↓ moves into the grid.
+- **Nothing is uploaded.** FileUpload checks the files and gives back the reasons as codes; the
+  caller sends the ready ones when the form is confirmed.
 
 ## 🎛️ Customizing a component
 
@@ -897,6 +920,7 @@ prevented it. So the vocabulary is named once, in a second stylesheet:
 | Layers | `--state-hover`, `--state-pressed`: the veil over a solid coloured fill |
 | Tooltip | `--tooltip`, `--tooltip-foreground`, `--tooltip-muted-foreground` |
 | Stacking | `--z-dialog`, `--z-popover`, `--z-toast`, `--z-tooltip`, read by the `z-dialog` … `z-tooltip` utilities |
+| Switch | `--switch-off`, the track of a switch that is off: a surface, not a line |
 
 Every family is a **pair**, a surface and the ink that is legible on it, and both halves are always
 declared: half a pair is what produces the token nobody can use, a `--warning` that leaves every
@@ -928,6 +952,7 @@ another package. A recessed surface is `--muted`.
 | TypeScript | `>=5.2.0`, the suite floor — the emitted declarations are compiled against it |
 | Runtime | ES2022. The package root is server-renderable; `/hooks` and `/interactive/*` are client-only |
 | Base UI | `^1.7.0`, optional, for `/interactive/*` only |
+| dayjs | `^1.11.0`, optional, for `/interactive/date-picker` only |
 
 ## 📄 License
 

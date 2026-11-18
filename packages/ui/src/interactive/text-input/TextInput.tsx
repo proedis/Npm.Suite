@@ -12,17 +12,19 @@ import { Spinner } from '../../components/Spinner';
 
 import { IconButton } from '../button/IconButton';
 import { useFieldControl } from '../field/fieldContext';
+import { TEXT_CONTROL_FRAME, TEXT_CONTROL_SIZES, TEXT_CONTROL_TEXT, textControlState } from '../text-control/textControl';
 
 import type { BaseProps } from '../../core/base';
 
 import type { IconButtonProps } from '../button/IconButton';
+import type { TextControlSize } from '../text-control/textControl';
 
 
 /* --------
  * Types Definition
  * -------- */
 
-export type TextInputSize = 'sm' | 'md' | 'lg';
+export type TextInputSize = TextControlSize;
 
 export type TextInputWidth = 'short' | 'code' | 'default' | 'long';
 
@@ -107,40 +109,18 @@ TextInputContext.displayName = 'TextInputContext';
  * -------- */
 
 /**
- * The states are read from the frame's own `data-*`, written from the props and from the field, so
- * no selector has to look inside it. The one exception is the focus, which belongs to the text alone:
- * an action inside the field taking the focus must not light the whole frame.
+ * The look of the frame and its states are the shared text-control classes: TextInput, Textarea,
+ * NumberInput and the triggers of the lists read the same ones.
  */
 const textInputVariants = cva(
   [
-    'flex w-full cursor-text items-center rounded-md border border-input bg-card text-sm text-foreground',
-    'transition-colors duration-100 motion-reduce:transition-none',
-
-    'not-data-invalid:not-data-readonly:not-data-disabled:hover:border-input-hover',
-
-    /* A real outline over the border, which forced colours keep, and a halo past it */
-    'has-[input:focus]:border-ring has-[input:focus]:outline-1 has-[input:focus]:outline-ring',
-    'has-[input:focus]:ring-4 has-[input:focus]:ring-ring/20',
-
-    /* The error border is drawn inward too, so the text does not move */
-    'data-invalid:border-destructive data-invalid:inset-ring data-invalid:inset-ring-destructive',
-
-    /* With the focus the red border stays: outline and halo are the ring's */
-    'data-invalid:has-[input:focus]:border-destructive',
-
-    'data-readonly:border-border data-readonly:bg-muted',
-
-    'data-disabled:cursor-not-allowed data-disabled:opacity-50',
-
+    TEXT_CONTROL_FRAME,
+    'flex w-full cursor-text items-center',
     '[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:text-muted-foreground'
   ],
   {
     variants: {
-      size: {
-        sm: 'h-control-sm gap-1 px-2 [&_svg]:size-3.5',
-        md: 'h-control-md gap-1.5 px-2.5 [&_svg]:size-4',
-        lg: 'h-control-lg gap-1.5 px-3 [&_svg]:size-4'
-      },
+      size: TEXT_CONTROL_SIZES,
 
       width: {
         short  : 'min-w-16',
@@ -313,9 +293,7 @@ const TextInputBase = React.forwardRef<HTMLInputElement, TextInputProps>((props,
       data-size={size}
       data-width={width}
       data-loading={loading || undefined}
-      data-invalid={isInvalid || undefined}
-      data-readonly={readOnly || undefined}
-      data-disabled={isDisabled || undefined}
+      {...textControlState({ invalid: isInvalid, readOnly, disabled: isDisabled })}
       className={cn(textInputVariants({ size, width }), baseClasses, className)}
       onMouseDown={handleFrameMouseDown}
     >
@@ -332,15 +310,14 @@ const TextInputBase = React.forwardRef<HTMLInputElement, TextInputProps>((props,
           {...rest}
           ref={setRefs}
           data-slot={'text-input-control'}
+          data-field-control={''}
           disabled={isDisabled}
           readOnly={readOnly}
           aria-required={field.required || undefined}
           aria-invalid={isInvalid || undefined}
           className={cn(
-            'h-full min-w-0 flex-1 bg-transparent tabular-nums outline-none autofill-card',
-            'placeholder:text-placeholder contrast-more:placeholder:text-muted-foreground',
-            'read-only:placeholder:text-transparent disabled:placeholder:text-transparent',
-            'disabled:cursor-not-allowed',
+            'h-full min-w-0 flex-1 bg-transparent outline-none',
+            TEXT_CONTROL_TEXT,
             '[&::-webkit-search-cancel-button]:appearance-none'
           )}
         />

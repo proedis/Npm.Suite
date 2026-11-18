@@ -17,6 +17,9 @@ export interface FieldControlState {
 
   /** The whole field is disabled */
   readonly disabled: boolean;
+
+  /** The id of `Field.Label`, for a control that composes its name from it */
+  readonly labelId?: string;
 }
 
 /**
@@ -26,6 +29,15 @@ export interface FieldControlState {
 export interface FieldRegistry {
   readonly setRequired: (required: boolean) => void;
   readonly setInvalid: (invalid: boolean) => void;
+
+  /**
+   * A control that is not a text box (a trigger, a group of options) asks for a label that is not a
+   * native `<label>`: a click on it must not press the trigger or pick the first option, and for a
+   * group it is the legend that names the group.
+   */
+  readonly setNativeLabel: (native: boolean) => void;
+
+  readonly setLabelId: (id: string | undefined) => void;
 
   /** Moves the focus to the control of the field, for the links of an error summary */
   readonly focusControl: () => void;
@@ -67,6 +79,11 @@ export const FieldRegistryContext = React.createContext<FieldRegistry | null>(nu
 
 FieldRegistryContext.displayName = 'FieldRegistryContext';
 
+/** Whether `Field.Label` renders a native `<label>`. Private: written by the controls through the registry */
+export const FieldLabelNativeContext = React.createContext(true);
+
+FieldLabelNativeContext.displayName = 'FieldLabelNativeContext';
+
 /**
  * Owned here and provided by `Form`: the dependency goes one way, from `form` to `field`, so the two
  * subpaths never import each other in a circle.
@@ -103,4 +120,33 @@ export const useIsomorphicLayoutEffect = typeof window === 'undefined' ? React.u
  */
 export function useFieldControl(): FieldControlState {
   return React.useContext(FieldControlContext);
+}
+
+
+/**
+ * Called by a control that is not a text box, for as long as it is mounted: the label of its field
+ * becomes a plain element that names it, instead of a `<label>` that would press or pick on a click.
+ * Private to the tier.
+ */
+export function useNonNativeFieldLabel(): void {
+
+  // ----
+  // Internal Hooks
+  // ----
+  const registry = React.useContext(FieldRegistryContext);
+
+
+  // ----
+  // Lifecycle Events
+  // ----
+  useIsomorphicLayoutEffect(() => {
+    if (!registry) {
+      return undefined;
+    }
+
+    registry.setNativeLabel(false);
+
+    return () => registry.setNativeLabel(true);
+  }, [ registry ]);
+
 }

@@ -82,6 +82,18 @@ component made of others imports them by relative path (`../button/IconButton`):
 share lives in the one lower down (`field/fieldContext.ts` is provided by `form`), so the
 dependency goes one way.
 
+The private modules of the tier, shared by relative import and never exported by a barrel:
+`text-control` (the frame and the states of every bordered text control), `choice` (the row, the
+marks and the description of Checkbox, Radio and Switch), `list-panel` (the look of the list under
+Select, MultiSelect, Combobox, and later FiltersBar), `calendar` (the month grid and the date text
+rules, used by DatePicker and later FiltersBar), `delayed-busy` (the spinner that waits 300ms; it is
+published with the Loading guide). A control marks the element that takes its field's focus with
+`data-field-control`: the frame lights from it, the error summary focuses it.
+
+Two engines under one look, on purpose: `Select` and `MultiSelect` run on Base UI's `Select` up to
+`searchThreshold` and on its `Combobox` past it, because a Select cannot hold a search. Never switch
+engine while a list is open.
+
 Three things every interactive component does, on top of "Writing a new component" below:
 
 - **No user-facing string**, not even a default `aria-label`: texts come in as props (`label`,

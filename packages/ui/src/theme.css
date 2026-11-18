@@ -105,6 +105,9 @@
    */
   --color-placeholder: var(--placeholder);
 
+  /* The track of a switch that is off: a surface, not a line, so it holds 3:1 on its own */
+  --color-switch-off: var(--switch-off);
+
   /* The focus ring. One token, so every focusable thing in the interface agrees */
   --color-ring: var(--ring);
 
@@ -207,6 +210,16 @@
 }
 
 /*
+ * The height a textarea may take, in lines of its own text: at least its starting rows, at most
+ * `maxRows`, padding and border included. The two numbers arrive as variables set by the component,
+ * which is why this is a utility and not a pair of classes.
+ */
+@utility textarea-bounds {
+  min-height: calc(var(--textarea-rows, 3) * 1lh + var(--spacing) * 2.5 + 2px);
+  max-height: calc(var(--textarea-max-rows, 12) * 1lh + var(--spacing) * 2.5 + 2px);
+}
+
+/*
  * A control the browser filled in on its own keeps the surface and the ink of the control.
  *
  * Without it the browser tints only the inner `<input>`, a coloured rectangle inside a white frame. An
@@ -270,6 +283,8 @@
   /* Lighter than `--muted-foreground`: an example in an empty field, never information */
   --placeholder: var(--color-zinc-400);
 
+  --switch-off: var(--color-zinc-500);
+
   --ring: var(--color-zinc-400);
 
   /* A dark veil: a coloured fill under the pointer reads one step deeper */
@@ -322,6 +337,8 @@
   --input-hover: oklch(1 0 0 / 30%);
 
   --placeholder: var(--color-zinc-500);
+
+  --switch-off: var(--color-zinc-600);
 
   --ring: var(--color-zinc-500);
 
