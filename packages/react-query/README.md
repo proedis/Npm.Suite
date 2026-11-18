@@ -25,10 +25,11 @@ machine is ours. 🎛️
 | **The engine** | `QuerySuspense`, and `resolveQueryView` — the branch order as a plain function |
 | **Invalidation** | `useQueryInvalidation`, `InvalidationQueue` — deduped, batched, deferrable |
 | **Gates** | `useInvalidationGate`, `useRefetchPause`, `refetchOnWindowFocusGate`, `PauseGate`, and `isRefetchPaused` to ask a `QueryClient` whether one query hash is currently held |
+| **Search** | `useSearchQuery` — the results of a search typed into a field: debounce, last answer wins, `limit + 1` |
 | **Escape hatches** | `useQuerySuspenseConfig` — the resolved configuration, defaults merged under whatever the providers declared, never a hole; `renderViewNode` — turn a `SuspenseViewNode` into an element the way the engine does |
 
-Two entry points beyond the root, so a consumer can take one half without the other:
-`@proedis/react-query/suspense` and `@proedis/react-query/invalidation`.
+Three entry points beyond the root, so a consumer takes only the part it uses:
+`@proedis/react-query/suspense`, `@proedis/react-query/invalidation` and `@proedis/react-query/search`.
 
 ## 📦 Installation
 
@@ -263,6 +264,36 @@ refetches the list underneath, rows move while the user is still typing, and com
 another window reorders everything. `useInvalidationGate(open)` collapses those refetches into one,
 fired when the modal is gone; `useRefetchPause(open)` freezes what was already on screen while
 leaving the modal's own queries live.
+
+### `search`
+
+```tsx
+const [ term, setTerm ] = React.useState('');
+
+const search = useSearchQuery({
+  term,
+  queryKey: (term, limit) => [ 'contracts', 'search', term, limit ],
+  queryFn : ({ term, limit, signal }) => client.get('/contracts', { query: { term, limit }, signal })
+});
+
+// search.items, search.hasMore, search.status, search.settledTerm, search.isPending, search.retry(), search.flush()
+```
+
+What every search typed into a field needs, and gets wrong one at a time:
+
+| Rule | How |
+| --- | --- |
+| Debounce | the trimmed term settles after `debounceMs` (250) |
+| Last answer wins | the term is in the key and the previous request is aborted through `signal` |
+| "Type more" | `queryFn` receives `limit + 1`; `items` holds `limit`, `hasMore` says whether there was one more |
+| Nothing under `minChars` (2) | `status` is `idle` and no request leaves |
+| The list does not empty at every key | the previous items stay while the next term travels |
+| Retry | once on a server error or the network, never on a 4xx |
+| A scanner's Enter | `settledTerm` says which term the items answer; `flush()` ends the debounce now |
+
+It pairs with `Combobox` of `@proedis/ui/interactive/combobox`, which takes `items`, `searching`,
+`resultsFor`, `onFlush`, `searchError`, `onRetry` and `hasMore` from it. When to show a spinner is the
+component's decision, not the hook's.
 
 ## ⚠️ Requirements
 

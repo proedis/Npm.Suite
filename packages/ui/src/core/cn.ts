@@ -1,8 +1,29 @@
 import { clsx } from 'clsx';
 
-import { twMerge } from 'tailwind-merge';
+import { extendTailwindMerge } from 'tailwind-merge';
 
 import type { ClassValue } from 'clsx';
+
+
+/**
+ * `tailwind-merge` with the names this package adds to Tailwind's theme.
+ *
+ * It recognises a class by its value, and a value it has never seen is not a conflict: without this
+ * `h-control-md size-6` keeps both and the stylesheet's order decides, so a `className` stops being
+ * an override exactly on the steps this package introduced. Every name declared in the stylesheets
+ * for a utility a component writes belongs here.
+ */
+const twMerge = extendTailwindMerge({
+  extend: {
+    theme: {
+      spacing: [ 'control-sm', 'control-md', 'control-lg' ]
+    },
+    classGroups: {
+      'grid-cols': [ { 'grid-cols': [ 'field' ] } ],
+      z          : [ { z: [ 'dialog', 'popover', 'toast', 'tooltip' ] } ]
+    }
+  }
+});
 
 
 /**

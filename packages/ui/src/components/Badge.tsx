@@ -44,8 +44,16 @@ const DEFAULT_VARIANTS = {
  */
 const badgeVariants = cva(
   cn(
-    'inline-flex shrink-0 items-center justify-center rounded-full align-middle',
+    'inline-flex max-w-full min-w-0 shrink-0 items-center justify-center rounded-full align-middle',
     'font-medium whitespace-nowrap tabular-nums select-none',
+
+    /*
+     * Printed, a soft badge is white with a line in its ink (browsers drop backgrounds by default),
+     * a solid one keeps its fill. With forced colours the fills vanish and a 1px frame stays.
+     */
+    'print:data-[fill=soft]:bg-transparent print:data-[fill=soft]:inset-ring print:data-[fill=soft]:inset-ring-current',
+    'print:data-[fill=solid]:print-exact',
+    'forced-colors:border forced-colors:border-solid',
     '[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*=size-])]:size-3'
   ),
   {
@@ -133,13 +141,17 @@ export type BadgeProps<E extends React.ElementType = 'span'> = PolymorphicProps<
  * `as={'a'}` is available for a badge that navigates, and then the semantics are the caller's, exactly
  * as with `Item`.
  *
+ * ## Long text
+ *
+ * The badge is at most as wide as its container, and a text label truncates with an ellipsis while
+ * the dot stays: a safety net, not a layout. A truncated badge is a column too narrow. Children that
+ * are not text (an icon and a word) are left as they are.
+ *
  * ## What is not here, and why
  *
- * `loading` (a badge as a live region), `pulse` (a keyframe this stylesheet does not declare) and
- * `count` / `iconOnly` (a geometry that makes a single digit a circle) all come from the richer of the
- * two references. They are real, and each one needs a decision this package has not had to take yet:
- * a badge that announces, an animation in the contract, a second geometry. `dot` is here because it
- * needs none of the three.
+ * `loading` (a badge as a live region) and `pulse` (a keyframe this stylesheet does not declare) come
+ * from the richer of the two references, and each needs a decision this package has not had to take
+ * yet. A count over an icon button is not a badge: it is `BadgeCounter`, next door.
  */
 export function Badge<E extends React.ElementType = 'span'>(props: BadgeProps<E>): React.ReactNode {
 
@@ -195,7 +207,9 @@ export function Badge<E extends React.ElementType = 'span'>(props: BadgeProps<E>
       {...rest}
     >
       {dot && <span aria-hidden data-slot={'badge-dot'} className={'size-1.5 shrink-0 rounded-full bg-current'} />}
-      {children}
+      {typeof children === 'string' || typeof children === 'number'
+        ? <span data-slot={'badge-label'} className={'min-w-0 truncate'}>{children}</span>
+        : children}
     </Component>
   );
 

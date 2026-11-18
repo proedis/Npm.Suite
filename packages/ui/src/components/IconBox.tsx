@@ -85,6 +85,7 @@ const iconBoxVariants = cva(
        * hatch for an icon that has to be optically corrected.
        */
       size: {
+        xs   : 'size-6 rounded-lg [&_svg:not([class*=size-])]:size-3.5',
         sm   : 'size-8 rounded-xl [&_svg:not([class*=size-])]:size-4',
         md   : 'size-10 rounded-2xl [&_svg:not([class*=size-])]:size-5',
         lg   : 'size-14 rounded-3xl [&_svg:not([class*=size-])]:size-6',

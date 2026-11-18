@@ -21,12 +21,27 @@
     "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
+    "@base-ui/react": "1.7.0",
     "@proedis/tsconfig": "^2.0.1",
+    "@tanstack/react-table": "9.3.1",
     "cpy-cli": "5.0.0",
+    "dayjs": "^1.11.12",
     "rollup": "^4.62.4"
   },
   "proedisMetadata": {
     "reflectPeerDependencies": {
+      "@base-ui/react": {
+        "range": "^1.7.0",
+        "optional": true
+      },
+      "@tanstack/react-table": {
+        "range": "^9.3.1",
+        "optional": true
+      },
+      "dayjs": {
+        "range": "^1.11.0",
+        "optional": true
+      },
       "react": {
         "from": "root",
         "range": ">=18.0.0 <20.0.0"
@@ -39,7 +54,39 @@
       "core",
       "layout",
       "components",
-      "hooks"
+      "hooks",
+      "interactive/alert",
+      "interactive/alert-dialog",
+      "interactive/button",
+      "interactive/checkbox",
+      "interactive/combobox",
+      "interactive/date-picker",
+      "interactive/dialog",
+      "interactive/drawer",
+      "interactive/empty-state",
+      "interactive/field",
+      "interactive/file-upload",
+      "interactive/filters-bar",
+      "interactive/form",
+      "interactive/menu",
+      "interactive/modal-selector",
+      "interactive/multi-select",
+      "interactive/number-input",
+      "interactive/password-input",
+      "interactive/person",
+      "interactive/popover",
+      "interactive/radio",
+      "interactive/search-input",
+      "interactive/segmented-control",
+      "interactive/select",
+      "interactive/switch",
+      "interactive/table",
+      "interactive/tabs",
+      "interactive/text-input",
+      "interactive/textarea",
+      "interactive/toast",
+      "interactive/toggle",
+      "interactive/tooltip"
     ],
     "styles": [
       "theme.css",

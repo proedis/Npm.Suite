@@ -42,7 +42,8 @@
     },
     "exports": [
       "invalidation",
-      "suspense"
+      "suspense",
+      "search"
     ],
     "sideEffects": false
   }

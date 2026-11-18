@@ -15,14 +15,16 @@ both.** 📐
 
 ## ✨ What's in the box
 
-Twenty-three primitives, the machinery behind them, and the stylesheet they read, in four subpaths:
+Twenty-three primitives, the interactive components, the machinery behind them, and the stylesheet
+they read:
 
 ```ts
-import { Stack, Divider } from '@proedis/ui';              // everything except the hooks
+import { Stack, Divider } from '@proedis/ui';              // everything except hooks and interactive
 import { Stack } from '@proedis/ui/layout';                // …or say which tier you are in
 import { Divider } from '@proedis/ui/components';
 import { cn, type Responsive } from '@proedis/ui/core';
 import { useIsMobile } from '@proedis/ui/hooks';           // client-only, its own entry point
+import { Button } from '@proedis/ui/interactive/button';   // one subpath per interactive component
 ```
 
 `core` holds **no JSX**: the class machinery, the shared props and the types. `layout` answers *where
@@ -33,11 +35,12 @@ things are*, `components` answers *what they look like*, and `hooks` is the clie
 | **Layout** | `Box` · `Stack` · `Grid` · `Cluster` · `Center` · `Container` · `Split` · `Spacer` · `Sticky` · `AspectRatio` |
 | **Visibility** | `hideBelow` / `hideFrom` on every primitive, plus `VisuallyHidden` |
 | **Escapes** | `Bleed` · `SafeArea` — out of a padding, and out of the notch |
-| **Components** | `Surface` · `Item` · `Heading` · `Badge` · `IconBox` · `Spinner` · `Divider` · `ScrollArea` · `Label` · `LabeledContent` |
+| **Components** | `Surface` · `Item` · `Heading` · `Badge` · `BadgeCounter` · `IconBox` · `Spinner` · `Skeleton` · `LoadingBar` · `BusyVeil` · `Divider` · `ScrollArea` · `Label` · `LabeledContent` |
 | **Responsive** | `Responsive<T>`, the typed scales, and the class builders behind every prop |
 | **Utilities** | `cn` — class composition where the last conflicting utility wins |
 | **Types** | `PolymorphicProps` — `as` typed by the element it renders, not by `div` |
-| **Hooks** | `useMediaQuery`, `useBreakpoint`, `useIsMobile`, `usePrefersReducedMotion` |
+| **Hooks** | `useMediaQuery`, `useBreakpoint`, `useIsMobile`, `usePrefersReducedMotion`, `useDelayedBusy`, `useOverflowItems` |
+| **Interactive** | `Tooltip` · `Button` · `IconButton` · `Form` · `Field` · `TextInput` · `PasswordInput` · `SearchInput` · `Textarea` · `NumberInput` · `Checkbox` · `RadioGroup` · `Switch` · `Select` · `MultiSelect` · `Combobox` · `DatePicker` · `FileUpload` · `AttachmentList` · `Toggle` · `ToggleGroup` · `SegmentedControl` · `Popover` · `Menu` · `Dialog` · `AlertDialog` · `Drawer` · `Alert` · `EmptyState` · `Tabs` · `Avatar` · `AvatarGroup` · `Person` · notifications (`NotificationsProvider`, `JobsButton`), on Base UI |
 | **Tokens** | a five token contract, or the **full vocabulary** through `theme.css` |
 
 ## 📦 Installation
@@ -76,6 +79,9 @@ One or the other, never both: the full sheet imports the narrow one itself. See
 | --- | --- |
 | `react` | `>=18.0.0 <20.0.0` |
 | `tailwindcss` | `^4.0.0` |
+| `@base-ui/react` | `^1.7.0`, **optional**: only for the `interactive/*` subpaths |
+| `dayjs` | `^1.11.0`, **optional**: only for `interactive/date-picker`, `interactive/filters-bar` and `interactive/modal-selector`, with the locale loaded by the application |
+| `@tanstack/react-table` | `^9.3.1`, **optional**: only for `interactive/table` |
 
 ⚠️ The stylesheet uses Tailwind directives. Loaded as a plain `<link>` it does nothing — it has to be
 imported where Tailwind compiles.
@@ -613,6 +619,7 @@ components build their classes with, for a primitive of your own that wants to b
 | `breakpointPrefix(bp)`, `responsiveEntries(value)`, `toResponsiveMap(value)` | the pieces `responsiveClasses` is made of |
 | `BREAKPOINTS`, `BREAKPOINT_WIDTHS`, `mediaQuery(bp)` | the scale as data, and the media query behind a named breakpoint |
 | `TONE_CLASSES`, `TONE_COMPOUNDS`, `TONES` | the one tone table, ready to hand to a `cva` call of your own |
+| `LinkTarget`, `linkProps(target)` | a place to go, as `{ href, go() }`, and the two anchor attributes that follow it on a plain click only |
 
 ⚠️ A class these builders produce needs a **safelist entry** in the stylesheet to have any CSS
 behind it, exactly as it does inside this package. They cover the scale declared in `ui.css` and
@@ -643,9 +650,141 @@ two possible mistakes are not equivalent. Guessing "reduce" and correcting costs
 stillness; guessing the other way plays the animation this preference exists to prevent, to the
 person who asked for it not to.
 
+`useDelayedBusy(busy)` is the timing every wait shares: `{ busy, visible }`, the block at once and the
+look after 300ms, held at least 400 once shown, so a fast answer flashes nothing. `useOverflowItems`
+says which items of a row fit and which go into a "More" menu, from a hidden copy of the row; Tabs use
+it, and a header with tabs can.
+
 They live behind their own entry point on purpose — everything exported from the package root is
 renderable from a React Server Component, and a barrel re-exporting a hook would take that away.
 Reach for them only where CSS cannot do the job: a bottom sheet instead of a dialog, not a padding.
+
+### The interactive tier — `@proedis/ui/interactive/*`
+
+The components with behaviour: keyboard, focus, state, accessibility. Their **logic and structure**
+are shared; their **look** is a neutral default every application retunes from its own stylesheet,
+through the `data-slot` on every part and the `data-*` that reports every resolved variant (see
+[Customizing a component](#️-customizing-a-component)). The slot names are public API.
+
+They run on [Base UI](https://base-ui.com), an **optional** peer: a project that never imports from
+these subpaths installs nothing new. One subpath per component, so each brings only its own peers, and
+none of them is re-exported by the root barrel. Every module is client-only (`'use client'`).
+
+| Subpath | Exports |
+| --- | --- |
+| `interactive/tooltip` | `Tooltip`, `TooltipProvider` |
+| `interactive/button` | `Button`, `IconButton`, `buttonVariants` |
+| `interactive/field` | `Field` (`.Label`, `.Description`, `.Error`, `.Counter`), `FIELD_SPAN`, `useFieldControl` |
+| `interactive/form` | `Form` (`.Header`, `.ErrorSummary`, `.Section`, `.Footer`) |
+| `interactive/text-input` | `TextInput` (`.Action`), `textInputVariants` |
+| `interactive/password-input` | `PasswordInput` |
+| `interactive/search-input` | `SearchInput` |
+| `interactive/textarea` | `Textarea` |
+| `interactive/number-input` | `NumberInput` |
+| `interactive/checkbox` | `Checkbox`, `CheckboxGroup` (with a computed parent box) |
+| `interactive/radio` | `RadioGroup`, `Radio` (classic or `variant="card"`) |
+| `interactive/switch` | `Switch` |
+| `interactive/select` | `Select`, with a search past `searchThreshold` options |
+| `interactive/multi-select` | `MultiSelect` |
+| `interactive/combobox` | `Combobox`, one record or several (`multiple`) among results from the server |
+| `interactive/date-picker` | `DatePicker`, a date or a period (`mode="range"`); needs `dayjs` |
+| `interactive/file-upload` | `FileUpload`, `AttachmentList`, `validateFiles`, `acceptsFile` |
+| `interactive/toggle` | `Toggle`, `ToggleGroup` |
+| `interactive/segmented-control` | `SegmentedControl` (`.Item`) |
+| `interactive/popover` | `Popover` (`.Submit`) |
+| `interactive/menu` | `Menu` (`.Item`, `.Group`, `.Separator`, `.RadioGroup`, `.RadioItem`, `.CheckboxItem`, `.Submenu`) |
+| `interactive/dialog` | `Dialog` (`.Submit`, `.Cancel`, `.Section`) |
+| `interactive/alert-dialog` | `AlertDialog`, in three grades |
+| `interactive/drawer` | `Drawer` (`.Submit`, `.Cancel`, `.Section`) |
+| `interactive/alert` | `Alert`, `alertVariants` |
+| `interactive/empty-state` | `EmptyState` |
+| `interactive/tabs` | `Tabs` (`.Panel`), with "More" for the tabs that do not fit |
+| `interactive/person` | `Avatar`, `AvatarGroup`, `Person` |
+| `interactive/toast` | `createNotifications`, `NotificationsProvider`, `JobsButton` |
+| `interactive/table` | `Table`, `TableFormatsProvider`, `useTableFormats`, `sortingToFields`; needs `@tanstack/react-table` |
+| `interactive/filters-bar` | `FiltersBar`: search, a button per filter, "More filters", "Clear filters"; needs `dayjs` |
+| `interactive/modal-selector` | `ModalSelector`, `ModalSelectorField`: one record or several from a list, in a Dialog; needs `dayjs` |
+
+```tsx
+<TooltipProvider>                                   {/* once, above everything */}
+  <Form id={'signal'} onSubmit={handleSubmit}>
+    <Form.ErrorSummary title={(count) => t('FORM.ERRORS', { count })} />
+    <Form.Section title={'Address'} description={'Where the collection takes place'}>
+      <Field span={4} breakBefore>
+        <Field.Label required>Street</Field.Label>
+        <TextInput width={'long'} />
+        <Field.Error summary={'Street: write it in full'}>{errors.street}</Field.Error>
+      </Field>
+    </Form.Section>
+  </Form>
+
+  <Button form={'signal'} type={'submit'}>Save</Button>
+  <IconButton label={'Delete'} icon={<Trash />} />
+  <Button to={{ href: '/signals', go: () => navigate('/signals') }} fill={'plain'}>All signals</Button>
+</TooltipProvider>
+```
+
+What is worth knowing before using them:
+
+- **No text inside.** Every visible string and every accessible name comes in as a prop: `label`,
+  `loadingLabel` (required with `loading`), `labels` on `PasswordInput` and `SearchInput`, the `title`
+  function of `Form.ErrorSummary`.
+- **An icon-only button always has a tooltip.** `IconButton` takes one required `label`, which is both
+  its accessible name and its tooltip, so the two cannot disagree.
+- **A button that leads somewhere is a link.** `to` takes a `LinkTarget` from `@proedis/ui/core`
+  (`{ href, go() }`): the button renders an `<a href>`, a plain click calls `go()`, the middle click and
+  a new tab still work. No router and no provider in the package.
+- **The form does not validate.** Errors come from the caller as `Field.Error`; after a submit the focus
+  goes to the summary with two or more of them, to the field with one. `noValidate` is always on.
+- **The field is made of parts**, in any order: each finds its row by its slot. Inside a `Form.Section`
+  fields share three tracks per row (labels, controls, messages), so the controls stay aligned when a
+  label wraps. A custom control reads `required`, `invalid` and `disabled` with `useFieldControl()`.
+- **Mount `TooltipProvider` once**: it groups the tooltips, so a row of icon buttons is one gesture.
+- **Values are plain data.** A date is `"2026-11-16"`, never a `Date`; a number is `number | null`,
+  where empty is not zero; a Select holds a key and a Combobox a key plus the record it shows.
+- **The lists keep the user's data.** A letter on a closed Select opens it and never changes the
+  value; leaving a Combobox without choosing gives the value back, and Esc never empties it.
+- **What is typed is checked as typed.** NumberInput refuses what would not make a number in the
+  language (in Italian a typed `1.5` is not 15) and takes a paste whole or not at all; DatePicker
+  writes its separators itself and reports a half or impossible date on leaving, through
+  `onValidityChange`, for the caller to word. A period is one field, `09/11/2026 – 22/11/2026`,
+  typed in a row: the end starts with the first digit after the year. A click in the text opens
+  the calendar and leaves the focus there to type; Alt ↓ moves into the grid.
+- **Nothing is uploaded.** FileUpload checks the files and gives back the reasons as codes; the
+  caller sends the ready ones when the form is confirmed.
+- **Disabled stays reachable.** A disabled Toggle, segment, tab or menu item keeps its place in the
+  arrow cycle and shows its reason in a tooltip; the change is cancelled instead.
+- **Popover, Dialog and Drawer render no `<form>`.** A `Form` inside takes their id, and their
+  `.Submit` in the footer points at it: Enter in a field submits, two forms never nest.
+- **One gate to close a dialog.** The x, Cancel and Esc pass through it: nothing closes while saving,
+  `dirty` opens the discard prompt first, a click outside closes only a detail and otherwise jolts the
+  panel. A dialog opened from inside another, rendered inside it, sits 120px from the top over a
+  lighter veil. The focus goes back to the control that opened it.
+- **A menu item acts after the menu has closed**, with the focus back on its trigger, so a dialog it
+  opens returns the focus there.
+- **The notifications are an object you create once**: `createNotifications()` gives the `notify`
+  (the confirmation) and `jobs` (the long work and the errors with no place) your modules call;
+  `NotificationsProvider` draws them and `JobsButton` keeps the history.
+- **The table owns no data and no address.** `Table` runs on TanStack Table 9: a real `<table>`, a
+  grid with one Tab stop, sorting on two columns at most (Shift adds the second), pages, the columns
+  a user hides, a selection kept outside the engine (by ids, or every row of a filter but a few), the
+  ⋯ of a row with two frequent actions in view, the right click. Each slice of its state is
+  controlled or internal, and one `onStateChange(state, change)` tells the page what changed, to
+  write to its address or to ask the server. `sortingToFields` turns the order into the server's
+  fields; the hook that loads the rows adds the id at the end, so a row never shows on two pages.
+- **The values of a column read through one provider.** A column declares its kind (`code`,
+  `reference`, `person`, `text`, `enum`, `status`, `date`, `datetime`, `number`, `boolean`, and
+  `custom` as the way out), and `TableFormatsProvider`, mounted once with the application's
+  formatters, says how dates, numbers and enum labels read. The package knows no formatter.
+- **The filters hold no value either.** `FiltersBar` takes each filter's value and change from the
+  page: a list (one value or several), a list searched on the server (the panel of the Combobox),
+  a period from the calendar alone. The buttons never shrink: the ones that do not fit go into "More
+  filters", counted again when the width changes or a list closes, never with a list open.
+- **A choice from a list of records is a dialog.** `ModalSelector` is a Dialog `lg` with the search,
+  the filters and a count line on top and a compact table under it, built from the Table's own
+  pieces; the focus stays in the search and the arrows move the rows. With several values the choices
+  survive a new search, and closing with choices not confirmed asks first. `ModalSelectorField` is
+  the field that opens it, with the shape of the Combobox.
 
 ## 🎛️ Customizing a component
 
@@ -830,7 +969,14 @@ prevented it. So the vocabulary is named once, in a second stylesheet:
 | Raised surfaces | `--card`, `--popover`, each with its `-foreground` |
 | Action | `--primary`, `--secondary`, `--accent`, each with its `-foreground` |
 | States | `--destructive`, `--success`, `--warning`, `--info`, each with its `-foreground` |
-| Controls | `--input` (the **border** of a form control), `--ring` (the focus ring) |
+| Controls | `--input` (the **border** of a form control), `--input-hover`, `--placeholder`, `--ring` (the focus ring), the heights `--spacing-control-sm`, `-md`, `-lg` |
+| Soft register | `--{tone}-soft` and `--{tone}-soft-foreground` for the seven tones. **Optional**: undeclared, they fall back to a tenth of the tone (half of the surface for `muted` and `secondary`) with the tone as ink, resolved where they are used, so a subtree that redefines a tone is followed |
+| Layers | `--state-hover`, `--state-pressed`: the veil over a solid coloured fill |
+| Tooltip | `--tooltip`, `--tooltip-foreground`, `--tooltip-muted-foreground` |
+| Stacking | `--z-dialog`, `--z-popover`, `--z-toast`, `--z-tooltip`, read by the `z-dialog` … `z-tooltip` utilities |
+| Switch | `--switch-off`, the track of a switch that is off: a surface, not a line |
+| Overlays | `--overlay`, `--overlay-nested` (the veils under a dialog and under a dialog opened from it), `--scroll-shade` (the inner shadow of a body that scrolls), `--busy-veil` (what covers a panel that waits). Each has a default, so declaring them is optional |
+| Positions written at run time | `--drawer-inset` (the room an open drawer takes, for the notifications) and `--avatar-ring` (the ring of a grouped avatar, `card` unless a container sets it) |
 
 Every family is a **pair**, a surface and the ink that is legible on it, and both halves are always
 declared: half a pair is what produces the token nobody can use, a `--warning` that leaves every
@@ -860,7 +1006,10 @@ another package. A recessed surface is `--muted`.
 | React | `>=18.0.0 <20.0.0` |
 | Tailwind | `^4.0.0` — the stylesheet uses `@source`, `@theme inline`, `@utility` and `@custom-variant` |
 | TypeScript | `>=5.2.0`, the suite floor — the emitted declarations are compiled against it |
-| Runtime | ES2022. The package root is server-renderable; `/hooks` is client-only |
+| Runtime | ES2022. The package root is server-renderable; `/hooks` and `/interactive/*` are client-only |
+| Base UI | `^1.7.0`, optional, for `/interactive/*` only |
+| dayjs | `^1.11.0`, optional, for `/interactive/date-picker`, `/interactive/filters-bar`, `/interactive/modal-selector` |
+| TanStack Table | `^9.3.1`, optional, for `/interactive/table` only |
 
 ## 📄 License
 

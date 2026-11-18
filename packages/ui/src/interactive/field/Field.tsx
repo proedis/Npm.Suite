@@ -1,0 +1,519 @@
+'use client';
+
+import * as React from 'react';
+
+import { Field as FieldPrimitive } from '@base-ui/react/field';
+
+import { splitBaseProps } from '../../core/base';
+import { cn } from '../../core/cn';
+
+import {
+  FieldControlContext,
+  FieldLabelNativeContext,
+  FieldRegistryContext,
+  FormErrorRegistryContext,
+  useFieldControl,
+  useIsomorphicLayoutEffect
+} from './fieldContext';
+import { ErrorGlyph } from './glyphs';
+
+import type { BaseProps } from '../../core/base';
+
+import type { FieldControlState, FieldRegistry } from './fieldContext';
+
+
+/* --------
+ * Types Definition
+ * -------- */
+
+/** Columns a field takes in a form section of six */
+export type FieldSpan = 1 | 2 | 3 | 4 | 6;
+
+export interface StrictFieldProps extends BaseProps {
+  /** Columns taken inside a `Form.Section`. Defaults to 3. Ignored anywhere else */
+  span?: FieldSpan;
+
+  /** Inside a `Form.Section`, starts a new row: the first of a group of related fields */
+  breakBefore?: boolean;
+
+  /** Disables the control inside */
+  disabled?: boolean;
+
+  /** The name the control is submitted under */
+  name?: string;
+
+  /** The parts and the control, in any order: each one finds its own row */
+  children?: React.ReactNode;
+}
+
+export type FieldProps = StrictFieldProps & Omit<
+  React.ComponentProps<'div'>,
+  keyof StrictFieldProps | 'color' | 'defaultChecked' | 'defaultValue'
+>;
+
+export interface FieldLabelProps extends Omit<React.ComponentProps<'label'>, 'color'> {
+  /** Shows the asterisk and makes the control `aria-required`. Validation stays with the caller */
+  required?: boolean;
+}
+
+export type FieldDescriptionProps = React.ComponentProps<'p'>;
+
+export interface FieldErrorProps extends Omit<React.ComponentProps<'div'>, 'color'> {
+  /**
+   * What the summary of the form says for this field, when it differs from the message: the message
+   * under a short field is one or two words ("5 digits"), the summary line names the field ("ZIP
+   * code: it must have 5 digits"). Defaults to the message.
+   */
+  summary?: React.ReactNode;
+}
+
+export interface FieldCounterProps extends React.ComponentProps<'span'> {
+  /** The count is past the limit: it turns to the colour of an error */
+  exceeded?: boolean;
+}
+
+
+/* --------
+ * Constants Definition
+ * -------- */
+
+/**
+ * The default span of each kind of text field, for a form builder that knows the kind and not the
+ * number. Exported for that, and the source of the `width` of `TextInput`.
+ */
+export const FIELD_SPAN = {
+  'text-short': 1,
+  'text-code' : 2,
+  text        : 3,
+  'text-long' : 4
+} as const satisfies Readonly<Record<string, FieldSpan>>;
+
+const DEFAULT_SPAN: FieldSpan = 3;
+
+/**
+ * The columns a field takes, and where it goes when its section is narrow.
+ *
+ * Scoped with `in-data-[slot=form-section]`, so a span means something only in a form section:
+ * a `Field` dropped into any other grid takes one cell like any other child. Below 32rem of section
+ * (`@max-lg`, measured on the section) the short fields take half a row and the others a whole one.
+ */
+const SPAN_CLASSES: Readonly<Record<FieldSpan, string>> = {
+  1: 'in-data-[slot=form-section]:col-span-1 @max-lg:in-data-[slot=form-section]:col-span-3',
+  2: 'in-data-[slot=form-section]:col-span-2 @max-lg:in-data-[slot=form-section]:col-span-3',
+  3: 'in-data-[slot=form-section]:col-span-3 @max-lg:in-data-[slot=form-section]:col-span-6',
+  4: 'in-data-[slot=form-section]:col-span-4 @max-lg:in-data-[slot=form-section]:col-span-6',
+  6: 'in-data-[slot=form-section]:col-span-6'
+};
+
+/**
+ * Where each part goes, by its slot and not by the order it was written in.
+ *
+ * Two columns, the message and the counter at its end; the label and the control take both. Three
+ * rows: label, control, messages. Alone, the rows come from `order`, so a field with no label has no
+ * empty row on top. In a section the field is a subgrid over three tracks the whole row shares, and
+ * the parts are pinned to them: that is what keeps the controls of one row aligned when a label wraps
+ * or an error appears beside them.
+ */
+const PART_PLACEMENT = [
+  '*:col-span-2 *:order-2',
+  '*:data-[slot=field-label]:order-1',
+  '*:data-[slot=field-description]:order-3 *:data-[slot=field-description]:col-span-1 *:data-[slot=field-description]:col-start-1',
+  '*:data-[slot=field-error]:order-3 *:data-[slot=field-error]:col-span-1 *:data-[slot=field-error]:col-start-1',
+  '*:data-[slot=field-counter]:order-3 *:data-[slot=field-counter]:col-span-1 *:data-[slot=field-counter]:col-start-2',
+
+  /* A single checkbox has no label above: its messages line up with its own label, 24px in */
+  'has-[>[data-slot=checkbox]]:*:data-[slot=field-description]:ps-6 has-[>[data-slot=checkbox]]:*:data-[slot=field-error]:ps-6',
+
+  'in-data-[slot=form-section]:row-span-3 in-data-[slot=form-section]:grid-rows-subgrid',
+  'in-data-[slot=form-section]:*:row-start-2',
+  'in-data-[slot=form-section]:*:data-[slot=field-label]:row-start-1',
+  'in-data-[slot=form-section]:*:data-[slot=field-description]:row-start-3',
+  'in-data-[slot=form-section]:*:data-[slot=field-error]:row-start-3',
+  'in-data-[slot=form-section]:*:data-[slot=field-counter]:row-start-3'
+].join(' ');
+
+/**
+ * What takes the focus when an error summary points at the field: the element a control marks with
+ * `data-field-control`, and otherwise the first thing that can be focused.
+ */
+const FIELD_CONTROL = '[data-field-control]';
+
+const FOCUSABLE = [
+  'input:not([type="hidden"]):not(:disabled)',
+  'textarea:not(:disabled)',
+  'select:not(:disabled)',
+  'button:not(:disabled)',
+  '[tabindex]:not([tabindex="-1"])'
+].join(', ');
+
+
+/* --------
+ * Helpers
+ * -------- */
+
+function isPresent(node: React.ReactNode): boolean {
+  return node !== null && node !== undefined && node !== false && node !== '';
+}
+
+
+/* --------
+ * Parts
+ * -------- */
+
+/**
+ * The visible name of the control, tied to it. A noun, with no trailing colon.
+ *
+ * `required` puts the asterisk after the text, hidden from assistive technology, and makes the
+ * control `aria-required` through the field: the two can never disagree.
+ */
+function FieldLabel(props: FieldLabelProps): React.ReactNode {
+
+  // ----
+  // Props Deconstruct
+  // ----
+  const { children, className, id, required = false, ...rest } = props;
+
+
+  // ----
+  // Internal Hooks
+  // ----
+  const registry = React.useContext(FieldRegistryContext);
+  const native = React.useContext(FieldLabelNativeContext);
+  const generatedId = React.useId();
+  const labelId = id ?? generatedId;
+
+
+  // ----
+  // Lifecycle Events
+  // ----
+  useIsomorphicLayoutEffect(() => {
+    if (!registry || !required) {
+      return undefined;
+    }
+
+    registry.setRequired(true);
+
+    return () => registry.setRequired(false);
+  }, [ registry, required ]);
+
+  useIsomorphicLayoutEffect(() => {
+    if (!registry) {
+      return undefined;
+    }
+
+    registry.setLabelId(labelId);
+
+    return () => registry.setLabelId(undefined);
+  }, [ registry, labelId ]);
+
+
+  // ----
+  // Component Render
+  // ----
+  return (
+    <FieldPrimitive.Label
+      {...rest}
+      id={labelId}
+      nativeLabel={native}
+      render={native ? undefined : <div />}
+      data-slot={'field-label'}
+      data-required={required || undefined}
+      /* The line height after the size: a size carries its own, and tailwind-merge keeps the last */
+      className={cn('self-end text-sm leading-snug font-medium text-foreground', className)}
+    >
+      {children}
+      {required && (
+        <span data-slot={'field-required'} aria-hidden={'true'} className={'ms-0.5 text-destructive-soft-foreground'}>*</span>
+      )}
+    </FieldPrimitive.Label>
+  );
+
+}
+
+FieldLabel.displayName = 'Field.Label';
+
+
+/**
+ * What is worth knowing before typing: a format, a constraint, what the value is for.
+ *
+ * Not rendered while the field shows an error, which takes its place: the error repeats what the
+ * description said. Not hidden but absent, so it also leaves the `aria-describedby` of the control.
+ */
+function FieldDescription(props: FieldDescriptionProps): React.ReactNode {
+
+  // ----
+  // Props Deconstruct
+  // ----
+  const { className, ...rest } = props;
+
+
+  // ----
+  // Internal Hooks
+  // ----
+  const { invalid } = useFieldControl();
+
+
+  // ----
+  // Component Render
+  // ----
+  if (invalid) {
+    return null;
+  }
+
+  return (
+    <FieldPrimitive.Description
+      {...rest}
+      data-slot={'field-description'}
+      className={cn('self-start text-sm text-muted-foreground', className)}
+    />
+  );
+
+}
+
+FieldDescription.displayName = 'Field.Description';
+
+
+/**
+ * The error, from the caller: a schema, a server answer. With content the field is invalid; empty
+ * (`null`, `undefined`, `false`, `''`) it renders nothing and the field is valid again.
+ *
+ * Inside a `Form` it also reaches the form's error summary, with its `summary` text.
+ */
+function FieldError(props: FieldErrorProps): React.ReactNode {
+
+  // ----
+  // Props Deconstruct
+  // ----
+  const { children, className, summary, ...rest } = props;
+
+
+  // ----
+  // Internal Hooks
+  // ----
+  const registry = React.useContext(FieldRegistryContext);
+  const formErrors = React.useContext(FormErrorRegistryContext);
+  const id = React.useId();
+
+
+  // ----
+  // Lifecycle Events
+  // ----
+  const present = isPresent(children);
+  const summaryText = isPresent(summary) ? summary : children;
+
+  useIsomorphicLayoutEffect(() => {
+    if (!registry || !present) {
+      return undefined;
+    }
+
+    registry.setInvalid(true);
+
+    return () => registry.setInvalid(false);
+  }, [ registry, present ]);
+
+  useIsomorphicLayoutEffect(() => {
+    if (!formErrors || !registry || !present) {
+      return undefined;
+    }
+
+    return formErrors.register(id, {
+      summary     : summaryText,
+      focusControl: registry.focusControl,
+      getElement  : registry.getElement,
+      fieldId     : registry.fieldId
+    });
+  }, [ formErrors, registry, present, id, summaryText ]);
+
+
+  // ----
+  // Component Render
+  // ----
+  if (!present) {
+    return null;
+  }
+
+  return (
+    /*
+     * `match` is `true` because the message came from the caller, not from the browser's constraint
+     * validation: without it Base UI hides the error until a ValidityState key matches.
+     */
+    <FieldPrimitive.Error
+      {...rest}
+      match={true}
+      data-slot={'field-error'}
+      className={cn('flex items-start gap-1 self-start text-sm text-destructive-soft-foreground', className)}
+    >
+      <ErrorGlyph />
+      <span className={'min-w-0'}>{children}</span>
+    </FieldPrimitive.Error>
+  );
+
+}
+
+FieldError.displayName = 'Field.Error';
+
+
+/**
+ * A count at the end of the message row, there with or without a description or an error.
+ *
+ * Visible only, hidden from assistive technology: a count read at every key is noise, so the
+ * announcement is the caller's, near the limit and past it.
+ */
+function FieldCounter(props: FieldCounterProps): React.ReactNode {
+
+  // ----
+  // Props Deconstruct
+  // ----
+  const { className, exceeded = false, ...rest } = props;
+
+
+  // ----
+  // Component Render
+  // ----
+  return (
+    <span
+      aria-hidden={'true'}
+      {...rest}
+      data-slot={'field-counter'}
+      data-exceeded={exceeded || undefined}
+      className={cn(
+        'self-start justify-self-end text-sm text-muted-foreground tabular-nums',
+        exceeded && 'text-destructive-soft-foreground',
+        className
+      )}
+    />
+  );
+
+}
+
+FieldCounter.displayName = 'Field.Counter';
+
+
+/* --------
+ * Component Definition
+ * -------- */
+
+/**
+ * What dresses a form control: its label, the asterisk, a description, an error, a counter.
+ *
+ * ```tsx
+ * <Field span={4} breakBefore>
+ *   <Field.Label required>Street</Field.Label>
+ *   <TextInput width={'long'} />
+ *   <Field.Description>As on the contract</Field.Description>
+ *   <Field.Error summary={'Street: write it in full'}>{errors.street}</Field.Error>
+ * </Field>
+ * ```
+ *
+ * Parts only, no shortcut props, and the control is a direct child. On Base UI's `Field`, which owns
+ * what is easy to get subtly wrong: the label tied to the control, the description and the error in
+ * its `aria-describedby`, the ids.
+ *
+ * A control learns from the field whether it is required, invalid or disabled through
+ * `useFieldControl`. `required` becomes `aria-required` and never the native attribute: validation is
+ * the caller's, and the browser's bubble would be a second, untranslated message.
+ *
+ * Slots: `field` (with `data-span`, `data-break-before`, `data-required`), `field-label`,
+ * `field-required`, `field-description`, `field-error`, `field-error-icon`, `field-counter`.
+ */
+export function Field(props: FieldProps): React.ReactNode {
+
+  // ----
+  // Props Deconstruct
+  // ----
+  const {
+    breakBefore = false,
+    children,
+    className,
+    disabled = false,
+    id,
+    span = DEFAULT_SPAN,
+    ...others
+  } = props;
+
+  const { baseClasses, rest } = splitBaseProps(others);
+
+
+  // ----
+  // Internal Hooks
+  // ----
+  const generatedId = React.useId();
+  const fieldId = id ?? generatedId;
+
+
+  // ----
+  // Internal State
+  // ----
+  const [ required, setRequired ] = React.useState(false);
+  const [ invalid, setInvalid ] = React.useState(false);
+  const [ nativeLabel, setNativeLabel ] = React.useState(true);
+  const [ labelId, setLabelId ] = React.useState<string | undefined>(undefined);
+
+  const rootRef = React.useRef<HTMLDivElement>(null);
+
+
+  // ----
+  // Memoized Data
+  // ----
+  const registry = React.useMemo<FieldRegistry>(() => ({
+    setRequired,
+    setInvalid,
+    setNativeLabel,
+    setLabelId,
+    fieldId,
+    getElement  : () => rootRef.current,
+    focusControl: () => {
+      const root = rootRef.current;
+      const control = root?.querySelector<HTMLElement>(FIELD_CONTROL) ?? root?.querySelector<HTMLElement>(FOCUSABLE);
+
+      control?.focus();
+    }
+  }), [ fieldId ]);
+
+  const controlState = React.useMemo<FieldControlState>(
+    () => ({ required, invalid, disabled, labelId }),
+    [ required, invalid, disabled, labelId ]
+  );
+
+
+  // ----
+  // Component Render
+  // ----
+  return (
+    <FieldPrimitive.Root
+      {...rest}
+      ref={rootRef}
+      id={fieldId}
+      data-slot={'field'}
+      data-span={span}
+      data-break-before={breakBefore || undefined}
+      data-required={required || undefined}
+      invalid={invalid}
+      disabled={disabled}
+      className={cn(
+        'grid min-w-0 grid-cols-field content-start gap-x-2 gap-y-1',
+        PART_PLACEMENT,
+        SPAN_CLASSES[span],
+        breakBefore && 'in-data-[slot=form-section]:col-start-1',
+        baseClasses,
+        className
+      )}
+    >
+      <FieldRegistryContext.Provider value={registry}>
+        <FieldControlContext.Provider value={controlState}>
+          <FieldLabelNativeContext.Provider value={nativeLabel}>
+            {children}
+          </FieldLabelNativeContext.Provider>
+        </FieldControlContext.Provider>
+      </FieldRegistryContext.Provider>
+    </FieldPrimitive.Root>
+  );
+
+}
+
+Field.displayName = 'Field';
+
+Field.Label = FieldLabel;
+Field.Description = FieldDescription;
+Field.Error = FieldError;
+Field.Counter = FieldCounter;

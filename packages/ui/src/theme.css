@@ -95,8 +95,235 @@
    */
   --color-input: var(--input);
 
+  /* The border of a control under the pointer: one step stronger than `--input`, never a fill */
+  --color-input-hover: var(--input-hover);
+
+  /*
+   * The example text inside an empty control. Its own token because it is the one text colour a
+   * product may deliberately set below the contrast threshold (an example, never information), and
+   * that decision has to be visible as a declaration rather than hidden in an opacity.
+   */
+  --color-placeholder: var(--placeholder);
+
+  /* The track of a switch that is off: a surface, not a line, so it holds 3:1 on its own */
+  --color-switch-off: var(--switch-off);
+
   /* The focus ring. One token, so every focusable thing in the interface agrees */
   --color-ring: var(--ring);
+
+  /*
+   * The layers a pressed or hovered SOLID fill gets on top of its tone: a translucent veil, so one
+   * pair serves all five coloured tones. The quiet fills (soft, plain, and the two surface tones) need
+   * no token: their layer is their own text colour at 8% and 16%.
+   */
+  --color-state-hover: var(--state-hover);
+  --color-state-pressed: var(--state-pressed);
+
+  /*
+   * The soft register of each tone: a tinted surface, and the ink that reads on it. The plain fill
+   * writes with the same ink on no surface at all.
+   *
+   * ⚠️ The fallback lives HERE, in the mapping, and not as a `:root` default, and the difference is
+   * not cosmetic. A `--primary-soft: color-mix(… var(--primary) …)` declared on `:root` is resolved on
+   * `:root`: a subtree that redefines `--primary` (a `.dark` section, a brand wrapper) would keep the
+   * soft colours of the page. Read through `var(--primary-soft, <fallback>)` at the point of use, the
+   * fallback follows the tone wherever it is redefined, which is exactly what `bg-primary/10` did
+   * before these tokens existed. An application that wants a designed soft palette declares the
+   * `--{tone}-soft` pair and the fallback steps aside.
+   *
+   * The defaults reproduce the previous `TONE_CLASSES` to the colour: a tenth of the tone with the
+   * tone as ink, and for the two surface tones half of the surface with its own foreground.
+   */
+  --color-muted-soft: var(--muted-soft, color-mix(in oklab, var(--muted) 50%, transparent));
+  --color-muted-soft-foreground: var(--muted-soft-foreground, var(--muted-foreground));
+
+  --color-secondary-soft: var(--secondary-soft, color-mix(in oklab, var(--secondary) 50%, transparent));
+  --color-secondary-soft-foreground: var(--secondary-soft-foreground, var(--secondary-foreground));
+
+  --color-primary-soft: var(--primary-soft, color-mix(in oklab, var(--primary) 10%, transparent));
+  --color-primary-soft-foreground: var(--primary-soft-foreground, var(--primary));
+
+  --color-success-soft: var(--success-soft, color-mix(in oklab, var(--success) 10%, transparent));
+  --color-success-soft-foreground: var(--success-soft-foreground, var(--success));
+
+  --color-warning-soft: var(--warning-soft, color-mix(in oklab, var(--warning) 10%, transparent));
+  --color-warning-soft-foreground: var(--warning-soft-foreground, var(--warning));
+
+  --color-destructive-soft: var(--destructive-soft, color-mix(in oklab, var(--destructive) 10%, transparent));
+  --color-destructive-soft-foreground: var(--destructive-soft-foreground, var(--destructive));
+
+  --color-info-soft: var(--info-soft, color-mix(in oklab, var(--info) 10%, transparent));
+  --color-info-soft-foreground: var(--info-soft-foreground, var(--info));
+
+  /*
+   * The tooltip is its own surface rather than `popover` inverted: it is dark over a light page in
+   * every product we know of, and its second line needs an ink of its own that is quiet ON that dark.
+   */
+  --color-tooltip: var(--tooltip);
+  --color-tooltip-foreground: var(--tooltip-foreground);
+  --color-tooltip-muted-foreground: var(--tooltip-muted-foreground);
+
+  /* What covers a dialog or a drawer while it loads or saves: the card, see-through */
+  --color-busy-veil: var(--busy-veil, color-mix(in oklab, var(--card) 75%, transparent));
+
+  /* The veil under a dialog or a drawer, and the lighter one under a dialog opened from another */
+  --color-overlay: var(--overlay, color-mix(in oklab, black 40%, transparent));
+  --color-overlay-nested: var(--overlay-nested, color-mix(in oklab, black 20%, transparent));
+
+  /* The inner shadow at the edge of a body that scrolls, where more content is hidden */
+  --color-scroll-shade: var(--scroll-shade, color-mix(in oklab, black 8%, transparent));
+}
+
+/*
+ * The heights of a control, a step the layer of interactive components ADDS rather than overrides,
+ * so plain `@theme`: the variable is emitted and `h-control-md` references it, which is what lets an
+ * application retune every control at once with one `:root` declaration.
+ *
+ * Three steps, shared by every control (a text field, a select, a button) so that two controls of
+ * the same size line up in a row whatever they are. A density is a decision of the product, which is
+ * why these are tokens and not a component's private value.
+ */
+@theme {
+  --spacing-control-sm: 2rem;
+  --spacing-control-md: 2.25rem;
+  --spacing-control-lg: 2.5rem;
+
+  /*
+   * The two columns of a `Field`: what is left for the message, and the counter at its end. A named
+   * template rather than an arbitrary value, so `grid-cols-field` is a class an application can find.
+   */
+  --grid-template-columns-field: minmax(0, 1fr) auto;
+
+  /*
+   * The segment of `LoadingBar`, a third of the track running left to right. Declared here so the
+   * bar moves on a named animation and not on an arbitrary value.
+   */
+  --animate-loading-bar: loading-bar 1.2s ease-in-out infinite;
+
+  /*
+   * The 4px jolt of a dialog (down) or a drawer (left) clicked outside when it cannot close that way:
+   * it says "not like this" without closing.
+   */
+  --animate-nudge-y: nudge-y 150ms ease-in-out;
+  --animate-nudge-x: nudge-x 150ms ease-in-out;
+
+  @keyframes nudge-y {
+    50% {
+      transform: translateY(4px);
+    }
+  }
+
+  @keyframes nudge-x {
+    50% {
+      transform: translateX(-4px);
+    }
+  }
+
+  @keyframes loading-bar {
+    from {
+      transform: translateX(-100%);
+    }
+
+    to {
+      transform: translateX(334%);
+    }
+  }
+}
+
+/*
+ * The stacking order of the layers that float, in one ladder. Tailwind has no theme namespace for
+ * `z-index`, so each step is a variable and a utility reading it: an application that needs another
+ * order redeclares the variables, never the utilities.
+ *
+ * What opens from a dialog sits above it (popover over dialog), a toast stays usable over an open
+ * dialog, and a tooltip is above everything because it is only ever about the thing under the pointer.
+ */
+@utility z-dialog {
+  z-index: var(--z-dialog);
+}
+
+@utility z-popover {
+  z-index: var(--z-popover);
+}
+
+@utility z-toast {
+  z-index: var(--z-toast);
+}
+
+@utility z-tooltip {
+  z-index: var(--z-tooltip);
+}
+
+/*
+ * The height a textarea may take, in lines of its own text: at least its starting rows, at most
+ * `maxRows`, padding and border included. The two numbers arrive as variables set by the component,
+ * which is why this is a utility and not a pair of classes.
+ */
+@utility textarea-bounds {
+  min-height: calc(var(--textarea-rows, 3) * 1lh + var(--spacing) * 2.5 + 2px);
+  max-height: calc(var(--textarea-max-rows, 12) * 1lh + var(--spacing) * 2.5 + 2px);
+}
+
+/*
+ * A control the browser filled in on its own keeps the surface and the ink of the control.
+ *
+ * Without it the browser tints only the inner `<input>`, a coloured rectangle inside a white frame. An
+ * inset shadow as wide as the box is the one way to paint over that tint, which is why this is a
+ * utility and not a class list: the value is not on any scale.
+ */
+@utility autofill-card {
+  &:-webkit-autofill,
+  &:autofill {
+    -webkit-text-fill-color: var(--color-foreground);
+    box-shadow: inset 0 0 0 100vmax var(--color-card);
+    caret-color: var(--color-foreground);
+  }
+}
+
+/*
+ * A control that is on, in forced colours: the system's selection colour, filled. Without it the
+ * browser drops every background and an item on reads the same as one off. Used under
+ * `forced-colors:`, which is why it is a utility: system colours are not on any scale.
+ */
+/*
+ * A fill that prints. Browsers drop backgrounds unless asked, and a solid badge or the chosen item of
+ * a control loses its meaning on paper without it.
+ */
+@utility print-exact {
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/*
+ * The 2px ring that parts two avatars of a group, in the colour of what is under them. A variable of
+ * the container: a table row redefines `--avatar-ring` on hover and when chosen. `card` by default.
+ */
+@utility avatar-ring {
+  --tw-ring-color: var(--avatar-ring, var(--color-card));
+}
+
+/*
+ * Where the notifications stand: 16px from the right edge, or from the left edge of an open drawer,
+ * which writes the room it takes in `--drawer-inset`. Its footer stays free.
+ */
+@utility toast-end {
+  inset-inline-end: calc(var(--drawer-inset, 0px) + var(--spacing) * 4);
+}
+
+/* The open jobs panel: 360px, never wider than the window less 16px a side */
+@utility toast-panel-width {
+  width: min(22.5rem, 100vw - var(--spacing) * 8);
+}
+
+/* The free space left of an open drawer, for the confirmation to centre in */
+@utility toast-span {
+  inset-inline: 0 var(--drawer-inset, 0px);
+}
+
+@utility forced-highlight {
+  forced-color-adjust: none;
+  background-color: Highlight;
+  color: HighlightText;
 }
 
 /* ============================================================
@@ -142,8 +369,27 @@
 
   /* Follows the line colour unless a project wants a control to read stronger than a divider */
   --input: var(--border);
+  --input-hover: var(--color-zinc-400);
+
+  /* Lighter than `--muted-foreground`: an example in an empty field, never information */
+  --placeholder: var(--color-zinc-400);
+
+  --switch-off: var(--color-zinc-500);
 
   --ring: var(--color-zinc-400);
+
+  /* A dark veil: a coloured fill under the pointer reads one step deeper */
+  --state-hover: oklch(0 0 0 / 10%);
+  --state-pressed: oklch(0 0 0 / 20%);
+
+  --tooltip: var(--color-zinc-900);
+  --tooltip-foreground: var(--color-zinc-50);
+  --tooltip-muted-foreground: var(--color-zinc-400);
+
+  --z-dialog: 50;
+  --z-popover: 55;
+  --z-toast: 60;
+  --z-tooltip: 70;
 }
 
 .dark {
@@ -179,6 +425,20 @@
   --info-foreground: var(--color-zinc-950);
 
   --input: oklch(1 0 0 / 15%);
+  --input-hover: oklch(1 0 0 / 30%);
+
+  --placeholder: var(--color-zinc-500);
+
+  --switch-off: var(--color-zinc-600);
 
   --ring: var(--color-zinc-500);
+
+  /* On a dark canvas the fills are already light: the layer lightens them further */
+  --state-hover: oklch(1 0 0 / 10%);
+  --state-pressed: oklch(1 0 0 / 20%);
+
+  /* Still a step away from the canvas, which here means lighter */
+  --tooltip: var(--color-zinc-700);
+  --tooltip-foreground: var(--color-zinc-50);
+  --tooltip-muted-foreground: var(--color-zinc-300);
 }
