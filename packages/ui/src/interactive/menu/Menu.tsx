@@ -121,7 +121,7 @@ const ITEM = cn(
 
 const ITEM_TONE = {
   default    : '',
-  destructive: 'text-destructive-soft-foreground data-highlighted:bg-destructive-soft data-highlighted:text-destructive-soft-foreground'
+  destructive: 'text-destructive data-highlighted:bg-destructive-soft data-highlighted:text-destructive-soft-foreground'
 } as const;
 
 const ITEM_ICON = 'mt-0.5 inline-flex shrink-0 text-muted-foreground group-data-disabled/menu-item:opacity-50 [&_svg]:size-4';
