@@ -1,6 +1,7 @@
 /*
  * The look of every bordered text control, written once: TextInput, Textarea, NumberInput, the
- * trigger of Select and MultiSelect, the field of Combobox and DatePicker.
+ * trigger of Select and MultiSelect, the field of Combobox and DatePicker, and `FieldShell`, the same
+ * frame offered to a control of the application.
  *
  * Private to the interactive tier: no barrel exports it, and each control reaches it by relative path.
  * With `preserveModules` it is emitted once and shared by every subpath that imports it.

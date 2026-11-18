@@ -1,6 +1,9 @@
 import * as React from 'react';
 
 import { cn } from '../../core/cn';
+import { responsiveClasses } from '../../core/responsive';
+
+import type { Direction, Responsive } from '../../core/responsive';
 
 
 /*
@@ -31,10 +34,36 @@ export const CHOICE_FOCUS = [
 /** Box, circle and track sit on the first line of the label: 16 on a line of 20 */
 export const CHOICE_ALIGN = 'mt-0.5 shrink-0';
 
+/**
+ * The layout of a group per orientation. Each one says everything the other one sets (wrap, both gaps,
+ * the growth of a card), so a group that turns from a column into a row at a breakpoint keeps nothing
+ * of the column. Each class, with every breakpoint prefix, is declared in `theme.css`.
+ */
+const GROUP_LAYOUT: Readonly<Record<'list' | 'card', Readonly<Record<Direction, string>>>> = {
+  list: {
+    vertical  : 'flex-col flex-nowrap gap-2',
+    horizontal: 'flex-row flex-wrap gap-x-4 gap-y-2'
+  },
+  card: {
+    vertical  : 'flex-col flex-nowrap gap-2 *:flex-initial',
+    horizontal: 'flex-row flex-wrap gap-2 *:flex-1'
+  }
+};
+
 
 /* --------
  * Helpers
  * -------- */
+
+/** The classes of a group of options, from its orientation: one value, or one per breakpoint */
+export function choiceGroupClasses(orientation: Responsive<Direction>, shape: 'list' | 'card' = 'list'): string[] {
+  return responsiveClasses(orientation, (value) => GROUP_LAYOUT[shape][value]);
+}
+
+/** The orientation at the narrowest width, for `data-orientation` */
+export function baseOrientation(orientation: Responsive<Direction>): Direction {
+  return typeof orientation === 'object' ? (orientation.base ?? 'vertical') : orientation;
+}
 
 export function isPresent(node: React.ReactNode): boolean {
   return node !== null && node !== undefined && node !== false && node !== '';

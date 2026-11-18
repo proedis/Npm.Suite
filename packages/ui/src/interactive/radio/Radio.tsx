@@ -8,8 +8,10 @@ import { RadioGroup as RadioGroupPrimitive } from '@base-ui/react/radio-group';
 
 import { cn } from '../../core/cn';
 
-import { CHOICE_ALIGN, CHOICE_FOCUS, CHOICE_ROW, ChoiceText } from '../choice/choice';
+import { CHOICE_ALIGN, CHOICE_FOCUS, CHOICE_ROW, ChoiceText, baseOrientation, choiceGroupClasses } from '../choice/choice';
 import { useFieldControl, useNonNativeFieldLabel } from '../field/fieldContext';
+
+import type { Direction, Responsive } from '../../core/responsive';
 
 
 /* --------
@@ -27,8 +29,11 @@ export interface RadioGroupProps {
   /** `card` frames each option, when at least one needs a line of explanation. Defaults to `default` */
   variant?: RadioVariant;
 
-  /** Defaults to `vertical`. In a row, at most three short options */
-  orientation?: 'vertical' | 'horizontal';
+  /**
+   * Defaults to `vertical`. In a row, at most three short options. Per breakpoint too:
+   * `{ base: 'vertical', md: 'horizontal' }`
+   */
+  orientation?: Responsive<Direction>;
 
   /** The error state. Inside a field with a `Field.Error` it is on already */
   invalid?: boolean;
@@ -195,12 +200,11 @@ export function RadioGroup(props: RadioGroupProps): React.ReactNode {
       aria-required={field.required || undefined}
       data-slot={'radio-group'}
       data-variant={variant}
-      data-orientation={orientation}
+      data-orientation={baseOrientation(orientation)}
       data-field-control={''}
       className={cn(
         'flex',
-        orientation === 'vertical' ? 'flex-col gap-2' : 'flex-row flex-wrap',
-        orientation === 'horizontal' && (variant === 'card' ? 'gap-2 *:flex-1' : 'gap-x-4 gap-y-2'),
+        choiceGroupClasses(orientation, variant === 'card' ? 'card' : 'list'),
         className
       )}
     >

@@ -8,13 +8,15 @@ import { Field as FieldPrimitive } from '@base-ui/react/field';
 
 import { cn } from '../../core/cn';
 
-import { CHOICE_ALIGN, CHOICE_FOCUS, CHOICE_ROW, CheckGlyph, ChoiceText, DashGlyph } from '../choice/choice';
+import { CHOICE_ALIGN, CHOICE_FOCUS, CHOICE_ROW, CheckGlyph, ChoiceText, DashGlyph, baseOrientation, choiceGroupClasses } from '../choice/choice';
 import {
   FieldRegistryContext,
   useFieldControl,
   useIsomorphicLayoutEffect,
   useNonNativeFieldLabel
 } from '../field/fieldContext';
+
+import type { Direction, Responsive } from '../../core/responsive';
 
 
 /* --------
@@ -67,8 +69,11 @@ export interface CheckboxGroupProps {
   defaultValue?: string[];
   onValueChange?: (value: string[]) => void;
 
-  /** Defaults to `vertical`. In a row, at most three short options */
-  orientation?: 'vertical' | 'horizontal';
+  /**
+   * Defaults to `vertical`. In a row, at most three short options. Per breakpoint too:
+   * `{ base: 'vertical', md: 'horizontal' }`
+   */
+  orientation?: Responsive<Direction>;
 
   /** Every option of the group */
   disabled?: boolean;
@@ -241,11 +246,11 @@ export function CheckboxGroup(props: CheckboxGroupProps): React.ReactNode {
       aria-required={field.required || undefined}
       aria-readonly={readOnly || undefined}
       data-slot={'checkbox-group'}
-      data-orientation={orientation}
+      data-orientation={baseOrientation(orientation)}
       data-field-control={''}
       className={cn(
         'flex',
-        orientation === 'vertical' ? 'flex-col gap-2' : 'flex-row flex-wrap gap-x-4 gap-y-2',
+        choiceGroupClasses(orientation),
         'has-[>[data-parent]]:*:not-data-parent:ms-6',
         className
       )}

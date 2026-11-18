@@ -6,7 +6,7 @@ import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
 import { Button } from '../button/Button';
-import { FormErrorRegistryContext, FormHostContext } from '../field/fieldContext';
+import { FormErrorRegistryContext, FormHostContext, FormSectionContext } from '../field/fieldContext';
 
 import type { BaseProps } from '../../core/base';
 
@@ -330,7 +330,9 @@ function FormSection(props: FormSectionProps): React.ReactNode {
         </div>
       )}
 
-      {children}
+      <FormSectionContext.Provider value={true}>
+        {children}
+      </FormSectionContext.Provider>
     </div>
   );
 

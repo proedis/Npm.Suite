@@ -65,6 +65,7 @@
       "interactive/drawer",
       "interactive/empty-state",
       "interactive/field",
+      "interactive/field-shell",
       "interactive/file-upload",
       "interactive/filters-bar",
       "interactive/form",

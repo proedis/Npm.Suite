@@ -5,11 +5,14 @@ import * as React from 'react';
 import { Toggle as TogglePrimitive } from '@base-ui/react/toggle';
 import { ToggleGroup as ToggleGroupPrimitive } from '@base-ui/react/toggle-group';
 
+import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
 import { handleRovingKeyDown } from '../roving/roving';
 import { FOCUS_INSIDE, PRESSABLE_BASE, PRESSABLE_CONTENT, PRESSABLE_OFF, PRESSABLE_ON } from '../toggle/toggleStyles';
 import { Tooltip } from '../tooltip/Tooltip';
+
+import type { BaseProps } from '../../core/base';
 
 
 /* --------
@@ -18,7 +21,7 @@ import { Tooltip } from '../tooltip/Tooltip';
 
 export type SegmentedControlSize = 'sm' | 'md';
 
-export interface SegmentedControlProps {
+export interface SegmentedControlProps extends BaseProps {
   /** The chosen view. Never empty: one of this and `defaultValue` is required */
   value?: string;
   defaultValue?: string;
@@ -237,6 +240,8 @@ function SegmentedControlRoot(props: SegmentedControlProps): React.ReactNode {
     value
   } = props;
 
+  const { baseClasses } = splitBaseProps(props);
+
 
   // ----
   // Internal State
@@ -305,6 +310,7 @@ function SegmentedControlRoot(props: SegmentedControlProps): React.ReactNode {
           /* Transparent until the system draws borders itself: then it becomes the frame */
           'outline-1 outline-transparent',
           RAIL_SIZES[size],
+          baseClasses,
           className
         )}
       >

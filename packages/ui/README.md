@@ -675,6 +675,7 @@ none of them is re-exported by the root barrel. Every module is client-only (`'u
 | `interactive/tooltip` | `Tooltip`, `TooltipProvider` |
 | `interactive/button` | `Button`, `IconButton`, `buttonVariants` |
 | `interactive/field` | `Field` (`.Label`, `.Description`, `.Error`, `.Counter`), `FIELD_SPAN`, `useFieldControl` |
+| `interactive/field-shell` | `FieldShell`, the frame of every text control, for a control of your own |
 | `interactive/form` | `Form` (`.Header`, `.ErrorSummary`, `.Section`, `.Footer`) |
 | `interactive/text-input` | `TextInput` (`.Action`), `textInputVariants` |
 | `interactive/password-input` | `PasswordInput` |
@@ -739,7 +740,39 @@ What is worth knowing before using them:
 - **The field is made of parts**, in any order: each finds its row by its slot. Inside a `Form.Section`
   fields share three tracks per row (labels, controls, messages), so the controls stay aligned when a
   label wraps. A custom control reads `required`, `invalid` and `disabled` with `useFieldControl()`.
+  Out of a section, `orientation={{ base: 'vertical', md: 'horizontal' }}` puts the label beside the
+  control, on a third of the width, with the messages under the control. `Field.Label optional={t('…')}`
+  writes the word after the name of a field that may stay empty: the package writes no text.
+- **A control of your own wears `FieldShell`**: the border, the surface, the three heights, the states
+  and the focus of a TextInput, with `leading` and `trailing`. Mark its focusable element
+  `data-field-control`: the frame lights when that element has the focus, a press on the frame gives
+  it the focus, and the error summary of a `Form` focuses it.
+
+  ```tsx
+  <Field>
+    <Field.Label>Opening hours</Field.Label>
+    <FieldShell leading={<Clock />}><TimeSlots data-field-control … /></FieldShell>
+  </Field>
+  ```
 - **Mount `TooltipProvider` once**: it groups the tooltips, so a row of icon buttons is one gesture.
+- **The layout props take a value per breakpoint**, as in the layout primitives: `Field` `span` and
+  `breakBefore`, the `orientation` of `CheckboxGroup` and `RadioGroup`, `Button` `block`. A single
+  `span` lets the section decide below 32rem of its own width (the short fields half a row, the others
+  a whole one); a map is the caller's decision at every width of the window, and the section no longer
+  steps in. `hideBelow` / `hideFrom` work on the controls, `Button`, `Alert`, `EmptyState`, `Tabs`,
+  `SegmentedControl`, `Toggle`, `Switch`, `Avatar`, `AvatarGroup`, `Person`, `FiltersBar` and `Table`.
+
+  ```tsx
+  <Field span={{ base: 6, md: 3, xl: 2 }}>…</Field>
+  <RadioGroup variant={'card'} orientation={{ base: 'vertical', md: 'horizontal' }}>…</RadioGroup>
+  <Button type={'submit'} block={{ base: true, sm: false }}>Save</Button>
+  ```
+
+- **Under a finger the controls grow one step.** With `(pointer: coarse)` the three heights become
+  36, 40 and 44px, for every control and button at once: the size of a control is a matter of the
+  pointer, not of the width, so `size` takes one value. An application that redeclares
+  `--spacing-control-*` keeps its values on every device, and redeclares them inside its own
+  `@media (pointer: coarse)` for touch.
 - **Values are plain data.** A date is `"2026-11-16"`, never a `Date`; a number is `number | null`,
   where empty is not zero; a Select holds a key and a Combobox a key plus the record it shows.
 - **The lists keep the user's data.** A letter on a closed Select opens it and never changes the

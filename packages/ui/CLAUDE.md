@@ -143,6 +143,39 @@ Three things every interactive component does, on top of "Writing a new componen
   surface a product's skin targets with unlayered rules, so a rename is a major.
 - **A component that can be a trigger forwards its ref.** The React range starts at 18, where a
   function component given to `render` receives no ref and a tooltip or a menu has nothing to anchor to.
+- **A layout prop whose right value depends on the width is `Responsive<T>`**, as in the primitives,
+  built with `responsiveClasses` and declared with every prefix in the `@source inline(...)` block of
+  `theme.css`. Today: `Field` `span` and `breakBefore`, the `orientation` of the two groups (through
+  `choiceGroupClasses` in `choice/choice.tsx`, where each orientation sets everything the other one
+  does), `Button` `block`. The `data-*` of such a prop reports the value at `base`. A prop of meaning
+  (`variant`, `tone`, `mode`, the `width` of `TextInput`) or one Base UI already flips (`side`,
+  `align`) is not responsive. And every component that renders a root of its own takes `BaseProps`,
+  through `splitBaseProps(props)` and its classes before `className`.
+
+Three things taken from the `form-control` of PinTips, shaped to this package (the rest of it was
+weighed and left out: shortcut props, a `role="alert"` error, a state icon on the border):
+
+- **`FieldShell` is the private frame of `text-control`, made public**, so an application can build a
+  control that looks like the others. The focus stays a matter of CSS (`data-field-control`), never a
+  `focused` prop; `invalid` and `disabled` add to the field and never take it away. The eight controls
+  still write the frame themselves: moving them onto it is a change of its own.
+- **`Field.Label optional`** takes its word from the caller, and is not shown with `required`.
+- **`Field` `orientation`** is ignored in a `Form.Section` (`FormSectionContext`), whose rows of
+  three tracks keep the labels aligned. Out of one, the label takes a third of the field
+  (`grid-cols-field-horizontal`, a percentage and not a fraction, so a counter in the third column
+  does not move the control). Each orientation places every part again (`ORIENTATION_LAYOUT`), so
+  a map that comes back to `vertical` leaves nothing of the other layout.
+
+Two choices of the responsive pass that look improvable and are not:
+
+- **A single `span` keeps the rule of the section, a map turns it off.** One value collapses below
+  32rem of the section (`@max-lg`, a container query), which is what keeps a form right in a drawer
+  on a wide window. A map speaks of the window, like every `Responsive` here: the container sizes of
+  Tailwind carry the same names for other widths (`@sm` is 384px, `sm` 640px), and two scales under
+  one vocabulary would be read wrong. Who passes a map has taken the decision at every width.
+- **`size` takes one value, and touch is a token.** The height of a control is a matter of the
+  pointer, not of the width: `(pointer: coarse)` raises `--spacing-control-*` one step in the `theme`
+  layer of `theme.css`, so a product's own declaration still wins, on every device.
 
 The line between `layout` and `components` is intent, not a token count: `Stack` is in layout even
 though `divided` reads `--border`, because a hairline is an aid to its geometry; `Divider` is a

@@ -15,6 +15,11 @@
 import * as React from 'react';
 
 import { Badge, Box, Container, Heading, IconBox, Item, Label, Spinner, Stack, Surface, VisuallyHidden } from './src';
+import { Button } from './src/interactive/button';
+import { CheckboxGroup } from './src/interactive/checkbox';
+import { Field } from './src/interactive/field';
+import { FieldShell } from './src/interactive/field-shell';
+import { RadioGroup } from './src/interactive/radio';
 
 import type { StackProps } from './src';
 
@@ -271,6 +276,46 @@ const missingComponentProp = <Container as={Custom} size={'xl'} />;
 
 
 /* --------
+ * The layout props of the interactive tier take a value per breakpoint
+ * -------- */
+const responsiveSpan = <Field span={{ base: 6, md: 3, xl: 2 }} breakBefore={{ base: false, md: true }}>ok</Field>;
+
+const singleSpan = <Field span={4} breakBefore>ok</Field>;
+
+/** @ts-expect-error 5 is not a span of a six-column section */
+const wrongSpan = <Field span={{ base: 6, md: 5 }}>no</Field>;
+
+const responsiveGroups = (
+  <React.Fragment>
+    <CheckboxGroup orientation={{ base: 'vertical', md: 'horizontal' }} />
+    <RadioGroup variant={'card'} orientation={{ base: 'vertical', lg: 'horizontal' }} />
+  </React.Fragment>
+);
+
+/** @ts-expect-error 'row' is not an orientation */
+const wrongOrientation = <RadioGroup orientation={{ base: 'row' }} />;
+
+const responsiveBlock = <Button block={{ base: true, md: false }} hideBelow={'sm'}>ok</Button>;
+
+/** @ts-expect-error `base` takes no hide: below the narrowest breakpoint there is nothing to hide */
+const wrongHide = <Button hideBelow={'base'}>no</Button>;
+
+const besideOnDesktop = (
+  <Field orientation={{ base: 'vertical', md: 'horizontal' }}>
+    <Field.Label optional={'optional'}>Notes</Field.Label>
+  </Field>
+);
+
+/** @ts-expect-error 'inline' is PinTips' word, here the orientation says it */
+const wrongFieldOrientation = <Field orientation={'inline'}>no</Field>;
+
+const ownControl = <FieldShell size={'sm'} leading={'@'} trailing={'h'} invalid hideFrom={'md'}>ok</FieldShell>;
+
+/** @ts-expect-error the three heights of every control, and no fourth */
+const wrongShellSize = <FieldShell size={'xl'}>no</FieldShell>;
+
+
+/* --------
  * Keep the compiler from pruning the assertions
  * -------- */
 export const CHECKED = [
@@ -283,5 +328,7 @@ export const CHECKED = [
   anchorStack, sectionStack, plainStack, wrongAttribute, wrongAttributeToo,
   scaleRespected, outsideTheScale, outsideTheColumns, outsideTheScaleResponsive,
   baseIsNotABreakpoint, unknownBreakpoint, asAWrapper, labelDefault, quietLabel, spanWithHtmlFor,
-  skipLink, contradictoryProps, throughAComponent, missingComponentProp
+  skipLink, contradictoryProps, throughAComponent, missingComponentProp,
+  responsiveSpan, singleSpan, wrongSpan, responsiveGroups, wrongOrientation, responsiveBlock, wrongHide,
+  besideOnDesktop, wrongFieldOrientation, ownControl, wrongShellSize
 ];

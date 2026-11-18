@@ -5,13 +5,17 @@ import * as React from 'react';
 import { Button as ButtonPrimitive } from '@base-ui/react/button';
 import { cva } from 'class-variance-authority';
 
+import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 import { linkProps } from '../../core/link';
+import { responsiveClasses, toResponsiveMap } from '../../core/responsive';
 import { TONE_COMPOUNDS } from '../../core/tone';
 
 import { Spinner } from '../../components/Spinner';
 
+import type { BaseProps } from '../../core/base';
 import type { LinkTarget } from '../../core/link';
+import type { Responsive } from '../../core/responsive';
 import type { Tone, ToneFill } from '../../core/tone';
 
 
@@ -21,7 +25,7 @@ import type { Tone, ToneFill } from '../../core/tone';
 
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
-export interface StrictButtonProps {
+export interface StrictButtonProps extends BaseProps {
   /**
    * How the tone is painted: `solid` the action you want taken, `soft` the one beside it, `plain` the
    * quiet one. Defaults to `solid`
@@ -40,8 +44,11 @@ export interface StrictButtonProps {
   /** An icon after the label */
   trailing?: React.ReactNode;
 
-  /** Takes the whole width of its container */
-  block?: boolean;
+  /**
+   * Takes the whole width of its container. Per breakpoint too: `{ base: true, md: false }` is the
+   * whole-width button of a phone that goes back to its own width from `md`
+   */
+  block?: Responsive<boolean>;
 
   /**
    * Makes the button a real link to where the application says.
@@ -234,14 +241,25 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, r
     to,
     tone = DEFAULT_VARIANTS.tone,
     trailing,
-    ...rest
+    ...others
   } = props;
+
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
   // Style Computation
   // ----
-  const classes = cn(buttonVariants({ block, fill, size, tone }), className);
+  /** One value goes through the variant; a map becomes a width per breakpoint, `w-auto` undoing `w-full` */
+  const responsiveBlock = typeof block === 'object';
+  const blockBase = responsiveBlock ? (toResponsiveMap(block).base ?? false) : block;
+
+  const classes = cn(
+    buttonVariants({ block: responsiveBlock ? false : block, fill, size, tone }),
+    responsiveBlock && responsiveClasses(block, (value) => (value ? 'w-full' : 'w-auto')),
+    baseClasses,
+    className
+  );
 
   /** A component built on this one names its own part (`text-input-action`); the variants stay reported */
   const ownSlot = (rest as Record<string, unknown>)['data-slot'];
@@ -251,7 +269,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, r
     'data-fill'   : fill,
     'data-tone'   : tone,
     'data-size'   : size,
-    'data-block'  : block || undefined,
+    'data-block'  : blockBase || undefined,
     'data-loading': loading || undefined
   };
 

@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import { Tabs as TabsPrimitive } from '@base-ui/react/tabs';
 
+import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 import { inertValue } from '../../core/inert';
 
@@ -15,6 +16,8 @@ import { Button } from '../button/Button';
 import { ChevronGlyph } from '../list-panel/listPanel';
 import { Menu } from '../menu/Menu';
 import { Tooltip } from '../tooltip/Tooltip';
+
+import type { BaseProps } from '../../core/base';
 
 
 /* --------
@@ -48,7 +51,7 @@ export interface TabsLabels {
   readonly overflow: string;
 }
 
-export interface TabsProps {
+export interface TabsProps extends BaseProps {
   /** The tabs, in their fixed order: the first is the most read */
   items: readonly TabItem[];
 
@@ -214,6 +217,8 @@ function TabsRoot(props: TabsProps): React.ReactNode {
     value: valueProp
   } = props;
 
+  const { baseClasses } = splitBaseProps(props);
+
 
   // ----
   // Internal Hooks
@@ -320,7 +325,7 @@ function TabsRoot(props: TabsProps): React.ReactNode {
             select(next);
           }
         }}
-        className={cn('flex min-w-0 flex-col gap-3', className)}
+        className={cn('flex min-w-0 flex-col gap-3', baseClasses, className)}
       >
         <div ref={rowRef} data-slot={'tabs'} className={'relative flex w-full min-w-0'}>
           <div data-slot={'tabs-rail'} data-size={size} className={cn('inline-flex max-w-full items-center bg-card shadow-sm', RAIL[size])}>
