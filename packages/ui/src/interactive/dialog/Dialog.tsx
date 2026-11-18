@@ -157,8 +157,8 @@ const DialogCloseContext = React.createContext<DialogCloseContextValue>({ reques
  *
  * The x, Cancel and Esc go through one gate: while saving nothing closes, with `dirty` the discard
  * prompt opens first. A click outside closes only a detail (no footer, no changes); otherwise the
- * panel jolts. The focus goes to the first field, or to the primary in a confirmation, or to the body
- * in a detail; never to the x. On closing it goes back to the control that opened it, or to
+ * panel jolts. The focus goes to the first field (the toolbar's, then the body's), or to the primary
+ * in a confirmation, or to the body in a detail; never to the x. On closing it goes back to the control that opened it, or to
  * `returnFocus`, or to the title of the page. `busy` makes it inert at once and shows the veil after
  * 300ms. A dialog opened from inside this one sits 120px from the top, over a lighter veil.
  *
@@ -265,7 +265,11 @@ function DialogRoot(props: DialogProps): React.ReactNode {
   const initialFocus = (): HTMLElement | null => {
     const footerButtons = footerRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]), a[href]');
 
-    return firstField(bodyRef.current)
+    /* The toolbar comes before the body: a search there is the first field */
+    const toolbarElement = popupRef.current?.querySelector<HTMLElement>('[data-slot=dialog-toolbar]') ?? null;
+
+    return firstField(toolbarElement)
+      ?? firstField(bodyRef.current)
       ?? (footerButtons && footerButtons.length > 0 ? footerButtons[footerButtons.length - 1] : null)
       ?? bodyRef.current;
   };

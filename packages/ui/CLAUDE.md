@@ -75,8 +75,8 @@ types.check.tsx      # the type level test, outside src so nothing publishes it
 | `@proedis/ui/interactive/<name>` | behaviour on Base UI, `'use client'`, **one subpath per component** | does it need a portal, a focus trap or a state machine? |
 
 The `interactive` folders are subpaths of their own, never re-exported by the root barrel and with no
-`interactive` barrel above them: each one brings only its own optional peers (`@base-ui/react` today,
-dayjs for a date picker tomorrow), and a barrel would make every consumer install all of them. A
+`interactive` barrel above them: each one brings only its own optional peers (`@base-ui/react`,
+dayjs for the date picker, the filters and the selector, `@tanstack/react-table` for the table), and a barrel would make every consumer install all of them. A
 component made of others imports them by relative path (`../button/IconButton`): with
 `preserveModules` a shared module is emitted once and both subpaths reuse it. A context two subpaths
 share lives in the one lower down (`field/fieldContext.ts` is provided by `form`), so the
@@ -85,8 +85,12 @@ dependency goes one way.
 The private modules of the tier, shared by relative import and never exported by a barrel:
 `text-control` (the frame and the states of every bordered text control), `choice` (the row, the
 marks and the description of Checkbox, Radio and Switch), `list-panel` (the look of the list under
-Select, MultiSelect, Combobox, and later FiltersBar), `calendar` (the month grid and the date text
-rules, used by DatePicker and later FiltersBar), `tone-glyphs` (the four marks of a tone: circle with
+Select, MultiSelect, Combobox and the filters of FiltersBar), `calendar` (the month grid and the date
+text rules, used by DatePicker and by the date filter of FiltersBar), `menu/menuPanel` and
+`menu/SharedMenu` (the panel of Menu, and one menu for many triggers, used by the rows of Table),
+`table/tableCells` and `table/tableParts` (the renderers of the column kinds, the classes of rows,
+cells and header, the placeholders, the scroll shades and the one tooltip of the truncated cells,
+shared by Table and ModalSelector), `tone-glyphs` (the four marks of a tone: circle with
 an i, check, triangle, octagon), `roving` (the arrows of a group of buttons, written by hand because
 Base UI's ToggleGroup skips an `aria-disabled` item), `anchor` (closing a floating layer when its
 control leaves the view), `overlay-shell` (container, veil, header, body with scroll shades, footer,
@@ -102,6 +106,30 @@ Three choices of tranche 3 that look improvable and are not:
   rows would be dialogs that Esc closes, swipe, and stop at three. The confirmation is Base UI's toast.
 - **Tabs take their tabs as data** (`items`), not as children: "More" measures them, reorders them and
   draws them again as menu items, which children wrapped in fragments would not allow.
+
+Choices of tranche 4 that look improvable and are not:
+
+- **Every slice of the table's state is controlled or internal, and one `onStateChange(state, change)`
+  reports them.** A page keeps in its address only what it wants, and the change says which slice
+  moved. What follows from the props (a page past the last one after a filter, the first page after a
+  new `filterKey`, an "all" selection left empty) is adjusted during render; the effects only notify,
+  because `react-hooks/set-state-in-effect` is right about the cascade.
+- **The selection lives outside TanStack Table.** The engine can only choose rows it has loaded; "every
+  row of the filter but a few" (`{ all, excludedIds }`) is the case a server list needs.
+- **The roving tab index of the grid is written on the DOM after each render**, not through props: the
+  controls inside the cells (links, checkboxes, the ⋯, a custom cell) are not ours to render.
+- **The lists of FiltersBar are one list of ours** (`FilterList`, `aria-activedescendant` from the
+  search or the list), not Base UI's Select or Combobox: the same list is the second step of "More
+  filters", inside a Popover, where an engine with its own trigger and popup does not fit. Base UI's
+  submenu would open beside the panel instead of replacing it.
+- **FiltersBar measures a hidden copy of its row** (`inert`, `aria-hidden`), and keeps the count it
+  shows while a list is open: a button never moves under the pointer. When the list that closed takes
+  its button into "More filters", the focus follows it there.
+- **ModalSelector is a `listbox` drawn as a `<table>`**, with the search as its `combobox`: the focus
+  never leaves the search. It takes the Table's pieces, not the Table: no sorting, pages, columns or
+  row actions in a selector, where one narrows instead of browsing.
+- **A Dialog gives the first focus to a field of its toolbar before one of its body**: a search on top
+  is the field a selector opens on.
 
 Two engines under one look, on purpose: `Select` and `MultiSelect` run on Base UI's `Select` up to
 `searchThreshold` and on its `Combobox` past it, because a Select cannot hold a search. Never switch

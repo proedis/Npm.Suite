@@ -6,9 +6,12 @@ import { Menu as MenuPrimitive } from '@base-ui/react/menu';
 
 import { cn } from '../../core/cn';
 
-import { CloseWhenAnchorHidden } from '../anchor/CloseWhenAnchorHidden';
 import { CheckGlyph } from '../choice/choice';
 import { LIST_ITEM } from '../list-panel/listPanel';
+
+import { MenuContext, Panel } from './menuPanel';
+
+import type { MenuContextValue } from './menuPanel';
 
 import type { LinkTarget } from '../../core/link';
 
@@ -102,21 +105,11 @@ export interface MenuSubmenuProps {
   children: React.ReactNode;
 }
 
-interface MenuContextValue {
-  /** Runs `action` once the menu has finished closing */
-  afterClose: (action: () => void) => void;
-}
-
 
 /* --------
  * Constants Definition
  * -------- */
 
-const PANEL = [
-  'max-h-(--available-height) min-w-40 max-w-70 overflow-y-auto overscroll-contain scrollbar-thin',
-  'rounded-md bg-popover p-1 text-sm text-popover-foreground shadow-md outline-none',
-  'transition-opacity duration-150 data-starting-style:opacity-0 data-ending-style:transition-none motion-reduce:transition-none'
-].join(' ');
 
 /** The item of the Select's list, with the keyboard ring and the disabled look on the label only */
 const ITEM = cn(
@@ -132,8 +125,6 @@ const ITEM_TONE = {
 } as const;
 
 const ITEM_ICON = 'mt-0.5 inline-flex shrink-0 text-muted-foreground group-data-disabled/menu-item:opacity-50 [&_svg]:size-4';
-
-const MenuContext = React.createContext<MenuContextValue>({ afterClose: (action) => action() });
 
 
 /* --------
@@ -181,40 +172,6 @@ function ItemContent(props: {
         )}
       </span>
     </React.Fragment>
-  );
-}
-
-function Panel(props: {
-  side: 'bottom' | 'top' | 'right';
-  align: 'start' | 'end';
-  label?: string;
-  onAnchorHidden: () => void;
-  className?: string;
-  children: React.ReactNode;
-}): React.ReactNode {
-  const { align, children, className, label, onAnchorHidden, side } = props;
-
-  return (
-    <MenuPrimitive.Portal>
-      <MenuPrimitive.Positioner
-        side={side === 'right' ? 'inline-end' : side}
-        align={align}
-        sideOffset={4}
-        alignOffset={side === 'right' ? -4 : 0}
-        collisionPadding={8}
-        className={'z-popover outline-none'}
-        render={(positionerProps, state) => (
-          <div {...positionerProps}>
-            <CloseWhenAnchorHidden hidden={state.anchorHidden} onHidden={onAnchorHidden} />
-            {positionerProps.children}
-          </div>
-        )}
-      >
-        <MenuPrimitive.Popup aria-label={label} data-slot={'menu'} className={cn(PANEL, className)}>
-          {children}
-        </MenuPrimitive.Popup>
-      </MenuPrimitive.Positioner>
-    </MenuPrimitive.Portal>
   );
 }
 

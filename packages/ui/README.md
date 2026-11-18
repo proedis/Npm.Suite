@@ -80,7 +80,8 @@ One or the other, never both: the full sheet imports the narrow one itself. See
 | `react` | `>=18.0.0 <20.0.0` |
 | `tailwindcss` | `^4.0.0` |
 | `@base-ui/react` | `^1.7.0`, **optional**: only for the `interactive/*` subpaths |
-| `dayjs` | `^1.11.0`, **optional**: only for `interactive/date-picker`, with the locale loaded by the application |
+| `dayjs` | `^1.11.0`, **optional**: only for `interactive/date-picker`, `interactive/filters-bar` and `interactive/modal-selector`, with the locale loaded by the application |
+| `@tanstack/react-table` | `^9.3.1`, **optional**: only for `interactive/table` |
 
 ⚠️ The stylesheet uses Tailwind directives. Loaded as a plain `<link>` it does nothing — it has to be
 imported where Tailwind compiles.
@@ -700,6 +701,9 @@ none of them is re-exported by the root barrel. Every module is client-only (`'u
 | `interactive/tabs` | `Tabs` (`.Panel`), with "More" for the tabs that do not fit |
 | `interactive/person` | `Avatar`, `AvatarGroup`, `Person` |
 | `interactive/toast` | `createNotifications`, `NotificationsProvider`, `JobsButton` |
+| `interactive/table` | `Table`, `TableFormatsProvider`, `useTableFormats`, `sortingToFields`; needs `@tanstack/react-table` |
+| `interactive/filters-bar` | `FiltersBar`: search, a button per filter, "More filters", "Clear filters"; needs `dayjs` |
+| `interactive/modal-selector` | `ModalSelector`, `ModalSelectorField`: one record or several from a list, in a Dialog; needs `dayjs` |
 
 ```tsx
 <TooltipProvider>                                   {/* once, above everything */}
@@ -761,6 +765,26 @@ What is worth knowing before using them:
 - **The notifications are an object you create once**: `createNotifications()` gives the `notify`
   (the confirmation) and `jobs` (the long work and the errors with no place) your modules call;
   `NotificationsProvider` draws them and `JobsButton` keeps the history.
+- **The table owns no data and no address.** `Table` runs on TanStack Table 9: a real `<table>`, a
+  grid with one Tab stop, sorting on two columns at most (Shift adds the second), pages, the columns
+  a user hides, a selection kept outside the engine (by ids, or every row of a filter but a few), the
+  ⋯ of a row with two frequent actions in view, the right click. Each slice of its state is
+  controlled or internal, and one `onStateChange(state, change)` tells the page what changed, to
+  write to its address or to ask the server. `sortingToFields` turns the order into the server's
+  fields; the hook that loads the rows adds the id at the end, so a row never shows on two pages.
+- **The values of a column read through one provider.** A column declares its kind (`code`,
+  `reference`, `person`, `text`, `enum`, `status`, `date`, `datetime`, `number`, `boolean`, and
+  `custom` as the way out), and `TableFormatsProvider`, mounted once with the application's
+  formatters, says how dates, numbers and enum labels read. The package knows no formatter.
+- **The filters hold no value either.** `FiltersBar` takes each filter's value and change from the
+  page: a list (one value or several), a list searched on the server (the panel of the Combobox),
+  a period from the calendar alone. The buttons never shrink: the ones that do not fit go into "More
+  filters", counted again when the width changes or a list closes, never with a list open.
+- **A choice from a list of records is a dialog.** `ModalSelector` is a Dialog `lg` with the search,
+  the filters and a count line on top and a compact table under it, built from the Table's own
+  pieces; the focus stays in the search and the arrows move the rows. With several values the choices
+  survive a new search, and closing with choices not confirmed asks first. `ModalSelectorField` is
+  the field that opens it, with the shape of the Combobox.
 
 ## 🎛️ Customizing a component
 
@@ -984,7 +1008,8 @@ another package. A recessed surface is `--muted`.
 | TypeScript | `>=5.2.0`, the suite floor — the emitted declarations are compiled against it |
 | Runtime | ES2022. The package root is server-renderable; `/hooks` and `/interactive/*` are client-only |
 | Base UI | `^1.7.0`, optional, for `/interactive/*` only |
-| dayjs | `^1.11.0`, optional, for `/interactive/date-picker` only |
+| dayjs | `^1.11.0`, optional, for `/interactive/date-picker`, `/interactive/filters-bar`, `/interactive/modal-selector` |
+| TanStack Table | `^9.3.1`, optional, for `/interactive/table` only |
 
 ## 📄 License
 
