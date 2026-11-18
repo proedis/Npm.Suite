@@ -78,7 +78,7 @@ One or the other, never both: the full sheet imports the narrow one itself. See
 | Peer | Range |
 | --- | --- |
 | `react` | `>=18.0.0 <20.0.0` |
-| `tailwindcss` | `^4.0.0` |
+| `tailwindcss` | `^4.1.5` |
 | `@base-ui/react` | `^1.7.0`, **optional**: only for the `interactive/*` subpaths |
 | `dayjs` | `^1.11.0`, **optional**: only for `interactive/date-picker`, `interactive/filters-bar` and `interactive/modal-selector`, with the locale loaded by the application |
 | `@tanstack/react-table` | `^9.3.1`, **optional**: only for `interactive/table` |
@@ -1037,7 +1037,7 @@ another package. A recessed surface is `--muted`.
 | | |
 | --- | --- |
 | React | `>=18.0.0 <20.0.0` |
-| Tailwind | `^4.0.0` — the stylesheet uses `@source`, `@theme inline`, `@utility` and `@custom-variant` |
+| Tailwind | `^4.1.5` — the stylesheet uses `@source`, `@source inline`, `@theme inline`, `@utility` and `@custom-variant`, and the error mark is one line tall with `h-lh` |
 | TypeScript | `>=5.2.0`, the suite floor — the emitted declarations are compiled against it |
 | Runtime | ES2022. The package root is server-renderable; `/hooks` and `/interactive/*` are client-only |
 | Base UI | `^1.7.0`, optional, for `/interactive/*` only |

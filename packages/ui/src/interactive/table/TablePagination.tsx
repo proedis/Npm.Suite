@@ -128,7 +128,7 @@ export function TablePagination<TData>(props: TablePaginationProps<TData>): Reac
       <span className={'flex-1'} />
 
       {failed && (
-        <span data-slot={'table-pagination-error'} className={'flex min-w-0 items-center gap-1 text-destructive-soft-foreground'}>
+        <span data-slot={'table-pagination-error'} className={'flex min-w-0 items-center gap-1 text-destructive'}>
           <span className={'truncate'}>{labels.rowsError(pageIndex * pageSize + 1, Math.min(rowCount, (pageIndex + 1) * pageSize))}</span>
           {failed.onRetry && (
             <Button size={'sm'} fill={'plain'} tone={'destructive'} onClick={failed.onRetry}>{labels.retry}</Button>

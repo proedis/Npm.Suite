@@ -47,7 +47,7 @@
         "range": ">=18.0.0 <20.0.0"
       },
       "tailwindcss": {
-        "range": "^4.0.0"
+        "range": "^4.1.5"
       }
     },
     "exports": [

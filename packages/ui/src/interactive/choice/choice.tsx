@@ -110,7 +110,7 @@ export function ChoiceText(props: ChoiceTextProps): React.ReactNode {
         <span data-slot={`${slot}-label`} className={'group-data-disabled/choice:opacity-50'}>
           {label}
           {required && (
-            <span data-slot={'field-required'} aria-hidden={'true'} className={'ms-0.5 text-destructive-soft-foreground'}>*</span>
+            <span data-slot={'field-required'} aria-hidden={'true'} className={'ms-0.5 text-destructive'}>*</span>
           )}
         </span>
       )}

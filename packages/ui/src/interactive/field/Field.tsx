@@ -308,7 +308,7 @@ function FieldLabel(props: FieldLabelProps): React.ReactNode {
     >
       {children}
       {required && (
-        <span data-slot={'field-required'} aria-hidden={'true'} className={'ms-0.5 text-destructive-soft-foreground'}>*</span>
+        <span data-slot={'field-required'} aria-hidden={'true'} className={'ms-0.5 text-destructive'}>*</span>
       )}
       {!required && isPresent(optional) && (
         <span data-slot={'field-optional'} className={'ms-1.5 text-xs font-normal text-muted-foreground'}>{optional}</span>
@@ -429,7 +429,7 @@ function FieldError(props: FieldErrorProps): React.ReactNode {
       {...rest}
       match={true}
       data-slot={'field-error'}
-      className={cn('flex items-start gap-1 self-start text-sm text-destructive-soft-foreground', className)}
+      className={cn('flex items-start gap-1 self-start text-sm text-destructive', className)}
     >
       <ErrorGlyph />
       <span className={'min-w-0'}>{children}</span>
@@ -466,7 +466,7 @@ function FieldCounter(props: FieldCounterProps): React.ReactNode {
       data-exceeded={exceeded || undefined}
       className={cn(
         'self-start justify-self-end text-sm text-muted-foreground tabular-nums',
-        exceeded && 'text-destructive-soft-foreground',
+        exceeded && 'text-destructive',
         className
       )}
     />
@@ -502,8 +502,8 @@ FieldCounter.displayName = 'Field.Counter';
  * the caller's, and the browser's bubble would be a second, untranslated message.
  *
  * Slots: `field` (with `data-span`, `data-break-before`, `data-required`), `field-label`,
- * `field-required`, `field-optional`, `field-description`, `field-error`, `field-error-icon`,
- * `field-counter`. The root also has `data-orientation`, the one at `base`.
+ * `field-required`, `field-optional`, `field-description`, `field-error`, `field-error-icon-box`,
+ * `field-error-icon`, `field-counter`. The root also has `data-orientation`, the one at `base`.
  */
 export function Field(props: FieldProps): React.ReactNode {
 

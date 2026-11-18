@@ -154,7 +154,7 @@ function actionLook(role: EmptyStateActionRole, size: 'page' | 'panel'): Pick<Bu
  * The case gives the tone (`first-use` primary, `error` destructive, the others muted) and the
  * actions their fill: create `solid primary` on a page and `soft` in a panel, clear `plain
  * destructive` with its icon, retry and back `solid secondary`. A `target` renders a real link.
- * `inline` is a line of text, in `destructive` with the octagon for an error.
+ * `inline` is a line of text, in `destructive` with the error circle for an error.
  *
  * It has no role: the container announces it, once. The ref goes to the title, which takes the focus
  * (`tabIndex={-1}`): a dialog gives it the focus on an error or a missing item.

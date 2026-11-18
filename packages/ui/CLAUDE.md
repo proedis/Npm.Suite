@@ -91,7 +91,7 @@ text rules, used by DatePicker and by the date filter of FiltersBar), `menu/menu
 `table/tableCells` and `table/tableParts` (the renderers of the column kinds, the classes of rows,
 cells and header, the placeholders, the scroll shades and the one tooltip of the truncated cells,
 shared by Table and ModalSelector), `tone-glyphs` (the four marks of a tone: circle with
-an i, check, triangle, octagon), `roving` (the arrows of a group of buttons, written by hand because
+an i, check, triangle, exclamation mark), `roving` (the arrows of a group of buttons, written by hand because
 Base UI's ToggleGroup skips an `aria-disabled` item), `anchor` (closing a floating layer when its
 control leaves the view), `overlay-shell` (container, veil, header, body with scroll shades, footer,
 error box, waiting veil, jolt and nesting level of Dialog, AlertDialog and Drawer). A control marks the element that takes its field's focus with
