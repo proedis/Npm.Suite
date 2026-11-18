@@ -8,8 +8,10 @@ import { ToggleGroup as ToggleGroupPrimitive } from '@base-ui/react/toggle-group
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
+import { useIsomorphicLayoutEffect } from '../field/fieldContext';
+
 import { handleRovingKeyDown } from '../roving/roving';
-import { FOCUS_INSIDE, PRESSABLE_BASE, PRESSABLE_CONTENT, PRESSABLE_OFF, PRESSABLE_ON } from '../toggle/toggleStyles';
+import { FOCUS_INSIDE, PRESSABLE_BASE, PRESSABLE_CONTENT, PRESSABLE_OFF } from '../toggle/toggleStyles';
 import { Tooltip } from '../tooltip/Tooltip';
 
 import type { BaseProps } from '../../core/base';
@@ -61,6 +63,14 @@ export interface SegmentedControlItemProps {
   className?: string;
 }
 
+/** The box of the chosen item inside the rail, in pixels */
+interface IndicatorBox {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
 interface SegmentedContextValue {
   size: SegmentedControlSize;
   disabled: boolean;
@@ -95,6 +105,19 @@ const CONTENT_GAP: Readonly<Record<SegmentedControlSize, string>> = {
   md: 'gap-1.5',
   sm: 'gap-1'
 };
+
+/**
+ * The chosen item keeps the ink of `primary` and leaves the fill to the indicator, which slides from
+ * the item chosen before: an item that fills itself fades in while the previous one fades out, and
+ * the two half fills read as a flash. Under forced colours the item is Highlight itself
+ */
+const ITEM_ON = 'data-pressed:text-primary-foreground forced-colors:data-pressed:forced-highlight';
+
+const INDICATOR = [
+  'pointer-events-none absolute top-(--indicator-top) left-(--indicator-left) h-(--indicator-height) w-(--indicator-width)',
+  'rounded-sm bg-primary data-disabled:bg-primary/50',
+  'transition-all duration-200 ease-out motion-reduce:transition-none forced-colors:hidden'
+].join(' ');
 
 const SegmentedContext = React.createContext<SegmentedContextValue | null>(null);
 
@@ -163,8 +186,9 @@ function SegmentedControlItem(props: SegmentedControlItemProps, ref: React.Forwa
       data-slot={'segmented-control-item'}
       className={cn(
         PRESSABLE_BASE,
+        'duration-200',
         PRESSABLE_OFF,
-        PRESSABLE_ON,
+        ITEM_ON,
         ITEM_SIZES[size],
         'h-full rounded-sm after:absolute',
         FOCUS_INSIDE,
@@ -218,7 +242,8 @@ function SegmentedControlItem(props: SegmentedControlItemProps, ref: React.Forwa
  * their tooltip; the chosen item is never disabled. A group with `aria-pressed` buttons, not a
  * `radiogroup` (the arrows would choose) nor a `tablist` (it asks for panels).
  *
- * Parts with a slot: `segmented-control` (with `data-size`, `data-disabled`), `segmented-control-item`
+ * Parts with a slot: `segmented-control` (with `data-size`, `data-disabled`), `segmented-control-indicator`
+ * (the fill that slides under the chosen item), `segmented-control-item`
  * (with `data-pressed`, `data-disabled`, `data-icon-only`), `segmented-control-content`,
  * `segmented-control-leading`.
  */
@@ -248,8 +273,45 @@ function SegmentedControlRoot(props: SegmentedControlProps): React.ReactNode {
   // ----
   const [ ownValue, setOwnValue ] = React.useState(defaultValue);
   const [ focusInside, setFocusInside ] = React.useState(false);
+  const [ indicator, setIndicator ] = React.useState<IndicatorBox | null>(null);
+
+  const railRef = React.useRef<HTMLDivElement>(null);
 
   const chosen = value !== undefined ? value : ownValue;
+
+
+  // ----
+  // Lifecycle Events
+  // ----
+  /* Where the chosen item is, measured again when the choice changes and when anything resizes */
+  useIsomorphicLayoutEffect(() => {
+    const rail = railRef.current;
+
+    if (!rail) {
+      return undefined;
+    }
+
+    const measure = (): void => {
+      const item = rail.querySelector<HTMLElement>('[data-slot=segmented-control-item][data-pressed]');
+
+      setIndicator(item
+        ? { left: item.offsetLeft, top: item.offsetTop, width: item.offsetWidth, height: item.offsetHeight }
+        : null);
+    };
+
+    measure();
+
+    if (typeof ResizeObserver === 'undefined') {
+      return undefined;
+    }
+
+    const observer = new ResizeObserver(measure);
+
+    observer.observe(rail);
+    rail.querySelectorAll('[data-slot=segmented-control-item]').forEach((item) => observer.observe(item));
+
+    return () => observer.disconnect();
+  }, [ chosen, size ]);
 
 
   // ----
@@ -291,6 +353,7 @@ function SegmentedControlRoot(props: SegmentedControlProps): React.ReactNode {
   return (
     <SegmentedContext.Provider value={context}>
       <ToggleGroupPrimitive
+        ref={railRef}
         loopFocus
         value={chosen !== undefined ? [ chosen ] : []}
         onValueChange={handleValueChange}
@@ -304,7 +367,7 @@ function SegmentedControlRoot(props: SegmentedControlProps): React.ReactNode {
         data-size={size}
         data-disabled={disabled ? '' : undefined}
         className={cn(
-          'inline-grid shrink-0 grid-flow-col auto-cols-fr items-stretch rounded-md bg-muted inset-ring inset-ring-border',
+          'relative inline-grid shrink-0 grid-flow-col auto-cols-fr items-stretch rounded-md bg-muted inset-ring inset-ring-border',
           'has-data-icon-only:auto-cols-auto',
 
           /* Transparent until the system draws borders itself: then it becomes the frame */
@@ -314,6 +377,21 @@ function SegmentedControlRoot(props: SegmentedControlProps): React.ReactNode {
           className
         )}
       >
+        {/* First, so every item paints over it; absolute, so it takes no cell of the grid */}
+        {indicator && (
+          <span
+            aria-hidden
+            data-slot={'segmented-control-indicator'}
+            data-disabled={disabled ? '' : undefined}
+            className={INDICATOR}
+            style={{
+              '--indicator-left'  : `${indicator.left}px`,
+              '--indicator-top'   : `${indicator.top}px`,
+              '--indicator-width' : `${indicator.width}px`,
+              '--indicator-height': `${indicator.height}px`
+            } as React.CSSProperties}
+          />
+        )}
         {children}
       </ToggleGroupPrimitive>
     </SegmentedContext.Provider>
