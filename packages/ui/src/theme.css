@@ -162,6 +162,16 @@
   --color-tooltip: var(--tooltip);
   --color-tooltip-foreground: var(--tooltip-foreground);
   --color-tooltip-muted-foreground: var(--tooltip-muted-foreground);
+
+  /* What covers a dialog or a drawer while it loads or saves: the card, see-through */
+  --color-busy-veil: var(--busy-veil, color-mix(in oklab, var(--card) 75%, transparent));
+
+  /* The veil under a dialog or a drawer, and the lighter one under a dialog opened from another */
+  --color-overlay: var(--overlay, color-mix(in oklab, black 40%, transparent));
+  --color-overlay-nested: var(--overlay-nested, color-mix(in oklab, black 20%, transparent));
+
+  /* The inner shadow at the edge of a body that scrolls, where more content is hidden */
+  --color-scroll-shade: var(--scroll-shade, color-mix(in oklab, black 8%, transparent));
 }
 
 /*
@@ -183,6 +193,41 @@
    * template rather than an arbitrary value, so `grid-cols-field` is a class an application can find.
    */
   --grid-template-columns-field: minmax(0, 1fr) auto;
+
+  /*
+   * The segment of `LoadingBar`, a third of the track running left to right. Declared here so the
+   * bar moves on a named animation and not on an arbitrary value.
+   */
+  --animate-loading-bar: loading-bar 1.2s ease-in-out infinite;
+
+  /*
+   * The 4px jolt of a dialog (down) or a drawer (left) clicked outside when it cannot close that way:
+   * it says "not like this" without closing.
+   */
+  --animate-nudge-y: nudge-y 150ms ease-in-out;
+  --animate-nudge-x: nudge-x 150ms ease-in-out;
+
+  @keyframes nudge-y {
+    50% {
+      transform: translateY(4px);
+    }
+  }
+
+  @keyframes nudge-x {
+    50% {
+      transform: translateX(-4px);
+    }
+  }
+
+  @keyframes loading-bar {
+    from {
+      transform: translateX(-100%);
+    }
+
+    to {
+      transform: translateX(334%);
+    }
+  }
 }
 
 /*
@@ -233,6 +278,52 @@
     box-shadow: inset 0 0 0 100vmax var(--color-card);
     caret-color: var(--color-foreground);
   }
+}
+
+/*
+ * A control that is on, in forced colours: the system's selection colour, filled. Without it the
+ * browser drops every background and an item on reads the same as one off. Used under
+ * `forced-colors:`, which is why it is a utility: system colours are not on any scale.
+ */
+/*
+ * A fill that prints. Browsers drop backgrounds unless asked, and a solid badge or the chosen item of
+ * a control loses its meaning on paper without it.
+ */
+@utility print-exact {
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/*
+ * The 2px ring that parts two avatars of a group, in the colour of what is under them. A variable of
+ * the container: a table row redefines `--avatar-ring` on hover and when chosen. `card` by default.
+ */
+@utility avatar-ring {
+  --tw-ring-color: var(--avatar-ring, var(--color-card));
+}
+
+/*
+ * Where the notifications stand: 16px from the right edge, or from the left edge of an open drawer,
+ * which writes the room it takes in `--drawer-inset`. Its footer stays free.
+ */
+@utility toast-end {
+  inset-inline-end: calc(var(--drawer-inset, 0px) + var(--spacing) * 4);
+}
+
+/* The open jobs panel: 360px, never wider than the window less 16px a side */
+@utility toast-panel-width {
+  width: min(22.5rem, 100vw - var(--spacing) * 8);
+}
+
+/* The free space left of an open drawer, for the confirmation to centre in */
+@utility toast-span {
+  inset-inline: 0 var(--drawer-inset, 0px);
+}
+
+@utility forced-highlight {
+  forced-color-adjust: none;
+  background-color: Highlight;
+  color: HighlightText;
 }
 
 /* ============================================================

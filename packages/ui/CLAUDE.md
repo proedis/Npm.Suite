@@ -86,9 +86,22 @@ The private modules of the tier, shared by relative import and never exported by
 `text-control` (the frame and the states of every bordered text control), `choice` (the row, the
 marks and the description of Checkbox, Radio and Switch), `list-panel` (the look of the list under
 Select, MultiSelect, Combobox, and later FiltersBar), `calendar` (the month grid and the date text
-rules, used by DatePicker and later FiltersBar), `delayed-busy` (the spinner that waits 300ms; it is
-published with the Loading guide). A control marks the element that takes its field's focus with
+rules, used by DatePicker and later FiltersBar), `tone-glyphs` (the four marks of a tone: circle with
+an i, check, triangle, octagon), `roving` (the arrows of a group of buttons, written by hand because
+Base UI's ToggleGroup skips an `aria-disabled` item), `anchor` (closing a floating layer when its
+control leaves the view), `overlay-shell` (container, veil, header, body with scroll shades, footer,
+error box, waiting veil, jolt and nesting level of Dialog, AlertDialog and Drawer). A control marks the element that takes its field's focus with
 `data-field-control`: the frame lights from it, the error summary focuses it.
+
+Three choices of tranche 3 that look improvable and are not:
+
+- **The nesting of dialogs is a context of ours** (`OverlayLevelContext`), not Base UI's `data-nested`:
+  a dialog opened from inside another must be rendered inside it, and then sits lower over a lighter
+  veil. The discard prompt of `dirty` is rendered inside its dialog for that reason.
+- **The jobs panel of the notifications is a list of ours**, not a second Base UI toast viewport: its
+  rows would be dialogs that Esc closes, swipe, and stop at three. The confirmation is Base UI's toast.
+- **Tabs take their tabs as data** (`items`), not as children: "More" measures them, reorders them and
+  draws them again as menu items, which children wrapped in fragments would not allow.
 
 Two engines under one look, on purpose: `Select` and `MultiSelect` run on Base UI's `Select` up to
 `searchThreshold` and on its `Combobox` past it, because a Select cannot hold a search. Never switch

@@ -5,10 +5,12 @@ import * as React from 'react';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
-import { FormErrorRegistryContext } from '../field/fieldContext';
+import { Button } from '../button/Button';
+import { FormErrorRegistryContext, FormHostContext } from '../field/fieldContext';
 
 import type { BaseProps } from '../../core/base';
 
+import type { ButtonProps } from '../button/Button';
 import type { FormErrorEntry, FormErrorRegistry } from '../field/fieldContext';
 
 
@@ -410,6 +412,9 @@ export function Form(props: FormProps): React.ReactNode {
 
   const { baseClasses, rest } = splitBaseProps(others);
 
+  /* In a popover, a dialog or a drawer the id comes from it, and its submit button points here */
+  const host = React.useContext(FormHostContext);
+
 
   // ----
   // Internal State
@@ -507,6 +512,7 @@ export function Form(props: FormProps): React.ReactNode {
   return (
     <form
       {...rest}
+      id={rest.id ?? host?.formId}
       noValidate
       data-slot={'form'}
       className={cn('flex flex-col gap-6', baseClasses, className)}
@@ -529,3 +535,22 @@ Form.Header = FormHeader;
 Form.ErrorSummary = FormErrorSummary;
 Form.Section = FormSection;
 Form.Footer = FormFooter;
+
+
+/**
+ * The submit button of the form of a popover, a dialog or a drawer: it sits in their footer, outside
+ * the `<form>`, and points at it through the `form` attribute. Enter in a field submits through it.
+ *
+ * ```tsx
+ * <Dialog footer={<FormSubmit loading={saving} loadingLabel={'Saving'}>Save</FormSubmit>}>
+ *   <Form onSubmit={save}>…</Form>
+ * </Dialog>
+ * ```
+ */
+export const FormSubmit = React.forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
+  const host = React.useContext(FormHostContext);
+
+  return <Button {...props} ref={ref} type={'submit'} form={props.form ?? host?.formId} />;
+});
+
+FormSubmit.displayName = 'FormSubmit';

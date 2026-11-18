@@ -10,9 +10,10 @@ import { cn } from '../../core/cn';
 
 import { Spinner } from '../../components/Spinner';
 
+import { useDelayedBusy } from '../../hooks/useDelayedBusy';
+
 import { IconButton } from '../button/IconButton';
 import { CheckGlyph } from '../choice/choice';
-import { useDelayedBusy } from '../delayed-busy/useDelayedBusy';
 import { useFieldControl } from '../field/fieldContext';
 import { ErrorGlyph } from '../field/glyphs';
 import {
@@ -146,7 +147,7 @@ function SingleCombobox(props: SingleComboboxProps): React.ReactNode {
   // Internal Hooks
   // ----
   const field = useFieldControl();
-  const showBusy = useDelayedBusy(searching);
+  const showBusy = useDelayedBusy(searching).visible;
 
   const frameRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);

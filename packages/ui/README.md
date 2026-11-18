@@ -35,12 +35,12 @@ things are*, `components` answers *what they look like*, and `hooks` is the clie
 | **Layout** | `Box` · `Stack` · `Grid` · `Cluster` · `Center` · `Container` · `Split` · `Spacer` · `Sticky` · `AspectRatio` |
 | **Visibility** | `hideBelow` / `hideFrom` on every primitive, plus `VisuallyHidden` |
 | **Escapes** | `Bleed` · `SafeArea` — out of a padding, and out of the notch |
-| **Components** | `Surface` · `Item` · `Heading` · `Badge` · `IconBox` · `Spinner` · `Divider` · `ScrollArea` · `Label` · `LabeledContent` |
+| **Components** | `Surface` · `Item` · `Heading` · `Badge` · `BadgeCounter` · `IconBox` · `Spinner` · `Skeleton` · `LoadingBar` · `BusyVeil` · `Divider` · `ScrollArea` · `Label` · `LabeledContent` |
 | **Responsive** | `Responsive<T>`, the typed scales, and the class builders behind every prop |
 | **Utilities** | `cn` — class composition where the last conflicting utility wins |
 | **Types** | `PolymorphicProps` — `as` typed by the element it renders, not by `div` |
-| **Hooks** | `useMediaQuery`, `useBreakpoint`, `useIsMobile`, `usePrefersReducedMotion` |
-| **Interactive** | `Tooltip` · `Button` · `IconButton` · `Form` · `Field` · `TextInput` · `PasswordInput` · `SearchInput` · `Textarea` · `NumberInput` · `Checkbox` · `RadioGroup` · `Switch` · `Select` · `MultiSelect` · `Combobox` · `DatePicker` · `FileUpload` · `AttachmentList`, on Base UI |
+| **Hooks** | `useMediaQuery`, `useBreakpoint`, `useIsMobile`, `usePrefersReducedMotion`, `useDelayedBusy`, `useOverflowItems` |
+| **Interactive** | `Tooltip` · `Button` · `IconButton` · `Form` · `Field` · `TextInput` · `PasswordInput` · `SearchInput` · `Textarea` · `NumberInput` · `Checkbox` · `RadioGroup` · `Switch` · `Select` · `MultiSelect` · `Combobox` · `DatePicker` · `FileUpload` · `AttachmentList` · `Toggle` · `ToggleGroup` · `SegmentedControl` · `Popover` · `Menu` · `Dialog` · `AlertDialog` · `Drawer` · `Alert` · `EmptyState` · `Tabs` · `Avatar` · `AvatarGroup` · `Person` · notifications (`NotificationsProvider`, `JobsButton`), on Base UI |
 | **Tokens** | a five token contract, or the **full vocabulary** through `theme.css` |
 
 ## 📦 Installation
@@ -649,6 +649,11 @@ two possible mistakes are not equivalent. Guessing "reduce" and correcting costs
 stillness; guessing the other way plays the animation this preference exists to prevent, to the
 person who asked for it not to.
 
+`useDelayedBusy(busy)` is the timing every wait shares: `{ busy, visible }`, the block at once and the
+look after 300ms, held at least 400 once shown, so a fast answer flashes nothing. `useOverflowItems`
+says which items of a row fit and which go into a "More" menu, from a hidden copy of the row; Tabs use
+it, and a header with tabs can.
+
 They live behind their own entry point on purpose — everything exported from the package root is
 renderable from a React Server Component, and a barrel re-exporting a hook would take that away.
 Reach for them only where CSS cannot do the job: a bottom sheet instead of a dialog, not a padding.
@@ -683,6 +688,18 @@ none of them is re-exported by the root barrel. Every module is client-only (`'u
 | `interactive/combobox` | `Combobox`, one record or several (`multiple`) among results from the server |
 | `interactive/date-picker` | `DatePicker`, a date or a period (`mode="range"`); needs `dayjs` |
 | `interactive/file-upload` | `FileUpload`, `AttachmentList`, `validateFiles`, `acceptsFile` |
+| `interactive/toggle` | `Toggle`, `ToggleGroup` |
+| `interactive/segmented-control` | `SegmentedControl` (`.Item`) |
+| `interactive/popover` | `Popover` (`.Submit`) |
+| `interactive/menu` | `Menu` (`.Item`, `.Group`, `.Separator`, `.RadioGroup`, `.RadioItem`, `.CheckboxItem`, `.Submenu`) |
+| `interactive/dialog` | `Dialog` (`.Submit`, `.Cancel`, `.Section`) |
+| `interactive/alert-dialog` | `AlertDialog`, in three grades |
+| `interactive/drawer` | `Drawer` (`.Submit`, `.Cancel`, `.Section`) |
+| `interactive/alert` | `Alert`, `alertVariants` |
+| `interactive/empty-state` | `EmptyState` |
+| `interactive/tabs` | `Tabs` (`.Panel`), with "More" for the tabs that do not fit |
+| `interactive/person` | `Avatar`, `AvatarGroup`, `Person` |
+| `interactive/toast` | `createNotifications`, `NotificationsProvider`, `JobsButton` |
 
 ```tsx
 <TooltipProvider>                                   {/* once, above everything */}
@@ -731,6 +748,19 @@ What is worth knowing before using them:
   the calendar and leaves the focus there to type; Alt ↓ moves into the grid.
 - **Nothing is uploaded.** FileUpload checks the files and gives back the reasons as codes; the
   caller sends the ready ones when the form is confirmed.
+- **Disabled stays reachable.** A disabled Toggle, segment, tab or menu item keeps its place in the
+  arrow cycle and shows its reason in a tooltip; the change is cancelled instead.
+- **Popover, Dialog and Drawer render no `<form>`.** A `Form` inside takes their id, and their
+  `.Submit` in the footer points at it: Enter in a field submits, two forms never nest.
+- **One gate to close a dialog.** The x, Cancel and Esc pass through it: nothing closes while saving,
+  `dirty` opens the discard prompt first, a click outside closes only a detail and otherwise jolts the
+  panel. A dialog opened from inside another, rendered inside it, sits 120px from the top over a
+  lighter veil. The focus goes back to the control that opened it.
+- **A menu item acts after the menu has closed**, with the focus back on its trigger, so a dialog it
+  opens returns the focus there.
+- **The notifications are an object you create once**: `createNotifications()` gives the `notify`
+  (the confirmation) and `jobs` (the long work and the errors with no place) your modules call;
+  `NotificationsProvider` draws them and `JobsButton` keeps the history.
 
 ## 🎛️ Customizing a component
 
@@ -921,6 +951,8 @@ prevented it. So the vocabulary is named once, in a second stylesheet:
 | Tooltip | `--tooltip`, `--tooltip-foreground`, `--tooltip-muted-foreground` |
 | Stacking | `--z-dialog`, `--z-popover`, `--z-toast`, `--z-tooltip`, read by the `z-dialog` … `z-tooltip` utilities |
 | Switch | `--switch-off`, the track of a switch that is off: a surface, not a line |
+| Overlays | `--overlay`, `--overlay-nested` (the veils under a dialog and under a dialog opened from it), `--scroll-shade` (the inner shadow of a body that scrolls), `--busy-veil` (what covers a panel that waits). Each has a default, so declaring them is optional |
+| Positions written at run time | `--drawer-inset` (the room an open drawer takes, for the notifications) and `--avatar-ring` (the ring of a grouped avatar, `card` unless a container sets it) |
 
 Every family is a **pair**, a surface and the ink that is legible on it, and both halves are always
 declared: half a pair is what produces the token nobody can use, a `--warning` that leaves every

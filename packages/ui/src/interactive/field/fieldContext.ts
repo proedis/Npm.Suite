@@ -92,6 +92,19 @@ export const FormErrorRegistryContext = React.createContext<FormErrorRegistry | 
 
 FormErrorRegistryContext.displayName = 'FormErrorRegistryContext';
 
+/**
+ * The id a `Form` takes when it sits in a popover, a dialog or a drawer. They render their submit
+ * button in their footer, outside the `<form>`, and point it at this id: nobody writes an id by hand
+ * and two forms never end up nested. Owned here for the same reason as the registry above.
+ */
+export interface FormHost {
+  readonly formId: string;
+}
+
+export const FormHostContext = React.createContext<FormHost | null>(null);
+
+FormHostContext.displayName = 'FormHostContext';
+
 
 /* --------
  * Hooks

@@ -8,12 +8,13 @@ import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
 import { Spinner } from '../../components/Spinner';
+
+import { useDelayedBusy } from '../../hooks/useDelayedBusy';
 import { VisuallyHidden } from '../../components/VisuallyHidden';
 
 import { Button } from '../button/Button';
 import { IconButton } from '../button/IconButton';
 import { CheckGlyph } from '../choice/choice';
-import { useDelayedBusy } from '../delayed-busy/useDelayedBusy';
 import { useFieldControl, useNonNativeFieldLabel } from '../field/fieldContext';
 import { ErrorGlyph } from '../field/glyphs';
 import {
@@ -99,7 +100,7 @@ export function MultipleCombobox(props: MultipleComboboxProps): React.ReactNode 
   // Internal Hooks
   // ----
   const field = useFieldControl();
-  const showBusy = useDelayedBusy(searching);
+  const showBusy = useDelayedBusy(searching).visible;
 
   useNonNativeFieldLabel();
 
