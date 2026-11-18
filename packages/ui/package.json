@@ -45,7 +45,13 @@
       "layout",
       "components",
       "hooks",
-      "interactive"
+      "interactive/button",
+      "interactive/field",
+      "interactive/form",
+      "interactive/password-input",
+      "interactive/search-input",
+      "interactive/text-input",
+      "interactive/tooltip"
     ],
     "styles": [
       "theme.css",

@@ -41,11 +41,12 @@ tones are the token vocabulary; a `PinCard` is out because it is a product.
 - Icons themselves. `IconBox` frames one and knows how big the glyph should be; it never imports
   one, which is what keeps an icon library out of the dependency tree. `Spinner` exists for the same
   reason: both reference implementations reach for `lucide-react`'s `Loader2` for a rotating ring.
-- A component that needs a **behavioural** runtime dependency. `ScrollArea` is native overflow
+- A **behavioural** runtime dependency outside `interactive/`. `ScrollArea` is native overflow
   precisely because the Radix version would put a UI framework into this package. The dependency
-  budget is `clsx`, `tailwind-merge` and `cva`, and the third arrived by an explicit decision when the
-  variant matrices started to need it — anything with a portal, a focus trap or a state machine
-  belongs to a package that can afford Radix.
+  budget of the root and of the four plain tiers is `clsx`, `tailwind-merge` and `cva`. Anything with
+  a portal, a focus trap or a state machine goes under `interactive/`, on Base UI as an **optional**
+  peer, and nowhere else: that line moved by decision when the interactive components of the Proedis
+  design systems came here, with their logic shared and their look left to each product's skin.
 - Inline styles for anything a class can express. See the invariant below.
 
 ## Structure
@@ -59,6 +60,7 @@ src/
   layout/            # the twelve primitives that answer *where*
   components/        # the ones that answer *what it looks like*
   hooks/             # client-only: useMediaQuery and the three built on it
+  interactive/       # one folder per published subpath, each a component with behaviour, on Base UI
 types.check.tsx      # the type level test, outside src so nothing publishes it
 ```
 
@@ -70,6 +72,24 @@ types.check.tsx      # the type level test, outside src so nothing publishes it
 | `@proedis/ui/layout` | answers *where things are* | would it still make sense with no colours? |
 | `@proedis/ui/components` | answers *what things look like* | does it read the token contract? |
 | `@proedis/ui/hooks` | client-only, `'use client'` | does it touch `window`? |
+| `@proedis/ui/interactive/<name>` | behaviour on Base UI, `'use client'`, **one subpath per component** | does it need a portal, a focus trap or a state machine? |
+
+The `interactive` folders are subpaths of their own, never re-exported by the root barrel and with no
+`interactive` barrel above them: each one brings only its own optional peers (`@base-ui/react` today,
+dayjs for a date picker tomorrow), and a barrel would make every consumer install all of them. A
+component made of others imports them by relative path (`../button/IconButton`): with
+`preserveModules` a shared module is emitted once and both subpaths reuse it. A context two subpaths
+share lives in the one lower down (`field/fieldContext.ts` is provided by `form`), so the
+dependency goes one way.
+
+Three things every interactive component does, on top of "Writing a new component" below:
+
+- **No user-facing string**, not even a default `aria-label`: texts come in as props (`label`,
+  `labels`, `loadingLabel`, a `title` function for anything with a count).
+- **Every part has its `data-slot`, every resolved variant and state its `data-*`.** That is the
+  surface a product's skin targets with unlayered rules, so a rename is a major.
+- **A component that can be a trigger forwards its ref.** The React range starts at 18, where a
+  function component given to `render` receives no ref and a tooltip or a menu has nothing to anchor to.
 
 The line between `layout` and `components` is intent, not a token count: `Stack` is in layout even
 though `divided` reads `--border`, because a hairline is an aid to its geometry; `Divider` is a

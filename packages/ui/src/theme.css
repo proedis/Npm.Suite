@@ -107,6 +107,58 @@
 
   /* The focus ring. One token, so every focusable thing in the interface agrees */
   --color-ring: var(--ring);
+
+  /*
+   * The layers a pressed or hovered SOLID fill gets on top of its tone: a translucent veil, so one
+   * pair serves all five coloured tones. The quiet fills (soft, plain, and the two surface tones) need
+   * no token: their layer is their own text colour at 8% and 16%.
+   */
+  --color-state-hover: var(--state-hover);
+  --color-state-pressed: var(--state-pressed);
+
+  /*
+   * The soft register of each tone: a tinted surface, and the ink that reads on it. The plain fill
+   * writes with the same ink on no surface at all.
+   *
+   * ⚠️ The fallback lives HERE, in the mapping, and not as a `:root` default, and the difference is
+   * not cosmetic. A `--primary-soft: color-mix(… var(--primary) …)` declared on `:root` is resolved on
+   * `:root`: a subtree that redefines `--primary` (a `.dark` section, a brand wrapper) would keep the
+   * soft colours of the page. Read through `var(--primary-soft, <fallback>)` at the point of use, the
+   * fallback follows the tone wherever it is redefined, which is exactly what `bg-primary/10` did
+   * before these tokens existed. An application that wants a designed soft palette declares the
+   * `--{tone}-soft` pair and the fallback steps aside.
+   *
+   * The defaults reproduce the previous `TONE_CLASSES` to the colour: a tenth of the tone with the
+   * tone as ink, and for the two surface tones half of the surface with its own foreground.
+   */
+  --color-muted-soft: var(--muted-soft, color-mix(in oklab, var(--muted) 50%, transparent));
+  --color-muted-soft-foreground: var(--muted-soft-foreground, var(--muted-foreground));
+
+  --color-secondary-soft: var(--secondary-soft, color-mix(in oklab, var(--secondary) 50%, transparent));
+  --color-secondary-soft-foreground: var(--secondary-soft-foreground, var(--secondary-foreground));
+
+  --color-primary-soft: var(--primary-soft, color-mix(in oklab, var(--primary) 10%, transparent));
+  --color-primary-soft-foreground: var(--primary-soft-foreground, var(--primary));
+
+  --color-success-soft: var(--success-soft, color-mix(in oklab, var(--success) 10%, transparent));
+  --color-success-soft-foreground: var(--success-soft-foreground, var(--success));
+
+  --color-warning-soft: var(--warning-soft, color-mix(in oklab, var(--warning) 10%, transparent));
+  --color-warning-soft-foreground: var(--warning-soft-foreground, var(--warning));
+
+  --color-destructive-soft: var(--destructive-soft, color-mix(in oklab, var(--destructive) 10%, transparent));
+  --color-destructive-soft-foreground: var(--destructive-soft-foreground, var(--destructive));
+
+  --color-info-soft: var(--info-soft, color-mix(in oklab, var(--info) 10%, transparent));
+  --color-info-soft-foreground: var(--info-soft-foreground, var(--info));
+
+  /*
+   * The tooltip is its own surface rather than `popover` inverted: it is dark over a light page in
+   * every product we know of, and its second line needs an ink of its own that is quiet ON that dark.
+   */
+  --color-tooltip: var(--tooltip);
+  --color-tooltip-foreground: var(--tooltip-foreground);
+  --color-tooltip-muted-foreground: var(--tooltip-muted-foreground);
 }
 
 /*
@@ -122,6 +174,52 @@
   --spacing-control-sm: 2rem;
   --spacing-control-md: 2.25rem;
   --spacing-control-lg: 2.5rem;
+
+  /*
+   * The two columns of a `Field`: what is left for the message, and the counter at its end. A named
+   * template rather than an arbitrary value, so `grid-cols-field` is a class an application can find.
+   */
+  --grid-template-columns-field: minmax(0, 1fr) auto;
+}
+
+/*
+ * The stacking order of the layers that float, in one ladder. Tailwind has no theme namespace for
+ * `z-index`, so each step is a variable and a utility reading it: an application that needs another
+ * order redeclares the variables, never the utilities.
+ *
+ * What opens from a dialog sits above it (popover over dialog), a toast stays usable over an open
+ * dialog, and a tooltip is above everything because it is only ever about the thing under the pointer.
+ */
+@utility z-dialog {
+  z-index: var(--z-dialog);
+}
+
+@utility z-popover {
+  z-index: var(--z-popover);
+}
+
+@utility z-toast {
+  z-index: var(--z-toast);
+}
+
+@utility z-tooltip {
+  z-index: var(--z-tooltip);
+}
+
+/*
+ * A control the browser filled in on its own keeps the surface and the ink of the control.
+ *
+ * Without it the browser tints only the inner `<input>`, a coloured rectangle inside a white frame. An
+ * inset shadow as wide as the box is the one way to paint over that tint, which is why this is a
+ * utility and not a class list: the value is not on any scale.
+ */
+@utility autofill-card {
+  &:-webkit-autofill,
+  &:autofill {
+    -webkit-text-fill-color: var(--color-foreground);
+    box-shadow: inset 0 0 0 100vmax var(--color-card);
+    caret-color: var(--color-foreground);
+  }
 }
 
 /* ============================================================
@@ -173,6 +271,19 @@
   --placeholder: var(--color-zinc-400);
 
   --ring: var(--color-zinc-400);
+
+  /* A dark veil: a coloured fill under the pointer reads one step deeper */
+  --state-hover: oklch(0 0 0 / 10%);
+  --state-pressed: oklch(0 0 0 / 20%);
+
+  --tooltip: var(--color-zinc-900);
+  --tooltip-foreground: var(--color-zinc-50);
+  --tooltip-muted-foreground: var(--color-zinc-400);
+
+  --z-dialog: 50;
+  --z-popover: 55;
+  --z-toast: 60;
+  --z-tooltip: 70;
 }
 
 .dark {
@@ -213,4 +324,13 @@
   --placeholder: var(--color-zinc-500);
 
   --ring: var(--color-zinc-500);
+
+  /* On a dark canvas the fills are already light: the layer lightens them further */
+  --state-hover: oklch(1 0 0 / 10%);
+  --state-pressed: oklch(1 0 0 / 20%);
+
+  /* Still a step away from the canvas, which here means lighter */
+  --tooltip: var(--color-zinc-700);
+  --tooltip-foreground: var(--color-zinc-50);
+  --tooltip-muted-foreground: var(--color-zinc-300);
 }

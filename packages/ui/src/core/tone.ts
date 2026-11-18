@@ -42,9 +42,14 @@ export type ToneFill = 'solid' | 'soft' | 'plain';
  * safelist entry — a component builds its variants **from** this table rather than interpolating
  * class names at runtime.
  *
+ * The soft and plain rows read the `{tone}-soft` / `{tone}-soft-foreground` tokens of `theme.css`.
+ * With nothing declared they resolve to what these rows used to write by hand (a tenth of the tone,
+ * the tone as ink), so a product that has no soft palette sees no change; one that has it declares
+ * fourteen variables and every badge, icon box and button follows.
+ *
  * ⚠️ Two of the seven tones are **surfaces**, not accents. `muted` and `secondary` are already the
- * quiet register, so their `soft` is their own surface at half strength: a tenth of a near-white is
- * invisible. That exception is the reason this is a table and not a formula.
+ * quiet register, so the default of their `soft` is their own surface at half strength: a tenth of a
+ * near-white is invisible. That exception lives in the token defaults now, not in this table.
  */
 export const TONE_CLASSES: Readonly<Record<ToneFill, Readonly<Record<Tone, string>>>> = {
   solid: {
@@ -58,23 +63,23 @@ export const TONE_CLASSES: Readonly<Record<ToneFill, Readonly<Record<Tone, strin
   },
 
   soft: {
-    muted      : 'bg-muted/50 text-muted-foreground',
-    secondary  : 'bg-secondary/50 text-secondary-foreground',
-    primary    : 'bg-primary/10 text-primary',
-    success    : 'bg-success/10 text-success',
-    warning    : 'bg-warning/10 text-warning',
-    destructive: 'bg-destructive/10 text-destructive',
-    info       : 'bg-info/10 text-info'
+    muted      : 'bg-muted-soft text-muted-soft-foreground',
+    secondary  : 'bg-secondary-soft text-secondary-soft-foreground',
+    primary    : 'bg-primary-soft text-primary-soft-foreground',
+    success    : 'bg-success-soft text-success-soft-foreground',
+    warning    : 'bg-warning-soft text-warning-soft-foreground',
+    destructive: 'bg-destructive-soft text-destructive-soft-foreground',
+    info       : 'bg-info-soft text-info-soft-foreground'
   },
 
   plain: {
-    muted      : 'text-muted-foreground',
-    secondary  : 'text-secondary-foreground',
-    primary    : 'text-primary',
-    success    : 'text-success',
-    warning    : 'text-warning',
-    destructive: 'text-destructive',
-    info       : 'text-info'
+    muted      : 'text-muted-soft-foreground',
+    secondary  : 'text-secondary-soft-foreground',
+    primary    : 'text-primary-soft-foreground',
+    success    : 'text-success-soft-foreground',
+    warning    : 'text-warning-soft-foreground',
+    destructive: 'text-destructive-soft-foreground',
+    info       : 'text-info-soft-foreground'
   }
 };
 
