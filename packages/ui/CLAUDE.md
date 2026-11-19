@@ -131,6 +131,22 @@ Choices of tranche 4 that look improvable and are not:
 - **A Dialog gives the first focus to a field of its toolbar before one of its body**: a search on top
   is the field a selector opens on.
 
+Choices of the detail and the collapsible sections (M3-01 of Cantieri Digitali Next) that look
+improvable and are not:
+
+- **`Detail.Grid` is a grid of its own, not `Form.Section`.** It is a `<dl>`, and the spans are scoped to
+  nothing: a `Detail.Item` is always in one. Same six columns, same `@max-lg` rule, same three tracks
+  per row (the third empty), so a detail and its form line up; `DETAIL_SPAN` extends `FIELD_SPAN`
+  rather than repeating it.
+- **`CollapsibleSection` is Base UI's `Collapsible`, not `Accordion`**: several sections open together
+  need no group. It mirrors the open state only to report `data-open` on its root.
+- **`CheckboxGrid` writes its own treegrid**: Base UI has no grid. The moving tab index is a prop here,
+  unlike the Table's, because every cell is ours to render. The box is `CHECKBOX_BOX` from
+  `choice/choice.tsx`, the same recipe as `Checkbox` without the alignment on a label and without its
+  focus, which the cell carries. The search is the caller's (`visibleItems`): the labels are nodes,
+  and only the caller knows their text. The grid template is an inline style, a free measure: its
+  number of columns comes from the data.
+
 Two engines under one look, on purpose: `Select` and `MultiSelect` run on Base UI's `Select` up to
 `searchThreshold` and on its `Combobox` past it, because a Select cannot hold a search. Never switch
 engine while a list is open.
@@ -528,7 +544,7 @@ narrower stylesheet is the one you have to ask for.
 
 ## Writing a new component
 
-The shape is the same in all twenty-seven, and every step of it is load-bearing. In order:
+The shape is the same in all of them, and every step of it is load-bearing. In order:
 
 1. **Declare what the component owns, then compose the element onto it.**
    ```ts

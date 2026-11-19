@@ -683,6 +683,7 @@ none of them is re-exported by the root barrel. Every module is client-only (`'u
 | `interactive/textarea` | `Textarea` |
 | `interactive/number-input` | `NumberInput` |
 | `interactive/checkbox` | `Checkbox`, `CheckboxGroup` (with a computed parent box) |
+| `interactive/checkbox-grid` | `CheckboxGrid`: boxes in groups that open and close, a parent box per column on each group |
 | `interactive/radio` | `RadioGroup`, `Radio` (classic or `variant="card"`) |
 | `interactive/switch` | `Switch` |
 | `interactive/select` | `Select`, with a search past `searchThreshold` options |
@@ -699,6 +700,8 @@ none of them is re-exported by the root barrel. Every module is client-only (`'u
 | `interactive/drawer` | `Drawer` (`.Submit`, `.Cancel`, `.Section`) |
 | `interactive/alert` | `Alert`, `alertVariants` |
 | `interactive/empty-state` | `EmptyState` |
+| `interactive/detail` | `Detail` (`.Section`, `.Grid`, `.Item`), `DETAIL_SPAN`: the read-only content of a record |
+| `interactive/collapsible` | `CollapsibleSection`: a section that opens and closes from its header |
 | `interactive/tabs` | `Tabs` (`.Panel`), with "More" for the tabs that do not fit |
 | `interactive/person` | `Avatar`, `AvatarGroup`, `Person` |
 | `interactive/toast` | `createNotifications`, `NotificationsProvider`, `JobsButton` |
@@ -809,6 +812,20 @@ What is worth knowing before using them:
   `reference`, `person`, `text`, `enum`, `status`, `date`, `datetime`, `number`, `boolean`, and
   `custom` as the way out), and `TableFormatsProvider`, mounted once with the application's
   formatters, says how dates, numbers and enum labels read. The package knows no formatter.
+- **A detail lines up with its form.** `Detail.Grid` has the six columns of `Form.Section`, and a
+  `Detail.Item` takes the columns of the field of its `type` (`DETAIL_SPAN`, built on `FIELD_SPAN`):
+  in edit the fields take the place of the values and nothing moves. A value that is not there reads
+  "—" with `labels.empty` as its name; `copyable` adds a button that copies the text of the value and
+  announces it. A section that arrives from a call of its own takes `loading`, or `error` and
+  `onRetry`, and the rest of the detail stays.
+- **A section that closes is a heading with a button.** `CollapsibleSection` is closed by default and
+  remembers nothing; `meta` is its summary, with the unit, and `actions` sit outside the button. No
+  animation of the height. `keepMounted` keeps a body of fields mounted while closed.
+- **A grid of boxes is one field.** `CheckboxGrid` holds item id → checked column ids, takes the rules
+  between the columns as `resolve`, and the search as `visibleItems`, since only the caller knows the
+  text of its labels. One Tab stop and the arrows inside, a parent box per column on each group,
+  computed on the editable items only, `locked` columns decided by the system, `modified` groups
+  marked, `readOnly` for consultation.
 - **The filters hold no value either.** `FiltersBar` takes each filter's value and change from the
   page: a list (one value or several), a list searched on the server (the panel of the Combobox),
   a period from the calendar alone. The buttons never shrink: the ones that do not fit go into "More
