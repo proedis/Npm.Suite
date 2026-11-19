@@ -8,9 +8,11 @@ import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
 import { CHECKBOX_BOX, CheckGlyph, DashGlyph } from '../choice/choice';
+import { CollapsibleSection } from '../collapsible/CollapsibleSection';
 import { Tooltip } from '../tooltip/Tooltip';
 
 import type { BaseProps } from '../../core/base';
+import type { CollapsibleSectionHeadingLevel } from '../collapsible/CollapsibleSection';
 
 
 /* --------
@@ -28,9 +30,6 @@ export interface CheckboxGridItem {
   readonly id: string;
   readonly label: React.ReactNode;
 
-  /** A line under the label: what a rule allows */
-  readonly description?: React.ReactNode;
-
   /** The columns decided by the system: shown as they are in the value, never changed from here */
   readonly locked?: readonly string[];
 }
@@ -38,31 +37,51 @@ export interface CheckboxGridItem {
 export interface CheckboxGridGroup {
   readonly id: string;
   readonly label: React.ReactNode;
-
-  /** The summary after the label, always with its unit: "20 entities", "2 rules" */
-  readonly meta?: React.ReactNode;
-
   readonly items: readonly CheckboxGridItem[];
-
-  /** The group has changes that are not saved: marked with a dot and `labels.modified` */
-  readonly modified?: boolean;
 }
 
 /** Item id → the ids of its checked columns */
 export type CheckboxGridValue = Readonly<Record<string, readonly string[]>>;
 
-export interface CheckboxGridMixedArgs {
-  readonly column: CheckboxGridColumn;
+export interface CheckboxGridGroupArgs {
   readonly group: CheckboxGridGroup;
-  readonly checked: number;
+}
+
+export interface CheckboxGridMetaArgs extends CheckboxGridGroupArgs {
+  /** The items with at least one box ticked by hand: locked boxes never count */
+  readonly selected: number;
+
+  /** Every item of the group */
   readonly total: number;
 }
 
-export interface CheckboxGridBulkArgs {
+export interface CheckboxGridMixedArgs extends CheckboxGridGroupArgs {
   readonly column: CheckboxGridColumn;
-  readonly group: CheckboxGridGroup;
+  readonly checked: number;
+
+  /** The editable items of the column */
+  readonly total: number;
+}
+
+export interface CheckboxGridBulkArgs extends CheckboxGridGroupArgs {
+  readonly column: CheckboxGridColumn;
   readonly checked: boolean;
+
+  /** The items the parent box changed */
   readonly count: number;
+
+  /** The items whose other columns the rules changed too: "Read added to 12" */
+  readonly cascaded: number;
+}
+
+export interface CheckboxGridToggledArgs {
+  readonly item: CheckboxGridItem;
+  readonly column: CheckboxGridColumn;
+  readonly checked: boolean;
+
+  /** The other columns of the same item the rules ticked or cleared with it */
+  readonly alsoChecked: readonly CheckboxGridColumn[];
+  readonly alsoUnchecked: readonly CheckboxGridColumn[];
 }
 
 /** Every text of service the grid shows. The package writes none */
@@ -70,19 +89,34 @@ export interface CheckboxGridLabels {
   /** The header of the first column ("Area and entity"). Only with two columns or more */
   itemsHeader?: React.ReactNode;
 
-  /** After the summary of a group with changes not saved */
+  /** The name of the first row of an open group, the one with the parent boxes: "Whole area" */
+  allItems: React.ReactNode;
+
+  /** The summary of a group, always with its unit: "2 of 6 entities with permissions" */
+  groupMeta: (args: CheckboxGridMetaArgs) => React.ReactNode;
+
+  /** The accessible name of the grid of an open group: "Permissions of the area Fleet" */
+  groupGrid: (args: CheckboxGridGroupArgs) => string;
+
+  /** After the name of a group that differs from `savedValue` */
   modified: React.ReactNode;
 
-  /** The tooltip and description of a partial parent box: "Create: 4 of 20 entities" */
+  /** The description of a box that differs from `savedValue`: "modified" */
+  changed?: string;
+
+  /** The tooltip and description of a partial parent box: "Create granted to 4 of 20 editable entities" */
   mixed: (args: CheckboxGridMixedArgs) => string;
 
   /** Announced after a parent box changed a whole group: "Read granted to 20 entities of Fleet" */
   bulk: (args: CheckboxGridBulkArgs) => string;
 
-  /** Why a locked box cannot change: "Always granted, not editable" */
+  /** Announced after a box changed, with what the rules changed with it: "Create and Read granted to Report" */
+  toggled?: (args: CheckboxGridToggledArgs) => string;
+
+  /** Why a locked box cannot change: "Read always granted, not editable" */
   locked: string;
 
-  /** In read only, the checked columns of an item as text */
+  /** In read only, the checked columns of an item as text, an empty list included */
   readOnlyValue?: (item: CheckboxGridItem, checked: readonly CheckboxGridColumn[]) => React.ReactNode;
 }
 
@@ -93,6 +127,12 @@ export interface CheckboxGridProps extends BaseProps, Omit<React.ComponentProps<
   value?: CheckboxGridValue;
   defaultValue?: CheckboxGridValue;
   onValueChange?: (value: CheckboxGridValue) => void;
+
+  /**
+   * The value as it is saved. Every box that differs from it carries a dot, and its group is marked
+   * with `labels.modified`; a box brought back as it was loses both. Absent: no marks
+   */
+  savedValue?: CheckboxGridValue;
 
   /**
    * The rules between the columns, which the grid does not know: it receives the value a click
@@ -107,25 +147,25 @@ export interface CheckboxGridProps extends BaseProps, Omit<React.ComponentProps<
   onOpenGroupsChange?: (openGroups: readonly string[]) => void;
 
   /**
-   * A search is on: only these items are shown, with their groups open, no arrows and no parent
-   * boxes (they would act on rows that are not seen). The matching is the caller's, who knows the text
-   * of the labels; a group that matches by its name passes all its items. `null` or absent: no search
+   * A search is on: only these items are shown, with their groups open; a group that shows only part
+   * of its items has no parent boxes (they would act on rows that are not seen). The matching is the
+   * caller's, who knows the text of the labels; a group that matches by its name passes all its items.
+   * `null` or absent: no search
    */
   visibleItems?: ReadonlySet<string> | null;
 
   /** Consultation: no boxes, the checked columns of each item as text */
   readOnly?: boolean;
 
+  /** The level of the headings of the groups. Defaults to 3 */
+  headingLevel?: CollapsibleSectionHeadingLevel;
+
   labels: CheckboxGridLabels;
 }
 
-type CellKey = string;
-
 interface RowModel {
   readonly key: string;
-  readonly kind: 'group' | 'item';
-  readonly groupId: string;
-  readonly cells: number;
+  readonly item: CheckboxGridItem | null;
 }
 
 
@@ -135,22 +175,25 @@ interface RowModel {
 
 const NO_GROUPS: readonly string[] = [];
 
-/** The width of a column of boxes: 96 with several columns, 56 when there is one */
-const COLUMN_WIDTH = { many: '6rem', one: '3.5rem' } as const;
+const NO_VALUE: CheckboxGridValue = {};
 
-const ROW_FOCUS = 'outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring';
+/** The width of a column of boxes */
+const COLUMN_WIDTH = '6rem';
+
+/** In read only, the width of the column with the checked columns as text */
+const TEXT_WIDTH = '24rem';
 
 const CELL_FOCUS = 'has-focus-visible:outline-2 has-focus-visible:-outline-offset-2 has-focus-visible:outline-ring';
+
+/** The header of an open group stays put under the header of the columns */
+const STICKY_HEADER = 'data-open:[&>[data-slot=collapsible-section-header]]:sticky '
+  + 'data-open:[&>[data-slot=collapsible-section-header]]:z-1 '
+  + '[&>[data-slot=collapsible-section-header]]:bg-card';
 
 
 /* --------
  * Helpers
  * -------- */
-
-function cellKey(row: string, column: number): CellKey {
-  return `${row}|${column}`;
-}
-
 
 function isChecked(value: CheckboxGridValue, itemId: string, columnId: string): boolean {
   return value[itemId]?.includes(columnId) ?? false;
@@ -190,6 +233,14 @@ function parentState(group: CheckboxGridGroup, columnId: string, value: Checkbox
 }
 
 
+/** The items with at least one box ticked by hand */
+function selectedCount(group: CheckboxGridGroup, columns: readonly CheckboxGridColumn[], value: CheckboxGridValue): number {
+  return group.items
+    .filter((item) => columns.some((column) => !isLocked(item, column.id) && isChecked(value, item.id, column.id)))
+    .length;
+}
+
+
 function withColumn(value: CheckboxGridValue, itemIds: readonly string[], columnId: string, checked: boolean): CheckboxGridValue {
   const next: Record<string, readonly string[]> = { ...value };
 
@@ -206,71 +257,45 @@ function withColumn(value: CheckboxGridValue, itemIds: readonly string[], column
 
 
 /* --------
- * Glyphs
- * -------- */
-
-function ChevronGlyph(props: { open: boolean }): React.ReactNode {
-  return (
-    <svg
-      data-slot={'checkbox-grid-chevron'}
-      viewBox={'0 0 24 24'}
-      fill={'none'}
-      stroke={'currentColor'}
-      strokeWidth={1.75}
-      strokeLinecap={'round'}
-      strokeLinejoin={'round'}
-      aria-hidden={'true'}
-      focusable={'false'}
-      className={cn(
-        'size-4 shrink-0 text-muted-foreground transition-transform duration-100 motion-reduce:transition-none',
-        props.open && 'rotate-90'
-      )}
-    >
-      <path d={'m9 18 6-6-6-6'} />
-    </svg>
-  );
-}
-
-
-/* --------
  * Component Definition
  * -------- */
 
 /**
- * A grid of boxes divided in groups that open and close: rows of items, columns of choices. The row of
- * a group is the header of its section and carries the parent boxes in the columns of the items, so a
- * closed group is governed without opening it. It is the value of a form: saved with the button.
+ * Boxes divided in sections that open and close: rows of items, columns of choices. Every group is a
+ * `CollapsibleSection` whose summary says the state of the group; open, its first row carries the
+ * parent boxes, then the items. It is the value of a form: saved with the button.
  *
  * ```tsx
  * <CheckboxGrid
- *   aria-labelledby={titleId}
  *   groups={areas}
  *   columns={[ { id: 'read', label: 'Read' }, { id: 'create', label: 'Create' } ]}
  *   value={permissions}
+ *   savedValue={saved}
  *   onValueChange={setPermissions}
  *   resolve={grantReadWithOthers}
  *   labels={gridLabels}
  * />
  * ```
  *
- * A treegrid with one entry in the Tab cycle, then the arrows: ↑ ↓ between rows, ← → between cells, →
- * opens and ← closes on the name of a group, ← on the name of an item goes back to its group, Space
- * ticks, Enter on a name opens or closes, Home and End along the row, Ctrl + Home and Ctrl + End to the
- * first and last row. Base UI has no grid, so the moving tab index is written here.
+ * Tab goes from one header to the next; in an open group it enters its grid with one stop, the first
+ * time on the first parent box, then on the last box visited. In the grid the arrows move between the
+ * boxes, Space ticks, Home and End go along the row, Ctrl + Home and Ctrl + End to the first and last
+ * row. Base UI has no grid, so the moving tab index is written here, on the boxes themselves.
  *
  * A parent box is full, partial or empty over the editable items of its group only, and read only when
- * every item of its column is locked. A click grants or takes away the column from every editable item
- * of the group, open or closed, and the `status` region announces it with `labels.bulk`. Two levels,
- * group and item: no box in the header of the columns.
+ * every item of its column is locked. A click on an empty or partial one grants the column to every
+ * editable item, on a full one takes it away. Every change, the ones the rules make included, is
+ * announced in the `status` region with `labels.bulk` and `labels.toggled`. Two levels, group and item:
+ * no box in the header of the columns. A closed group has no parent boxes: to act on it, open it.
  *
- * The header of the columns and the row of an open group stay put while the grid scrolls, inside the
- * nearest scrolling ancestor.
+ * The header of the columns and the header of an open group stay put while the grid scrolls, inside
+ * the nearest scrolling ancestor.
  *
  * Slots: `checkbox-grid` (with `data-read-only`, `data-searching`), `checkbox-grid-header`,
- * `checkbox-grid-column-header`, `checkbox-grid-group` (with `data-open`, `data-modified`),
- * `checkbox-grid-group-name`, `checkbox-grid-meta`, `checkbox-grid-modified`, `checkbox-grid-item`,
- * `checkbox-grid-item-name`, `checkbox-grid-description`, `checkbox-grid-cell` (with `data-parent`,
- * `data-locked`), `checkbox-grid-box`, `checkbox-grid-text`, `checkbox-grid-status`.
+ * `checkbox-grid-column-header`, each group a `collapsible-section` (with `data-modified`),
+ * `checkbox-grid-modified`, `checkbox-grid-body`, `checkbox-grid-all`, `checkbox-grid-item`,
+ * `checkbox-grid-item-name`, `checkbox-grid-cell` (with `data-parent`, `data-locked`, `data-changed`),
+ * `checkbox-grid-box`, `checkbox-grid-changed`, `checkbox-grid-text`, `checkbox-grid-status`.
  */
 export function CheckboxGrid(props: CheckboxGridProps): React.ReactNode {
 
@@ -283,12 +308,14 @@ export function CheckboxGrid(props: CheckboxGridProps): React.ReactNode {
     defaultOpenGroups = NO_GROUPS,
     defaultValue,
     groups,
+    headingLevel = 3,
     labels,
     onOpenGroupsChange,
     onValueChange,
     openGroups,
     readOnly = false,
     resolve,
+    savedValue,
     value,
     visibleItems = null,
     ...others
@@ -306,29 +333,56 @@ export function CheckboxGrid(props: CheckboxGridProps): React.ReactNode {
   // ----
   // Internal State
   // ----
-  const [ uncontrolledValue, setUncontrolledValue ] = React.useState<CheckboxGridValue>(defaultValue ?? {});
+  const [ uncontrolledValue, setUncontrolledValue ] = React.useState<CheckboxGridValue>(defaultValue ?? NO_VALUE);
   const [ uncontrolledOpen, setUncontrolledOpen ] = React.useState<readonly string[]>(defaultOpenGroups);
-  const [ activeCell, setActiveCell ] = React.useState<CellKey | null>(null);
+  const [ activeCells, setActiveCells ] = React.useState<Readonly<Record<string, string>>>({});
   const [ announcement, setAnnouncement ] = React.useState('');
 
-  const gridRef = React.useRef<HTMLDivElement>(null);
+  /* The groups closed by hand during a search: forgotten when the search changes */
+  const [ searchClosed, setSearchClosed ] = React.useState<{
+    for: ReadonlySet<string> | null;
+    ids: readonly string[];
+  }>({ for: null, ids: NO_GROUPS });
+
+  const rootRef = React.useRef<HTMLDivElement>(null);
 
   const currentValue = value ?? uncontrolledValue;
   const currentOpen = openGroups ?? uncontrolledOpen;
   const searching = visibleItems !== null;
+  const closedInSearch = searchClosed.for === visibleItems ? searchClosed.ids : NO_GROUPS;
 
 
   // ----
   // Handlers
   // ----
-  const commit = (next: CheckboxGridValue): void => {
+  const announce = (text: string | undefined): void => {
+    if (!text) {
+      return;
+    }
+
+    /* Emptied first, so the same text twice is announced twice */
+    setAnnouncement('');
+    window.setTimeout(() => setAnnouncement(text));
+  };
+
+  const commit = (next: CheckboxGridValue): CheckboxGridValue => {
     const resolved = resolve ? resolve(next, currentValue) : next;
 
     setUncontrolledValue(resolved);
     onValueChange?.(resolved);
+
+    return resolved;
   };
 
   const setGroupOpen = (groupId: string, open: boolean): void => {
+    if (searching) {
+      const ids = open ? closedInSearch.filter((id) => id !== groupId) : [ ...closedInSearch, groupId ];
+
+      setSearchClosed({ for: visibleItems, ids });
+
+      return;
+    }
+
     const next = open
       ? (currentOpen.includes(groupId) ? currentOpen : [ ...currentOpen, groupId ])
       : currentOpen.filter((id) => id !== groupId);
@@ -337,20 +391,32 @@ export function CheckboxGrid(props: CheckboxGridProps): React.ReactNode {
     onOpenGroupsChange?.(next);
   };
 
-  const toggleItem = (itemId: string, columnId: string, checked: boolean): void => {
-    commit(withColumn(currentValue, [ itemId ], columnId, checked));
+  const toggleItem = (item: CheckboxGridItem, column: CheckboxGridColumn, checked: boolean): void => {
+    const resolved = commit(withColumn(currentValue, [ item.id ], column.id, checked));
+    const otherColumns = columns.filter((entry) => entry.id !== column.id);
+    const before = (entry: CheckboxGridColumn): boolean => isChecked(currentValue, item.id, entry.id);
+    const after = (entry: CheckboxGridColumn): boolean => isChecked(resolved, item.id, entry.id);
+
+    announce(labels.toggled?.({
+      item,
+      column,
+      checked,
+      alsoChecked  : otherColumns.filter((entry) => !before(entry) && after(entry)),
+      alsoUnchecked: otherColumns.filter((entry) => before(entry) && !after(entry))
+    }));
   };
 
   const toggleParent = (group: CheckboxGridGroup, column: CheckboxGridColumn): void => {
     const state = parentState(group, column.id, currentValue);
     const checked = !state.checked;
     const editable = group.items.filter((item) => !isLocked(item, column.id)).map((item) => item.id);
+    const resolved = commit(withColumn(currentValue, editable, column.id, checked));
+    const otherColumns = columns.filter((entry) => entry.id !== column.id);
+    const cascaded = group.items.filter((item) => otherColumns.some((entry) => (
+      isChecked(currentValue, item.id, entry.id) !== isChecked(resolved, item.id, entry.id)
+    ))).length;
 
-    commit(withColumn(currentValue, editable, column.id, checked));
-
-    /* Emptied first, so the same text twice is announced twice */
-    setAnnouncement('');
-    window.setTimeout(() => setAnnouncement(labels.bulk({ column, group, checked, count: editable.length })));
+    announce(labels.bulk({ column, group, checked, count: editable.length, cascaded }));
   };
 
 
@@ -358,189 +424,114 @@ export function CheckboxGrid(props: CheckboxGridProps): React.ReactNode {
   // Memoized Data
   // ----
   const shownGroups = groups
-    .map((group) => ({
-      group,
-      items: searching ? group.items.filter((item) => visibleItems.has(item.id)) : group.items,
-      open : searching || currentOpen.includes(group.id)
-    }))
+    .map((group) => {
+      const items = searching ? group.items.filter((item) => visibleItems.has(item.id)) : group.items;
+
+      return {
+        group,
+        items,
+        open    : searching ? !closedInSearch.includes(group.id) : currentOpen.includes(group.id),
+        complete: items.length === group.items.length
+      };
+    })
     .filter((entry) => !searching || entry.items.length > 0);
 
-  const boxColumns = readOnly ? 1 : columns.length;
   const hasHeader = columns.length > 1 && !readOnly;
-  const rows: RowModel[] = [];
-
-  shownGroups.forEach(({ group, items, open }) => {
-    rows.push({ key: `g:${group.id}`, kind: 'group', groupId: group.id, cells: readOnly || searching ? 1 : 1 + columns.length });
-
-    if (open) {
-      items.forEach((item) => {
-        rows.push({ key: `i:${item.id}`, kind: 'item', groupId: group.id, cells: readOnly ? 1 : 1 + columns.length });
-      });
-    }
-  });
-
-  const firstCell = rows.length ? cellKey(rows[0].key, 0) : null;
-  const known = new Set(rows.flatMap((row) => Array.from({ length: row.cells }, (_, column) => cellKey(row.key, column))));
-  const tabbable = activeCell && known.has(activeCell) ? activeCell : firstCell;
-
   const template = {
     gridTemplateColumns: readOnly
-      ? 'minmax(0, 2fr) minmax(0, 3fr)'
-      : `minmax(0, 1fr) repeat(${boxColumns}, ${columns.length > 1 ? COLUMN_WIDTH.many : COLUMN_WIDTH.one})`
+      ? `minmax(0, 1fr) ${TEXT_WIDTH}`
+      : `minmax(0, 1fr) repeat(${columns.length}, ${COLUMN_WIDTH})`
   };
+
+  const changed = (itemId: string, columnId: string): boolean => (
+    savedValue !== undefined && isChecked(currentValue, itemId, columnId) !== isChecked(savedValue, itemId, columnId)
+  );
+
+  const groupChanged = (group: CheckboxGridGroup): boolean => (
+    group.items.some((item) => columns.some((column) => changed(item.id, column.id)))
+  );
 
 
   // ----
   // Keyboard
   // ----
-  const focusCell = (key: CellKey | null): void => {
-    if (!key) {
-      return;
-    }
+  const cellKey = (groupId: string, rowKey: string, column: number): string => `${groupId}|${rowKey}|${column}`;
 
-    setActiveCell(key);
-    gridRef.current?.querySelector<HTMLElement>(`[data-grid-cell="${CSS.escape(key)}"]`)?.focus();
+  const focusCell = (key: string): void => {
+    const [ groupId ] = key.split('|');
+
+    setActiveCells((current) => ({ ...current, [groupId]: key }));
+    rootRef.current?.querySelector<HTMLElement>(`[data-grid-cell="${CSS.escape(key)}"]`)?.focus();
   };
 
-  const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (event) => {
-    const target = (event.target as HTMLElement).closest<HTMLElement>('[data-grid-cell]');
-    const key = target?.dataset.gridCell;
+  const handleGridKeyDown = (groupId: string, rows: readonly RowModel[]): React.KeyboardEventHandler<HTMLDivElement> => (
+    (event) => {
+      const key = (event.target as HTMLElement).closest<HTMLElement>('[data-grid-cell]')?.dataset.gridCell;
 
-    if (!key) {
-      return;
-    }
-
-    const [ rowKey, columnText ] = key.split('|');
-    const column = Number(columnText);
-    const rowIndex = rows.findIndex((row) => row.key === rowKey);
-    const row = rows[rowIndex];
-
-    if (!row) {
-      return;
-    }
-
-    const clamp = (index: number, other: RowModel): number => Math.min(index, other.cells - 1);
-    const handled = (): void => {
-      event.preventDefault();
-      event.stopPropagation();
-    };
-
-    switch (event.key) {
-      case 'ArrowDown': {
-        const next = rows[rowIndex + 1];
-
-        if (next) {
-          focusCell(cellKey(next.key, clamp(column, next)));
-        }
-
-        handled();
-        break;
+      if (!key) {
+        return;
       }
 
-      case 'ArrowUp': {
-        const previous = rows[rowIndex - 1];
+      const [ , rowKey, columnText ] = key.split('|');
+      const column = Number(columnText);
+      const rowIndex = rows.findIndex((row) => row.key === rowKey);
+      const last = columns.length - 1;
+      let target: string | null = null;
 
-        if (previous) {
-          focusCell(cellKey(previous.key, clamp(column, previous)));
-        }
-
-        handled();
-        break;
-      }
-
-      case 'ArrowRight': {
-        const groupClosed = row.kind === 'group' && !searching && !currentOpen.includes(row.groupId);
-
-        if (column === 0 && groupClosed) {
-          setGroupOpen(row.groupId, true);
-        }
-        else if (column < row.cells - 1) {
-          focusCell(cellKey(row.key, column + 1));
-        }
-
-        handled();
-        break;
-      }
-
-      case 'ArrowLeft': {
-        if (column > 0) {
-          focusCell(cellKey(row.key, column - 1));
-        }
-        else if (row.kind === 'group' && !searching && currentOpen.includes(row.groupId)) {
-          setGroupOpen(row.groupId, false);
-        }
-        else if (row.kind === 'item') {
-          focusCell(cellKey(`g:${row.groupId}`, 0));
-        }
-
-        handled();
-        break;
-      }
-
-      case 'Home': {
-        focusCell(event.ctrlKey ? firstCell : cellKey(row.key, 0));
-        handled();
-        break;
-      }
-
-      case 'End': {
-        if (event.ctrlKey) {
-          const last = rows[rows.length - 1];
-
-          focusCell(cellKey(last.key, clamp(column, last)));
-        }
-        else {
-          focusCell(cellKey(row.key, row.cells - 1));
-        }
-
-        handled();
-        break;
-      }
-
-      case 'Enter':
-      case ' ': {
-        if (column !== 0) {
+      switch (event.key) {
+        case 'ArrowDown':
+          target = rows[rowIndex + 1] ? cellKey(groupId, rows[rowIndex + 1].key, column) : key;
           break;
-        }
 
-        if (row.kind === 'group' && !searching) {
-          setGroupOpen(row.groupId, !currentOpen.includes(row.groupId));
-          handled();
-        }
-        else if (row.kind === 'item' && event.key === ' ' && columns.length === 1 && !readOnly) {
-          const item = groups.find((group) => group.id === row.groupId)?.items.find((entry) => `i:${entry.id}` === row.key);
+        case 'ArrowUp':
+          target = rows[rowIndex - 1] ? cellKey(groupId, rows[rowIndex - 1].key, column) : key;
+          break;
 
-          if (item && !isLocked(item, columns[0].id)) {
-            toggleItem(item.id, columns[0].id, !isChecked(currentValue, item.id, columns[0].id));
-          }
+        case 'ArrowRight':
+          target = cellKey(groupId, rowKey, Math.min(column + 1, last));
+          break;
 
-          handled();
-        }
+        case 'ArrowLeft':
+          target = cellKey(groupId, rowKey, Math.max(column - 1, 0));
+          break;
 
-        break;
+        case 'Home':
+          target = event.ctrlKey ? cellKey(groupId, rows[0].key, column) : cellKey(groupId, rowKey, 0);
+          break;
+
+        case 'End':
+          target = event.ctrlKey ? cellKey(groupId, rows[rows.length - 1].key, column) : cellKey(groupId, rowKey, last);
+          break;
+
+        case 'Enter':
+          /* A box ticks with Space only, as in a grid */
+          event.preventDefault();
+          break;
+
+        default:
+          break;
       }
 
-      default:
-        break;
+      if (target) {
+        event.preventDefault();
+        event.stopPropagation();
+        focusCell(target);
+      }
     }
-  };
+  );
 
 
   // ----
   // Render Helpers
   // ----
-  const cellProps = (key: CellKey): { 'data-grid-cell': string; tabIndex: number; onFocus: () => void } => ({
-    'data-grid-cell': key,
-    tabIndex        : key === tabbable ? 0 : -1,
-    onFocus         : () => setActiveCell(key)
-  });
-
-  const columnHeaderId = (column: CheckboxGridColumn): string => `${uid}-column-${column.id}`;
-  const nameId = (rowKey: string): string => `${uid}-name-${rowKey}`;
   const lockedId = `${uid}-locked`;
+  const changedId = `${uid}-changed`;
+  const columnHeaderId = (groupId: string, column: CheckboxGridColumn): string => `${uid}-${groupId}-column-${column.id}`;
+  const nameId = (groupId: string, rowKey: string): string => `${uid}-${groupId}-name-${rowKey}`;
 
   const renderBox = (options: {
-    key: CellKey;
+    cell: string;
+    tabbable: boolean;
     labelledBy: string;
     checked: boolean;
     mixed?: boolean;
@@ -549,7 +540,9 @@ export function CheckboxGrid(props: CheckboxGridProps): React.ReactNode {
     onChange: (checked: boolean) => void;
   }): React.ReactElement => (
     <CheckboxPrimitive.Root
-      {...cellProps(options.key)}
+      data-grid-cell={options.cell}
+      tabIndex={options.tabbable ? 0 : -1}
+      onFocus={() => setActiveCells((current) => ({ ...current, [options.cell.split('|')[0]]: options.cell }))}
       checked={options.checked}
       indeterminate={options.mixed ?? false}
       readOnly={options.locked}
@@ -565,167 +558,154 @@ export function CheckboxGrid(props: CheckboxGridProps): React.ReactNode {
     </CheckboxPrimitive.Root>
   );
 
-  const renderItem = (item: CheckboxGridItem, group: CheckboxGridGroup, index: number, size: number): React.ReactNode => {
-    const rowKey = `i:${item.id}`;
-    const single = columns.length === 1;
-    const descriptionId = `${uid}-description-${item.id}`;
-    const checkedColumns = columns.filter((column) => isChecked(currentValue, item.id, column.id));
-
-    return (
-      <div
-        key={item.id}
-        role={'row'}
-        aria-level={2}
-        aria-posinset={index + 1}
-        aria-setsize={size}
-        data-slot={'checkbox-grid-item'}
-        style={template}
-        className={cn('grid min-h-8 border-t border-border hover:bg-accent', single && !readOnly && 'cursor-pointer')}
-        onClick={single && !readOnly && !isLocked(item, columns[0].id)
-          ? (event) => {
-            /* The whole row of a single column ticks its box; the box itself already did */
-            if ((event.target as HTMLElement).closest('[data-slot=checkbox-grid-box]')) {
-              return;
-            }
-
-            toggleItem(item.id, columns[0].id, !isChecked(currentValue, item.id, columns[0].id));
-          }
-          : undefined}
-      >
-        <span
-          role={'rowheader'}
-          id={nameId(rowKey)}
-          {...cellProps(cellKey(rowKey, 0))}
-          data-slot={'checkbox-grid-item-name'}
-          className={cn('flex min-w-0 flex-col justify-center py-1.5 ps-12 pe-2 text-sm', ROW_FOCUS)}
+  const renderReadOnly = (group: CheckboxGridGroup, items: readonly CheckboxGridItem[]): React.ReactNode => (
+    <ul data-slot={'checkbox-grid-body'} className={'m-0 list-none p-0 pb-3'}>
+      {items.map((item) => (
+        <li
+          key={item.id}
+          data-slot={'checkbox-grid-item'}
+          style={template}
+          className={'grid min-h-8 border-t border-border'}
         >
-          <span className={'truncate'}>{item.label}</span>
-          {item.description && (
-            <span id={descriptionId} data-slot={'checkbox-grid-description'} className={'text-xs text-muted-foreground'}>
-              {item.description}
-            </span>
-          )}
-        </span>
-
-        {readOnly && (
-          <span role={'gridcell'} data-slot={'checkbox-grid-text'} className={'flex items-center pe-6 text-sm'}>
-            {labels.readOnlyValue?.(item, checkedColumns)}
+          <span data-slot={'checkbox-grid-item-name'} className={'flex min-w-0 items-center py-1.5 ps-12 pe-2'}>
+            {item.label}
           </span>
-        )}
+          <span data-slot={'checkbox-grid-text'} className={'flex items-center py-1.5 pe-6'}>
+            {labels.readOnlyValue?.(item, columns.filter((column) => isChecked(currentValue, item.id, column.id)))}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
 
-        {!readOnly && columns.map((column, columnIndex) => {
-          const locked = isLocked(item, column.id);
-          const describedBy = [ item.description ? descriptionId : undefined, locked ? lockedId : undefined ]
-            .filter(Boolean)
-            .join(' ') || undefined;
-          const box = renderBox({
-            key       : cellKey(rowKey, columnIndex + 1),
-            labelledBy: single ? nameId(rowKey) : `${columnHeaderId(column)} ${nameId(rowKey)}`,
-            checked   : isChecked(currentValue, item.id, column.id),
-            locked,
-            describedBy,
-            onChange  : (checked) => toggleItem(item.id, column.id, checked)
-          });
+  const renderGrid = (group: CheckboxGridGroup, items: readonly CheckboxGridItem[], complete: boolean): React.ReactNode => {
+    const rows: RowModel[] = [
+      ...(complete ? [ { key: 'all', item: null } ] : []),
+      ...items.map((item) => ({ key: `i:${item.id}`, item }))
+    ];
+    const known = new Set(rows.flatMap((row) => columns.map((_, column) => cellKey(group.id, row.key, column))));
+    const remembered = activeCells[group.id];
+    const tabbable = remembered && known.has(remembered) ? remembered : cellKey(group.id, rows[0].key, 0);
 
-          return (
-            <span
-              key={column.id}
-              role={'gridcell'}
-              data-slot={'checkbox-grid-cell'}
-              data-locked={locked || undefined}
-              className={cn('group/choice flex justify-center', item.description ? 'items-start pt-2' : 'items-center', CELL_FOCUS)}
-            >
-              {locked ? <Tooltip content={labels.locked}>{box}</Tooltip> : box}
-            </span>
-          );
-        })}
-      </div>
-    );
-  };
+    const renderRow = (row: RowModel): React.ReactNode => {
+      const { item } = row;
+      const rowName = nameId(group.id, row.key);
 
-
-  const renderGroup = (entry: typeof shownGroups[number], index: number): React.ReactNode => {
-    const { group, items, open } = entry;
-    const rowKey = `g:${group.id}`;
-    const nameKey = cellKey(rowKey, 0);
-
-    return (
-      <React.Fragment key={group.id}>
+      return (
         <div
+          key={row.key}
           role={'row'}
-          aria-level={1}
-          aria-posinset={index + 1}
-          aria-setsize={shownGroups.length}
-          aria-expanded={searching ? undefined : open}
-          data-slot={'checkbox-grid-group'}
-          data-open={open || undefined}
-          data-modified={group.modified || undefined}
+          data-slot={item ? 'checkbox-grid-item' : 'checkbox-grid-all'}
           style={template}
           className={cn(
-            'grid min-h-10 border-t border-border bg-muted first:border-t-0',
-            open && !searching && 'sticky z-1',
-            open && !searching && (hasHeader ? 'top-8' : 'top-0')
+            'grid min-h-8',
+            item
+              ? 'border-t border-border hover:bg-accent focus-within:bg-accent [[data-slot=checkbox-grid-all]+&]:border-t-0'
+              : 'border-b border-input font-medium text-muted-foreground'
           )}
         >
           <span
             role={'rowheader'}
-            id={nameId(rowKey)}
-            {...cellProps(nameKey)}
-            data-slot={'checkbox-grid-group-name'}
-            className={cn('flex min-w-0 cursor-pointer items-center gap-2 ps-6 pe-2 text-sm font-semibold', ROW_FOCUS, searching && 'cursor-default ps-12')}
-            onClick={searching ? undefined : () => setGroupOpen(group.id, !open)}
+            id={rowName}
+            data-slot={'checkbox-grid-item-name'}
+            className={'flex min-w-0 items-center py-1.5 ps-12 pe-2'}
           >
-            {!searching && <ChevronGlyph open={open} />}
-            <span className={'min-w-0 truncate'}>{group.label}</span>
-            {group.meta && <span data-slot={'checkbox-grid-meta'} className={'shrink-0 text-xs font-normal text-muted-foreground'}>{group.meta}</span>}
-            {group.modified && (
-              <span data-slot={'checkbox-grid-modified'} className={'flex shrink-0 items-center gap-1.5 text-xs font-normal text-primary-soft-foreground'}>
-                <span aria-hidden={'true'} className={'size-1.5 rounded-full bg-primary'} />
-                {labels.modified}
-              </span>
-            )}
+            {item ? item.label : labels.allItems}
           </span>
 
-          {readOnly && <span role={'gridcell'} />}
+          {columns.map((column, columnIndex) => {
+            const cell = cellKey(group.id, row.key, columnIndex);
+            const labelledBy = hasHeader ? `${columnHeaderId(group.id, column)} ${rowName}` : rowName;
 
-          {!readOnly && columns.map((column, columnIndex) => {
-            if (searching) {
-              return <span key={column.id} role={'gridcell'} />;
+            if (!item) {
+              const state = parentState(group, column.id, currentValue);
+              const mixedText = state.mixed
+                ? labels.mixed({ column, group, checked: state.count, total: state.total })
+                : null;
+              const mixedId = `${uid}-${group.id}-mixed-${column.id}`;
+              const box = renderBox({
+                cell,
+                tabbable   : cell === tabbable,
+                labelledBy,
+                checked    : state.checked,
+                mixed      : state.mixed,
+                locked     : state.locked,
+                describedBy: state.locked ? lockedId : (mixedText ? mixedId : undefined),
+                onChange   : () => toggleParent(group, column)
+              });
+              const tip = mixedText ?? (state.locked ? labels.locked : null);
+
+              return (
+                <span
+                  key={column.id}
+                  role={'gridcell'}
+                  data-slot={'checkbox-grid-cell'}
+                  data-parent={''}
+                  data-locked={state.locked || undefined}
+                  className={cn('group/choice relative flex items-center justify-center', CELL_FOCUS)}
+                >
+                  {tip ? <Tooltip content={tip}>{box}</Tooltip> : box}
+                  {mixedText && <span id={mixedId} hidden>{mixedText}</span>}
+                </span>
+              );
             }
 
-            const state = parentState(group, column.id, currentValue);
-            const labelledBy = columns.length > 1 ? `${columnHeaderId(column)} ${nameId(rowKey)}` : nameId(rowKey);
+            const locked = isLocked(item, column.id);
+            const isChanged = changed(item.id, column.id);
+            const describedBy = [ locked && lockedId, isChanged && labels.changed && changedId ].filter(Boolean).join(' ');
             const box = renderBox({
-              key        : cellKey(rowKey, columnIndex + 1),
+              cell,
+              tabbable   : cell === tabbable,
               labelledBy,
-              checked    : state.checked,
-              mixed      : state.mixed,
-              locked     : state.locked,
-              describedBy: state.locked ? lockedId : undefined,
-              onChange   : () => toggleParent(group, column)
+              checked    : isChecked(currentValue, item.id, column.id),
+              locked,
+              describedBy: describedBy || undefined,
+              onChange   : (checked) => toggleItem(item, column, checked)
             });
-            const mixedTip = state.mixed ? labels.mixed({ column, group, checked: state.count, total: state.total }) : null;
-            const tip = mixedTip ?? (state.locked ? labels.locked : null);
 
             return (
               <span
                 key={column.id}
                 role={'gridcell'}
                 data-slot={'checkbox-grid-cell'}
-                data-parent={''}
-                data-locked={state.locked || undefined}
-                className={cn('group/choice flex items-center justify-center', CELL_FOCUS)}
+                data-locked={locked || undefined}
+                data-changed={isChanged || undefined}
+                className={cn('group/choice relative flex items-center justify-center', CELL_FOCUS)}
               >
-                {tip ? <Tooltip content={tip}>{box}</Tooltip> : box}
+                {locked ? <Tooltip content={labels.locked}>{box}</Tooltip> : box}
+                {isChanged && (
+                  <span
+                    aria-hidden={'true'}
+                    data-slot={'checkbox-grid-changed'}
+                    className={'absolute top-1.5 start-1/2 ms-2 size-1.5 rounded-full bg-primary'}
+                  />
+                )}
               </span>
             );
           })}
         </div>
+      );
+    };
 
-        {open && items.map((item, itemIndex) => renderItem(item, group, itemIndex, items.length))}
-      </React.Fragment>
+    return (
+      <div
+        role={'grid'}
+        aria-label={labels.groupGrid({ group })}
+        data-slot={'checkbox-grid-body'}
+        className={'pb-3'}
+        onKeyDown={handleGridKeyDown(group.id, rows)}
+      >
+        <div role={'row'} className={'sr-only'}>
+          <span role={'columnheader'}>{labels.itemsHeader}</span>
+          {columns.map((column) => (
+            <span key={column.id} role={'columnheader'} id={columnHeaderId(group.id, column)}>{column.label}</span>
+          ))}
+        </div>
+        {rows.map(renderRow)}
+      </div>
     );
   };
+
 
   // ----
   // Component Render
@@ -733,34 +713,60 @@ export function CheckboxGrid(props: CheckboxGridProps): React.ReactNode {
   return (
     <div
       {...rest}
-      ref={gridRef}
-      role={'treegrid'}
-      aria-readonly={readOnly || undefined}
+      ref={rootRef}
       data-slot={'checkbox-grid'}
       data-read-only={readOnly || undefined}
       data-searching={searching || undefined}
       className={cn('relative flex flex-col text-sm text-foreground', baseClasses, className)}
-      onKeyDown={handleKeyDown}
     >
       {hasHeader && (
         <div
-          role={'row'}
+          aria-hidden={'true'}
           data-slot={'checkbox-grid-header'}
           style={template}
           className={'sticky top-0 z-2 grid h-8 items-center border-y border-border bg-card text-xs font-semibold text-muted-foreground'}
         >
-          <span role={'columnheader'} data-slot={'checkbox-grid-column-header'} className={'ps-6'}>{labels.itemsHeader}</span>
+          <span data-slot={'checkbox-grid-column-header'} className={'ps-12'}>{labels.itemsHeader}</span>
           {columns.map((column) => (
-            <span key={column.id} id={columnHeaderId(column)} role={'columnheader'} data-slot={'checkbox-grid-column-header'} className={'text-center'}>
+            <span key={column.id} data-slot={'checkbox-grid-column-header'} className={'text-center'}>
               {column.label}
             </span>
           ))}
         </div>
       )}
 
-      {shownGroups.map(renderGroup)}
+      {shownGroups.map(({ group, items, open, complete }) => {
+        const isModified = !readOnly && groupChanged(group);
+
+        return (
+          <CollapsibleSection
+            key={group.id}
+            inset
+            headingLevel={headingLevel}
+            open={open}
+            onOpenChange={(next) => setGroupOpen(group.id, next)}
+            title={group.label}
+            status={isModified && (
+              <span data-slot={'checkbox-grid-modified'} className={'flex items-center gap-1.5'}>
+                <span aria-hidden={'true'} className={'size-1.5 rounded-full bg-primary'} />
+                {labels.modified}
+              </span>
+            )}
+            meta={labels.groupMeta({ group, selected: selectedCount(group, columns, currentValue), total: group.items.length })}
+            data-modified={isModified || undefined}
+            className={cn(
+              'first:border-t-0 [[data-slot=checkbox-grid-header]+&]:border-t-0',
+              STICKY_HEADER,
+              hasHeader ? '[&>[data-slot=collapsible-section-header]]:top-8' : '[&>[data-slot=collapsible-section-header]]:top-0'
+            )}
+          >
+            {readOnly ? renderReadOnly(group, items) : renderGrid(group, items, complete)}
+          </CollapsibleSection>
+        );
+      })}
 
       <span id={lockedId} hidden>{labels.locked}</span>
+      {labels.changed && <span id={changedId} hidden>{labels.changed}</span>}
       <span data-slot={'checkbox-grid-status'} role={'status'} className={'sr-only'}>{announcement}</span>
     </div>
   );

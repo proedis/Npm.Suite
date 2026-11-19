@@ -683,7 +683,7 @@ none of them is re-exported by the root barrel. Every module is client-only (`'u
 | `interactive/textarea` | `Textarea` |
 | `interactive/number-input` | `NumberInput` |
 | `interactive/checkbox` | `Checkbox`, `CheckboxGroup` (with a computed parent box) |
-| `interactive/checkbox-grid` | `CheckboxGrid`: boxes in groups that open and close, a parent box per column on each group |
+| `interactive/checkbox-grid` | `CheckboxGrid`: boxes in sections that open and close, a row of parent boxes in each open group |
 | `interactive/radio` | `RadioGroup`, `Radio` (classic or `variant="card"`) |
 | `interactive/switch` | `Switch` |
 | `interactive/select` | `Select`, with a search past `searchThreshold` options |
@@ -819,13 +819,16 @@ What is worth knowing before using them:
   announces it. A section that arrives from a call of its own takes `loading`, or `error` and
   `onRetry`, and the rest of the detail stays.
 - **A section that closes is a heading with a button.** `CollapsibleSection` is closed by default and
-  remembers nothing; `meta` is its summary, with the unit, and `actions` sit outside the button. No
-  animation of the height. `keepMounted` keeps a body of fields mounted while closed.
+  remembers nothing; `status` is a mark after the title, `meta` the summary on the right, with the
+  unit, and `actions` sit outside the button. No animation of the height. `keepMounted` keeps a body
+  of fields mounted while closed; `inset` runs the header edge to edge of a card.
 - **A grid of boxes is one field.** `CheckboxGrid` holds item id → checked column ids, takes the rules
   between the columns as `resolve`, and the search as `visibleItems`, since only the caller knows the
-  text of its labels. One Tab stop and the arrows inside, a parent box per column on each group,
-  computed on the editable items only, `locked` columns decided by the system, `modified` groups
-  marked, `readOnly` for consultation.
+  text of its labels. Every group is a `CollapsibleSection` whose summary (`labels.groupMeta`) counts
+  the items ticked by hand; open, its first row carries a parent box per column, computed on the
+  editable items only. Tab goes from header to header and enters each open grid once, the arrows move
+  inside. `locked` columns are decided by the system, `savedValue` marks the boxes and groups that
+  changed, every change is announced, `readOnly` is for consultation.
 - **The filters hold no value either.** `FiltersBar` takes each filter's value and change from the
   page: a list (one value or several), a list searched on the server (the panel of the Combobox),
   a period from the calendar alone. The buttons never shrink: the ones that do not fit go into "More

@@ -140,10 +140,14 @@ improvable and are not:
   rather than repeating it.
 - **`CollapsibleSection` is Base UI's `Collapsible`, not `Accordion`**: several sections open together
   need no group. It mirrors the open state only to report `data-open` on its root.
-- **`CheckboxGrid` writes its own treegrid**: Base UI has no grid. The moving tab index is a prop here,
-  unlike the Table's, because every cell is ours to render. The box is `CHECKBOX_BOX` from
+- **`CheckboxGrid` is sections, each with a grid of its own, not one treegrid.** The headers are the
+  real `CollapsibleSection` (`inset`), so they are headings and Tab stops; the body of an open group is
+  a `grid` with its own moving tab index, on the boxes themselves so the state is what gets announced.
+  Base UI has no grid, so that index is written here. A closed group has no parent boxes on purpose
+  (design system, proposal R1-1): to act on a group, open it. The box is `CHECKBOX_BOX` from
   `choice/choice.tsx`, the same recipe as `Checkbox` without the alignment on a label and without its
-  focus, which the cell carries. The search is the caller's (`visibleItems`): the labels are nodes,
+  focus, which the cell carries. The marks of change come from `savedValue`, not from a flag the
+  caller keeps. The search is the caller's (`visibleItems`): the labels are nodes,
   and only the caller knows their text. The grid template is an inline style, a free measure: its
   number of columns comes from the data.
 
