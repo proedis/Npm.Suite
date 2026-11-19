@@ -15,7 +15,7 @@ both.** 📐
 
 ## ✨ What's in the box
 
-Twenty-three primitives, the interactive components, the machinery behind them, and the stylesheet
+Twenty-seven primitives, the interactive components, the machinery behind them, and the stylesheet
 they read:
 
 ```ts

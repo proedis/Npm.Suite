@@ -528,7 +528,7 @@ narrower stylesheet is the one you have to ask for.
 
 ## Writing a new component
 
-The shape is the same in all twenty-three, and every step of it is load-bearing. In order:
+The shape is the same in all twenty-seven, and every step of it is load-bearing. In order:
 
 1. **Declare what the component owns, then compose the element onto it.**
    ```ts
