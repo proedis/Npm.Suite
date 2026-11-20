@@ -9,9 +9,9 @@
  * Constants Definition
  * -------- */
 
-/** What every pressable item is, before its size */
+/** What every pressable item is, before its size. The row itself is a Stack, which each component renders through `render` */
 export const PRESSABLE_BASE = [
-  'group/pressable relative inline-flex shrink-0 cursor-pointer items-center justify-center',
+  'group/pressable relative shrink-0 cursor-pointer',
   'border border-transparent font-medium whitespace-nowrap select-none',
   'transition-colors duration-100 motion-reduce:transition-none',
   'outline-none [&_svg]:pointer-events-none [&_svg]:shrink-0',
@@ -46,7 +46,6 @@ export const PRESSABLE_ON_LAYERS = [
  * whole: 50% off, 70% on (over the fill that is already at half).
  */
 export const PRESSABLE_CONTENT = [
-  'inline-flex items-center',
   'group-data-disabled/pressable:opacity-50 group-data-pressed/pressable:group-data-disabled/pressable:opacity-70'
 ].join(' ');
 

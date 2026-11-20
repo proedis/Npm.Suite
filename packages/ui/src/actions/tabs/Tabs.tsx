@@ -9,6 +9,8 @@ import { inertValue, optionalContextBuilder, useOverflowItems } from '@proedis/r
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 import { VisuallyHidden } from '../../primitives/VisuallyHidden';
 
 
@@ -18,6 +20,7 @@ import { Menu } from '../menu/Menu';
 import { Tooltip } from '../tooltip/Tooltip';
 
 import type { BaseProps } from '../../core/base';
+import type { SpacingValue } from '../../core/responsive';
 
 
 /* --------
@@ -105,12 +108,15 @@ interface TabsContextValue {
 
 /** No height of its own: a tab at the height of a control, and one step of padding around it */
 const RAIL: Readonly<Record<TabsSize, string>> = {
-  md: 'gap-1 rounded-lg p-1',
-  sm: 'gap-1 rounded-md p-1'
+  md: 'rounded-lg p-1',
+  sm: 'rounded-md p-1'
 };
 
+/** A tab, real or measured: the row of a button, centred */
+const TAB_LAYOUT = { inline: true, direction: 'horizontal', align: 'center', justify: 'center' } as const;
+
 const TAB_BASE = [
-  'group/tab relative inline-flex shrink-0 cursor-pointer items-center justify-center',
+  'group/tab relative shrink-0 cursor-pointer',
   'border border-transparent font-medium whitespace-nowrap select-none outline-none',
   'transition-colors duration-200 motion-reduce:transition-none [&_svg]:pointer-events-none [&_svg]:shrink-0',
   'after:absolute',
@@ -138,7 +144,7 @@ const TAB_SIZES: Readonly<Record<TabsSize, string>> = {
   sm: 'h-control-sm rounded-sm px-3.5 text-xs has-[[data-slot=tabs-tab-leading]]:ps-3 [&_svg]:size-3.5 after:-inset-x-0.5 after:-inset-y-1'
 };
 
-const CONTENT_GAP: Readonly<Record<TabsSize, string>> = { md: 'gap-1.5', sm: 'gap-1' };
+const CONTENT_GAP: Readonly<Record<TabsSize, SpacingValue>> = { md: 1.5, sm: 1 };
 
 /**
  * The fill of the open tab, one element for the whole list: Base UI measures the open tab into the
@@ -154,7 +160,7 @@ const INDICATOR = [
 const INDICATOR_RADIUS: Readonly<Record<TabsSize, string>> = { md: 'rounded-md', sm: 'rounded-sm' };
 
 const PILL = [
-  'inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-xs leading-none font-semibold tabular-nums',
+  'h-4 min-w-4 rounded-full px-1 text-xs leading-none font-semibold tabular-nums',
   'bg-muted text-muted-foreground group-hover/tab:bg-border',
   'group-data-active/tab:bg-card group-data-active/tab:text-primary-soft-foreground'
 ].join(' ');
@@ -183,22 +189,39 @@ function countText(count: number): string {
   return count > 999 ? '999+' : String(count);
 }
 
+/** The count of a tab, a pill: on the tab and on its item in "More" */
+function CountPill(props: { count: number; slot: string }): React.ReactNode {
+  return (
+    <Stack as={'span'} aria-hidden data-slot={props.slot} inline direction={'horizontal'} align={'center'} justify={'center'} className={PILL}>
+      {countText(props.count)}
+    </Stack>
+  );
+}
+
 function TabContent(props: { item: TabItem; size: TabsSize }): React.ReactNode {
   const { item, size } = props;
 
   return (
-    <span data-slot={'tabs-tab-content'} className={cn('inline-flex items-center group-data-disabled/tab:opacity-50', CONTENT_GAP[size])}>
+    <Stack
+      as={'span'}
+      data-slot={'tabs-tab-content'}
+      inline
+      direction={'horizontal'}
+      align={'center'}
+      gap={CONTENT_GAP[size]}
+      className={'group-data-disabled/tab:opacity-50'}
+    >
       {item.leading !== null && item.leading !== undefined && (
-        <span data-slot={'tabs-tab-leading'} className={'inline-flex'}>{item.leading}</span>
+        <Stack as={'span'} data-slot={'tabs-tab-leading'} inline direction={'horizontal'}>{item.leading}</Stack>
       )}
       {item.label}
       {item.count !== undefined && (
         <React.Fragment>
-          <span aria-hidden data-slot={'tabs-tab-count'} className={PILL}>{countText(item.count)}</span>
+          <CountPill count={item.count} slot={'tabs-tab-count'} />
           {item.countLabel && <VisuallyHidden>{`, ${item.countLabel}`}</VisuallyHidden>}
         </React.Fragment>
       )}
-    </span>
+    </Stack>
   );
 }
 
@@ -329,6 +352,7 @@ const TabsRoot = React.forwardRef<HTMLDivElement, TabsProps>((props, ref) => {
         value={item.value}
         disabled={item.disabled && !isActive}
         data-slot={'tabs-tab'}
+        render={<Stack as={'button'} {...TAB_LAYOUT} />}
         className={cn(TAB_BASE, TAB_SIZES[size])}
       >
         <TabContent item={item} size={size} />
@@ -372,17 +396,27 @@ const TabsRoot = React.forwardRef<HTMLDivElement, TabsProps>((props, ref) => {
           }
         }}
         data-slot={'tabs'}
-        className={cn('flex min-w-0 flex-col gap-3', baseClasses, className)}
+        render={<Stack gap={3} />}
+        className={cn('min-w-0', baseClasses, className)}
       >
-        <div ref={rowRef} data-slot={'tabs-row'} className={'relative flex w-full min-w-0'}>
-          <div data-slot={'tabs-rail'} data-size={size} className={cn('inline-flex max-w-full items-center bg-card shadow-sm', RAIL[size])}>
+        <Stack ref={rowRef} data-slot={'tabs-row'} direction={'horizontal'} className={'relative w-full min-w-0'}>
+          <Stack
+            data-slot={'tabs-rail'}
+            data-size={size}
+            inline
+            direction={'horizontal'}
+            align={'center'}
+            gap={1}
+            className={cn('max-w-full bg-card shadow-sm', RAIL[size])}
+          >
             <TabsPrimitive.List
               activateOnFocus={false}
               loopFocus
               aria-label={ariaLabel}
               aria-labelledby={ariaLabelledBy}
               data-slot={'tabs-list'}
-              className={'relative flex items-center gap-1'}
+              render={<Stack direction={'horizontal'} align={'center'} gap={1} />}
+              className={'relative'}
               onFocus={() => setFocusInside(true)}
               onBlur={handleBlur}
             >
@@ -406,44 +440,64 @@ const TabsRoot = React.forwardRef<HTMLDivElement, TabsProps>((props, ref) => {
                         description={item.disabled ? item.disabledReason : undefined}
                         onSelect={() => select(item.value)}
                       >
-                        <span className={'inline-flex items-center gap-1.5'}>
+                        <Stack as={'span'} data-slot={'tabs-more-label'} inline direction={'horizontal'} align={'center'} gap={1.5}>
                           {item.label}
-                          {item.count !== undefined && <span aria-hidden className={PILL}>{countText(item.count)}</span>}
+                          {item.count !== undefined && <CountPill count={item.count} slot={'tabs-more-count'} />}
                           {item.count !== undefined && item.countLabel && <VisuallyHidden>{`, ${item.countLabel}`}</VisuallyHidden>}
-                        </span>
+                        </Stack>
                       </Menu.Item>
                     );
                   })}
                 </Menu>
               </React.Fragment>
             )}
-          </div>
+          </Stack>
 
           {/*
             * A hidden copy of every tab, measured to know what fits. Its tabs carry the slot of the real
             * ones, so a product's rules for `[data-slot='tabs-tab']` size the copy too.
             */}
-          <div
+          <Stack
             ref={copyRef}
             data-slot={'tabs-measure'}
             aria-hidden
             inert={inertValue(true)}
-            className={'pointer-events-none invisible absolute start-0 top-0 flex items-center gap-1'}
+            direction={'horizontal'}
+            align={'center'}
+            gap={1}
+            className={'pointer-events-none invisible absolute start-0 top-0'}
           >
             {items.map((item) => (
-              <span key={item.value} data-slot={'tabs-tab'} className={cn(TAB_BASE, TAB_SIZES[size])}>
+              <Stack key={item.value} as={'span'} data-slot={'tabs-tab'} {...TAB_LAYOUT} className={cn(TAB_BASE, TAB_SIZES[size])}>
                 <TabContent item={item} size={size} />
-              </span>
+              </Stack>
             ))}
-            <span data-overflow-reserve className={'inline-flex items-center gap-1 ps-1'}>
+            <Stack
+              as={'span'}
+              data-overflow-reserve
+              data-slot={'tabs-measure-reserve'}
+              inline
+              direction={'horizontal'}
+              align={'center'}
+              gap={1}
+              className={'ps-1'}
+            >
               <span className={'mx-1 h-4 w-px'} />
-              <span className={'inline-flex items-center gap-1 px-2.5 text-xs font-medium [&_svg]:size-3.5'}>
+              <Stack
+                as={'span'}
+                data-slot={'tabs-measure-more'}
+                inline
+                direction={'horizontal'}
+                align={'center'}
+                gap={1}
+                className={'px-2.5 text-xs font-medium [&_svg]:size-3.5'}
+              >
                 {labels.overflow}
                 <ChevronGlyph />
-              </span>
-            </span>
-          </div>
-        </div>
+              </Stack>
+            </Stack>
+          </Stack>
+        </Stack>
 
         {children}
       </TabsPrimitive.Root>

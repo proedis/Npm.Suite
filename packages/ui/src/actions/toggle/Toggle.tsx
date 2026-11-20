@@ -10,6 +10,8 @@ import { optionalContextBuilder } from '@proedis/react';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 import { isPresent } from '../../internal/presence';
 import { handleRovingKeyDown } from '../roving/roving';
 import { Tooltip } from '../tooltip/Tooltip';
@@ -24,6 +26,7 @@ import {
 } from './toggleStyles';
 
 import type { BaseProps } from '../../core/base';
+import type { SpacingValue } from '../../core/responsive';
 
 
 /* --------
@@ -127,9 +130,9 @@ const SIZES: Readonly<Record<ToggleSize, string>> = {
   md: 'h-control-md rounded-md px-3 text-sm has-[[data-slot=toggle-leading]]:ps-2.5 [&_svg]:size-4'
 };
 
-const CONTENT_GAP: Readonly<Record<ToggleSize, string>> = {
-  sm: 'gap-1',
-  md: 'gap-1.5'
+const CONTENT_GAP: Readonly<Record<ToggleSize, SpacingValue>> = {
+  sm: 1,
+  md: 1.5
 };
 
 /** Alone: an outline 2px away and a halo, as the Button. In a group: inside, and a card line over the fill */
@@ -232,6 +235,7 @@ export const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>((props, r
       data-icon-only={iconOnly || undefined}
       data-size={resolvedSize}
       data-slot={'toggle'}
+      render={<Stack as={'button'} inline direction={'horizontal'} align={'center'} justify={'center'} />}
       className={cn(
         PRESSABLE_BASE,
         PRESSABLE_OFF,
@@ -245,12 +249,20 @@ export const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>((props, r
         className
       )}
     >
-      <span data-slot={'toggle-content'} className={cn(PRESSABLE_CONTENT, CONTENT_GAP[resolvedSize])}>
+      <Stack
+        as={'span'}
+        data-slot={'toggle-content'}
+        inline
+        direction={'horizontal'}
+        align={'center'}
+        gap={CONTENT_GAP[resolvedSize]}
+        className={PRESSABLE_CONTENT}
+      >
         {leading !== null && leading !== undefined && (
-          <span data-slot={'toggle-leading'} className={'inline-flex'}>{leading}</span>
+          <Stack as={'span'} data-slot={'toggle-leading'} inline direction={'horizontal'}>{leading}</Stack>
         )}
         {children}
-      </span>
+      </Stack>
     </TogglePrimitive>
   );
 
@@ -350,7 +362,8 @@ export const ToggleGroup = React.forwardRef<HTMLDivElement, ToggleGroupProps>((p
         data-size={size}
         data-disabled={disabled || undefined}
         data-pending={pending || undefined}
-        className={cn('inline-flex shrink-0 items-center gap-1', baseClasses, className)}
+        render={<Stack inline direction={'horizontal'} align={'center'} gap={1} />}
+        className={cn('shrink-0', baseClasses, className)}
       >
         {children}
       </ToggleGroupPrimitive>

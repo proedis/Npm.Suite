@@ -11,11 +11,13 @@ import { linkProps } from '../../core/link';
 import { responsiveClasses, toResponsiveMap } from '../../core/responsive';
 import { TONE_COMPOUNDS } from '../../core/tone';
 
+import { Stack } from '../../layout/Stack';
+
 import { Spinner } from '../../primitives/Spinner';
 
 import type { BaseProps } from '../../core/base';
 import type { LinkTarget } from '../../core/link';
-import type { Responsive } from '../../core/responsive';
+import type { Responsive, SpacingValue } from '../../core/responsive';
 import type { Tone, ToneFill } from '../../core/tone';
 
 
@@ -110,10 +112,10 @@ const INK_LAYER = [
 ].join(' ');
 
 /** Between the icon and the label, on the content rather than the button: the spinner is out of the flow */
-const CONTENT_GAP: Readonly<Record<ButtonSize, string>> = {
-  sm: 'gap-1',
-  md: 'gap-1.5',
-  lg: 'gap-2'
+const CONTENT_GAP: Readonly<Record<ButtonSize, SpacingValue>> = {
+  sm: 1,
+  md: 1.5,
+  lg: 2
 };
 
 /** Which layer each `fill × tone` takes */
@@ -137,6 +139,11 @@ const LAYER_COMPOUNDS = ([ 'solid', 'soft', 'plain' ] as const).flatMap((fill) =
  */
 const buttonVariants = cva(
   [
+    /*
+     * The layout stays in the recipe: `buttonVariants` is public, and a consumer who puts it on an
+     * element of its own (a link drawn as a button) gets no Stack to lay that element out
+     */
+    // eslint-disable-next-line no-restricted-syntax -- public recipe, applied by consumers to their own elements
     'relative inline-flex shrink-0 cursor-pointer items-center justify-center rounded-md',
     'border border-transparent font-medium whitespace-nowrap select-none',
     'transition-colors duration-100 motion-reduce:transition-none',
@@ -279,20 +286,36 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, r
   // ----
   const content = (
     <React.Fragment>
-      <span data-slot={'button-content'} className={cn('inline-flex items-center', CONTENT_GAP[size], loading && 'opacity-0')}>
+      <Stack
+        as={'span'}
+        data-slot={'button-content'}
+        inline
+        direction={'horizontal'}
+        align={'center'}
+        gap={CONTENT_GAP[size]}
+        className={cn(loading && 'opacity-0')}
+      >
         {leading !== null && leading !== undefined && (
-          <span data-slot={'button-leading'} className={'inline-flex'}>{leading}</span>
+          <Stack as={'span'} data-slot={'button-leading'} inline direction={'horizontal'}>{leading}</Stack>
         )}
         {children}
         {trailing !== null && trailing !== undefined && (
-          <span data-slot={'button-trailing'} className={'inline-flex'}>{trailing}</span>
+          <Stack as={'span'} data-slot={'button-trailing'} inline direction={'horizontal'}>{trailing}</Stack>
         )}
-      </span>
+      </Stack>
 
       {loading && (
-        <span data-slot={'button-spinner'} className={'absolute inset-0 inline-flex items-center justify-center'}>
+        <Stack
+          as={'span'}
+          data-slot={'button-spinner'}
+          inline
+          direction={'horizontal'}
+          align={'center'}
+          justify={'center'}
+          className={'absolute inset-0'}
+        >
           <Spinner size={'sm'} className={size === 'sm' ? 'size-3.5' : undefined} label={loadingLabel} />
-        </span>
+        </Stack>
       )}
     </React.Fragment>
   );

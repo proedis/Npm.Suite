@@ -6,6 +6,9 @@ import { Collapsible } from '@base-ui/react/collapsible';
 
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
+
+import { Stack } from '../../layout/Stack';
+
 import { isPresent } from '../../internal/presence';
 
 import type { BaseProps } from '../../core/base';
@@ -122,9 +125,9 @@ function ChevronGlyph(): React.ReactNode {
  * Several sections open together need no group, so not its `Accordion`.
  *
  * Slots: `collapsible-section` (with `data-heading-level`, `data-open`, `data-inset`), `collapsible-section-header`,
- * `collapsible-section-trigger`, `collapsible-section-chevron`, `collapsible-section-title`,
- * `collapsible-section-status`, `collapsible-section-meta`, `collapsible-section-actions`,
- * `collapsible-section-panel`.
+ * `collapsible-section-trigger`, `collapsible-section-chevron-box`, `collapsible-section-chevron`,
+ * `collapsible-section-title`, `collapsible-section-status`, `collapsible-section-meta`,
+ * `collapsible-section-actions`, `collapsible-section-panel`.
  */
 export function CollapsibleSection(props: CollapsibleSectionProps): React.ReactNode {
 
@@ -202,13 +205,14 @@ export function CollapsibleSection(props: CollapsibleSectionProps): React.ReactN
         />
       )}
     >
-      <div data-slot={'collapsible-section-header'} className={'flex min-h-10 items-center gap-2'}>
+      <Stack data-slot={'collapsible-section-header'} direction={'horizontal'} align={'center'} gap={2} className={'min-h-10'}>
         <Title className={cn('my-0 me-0 min-w-0 flex-1 text-sm', inset ? 'ms-0' : '-ms-2')}>
           <Collapsible.Trigger
             data-slot={'collapsible-section-trigger'}
             aria-labelledby={labelledBy}
+            render={<Stack as={'button'} direction={'horizontal'} align={'start'} gap={2} />}
             className={cn(
-              'group/collapsible-trigger flex min-h-10 w-full items-start gap-2 py-2.5 text-start',
+              'group/collapsible-trigger min-h-10 w-full py-2.5 text-start',
               'font-semibold text-foreground',
               'hover:bg-foreground/8',
               'outline-none focus-visible:outline-2 focus-visible:outline-ring',
@@ -217,35 +221,50 @@ export function CollapsibleSection(props: CollapsibleSectionProps): React.ReactN
                 : 'rounded-md px-2 focus-visible:outline-offset-2'
             )}
           >
-            <span className={'flex h-5 shrink-0 items-center'}><ChevronGlyph /></span>
+            <Stack as={'span'} data-slot={'collapsible-section-chevron-box'} direction={'horizontal'} align={'center'} className={'h-5 shrink-0'}>
+              <ChevronGlyph />
+            </Stack>
             <span id={titleId} data-slot={'collapsible-section-title'} className={'min-w-0'}>{title}</span>
             {hasStatus && (
-              <span
+              <Stack
+                as={'span'}
                 id={statusId}
                 data-slot={'collapsible-section-status'}
-                className={'flex h-5 shrink-0 items-center gap-1.5 text-xs font-normal text-primary-soft-foreground'}
+                direction={'horizontal'}
+                align={'center'}
+                gap={1.5}
+                className={'h-5 shrink-0 text-xs font-normal text-primary-soft-foreground'}
               >
                 {status}
-              </span>
+              </Stack>
             )}
             {hasMeta && (
-              <span
+              <Stack
+                as={'span'}
                 id={metaId}
                 data-slot={'collapsible-section-meta'}
-                className={'ms-auto flex h-5 shrink-0 items-center ps-2 text-xs font-normal text-muted-foreground'}
+                direction={'horizontal'}
+                align={'center'}
+                className={'ms-auto h-5 shrink-0 ps-2 text-xs font-normal text-muted-foreground'}
               >
                 {meta}
-              </span>
+              </Stack>
             )}
           </Collapsible.Trigger>
         </Title>
 
         {isPresent(actions) && (
-          <div data-slot={'collapsible-section-actions'} className={cn('flex shrink-0 items-center gap-1', inset && 'pe-6')}>
+          <Stack
+            data-slot={'collapsible-section-actions'}
+            direction={'horizontal'}
+            align={'center'}
+            gap={1}
+            className={cn('shrink-0', inset && 'pe-6')}
+          >
             {actions}
-          </div>
+          </Stack>
         )}
-      </div>
+      </Stack>
 
       <Collapsible.Panel
         keepMounted={keepMounted}

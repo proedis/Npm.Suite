@@ -6,6 +6,8 @@ import { Menu as MenuPrimitive } from '@base-ui/react/menu';
 
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 import { LIST_ITEM } from '../list-panel/listPanel';
 
 import { MenuContext, Panel, useAfterClose, useMenuContext } from './menuPanel';
@@ -122,12 +124,24 @@ const ITEM_TONE = {
   destructive: 'text-destructive data-highlighted:bg-destructive-soft data-highlighted:text-destructive-soft-foreground'
 } as const;
 
-const ITEM_ICON = 'mt-0.5 inline-flex shrink-0 text-muted-foreground group-data-disabled/menu-item:opacity-50 [&_svg]:size-4';
+const ITEM_ICON = 'mt-0.5 shrink-0 text-muted-foreground group-data-disabled/menu-item:opacity-50 [&_svg]:size-4';
+
+/** The mark at the end of a checkbox or radio item, shown when it is chosen */
+const ITEM_INDICATOR = <Stack as={'span'} inline direction={'horizontal'} />;
 
 
 /* --------
  * Helpers
  * -------- */
+
+/** The icon before the label of an item */
+function ItemIcon(props: { className?: string; children: React.ReactNode }): React.ReactNode {
+  return (
+    <Stack as={'span'} data-slot={'menu-item-icon'} inline direction={'horizontal'} className={cn(ITEM_ICON, props.className)}>
+      {props.children}
+    </Stack>
+  );
+}
 
 function ChevronEndGlyph(): React.ReactNode {
   return (
@@ -159,16 +173,16 @@ function ItemContent(props: {
   return (
     <React.Fragment>
       {icon !== null && icon !== undefined && (
-        <span data-slot={'menu-item-icon'} className={cn(ITEM_ICON, tone === 'destructive' && 'text-current')}>{icon}</span>
+        <ItemIcon className={tone === 'destructive' ? 'text-current' : undefined}>{icon}</ItemIcon>
       )}
-      <span className={'flex min-w-0 flex-1 flex-col'}>
+      <Stack as={'span'} data-slot={'menu-item-text'} className={'min-w-0 flex-1'}>
         <span data-slot={'menu-item-label'} className={'group-data-disabled/menu-item:opacity-50'}>{children}</span>
         {description !== null && description !== undefined && description !== '' && (
           <span id={descriptionId} data-slot={'menu-item-description'} className={'text-xs text-muted-foreground'}>
             {description}
           </span>
         )}
-      </span>
+      </Stack>
     </React.Fragment>
   );
 }
@@ -198,8 +212,9 @@ function ItemContent(props: {
  * closes. Opened with the pointer it has no active item.
  *
  * Parts with a slot: `menu` (the panel), `menu-item` (with `data-tone`), `menu-item-icon`,
- * `menu-item-label`, `menu-item-description`, `menu-group`, `menu-group-label`, `menu-separator`,
- * `menu-checkbox-item`, `menu-radio-item`, `menu-submenu-trigger`.
+ * `menu-item-text`, `menu-item-label`, `menu-item-description`, `menu-group`, `menu-group-label`,
+ * `menu-separator`, `menu-checkbox-item`, `menu-checkbox-item-indicator`, `menu-radio-item`,
+ * `menu-radio-item-indicator`, `menu-submenu-trigger`.
  */
 function MenuRoot(props: MenuProps): React.ReactNode {
 
@@ -401,7 +416,11 @@ function MenuRadioItem(props: MenuRadioItemProps): React.ReactNode {
   return (
     <MenuPrimitive.RadioItem value={value} disabled={disabled} data-slot={'menu-radio-item'} className={cn(ITEM, 'data-checked:font-medium')}>
       <span className={'min-w-0 flex-1 group-data-disabled/menu-item:opacity-50'}>{children}</span>
-      <MenuPrimitive.RadioItemIndicator className={'ms-auto mt-0.5 inline-flex shrink-0 text-primary [&_svg]:size-4'}>
+      <MenuPrimitive.RadioItemIndicator
+        data-slot={'menu-radio-item-indicator'}
+        render={ITEM_INDICATOR}
+        className={'ms-auto mt-0.5 shrink-0 text-primary [&_svg]:size-4'}
+      >
         <CheckGlyph />
       </MenuPrimitive.RadioItemIndicator>
     </MenuPrimitive.RadioItem>
@@ -423,7 +442,11 @@ function MenuCheckboxItem(props: MenuCheckboxItemProps): React.ReactNode {
       className={cn(ITEM, 'data-checked:font-medium')}
     >
       <span className={'min-w-0 flex-1 group-data-disabled/menu-item:opacity-50'}>{children}</span>
-      <MenuPrimitive.CheckboxItemIndicator className={'ms-auto mt-0.5 inline-flex shrink-0 text-primary [&_svg]:size-4'}>
+      <MenuPrimitive.CheckboxItemIndicator
+        data-slot={'menu-checkbox-item-indicator'}
+        render={ITEM_INDICATOR}
+        className={'ms-auto mt-0.5 shrink-0 text-primary [&_svg]:size-4'}
+      >
         <CheckGlyph />
       </MenuPrimitive.CheckboxItemIndicator>
     </MenuPrimitive.CheckboxItem>
@@ -443,7 +466,7 @@ function MenuSubmenu(props: MenuSubmenuProps): React.ReactNode {
   return (
     <MenuPrimitive.SubmenuRoot>
       <MenuPrimitive.SubmenuTrigger openOnHover delay={100} disabled={disabled} data-slot={'menu-submenu-trigger'} className={ITEM}>
-        {icon !== null && icon !== undefined && <span data-slot={'menu-item-icon'} className={ITEM_ICON}>{icon}</span>}
+        {icon !== null && icon !== undefined && <ItemIcon>{icon}</ItemIcon>}
         <span className={'min-w-0 flex-1 group-data-disabled/menu-item:opacity-50'}>{label}</span>
         <ChevronEndGlyph />
       </MenuPrimitive.SubmenuTrigger>

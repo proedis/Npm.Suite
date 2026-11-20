@@ -2,6 +2,8 @@ import * as React from 'react';
 
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 
 /*
  * The list that opens under Select, MultiSelect and Combobox, under the filters of the FiltersBar,
@@ -48,6 +50,7 @@ export const LIST_SIDE_OFFSET = 4;
 
 /** The panel: as wide as the field, never under 160px, never taller than the room there is */
 export const LIST_PANEL = [
+  // eslint-disable-next-line no-restricted-syntax -- shared class constant consumed by forms and data, migrated with them
   'flex max-h-(--available-height) w-(--anchor-width) min-w-40 flex-col',
   'rounded-md bg-popover p-1 text-sm text-popover-foreground shadow-md outline-none',
   'transition-opacity duration-150 data-starting-style:opacity-0 data-ending-style:opacity-0',
@@ -62,6 +65,7 @@ export const LIST_ITEMS = 'max-h-68 overflow-y-auto scrollbar-thin outline-none'
  * pointer or the keyboard, the same surface; disabled at half, skipped by the arrows.
  */
 export const LIST_ITEM = [
+  // eslint-disable-next-line no-restricted-syntax -- shared class constant consumed by forms and data, migrated with them
   'relative flex min-h-8 cursor-default items-start gap-2 rounded-sm px-2 py-1.5 outline-none select-none',
   'data-highlighted:bg-accent data-highlighted:text-accent-foreground',
   'data-disabled:opacity-50'
@@ -69,6 +73,7 @@ export const LIST_ITEM = [
 
 /** The search row at the top of a panel: 32px, a rule under it, out of the scrolling area */
 export const LIST_SEARCH = [
+  // eslint-disable-next-line no-restricted-syntax -- shared class constant consumed by forms and data, migrated with them
   '-mx-1 -mt-1 mb-1 flex h-8 shrink-0 items-center gap-2 border-b border-border px-3',
   '[&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground'
 ].join(' ');
@@ -79,15 +84,18 @@ export const LIST_SEARCH_INPUT = 'h-full min-w-0 flex-1 bg-transparent outline-n
 export const LIST_MESSAGE = 'px-2 py-1.5 text-muted-foreground';
 
 /** The footer of actions: a rule above it, out of the scrolling area */
+// eslint-disable-next-line no-restricted-syntax -- shared class constant consumed by forms and data, migrated with them
 export const LIST_FOOTER = '-mx-1 -mb-1 mt-1 flex h-9 shrink-0 items-center justify-between gap-1 border-t border-border px-0.5';
 
 /** The box of an option of a multiple list, filled with `primary` when the option is chosen */
 export const LIST_OPTION_BOX = [
+  // eslint-disable-next-line no-restricted-syntax -- shared class constant consumed by forms and data, migrated with them
   'mt-0.5 inline-flex size-4 shrink-0 items-center justify-center rounded-sm border border-input bg-card text-primary-foreground',
   'group-data-selected/option:border-transparent group-data-selected/option:bg-primary'
 ].join(' ');
 
 /** A chosen value inside a multiple field */
+// eslint-disable-next-line no-restricted-syntax -- shared class constant consumed by forms and data, migrated with them
 export const LIST_CHIP = 'inline-flex h-5 max-w-full shrink-0 items-center gap-0.5 rounded-sm bg-secondary ps-1.5 text-xs font-medium text-secondary-foreground';
 
 /** Values listed by name in a tooltip, at most; past it, one line says how many more */
@@ -143,12 +151,12 @@ export function OverflowTooltipList(props: OverflowTooltipListProps): React.Reac
   const { rest, values } = props;
 
   return (
-    <span className={'flex flex-col'}>
+    <Stack as={'span'} data-slot={'list-overflow-values'}>
       {values.slice(0, TOOLTIP_LIST_LIMIT).map((value, index) => <span key={index}>{value}</span>)}
       {rest && values.length > TOOLTIP_LIST_LIMIT && (
         <span className={'text-tooltip-muted-foreground'}>{rest(values.length - TOOLTIP_LIST_LIMIT)}</span>
       )}
-    </span>
+    </Stack>
   );
 }
 
@@ -156,9 +164,16 @@ export function OverflowTooltipList(props: OverflowTooltipListProps): React.Reac
 /** The end of a list field: what comes before the arrow (a clear button), then the arrow or the spinner */
 export function ListFieldEnd(props: ListFieldEndProps): React.ReactNode {
   return (
-    <span data-slot={'list-field-end'} className={cn('flex shrink-0 items-center gap-1', props.className)}>
+    <Stack
+      as={'span'}
+      data-slot={'list-field-end'}
+      direction={'horizontal'}
+      align={'center'}
+      gap={1}
+      className={cn('shrink-0', props.className)}
+    >
       {props.children}
       {props.loading ? props.spinner : <ChevronGlyph />}
-    </span>
+    </Stack>
   );
 }

@@ -10,6 +10,7 @@ import { optionalContextBuilder, useEnhancedEffect, useForkRef } from '@proedis/
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
 
 import { isPresent } from '../../internal/presence';
 import { handleRovingKeyDown } from '../roving/roving';
@@ -17,6 +18,7 @@ import { FOCUS_INSIDE, PRESSABLE_BASE, PRESSABLE_CONTENT, PRESSABLE_OFF } from '
 import { Tooltip } from '../tooltip/Tooltip';
 
 import type { BaseProps } from '../../core/base';
+import type { SpacingValue } from '../../core/responsive';
 
 
 /* --------
@@ -117,10 +119,19 @@ interface SegmentedContextValue {
  * The rail: `muted` with a 1px inner line, the items in equal columns as wide as the longest. Its
  * height is the control's, so the items are what the padding leaves: 24 in 32, 22 in 28.
  */
+/* eslint-disable no-restricted-syntax -- the gap of the rail, a grid of implicit columns (see RAIL) */
 const RAIL_SIZES: Readonly<Record<SegmentedControlSize, string>> = {
   md: 'h-control-md gap-1 p-1',
   sm: 'h-control-sm gap-0.75 p-0.75'
 };
+/* eslint-enable no-restricted-syntax */
+
+/**
+ * As many equal columns as there are items, as wide as the longest, with no count to give: a grid that
+ * flows into implicit columns (`grid-flow-col auto-cols-fr`), which `columns` cannot say
+ */
+// eslint-disable-next-line no-restricted-syntax -- implicit columns from the items, not a column count
+const RAIL = 'relative inline-grid shrink-0 grid-flow-col auto-cols-fr items-stretch rounded-md bg-muted inset-ring inset-ring-border';
 
 /** The item, and an active area reaching half the gap and the rail's edge: a click between two never misses */
 const ITEM_SIZES: Readonly<Record<SegmentedControlSize, string>> = {
@@ -128,9 +139,9 @@ const ITEM_SIZES: Readonly<Record<SegmentedControlSize, string>> = {
   sm: 'px-3 text-xs has-[[data-slot=segmented-control-leading]]:ps-2.5 data-icon-only:w-7.5 [&_svg]:size-3.5 after:-inset-x-0.25 after:-inset-y-0.75'
 };
 
-const CONTENT_GAP: Readonly<Record<SegmentedControlSize, string>> = {
-  md: 'gap-1.5',
-  sm: 'gap-1'
+const CONTENT_GAP: Readonly<Record<SegmentedControlSize, SpacingValue>> = {
+  md: 1.5,
+  sm: 1
 };
 
 /**
@@ -245,6 +256,7 @@ function SegmentedControlItem(props: SegmentedControlItemProps, ref: React.Forwa
       data-disabled={isDisabled || undefined}
       data-icon-only={iconOnly || undefined}
       data-slot={'segmented-control-item'}
+      render={<Stack as={'button'} inline direction={'horizontal'} align={'center'} justify={'center'} />}
       className={cn(
         PRESSABLE_BASE,
         'duration-200',
@@ -257,12 +269,20 @@ function SegmentedControlItem(props: SegmentedControlItemProps, ref: React.Forwa
         className
       )}
     >
-      <span data-slot={'segmented-control-content'} className={cn(PRESSABLE_CONTENT, CONTENT_GAP[size])}>
+      <Stack
+        as={'span'}
+        data-slot={'segmented-control-content'}
+        inline
+        direction={'horizontal'}
+        align={'center'}
+        gap={CONTENT_GAP[size]}
+        className={PRESSABLE_CONTENT}
+      >
         {leading !== null && leading !== undefined && (
-          <span data-slot={'segmented-control-leading'} className={'inline-flex'}>{leading}</span>
+          <Stack as={'span'} data-slot={'segmented-control-leading'} inline direction={'horizontal'}>{leading}</Stack>
         )}
         {children}
-      </span>
+      </Stack>
     </TogglePrimitive>
   );
 
@@ -455,7 +475,7 @@ const SegmentedControlRoot = React.forwardRef<HTMLDivElement, SegmentedControlPr
         data-size={size}
         data-disabled={disabled || undefined}
         className={cn(
-          'relative inline-grid shrink-0 grid-flow-col auto-cols-fr items-stretch rounded-md bg-muted inset-ring inset-ring-border',
+          RAIL,
           'has-data-icon-only:auto-cols-auto',
 
           /* Transparent until the system draws borders itself: then it becomes the frame */
