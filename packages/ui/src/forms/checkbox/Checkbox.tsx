@@ -11,8 +11,9 @@ import { optionalContextBuilder, useEnhancedEffect } from '@proedis/react';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
-import { CHECKBOX_BOX, CHOICE_ALIGN, CHOICE_FOCUS, CHOICE_ROW, CheckGlyph, ChoiceText, DashGlyph, GROUP_FOCUS_PROPS, baseOrientation, choiceGroupClasses } from '../choice/choice';
+import { CHECKBOX_BOX, CHOICE_ALIGN, CHOICE_FOCUS, CHOICE_ROW, ChoiceText, GROUP_FOCUS_PROPS, baseOrientation, choiceGroupClasses } from '../choice/choice';
 import { isPresent } from '../../internal/presence';
+import { CheckGlyph, DashGlyph } from '../../internal/glyphs';
 import {
   useFieldControl,
   useFieldRegistryContext,

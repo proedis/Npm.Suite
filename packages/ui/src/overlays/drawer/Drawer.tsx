@@ -27,7 +27,7 @@ import {
   useOverlayBusy
 } from '../overlay-shell/overlayShell';
 import { isPresent } from '../../internal/presence';
-import { ClearGlyph } from '../../forms/text-input/glyphs';
+import { ClearGlyph } from '../../internal/glyphs';
 
 import type { ButtonProps } from '../../actions/button/Button';
 import type { DialogDiscard, DialogLabels } from '../dialog/Dialog';

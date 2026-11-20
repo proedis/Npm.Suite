@@ -10,8 +10,8 @@ import { IconButton } from '../../actions/button/IconButton';
 import { useFieldControl, useNonNativeFieldLabel } from '../../forms/field/fieldContext';
 import { OverflowTooltipList } from '../../actions/list-panel/listPanel';
 import { TEXT_CONTROL_FRAME, TEXT_CONTROL_SIZES, textControlState } from '../../forms/text-control/textControl';
-import { ClearGlyph } from '../../forms/text-input/glyphs';
 import { Tooltip } from '../../actions/tooltip/Tooltip';
+import { ClearGlyph } from '../../internal/glyphs';
 
 import type { BaseProps } from '../../core/base';
 import type { TextControlSize } from '../../forms/text-control/textControl';

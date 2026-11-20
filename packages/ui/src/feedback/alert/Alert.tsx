@@ -15,8 +15,7 @@ import { VisuallyHidden } from '../../primitives/VisuallyHidden';
 import { IconButton } from '../../actions/button/IconButton';
 import { FOCUSABLE } from '../../internal/focus';
 import { isPresent } from '../../internal/presence';
-import { ClearGlyph } from '../../forms/text-input/glyphs';
-import { ToneGlyph } from '../../internal/toneGlyphs';
+import { ClearGlyph, ToneGlyph } from '../../internal/glyphs';
 
 import type { BaseProps } from '../../core/base';
 

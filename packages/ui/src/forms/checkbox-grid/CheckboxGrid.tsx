@@ -9,9 +9,10 @@ import { useAnnouncer } from '@proedis/react';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
-import { CHECKBOX_BOX, CheckGlyph, DashGlyph } from '../choice/choice';
+import { CHECKBOX_BOX } from '../choice/choice';
 import { CollapsibleSection } from '../../actions/collapsible/CollapsibleSection';
 import { Tooltip } from '../../actions/tooltip/Tooltip';
+import { CheckGlyph, DashGlyph } from '../../internal/glyphs';
 
 import type { BaseProps } from '../../core/base';
 import type { CollapsibleSectionHeadingLevel } from '../../actions/collapsible/CollapsibleSection';

@@ -14,7 +14,6 @@ import { Spinner } from '../../primitives/Spinner';
 import { VisuallyHidden } from '../../primitives/VisuallyHidden';
 
 import { Button } from '../../actions/button/Button';
-import { CheckGlyph } from '../choice/choice';
 import { useFieldControl, useNonNativeFieldLabel } from '../field/fieldContext';
 import {
   LIST_FOOTER,
@@ -27,13 +26,12 @@ import {
   LIST_SEARCH,
   LIST_SEARCH_INPUT,
   LIST_SIDE_OFFSET,
-  ListChips,
   ListFieldEnd,
-  matchesSearch,
-  toggleFromFrame
+  matchesSearch
 } from '../../actions/list-panel/listPanel';
+import { ListChips, toggleFromFrame } from '../list-field/listField';
 import { TEXT_CONTROL_FRAME, TEXT_CONTROL_SIZES, textControlState } from '../text-control/textControl';
-import { SearchGlyph } from '../text-input/glyphs';
+import { CheckGlyph, SearchGlyph } from '../../internal/glyphs';
 
 import type { BaseProps } from '../../core/base';
 

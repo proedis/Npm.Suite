@@ -10,10 +10,10 @@ import { cn } from '../../core/cn';
 import { Button } from '../../actions/button/Button';
 import { IconButton } from '../../actions/button/IconButton';
 import { useFieldControl, useNonNativeFieldLabel } from '../field/fieldContext';
-import { ClearGlyph } from '../text-input/glyphs';
 
 import { acceptsFile, guardDocumentDrop, validateFiles } from './fileRules';
 import { FileRow, FileThumbnail, UploadGlyph } from './FileRow';
+import { ClearGlyph } from '../../internal/glyphs';
 
 import type { BaseProps } from '../../core/base';
 

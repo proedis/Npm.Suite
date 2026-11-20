@@ -12,7 +12,7 @@ import { FormHostContext } from '../../forms/field/fieldContext';
 import { FOCUSABLE } from '../../internal/focus';
 import { FormSubmit } from '../../forms/form/Form';
 import { isPresent } from '../../internal/presence';
-import { ClearGlyph } from '../../forms/text-input/glyphs';
+import { ClearGlyph } from '../../internal/glyphs';
 
 
 /* --------

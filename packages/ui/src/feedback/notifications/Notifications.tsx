@@ -11,10 +11,9 @@ import { VisuallyHidden } from '../../primitives/VisuallyHidden';
 
 import { Button } from '../../actions/button/Button';
 import { IconButton } from '../../actions/button/IconButton';
-import { ClearGlyph } from '../../forms/text-input/glyphs';
-import { ToneGlyph } from '../../internal/toneGlyphs';
 
 import { NotificationsContext, StatusMark, useNotificationsState } from './toastShared';
+import { ClearGlyph, ToneGlyph } from '../../internal/glyphs';
 
 import type { Job, JobStatus, Notifications, NotificationsState, UndoOptions } from './notificationsStore';
 

@@ -1,6 +1,5 @@
 import * as React from 'react';
 
-import { cn } from '../../core/cn';
 import { responsiveClasses } from '../../core/responsive';
 import { isPresent } from '../../internal/presence';
 
@@ -173,51 +172,4 @@ export function ChoiceText(props: ChoiceTextProps): React.ReactNode {
     </span>
   );
 
-}
-
-
-/* --------
- * Glyphs
- * -------- */
-
-interface GlyphProps {
-  className?: string;
-}
-
-/** The tick of a checked box, a stroke of 2 on a grid of 12 */
-export function CheckGlyph(props: GlyphProps): React.ReactNode {
-  return (
-    <svg
-      viewBox={'0 0 12 12'}
-      fill={'none'}
-      stroke={'currentColor'}
-      strokeWidth={2}
-      strokeLinecap={'round'}
-      strokeLinejoin={'round'}
-      aria-hidden={'true'}
-      focusable={'false'}
-      className={cn('size-3', props.className)}
-    >
-      <path d={'M2.5 6.25l2.25 2.25 4.75-5'} />
-    </svg>
-  );
-}
-
-
-/** The dash of a partial box: the same weight as the tick, only the mark changes */
-export function DashGlyph(props: GlyphProps): React.ReactNode {
-  return (
-    <svg
-      viewBox={'0 0 12 12'}
-      fill={'none'}
-      stroke={'currentColor'}
-      strokeWidth={2}
-      strokeLinecap={'round'}
-      aria-hidden={'true'}
-      focusable={'false'}
-      className={cn('size-3', props.className)}
-    >
-      <path d={'M3 6h6'} />
-    </svg>
-  );
 }

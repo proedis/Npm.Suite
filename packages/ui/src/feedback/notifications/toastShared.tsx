@@ -8,8 +8,8 @@ import { cn } from '../../core/cn';
 import { TONE_CLASSES } from '../../core/tone';
 
 import { Spinner } from '../../primitives/Spinner';
+import { ToneGlyph } from '../../internal/glyphs';
 
-import { ToneGlyph } from '../../internal/toneGlyphs';
 
 import type { JobStatus, Notifications, NotificationsState } from './notificationsStore';
 

@@ -18,7 +18,7 @@ import { dateOrderOf, maskDate, maskRange, RANGE_SEPARATOR, readDate, readPasted
 import { useFieldControl, useNonNativeFieldLabel } from '../field/fieldContext';
 import { LIST_POSITIONER, LIST_SIDE_OFFSET } from '../../actions/list-panel/listPanel';
 import { TEXT_CONTROL_FRAME, TEXT_CONTROL_SIZES, TEXT_CONTROL_TEXT, textControlState } from '../text-control/textControl';
-import { ClearGlyph } from '../text-input/glyphs';
+import { ClearGlyph } from '../../internal/glyphs';
 
 import type { BaseProps } from '../../core/base';
 

@@ -10,21 +10,19 @@ import { Spinner } from '../../primitives/Spinner';
 
 
 import { Button } from '../../actions/button/Button';
-import { CheckGlyph } from '../../forms/choice/choice';
+import { CheckGlyph, SearchGlyph } from '../../internal/glyphs';
 import {
   LIST_FOOTER,
   LIST_ITEM,
   LIST_ITEMS,
   LIST_MESSAGE,
   LIST_OPTION_BOX,
-  LIST_RETRY,
   LIST_SEARCH,
   LIST_SEARCH_INPUT,
   matchesSearch,
-  normalizeForSearch,
-  remoteListMessages
+  normalizeForSearch
 } from '../../actions/list-panel/listPanel';
-import { SearchGlyph } from '../../forms/text-input/glyphs';
+import { LIST_RETRY, remoteListMessages } from '../../forms/list-field/listField';
 
 import type { FilterOption, FiltersBarLabels, RemoteListFilter } from './filtersBarTypes';
 

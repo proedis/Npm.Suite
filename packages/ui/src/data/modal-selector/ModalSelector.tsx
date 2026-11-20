@@ -11,7 +11,6 @@ import { cn } from '../../core/cn';
 
 import { Button } from '../../actions/button/Button';
 import { IconButton } from '../../actions/button/IconButton';
-import { CheckGlyph } from '../../forms/choice/choice';
 import { Dialog } from '../../overlays/dialog/Dialog';
 import { EmptyState } from '../../feedback/empty-state/EmptyState';
 import { FiltersBar } from '../filters-bar/FiltersBar';
@@ -22,8 +21,8 @@ import { useTableFormats } from '../table/tableFormats';
 import { TableGlyph } from '../table/tableGlyphs';
 import { CELL, ColumnGroup, HEAD, PIN_START, ROW, SkeletonRows, TruncationTooltip, markScroll } from '../table/tableParts';
 import { EMPTY_SELECTION, isRowSelected, selectionCount, setRowsSelected } from '../table/tableState';
-import { ClearGlyph } from '../../forms/text-input/glyphs';
 import { Tooltip } from '../../actions/tooltip/Tooltip';
+import { CheckGlyph, ClearGlyph } from '../../internal/glyphs';
 
 import type { TableColumn, TableSelection } from '../table/tableTypes';
 

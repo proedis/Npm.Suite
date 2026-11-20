@@ -14,7 +14,6 @@ import { Spinner } from '../../primitives/Spinner';
 
 
 import { IconButton } from '../../actions/button/IconButton';
-import { CheckGlyph } from '../choice/choice';
 import { useFieldControl } from '../field/fieldContext';
 import {
   ChevronGlyph,
@@ -23,14 +22,13 @@ import {
   LIST_MESSAGE,
   LIST_PANEL,
   LIST_POSITIONER,
-  LIST_RETRY,
-  LIST_SIDE_OFFSET,
-  remoteListMessages
+  LIST_SIDE_OFFSET
 } from '../../actions/list-panel/listPanel';
+import { LIST_RETRY, remoteListMessages } from '../list-field/listField';
 import { TEXT_CONTROL_FRAME, TEXT_CONTROL_SIZES, TEXT_CONTROL_TEXT, textControlState } from '../text-control/textControl';
-import { ClearGlyph, SearchGlyph } from '../text-input/glyphs';
 
 import { MultipleCombobox } from './MultipleCombobox';
+import { CheckGlyph, ClearGlyph, SearchGlyph } from '../../internal/glyphs';
 
 import type { ComboboxItem, ComboboxProps, SingleComboboxProps } from './comboboxTypes';
 

@@ -16,7 +16,7 @@ import { VisuallyHidden } from '../../primitives/VisuallyHidden';
 
 import { FOCUSABLE } from '../../internal/focus';
 import { isPresent } from '../../internal/presence';
-import { ToneGlyph } from '../../internal/toneGlyphs';
+import { ToneGlyph } from '../../internal/glyphs';
 
 
 /*

@@ -14,7 +14,6 @@ import { cn } from '../../core/cn';
 import { Spinner } from '../../primitives/Spinner';
 
 import { IconButton } from '../../actions/button/IconButton';
-import { CheckGlyph } from '../choice/choice';
 import { useFieldControl, useNonNativeFieldLabel } from '../field/fieldContext';
 import {
   LIST_ITEM,
@@ -27,11 +26,11 @@ import {
   LIST_SIDE_OFFSET,
   ListFieldEnd,
   matchesSearch,
-  normalizeForSearch,
-  toggleFromFrame
+  normalizeForSearch
 } from '../../actions/list-panel/listPanel';
+import { toggleFromFrame } from '../list-field/listField';
 import { TEXT_CONTROL_FRAME, TEXT_CONTROL_SIZES, TEXT_CONTROL_TEXT, textControlState } from '../text-control/textControl';
-import { ClearGlyph, SearchGlyph } from '../text-input/glyphs';
+import { CheckGlyph, ClearGlyph, SearchGlyph } from '../../internal/glyphs';
 
 import type { BaseProps } from '../../core/base';
 

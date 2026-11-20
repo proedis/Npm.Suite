@@ -10,6 +10,7 @@ import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 import { responsiveClasses, toResponsiveMap } from '../../core/responsive';
 import { isPresent } from '../../internal/presence';
+import { ErrorGlyph } from '../../internal/glyphs';
 
 import {
   FieldControlContext,
@@ -21,7 +22,6 @@ import {
   useFormErrorRegistryContext,
   useFormSectionContext
 } from './fieldContext';
-import { ErrorGlyph } from './glyphs';
 
 import type { BaseProps } from '../../core/base';
 import type { Direction, Responsive } from '../../core/responsive';

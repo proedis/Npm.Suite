@@ -11,11 +11,11 @@ import { Spinner } from '../../primitives/Spinner';
 import { Button } from '../../actions/button/Button';
 import { IconButton } from '../../actions/button/IconButton';
 import { LIST_POSITIONER, LIST_SIDE_OFFSET, ListFieldEnd, OverflowTooltipList } from '../../actions/list-panel/listPanel';
-import { ClearGlyph } from '../../forms/text-input/glyphs';
 import { Tooltip } from '../../actions/tooltip/Tooltip';
 
 import { FilterBody, filterPanelClass } from './FilterBody';
 import { clearFilter, filterValueLabels, isFilterActive } from './filtersBarState';
+import { ClearGlyph } from '../../internal/glyphs';
 
 import type { FiltersBarFilter, FiltersBarLabels } from './filtersBarTypes';
 

@@ -8,8 +8,7 @@ import { cn } from '../../core/cn';
 import { IconBox } from '../../display/icon-box/IconBox';
 
 import { Button } from '../../actions/button/Button';
-import { ClearGlyph } from '../../forms/text-input/glyphs';
-import { ToneGlyph } from '../../internal/toneGlyphs';
+import { ClearGlyph, ToneGlyph } from '../../internal/glyphs';
 
 import type { BaseProps } from '../../core/base';
 import type { LinkTarget } from '../../core/link';

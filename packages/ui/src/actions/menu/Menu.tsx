@@ -6,10 +6,10 @@ import { Menu as MenuPrimitive } from '@base-ui/react/menu';
 
 import { cn } from '../../core/cn';
 
-import { CheckGlyph } from '../../forms/choice/choice';
 import { LIST_ITEM } from '../list-panel/listPanel';
 
 import { MenuContext, Panel, useAfterClose, useMenuContext } from './menuPanel';
+import { CheckGlyph } from '../../internal/glyphs';
 
 import type { LinkTarget } from '../../core/link';
 
