@@ -72,8 +72,14 @@ const WIDTHS = { sm: 'w-70', md: 'w-80' } as const;
  * Helpers
  * -------- */
 
+/**
+ * The first element that can take the focus, the x excluded. Without a title the x is rendered at the
+ * top of the body, so a plain first match would hand the opening focus to it.
+ */
 function firstFocusable(container: HTMLElement | null): HTMLElement | null {
-  return container?.querySelector<HTMLElement>(FOCUSABLE) ?? null;
+  const found = container?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? [];
+
+  return Array.from(found).find((element) => element.dataset.slot !== 'popover-close') ?? null;
 }
 
 function ArrowGlyph(): React.ReactNode {
