@@ -61,7 +61,7 @@ export type AvatarProps = AvatarIdentity & BaseProps & {
   className?: string;
 };
 
-export interface PersonProps extends BaseProps {
+export interface StrictPersonProps extends BaseProps {
   /** The circle; decorative here */
   avatar: AvatarIdentity;
 
@@ -86,6 +86,8 @@ export interface PersonProps extends BaseProps {
   className?: string;
 }
 
+export type PersonProps = StrictPersonProps & Omit<React.ComponentProps<'span'>, keyof StrictPersonProps | 'ref'>;
+
 export interface AvatarGroupItem {
   readonly id: string;
   readonly avatar: AvatarIdentity;
@@ -96,7 +98,7 @@ export interface AvatarGroupItem {
   readonly description?: React.ReactNode;
 }
 
-export interface AvatarGroupProps extends BaseProps {
+export interface StrictAvatarGroupProps extends BaseProps {
   items: readonly AvatarGroupItem[];
 
   /** Circles shown at most. The count appears from two hidden up. Defaults to 3 */
@@ -113,6 +115,12 @@ export interface AvatarGroupProps extends BaseProps {
 
   className?: string;
 }
+
+/** The native props and the ref reach the button that opens the list */
+export type AvatarGroupProps = StrictAvatarGroupProps & Omit<
+  React.ComponentProps<'button'>,
+  keyof StrictAvatarGroupProps | 'ref' | 'children' | 'aria-label'
+>;
 
 
 /* --------
@@ -174,7 +182,7 @@ function KindGlyph(props: { kind: keyof typeof GLYPHS }): React.ReactNode {
  * `Person`, `AvatarGroup`) it is decorative. The initials appear at once without a photo, after a
  * moment with one, so a fast photo never flashes letters.
  *
- * Parts with a slot: `avatar` (with `data-kind`, `data-size`, `data-current`, `data-inactive`),
+ * Parts with a slot: `avatar` (with `data-kind`, `data-size`, `data-current`, `data-inactive`, `data-decorative`),
  * `avatar-image`, `avatar-fallback`.
  */
 export const Avatar = React.forwardRef<HTMLSpanElement, AvatarProps>((props, ref) => {
@@ -182,8 +190,10 @@ export const Avatar = React.forwardRef<HTMLSpanElement, AvatarProps>((props, ref
   // ----
   // Props Deconstruct
   // ----
-  const { className, decorative = false, hideBelow, hideFrom, size = 24, stateLabel, ...identity } = props;
-  const { baseClasses } = splitBaseProps({ hideBelow, hideFrom });
+  const { className, decorative = false, hideBelow: _hideBelow, hideFrom: _hideFrom, size = 24, stateLabel, ...identity } = props;
+
+  /* The classes from every shared prop, read off the whole props: a new one cannot be dropped here */
+  const { baseClasses } = splitBaseProps(props);
 
 
   // ----
@@ -223,6 +233,7 @@ export const Avatar = React.forwardRef<HTMLSpanElement, AvatarProps>((props, ref
       data-size={size}
       data-current={current || undefined}
       data-inactive={inactive || undefined}
+      data-decorative={decorative || undefined}
       className={cn(
         'relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full font-semibold select-none',
         'after:pointer-events-none after:absolute after:inset-0 after:rounded-full after:inset-ring after:inset-ring-foreground/8',
@@ -270,13 +281,13 @@ Avatar.displayName = 'Avatar';
  * Parts with a slot: `person` (with `data-layout`), `person-name`, `person-suffix`, `person-detail`,
  * `person-card`.
  */
-export function Person(props: PersonProps): React.ReactNode {
+export const Person = React.forwardRef<HTMLSpanElement, PersonProps>((props, ref) => {
 
   // ----
   // Props Deconstruct
   // ----
-  const { avatar, children, className, layout = 'inline', name, preview, suffix, target } = props;
-  const { baseClasses } = splitBaseProps(props);
+  const { avatar, children, className, layout = 'inline', name, preview, suffix, target, ...others } = props;
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -344,7 +355,13 @@ export function Person(props: PersonProps): React.ReactNode {
   );
 
   return (
-    <span data-slot={'person'} data-layout={layout} className={cn('inline-flex max-w-full min-w-0 items-start gap-2 text-sm', baseClasses, className)}>
+    <span
+      {...rest}
+      ref={ref}
+      data-slot={'person'}
+      data-layout={layout}
+      className={cn('inline-flex max-w-full min-w-0 items-start gap-2 text-sm', baseClasses, className)}
+    >
       <Avatar {...avatar} size={24} decorative className={stacked ? undefined : '-my-0.5'} />
       {stacked
         ? (
@@ -359,7 +376,7 @@ export function Person(props: PersonProps): React.ReactNode {
     </span>
   );
 
-}
+});
 
 Person.displayName = 'Person';
 
@@ -376,15 +393,16 @@ Person.displayName = 'Person';
  * "99+". One person is written as a `Person`, nobody as "—": that is the caller's. Each circle has a
  * 2px ring in `--avatar-ring`, the colour of what is under it.
  *
- * Parts with a slot: `avatar-group`, `avatar-group-count`, `avatar-group-list`.
+ * Parts with a slot: `avatar-group` (with `data-size`), `avatar-group-count`, `avatar-group-list`,
+ * `avatar-group-items`, `avatar-group-item`.
  */
-export function AvatarGroup(props: AvatarGroupProps): React.ReactNode {
+export const AvatarGroup = React.forwardRef<HTMLButtonElement, AvatarGroupProps>((props, ref) => {
 
   // ----
   // Props Deconstruct
   // ----
-  const { className, items, label, max = 3, size = 24, title } = props;
-  const { baseClasses } = splitBaseProps(props);
+  const { className, items, label, max = 3, size = 24, title, ...others } = props;
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -397,11 +415,14 @@ export function AvatarGroup(props: AvatarGroupProps): React.ReactNode {
   return (
     <PopoverPrimitive.Root>
       <PopoverPrimitive.Trigger
+        {...rest}
+        ref={ref}
         openOnHover
         delay={600}
         closeDelay={300}
         aria-label={label}
         data-slot={'avatar-group'}
+        data-size={size}
         className={cn(
           'inline-flex shrink-0 cursor-default items-center rounded-full outline-none',
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
@@ -438,9 +459,9 @@ export function AvatarGroup(props: AvatarGroupProps): React.ReactNode {
             )}
           >
             <PopoverPrimitive.Title className={'mb-2 text-xs font-semibold text-muted-foreground'}>{title}</PopoverPrimitive.Title>
-            <ul className={'flex flex-col gap-2'}>
+            <ul data-slot={'avatar-group-items'} className={'flex flex-col gap-2'}>
               {items.map((item) => (
-                <li key={item.id}>
+                <li key={item.id} data-slot={'avatar-group-item'}>
                   <Person avatar={item.avatar} name={item.name} target={item.target} layout={item.description ? 'stacked' : 'inline'}>
                     {item.description}
                   </Person>
@@ -453,6 +474,6 @@ export function AvatarGroup(props: AvatarGroupProps): React.ReactNode {
     </PopoverPrimitive.Root>
   );
 
-}
+});
 
 AvatarGroup.displayName = 'AvatarGroup';

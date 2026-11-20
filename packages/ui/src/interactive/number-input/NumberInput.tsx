@@ -66,12 +66,11 @@ export interface StrictNumberInputProps extends BaseProps {
    */
   roleDescription?: string;
 
-  placeholder?: string;
+  /** The name it is submitted under */
   name?: string;
-  id?: string;
+
+  /** Classes for the frame, last so they win */
   className?: string;
-  'aria-label'?: string;
-  'aria-describedby'?: string;
 }
 
 /** `loadingLabel` is required with `loading`: the spinner takes the place of the unit */
@@ -79,7 +78,15 @@ export type NumberInputLoadingProps =
   | { loading?: false; loadingLabel?: string }
   | { loading: true; loadingLabel: string };
 
-export type NumberInputProps = StrictNumberInputProps & NumberInputLoadingProps;
+/**
+ * The frame takes `className`, the shared props, `id` and `name`; everything else an `<input>` accepts
+ * reaches the text, the element that takes the focus: `placeholder`, `aria-*`, `onBlur` for a form
+ * library, `autoFocus`.
+ */
+export type NumberInputProps = StrictNumberInputProps & NumberInputLoadingProps & Omit<
+  React.ComponentProps<'input'>,
+  keyof StrictNumberInputProps | 'size' | 'type' | 'children' | 'ref' | 'onChange' | 'min' | 'max' | 'step'
+>;
 
 
 /* --------
@@ -142,8 +149,6 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
   // Props Deconstruct
   // ----
   const {
-    'aria-describedby': ariaDescribedBy,
-    'aria-label': ariaLabel,
     className,
     decimals = 0,
     defaultValue,
@@ -157,7 +162,6 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
     min = 0,
     name,
     onValueChange,
-    placeholder,
     readOnly = false,
     roleDescription,
     size = 'md',
@@ -167,7 +171,7 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
     ...others
   } = props;
 
-  const { baseClasses } = splitBaseProps(others);
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -202,7 +206,9 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
   // ----
   const setRefs = useForkRef(inputRef, ref);
 
-  const handleBeforeInput = (event: React.FormEvent<HTMLInputElement> & { data?: string | null }): void => {
+  const handleBeforeInput = (event: React.InputEvent<HTMLInputElement>): void => {
+    rest.onBeforeInput?.(event);
+
     const inserted = event.data;
     const input = event.currentTarget;
 
@@ -220,6 +226,7 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
   };
 
   const handlePaste = (event: React.ClipboardEvent<HTMLInputElement>): void => {
+    rest.onPaste?.(event);
     event.preventDefault();
 
     const clean = cleanPaste(event.clipboardData.getData('text'), unitText, rules);
@@ -230,6 +237,8 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement> & { preventBaseUIHandler?: () => void }): void => {
+    rest.onKeyDown?.(event);
+
     const input = event.currentTarget;
 
     /* Home and End move the caret: Base UI would write the bounds */
@@ -305,11 +314,9 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
       )}
     >
       <NumberFieldPrimitive.Input
+        {...rest}
         ref={setRefs}
-        placeholder={placeholder}
         inputMode={decimals > 0 ? 'decimal' : 'numeric'}
-        aria-label={ariaLabel}
-        aria-describedby={ariaDescribedBy}
         aria-required={field.required || undefined}
         aria-invalid={isInvalid || undefined}
         aria-roledescription={roleDescription}

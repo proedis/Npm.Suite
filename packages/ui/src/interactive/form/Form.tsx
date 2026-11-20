@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { optionalContextBuilder } from '@proedis/react';
+import { optionalContextBuilder, useForkRef } from '@proedis/react';
 
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
@@ -22,9 +22,11 @@ import type { FormErrorEntry, FormErrorRegistry } from '../field/fieldContext';
 
 export type FormHeadingLevel = 2 | 3 | 4 | 5 | 6;
 
-export type FormProps = BaseProps & Omit<React.ComponentProps<'form'>, 'noValidate'>;
+export type StrictFormProps = BaseProps;
 
-export interface FormHeaderProps extends BaseProps, Omit<React.ComponentProps<'div'>, 'title'> {
+export type FormProps = StrictFormProps & Omit<React.ComponentProps<'form'>, keyof StrictFormProps | 'noValidate' | 'ref'>;
+
+export interface StrictFormHeaderProps extends BaseProps {
   /** The title of a form in a page */
   title?: React.ReactNode;
 
@@ -35,7 +37,9 @@ export interface FormHeaderProps extends BaseProps, Omit<React.ComponentProps<'d
   headingLevel?: FormHeadingLevel;
 }
 
-export interface FormErrorSummaryProps extends BaseProps, Omit<React.ComponentProps<'div'>, 'title' | 'children'> {
+export type FormHeaderProps = StrictFormHeaderProps & Omit<React.ComponentProps<'div'>, keyof StrictFormHeaderProps>;
+
+export interface StrictFormErrorSummaryProps extends BaseProps {
   /**
    * The heading of the summary, from the number of errors: the package writes no text, and a count
    * needs the caller's plural rules.
@@ -43,7 +47,12 @@ export interface FormErrorSummaryProps extends BaseProps, Omit<React.ComponentPr
   title: (count: number) => React.ReactNode;
 }
 
-export interface FormSectionProps extends BaseProps, Omit<React.ComponentProps<'div'>, 'title'> {
+export type FormErrorSummaryProps = StrictFormErrorSummaryProps & Omit<
+  React.ComponentProps<'div'>,
+  keyof StrictFormErrorSummaryProps | 'children'
+>;
+
+export interface StrictFormSectionProps extends BaseProps {
   /**
    * The title. Without it the section is the only one of its form, named by its container: it then
    * carries no group role either.
@@ -57,7 +66,11 @@ export interface FormSectionProps extends BaseProps, Omit<React.ComponentProps<'
   headingLevel?: FormHeadingLevel;
 }
 
-export type FormFooterProps = BaseProps & React.ComponentProps<'div'>;
+export type FormSectionProps = StrictFormSectionProps & Omit<React.ComponentProps<'div'>, keyof StrictFormSectionProps>;
+
+export type StrictFormFooterProps = BaseProps;
+
+export type FormFooterProps = StrictFormFooterProps & Omit<React.ComponentProps<'div'>, keyof StrictFormFooterProps>;
 
 interface FormErrorState {
   /** Every error of the form, in the order they are on screen */
@@ -182,7 +195,7 @@ function FormErrorSummary(props: FormErrorSummaryProps): React.ReactNode {
   // ----
   // Props Deconstruct
   // ----
-  const { className, title, ...others } = props;
+  const { className, ref, title, ...others } = props;
 
   const { baseClasses, rest } = splitBaseProps(others);
 
@@ -192,6 +205,7 @@ function FormErrorSummary(props: FormErrorSummaryProps): React.ReactNode {
   // ----
   const state = useFormErrorStateContext();
   const titleId = React.useId();
+  const handleRef = useForkRef(state?.summaryRef, ref as React.Ref<HTMLDivElement> | undefined);
 
 
   // ----
@@ -201,12 +215,12 @@ function FormErrorSummary(props: FormErrorSummaryProps): React.ReactNode {
     return null;
   }
 
-  const { errors, summaryRef } = state;
+  const { errors } = state;
 
   return (
     <div
       {...rest}
-      ref={summaryRef}
+      ref={handleRef}
       tabIndex={-1}
       role={'group'}
       aria-labelledby={titleId}
@@ -224,9 +238,10 @@ function FormErrorSummary(props: FormErrorSummaryProps): React.ReactNode {
 
       <ul data-slot={'form-error-summary-list'} className={'flex flex-col gap-0.5'}>
         {errors.map((error) => (
-          <li key={error.fieldId}>
+          <li key={error.fieldId} data-slot={'form-error-summary-item'}>
             <a
               href={`#${error.fieldId}`}
+              data-slot={'form-error-summary-link'}
               className={'underline underline-offset-2'}
               onClick={(event) => {
                 event.preventDefault();
@@ -405,7 +420,7 @@ FormFooter.displayName = 'Form.Footer';
  * Not Base UI's `Form`, deliberately: that one stops the submit while a field is invalid, which with
  * errors owned by the caller means a second submit never reaches the caller.
  */
-export function Form(props: FormProps): React.ReactNode {
+const FormRoot = React.forwardRef<HTMLFormElement, FormProps>((props, ref) => {
 
   // ----
   // Props Deconstruct
@@ -514,6 +529,7 @@ export function Form(props: FormProps): React.ReactNode {
   return (
     <form
       {...rest}
+      ref={ref}
       id={rest.id ?? host?.formId}
       noValidate
       data-slot={'form'}
@@ -529,14 +545,16 @@ export function Form(props: FormProps): React.ReactNode {
     </form>
   );
 
-}
+});
 
-Form.displayName = 'Form';
+FormRoot.displayName = 'Form';
 
-Form.Header = FormHeader;
-Form.ErrorSummary = FormErrorSummary;
-Form.Section = FormSection;
-Form.Footer = FormFooter;
+export const Form = Object.assign(FormRoot, {
+  Header      : FormHeader,
+  ErrorSummary: FormErrorSummary,
+  Section     : FormSection,
+  Footer      : FormFooter
+});
 
 
 /**

@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import { Field as FieldPrimitive } from '@base-ui/react/field';
 
-import { useEnhancedEffect } from '@proedis/react';
+import { useEnhancedEffect, useForkRef } from '@proedis/react';
 
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
@@ -70,7 +70,7 @@ export type FieldProps = StrictFieldProps & Omit<
   keyof StrictFieldProps | 'color' | 'defaultChecked' | 'defaultValue'
 >;
 
-export interface FieldLabelProps extends Omit<React.ComponentProps<'label'>, 'color'> {
+export interface StrictFieldLabelProps extends BaseProps {
   /** Shows the asterisk and makes the control `aria-required`. Validation stays with the caller */
   required?: boolean;
 
@@ -81,9 +81,13 @@ export interface FieldLabelProps extends Omit<React.ComponentProps<'label'>, 'co
   optional?: React.ReactNode;
 }
 
-export type FieldDescriptionProps = React.ComponentProps<'p'>;
+export type FieldLabelProps = StrictFieldLabelProps & Omit<React.ComponentProps<'label'>, keyof StrictFieldLabelProps | 'color'>;
 
-export interface FieldErrorProps extends Omit<React.ComponentProps<'div'>, 'color'> {
+export type StrictFieldDescriptionProps = BaseProps;
+
+export type FieldDescriptionProps = StrictFieldDescriptionProps & Omit<React.ComponentProps<'p'>, keyof StrictFieldDescriptionProps | 'color'>;
+
+export interface StrictFieldErrorProps extends BaseProps {
   /**
    * What the summary of the form says for this field, when it differs from the message: the message
    * under a short field is one or two words ("5 digits"), the summary line names the field ("ZIP
@@ -92,10 +96,14 @@ export interface FieldErrorProps extends Omit<React.ComponentProps<'div'>, 'colo
   summary?: React.ReactNode;
 }
 
-export interface FieldCounterProps extends React.ComponentProps<'span'> {
+export type FieldErrorProps = StrictFieldErrorProps & Omit<React.ComponentProps<'div'>, keyof StrictFieldErrorProps | 'color'>;
+
+export interface StrictFieldCounterProps extends BaseProps {
   /** The count is past the limit: it turns to the colour of an error */
   exceeded?: boolean;
 }
+
+export type FieldCounterProps = StrictFieldCounterProps & Omit<React.ComponentProps<'span'>, keyof StrictFieldCounterProps | 'color'>;
 
 
 /* --------
@@ -258,7 +266,9 @@ function FieldLabel(props: FieldLabelProps): React.ReactNode {
   // ----
   // Props Deconstruct
   // ----
-  const { children, className, id, optional, required = false, ...rest } = props;
+  const { children, className, id, optional, required = false, ...others } = props;
+
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -307,7 +317,7 @@ function FieldLabel(props: FieldLabelProps): React.ReactNode {
       data-required={required || undefined}
       data-optional={(!required && isPresent(optional)) || undefined}
       /* The line height after the size: a size carries its own, and tailwind-merge keeps the last */
-      className={cn('self-end text-sm leading-snug font-medium text-foreground', className)}
+      className={cn('self-end text-sm leading-snug font-medium text-foreground', baseClasses, className)}
     >
       {children}
       {required && (
@@ -335,7 +345,9 @@ function FieldDescription(props: FieldDescriptionProps): React.ReactNode {
   // ----
   // Props Deconstruct
   // ----
-  const { className, ...rest } = props;
+  const { className, ...others } = props;
+
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -355,7 +367,7 @@ function FieldDescription(props: FieldDescriptionProps): React.ReactNode {
     <FieldPrimitive.Description
       {...rest}
       data-slot={'field-description'}
-      className={cn('self-start text-sm text-muted-foreground', className)}
+      className={cn('self-start text-sm text-muted-foreground', baseClasses, className)}
     />
   );
 
@@ -375,7 +387,9 @@ function FieldError(props: FieldErrorProps): React.ReactNode {
   // ----
   // Props Deconstruct
   // ----
-  const { children, className, summary, ...rest } = props;
+  const { children, className, summary, ...others } = props;
+
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -432,10 +446,10 @@ function FieldError(props: FieldErrorProps): React.ReactNode {
       {...rest}
       match={true}
       data-slot={'field-error'}
-      className={cn('flex items-start gap-1 self-start text-sm text-destructive', className)}
+      className={cn('flex items-start gap-1 self-start text-sm text-destructive', baseClasses, className)}
     >
       <ErrorGlyph />
-      <span className={'min-w-0'}>{children}</span>
+      <span data-slot={'field-error-message'} className={'min-w-0'}>{children}</span>
     </FieldPrimitive.Error>
   );
 
@@ -455,7 +469,9 @@ function FieldCounter(props: FieldCounterProps): React.ReactNode {
   // ----
   // Props Deconstruct
   // ----
-  const { className, exceeded = false, ...rest } = props;
+  const { className, exceeded = false, ...others } = props;
+
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -470,6 +486,7 @@ function FieldCounter(props: FieldCounterProps): React.ReactNode {
       className={cn(
         'self-start justify-self-end text-sm text-muted-foreground tabular-nums',
         exceeded && 'text-destructive',
+        baseClasses,
         className
       )}
     />
@@ -506,9 +523,9 @@ FieldCounter.displayName = 'Field.Counter';
  *
  * Slots: `field` (with `data-span`, `data-break-before`, `data-required`), `field-label`,
  * `field-required`, `field-optional`, `field-description`, `field-error`, `field-error-icon-box`,
- * `field-error-icon`, `field-counter`. The root also has `data-orientation`, the one at `base`.
+ * `field-error-icon`, `field-error-message`, `field-counter`. The root also has `data-orientation`, the one at `base`.
  */
-export function Field(props: FieldProps): React.ReactNode {
+const FieldRoot = React.forwardRef<HTMLDivElement, FieldProps>((props, ref) => {
 
   // ----
   // Props Deconstruct
@@ -544,6 +561,7 @@ export function Field(props: FieldProps): React.ReactNode {
   const [ labelId, setLabelId ] = React.useState<string | undefined>(undefined);
 
   const rootRef = React.useRef<HTMLDivElement>(null);
+  const handleRootRef = useForkRef(rootRef, ref);
 
 
   // ----
@@ -576,7 +594,7 @@ export function Field(props: FieldProps): React.ReactNode {
   return (
     <FieldPrimitive.Root
       {...rest}
-      ref={rootRef}
+      ref={handleRootRef}
       id={fieldId}
       data-slot={'field'}
       data-span={typeof span === 'object' ? (toResponsiveMap(span).base ?? DEFAULT_SPAN) : span}
@@ -605,11 +623,13 @@ export function Field(props: FieldProps): React.ReactNode {
     </FieldPrimitive.Root>
   );
 
-}
+});
 
-Field.displayName = 'Field';
+FieldRoot.displayName = 'Field';
 
-Field.Label = FieldLabel;
-Field.Description = FieldDescription;
-Field.Error = FieldError;
-Field.Counter = FieldCounter;
+export const Field = Object.assign(FieldRoot, {
+  Label      : FieldLabel,
+  Description: FieldDescription,
+  Error      : FieldError,
+  Counter    : FieldCounter
+});
