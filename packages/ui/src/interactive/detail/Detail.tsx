@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { optionalContextBuilder } from '@proedis/react';
+import { optionalContextBuilder, useAnnouncer } from '@proedis/react';
 
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
@@ -593,20 +593,13 @@ const DetailRoot = React.forwardRef<HTMLDivElement, DetailProps>((props, ref) =>
   // ----
   // Internal State
   // ----
-  const [ announcement, setAnnouncement ] = React.useState('');
+  const [ announcement, announce ] = useAnnouncer();
 
 
   // ----
   // Memoized Data
   // ----
-  const state = React.useMemo<DetailState>(() => ({
-    labels,
-    announce: (text) => {
-      /* Emptied first, so the same text twice is announced twice */
-      setAnnouncement('');
-      window.setTimeout(() => setAnnouncement(text));
-    }
-  }), [ labels ]);
+  const state = React.useMemo<DetailState>(() => ({ labels, announce }), [ labels, announce ]);
 
 
   // ----

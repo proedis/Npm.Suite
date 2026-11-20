@@ -1,3 +1,5 @@
+export * from './useAnnouncer';
+
 export * from './useAutoControlledState';
 
 export * from './useAutoSizer';

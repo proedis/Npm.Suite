@@ -168,6 +168,7 @@ providers at the root of an app into a single element.
 | `useMediaQuery(query, serverSnapshot?)` | whether a media query matches, through `useSyncExternalStore`; `false` on the server and on the first client render unless told otherwise |
 | `usePrefersReducedMotion()` | whether the user asked for less motion; ⚠️ `true` on the server and on the first client render, because guessing "animate" is the worse mistake |
 | `useDelayedBusy(busy, options?)` | `{ busy, visible }`: the block at once, the look of a wait after 300ms and held at least 400, so a fast answer flashes nothing |
+| `useAnnouncer()` | `[ message, announce ]` for a live region: `announce` empties it first, so the same text twice is spoken twice; the last of two quick calls wins, an empty text is ignored, and the region stays the caller's to render |
 | `useOverflowItems(containerRef, measureRef, options)` | which items of a row fit and which go into a "More" menu, measured on a hidden copy of the row; `fitItems` is the pure half |
 | `useAutoSizer(options?)` | the room an element has, in pixels, kept up to date — see below |
 

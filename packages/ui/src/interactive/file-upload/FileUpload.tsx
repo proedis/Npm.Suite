@@ -2,6 +2,8 @@
 
 import * as React from 'react';
 
+import { useAnnouncer } from '@proedis/react';
+
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
@@ -204,7 +206,7 @@ export const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>((pro
   // Internal State
   // ----
   const [ drag, setDrag ] = React.useState<DragState>({ kind: 'idle' });
-  const [ announcement, setAnnouncement ] = React.useState('');
+  const [ announcement, announce ] = useAnnouncer();
 
 
   // ----
@@ -237,12 +239,12 @@ export const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>((pro
     const rejected = entries.filter((entry) => entry.status === 'rejected').length;
 
     onAdd(entries);
-    setAnnouncement(labels.added(entries.length - rejected, rejected));
+    announce(labels.added(entries.length - rejected, rejected));
   };
 
   const remove = (entry: FileEntry, index: number): void => {
     onRemove(entry.id);
-    setAnnouncement(labels.removed(entry.file.name));
+    announce(labels.removed(entry.file.name));
 
     /* The focus goes to the next row, or back to the button */
     window.setTimeout(() => {

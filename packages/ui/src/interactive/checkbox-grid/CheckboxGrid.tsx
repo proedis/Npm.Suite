@@ -4,6 +4,8 @@ import * as React from 'react';
 
 import { Checkbox as CheckboxPrimitive } from '@base-ui/react/checkbox';
 
+import { useAnnouncer } from '@proedis/react';
+
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
@@ -336,7 +338,7 @@ export function CheckboxGrid(props: CheckboxGridProps): React.ReactNode {
   const [ uncontrolledValue, setUncontrolledValue ] = React.useState<CheckboxGridValue>(defaultValue ?? NO_VALUE);
   const [ uncontrolledOpen, setUncontrolledOpen ] = React.useState<readonly string[]>(defaultOpenGroups);
   const [ activeCells, setActiveCells ] = React.useState<Readonly<Record<string, string>>>({});
-  const [ announcement, setAnnouncement ] = React.useState('');
+  const [ announcement, announce ] = useAnnouncer();
 
   /* The groups closed by hand during a search: forgotten when the search changes */
   const [ searchClosed, setSearchClosed ] = React.useState<{
@@ -361,16 +363,6 @@ export function CheckboxGrid(props: CheckboxGridProps): React.ReactNode {
   // ----
   // Handlers
   // ----
-  const announce = (text: string | undefined): void => {
-    if (!text) {
-      return;
-    }
-
-    /* Emptied first, so the same text twice is announced twice */
-    setAnnouncement('');
-    window.setTimeout(() => setAnnouncement(text));
-  };
-
   const commit = (next: CheckboxGridValue): CheckboxGridValue => {
     const resolved = resolve ? resolve(next, currentValue) : next;
 

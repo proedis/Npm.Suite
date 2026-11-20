@@ -17,7 +17,7 @@ import {
   useTable
 } from '@tanstack/react-table';
 
-import { useDelayedBusy } from '@proedis/react';
+import { useAnnouncer, useDelayedBusy } from '@proedis/react';
 
 import { LoadingBar } from '../../components/LoadingBar';
 import { Skeleton } from '../../components/Skeleton';
@@ -321,7 +321,7 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
 
   const [ ownSelection, setOwnSelection ] = React.useState<TableSelection>(defaultSelection ?? EMPTY_SELECTION);
   const [ menuTarget, setMenuTarget ] = React.useState<{ payload: MenuPayload; anchor?: MenuAnchor } | null>(null);
-  const [ announcement, setAnnouncement ] = React.useState('');
+  const [ announcement, announce ] = useAnnouncer();
 
   const anchorRowRef = React.useRef<string | null>(null);
   const gridRef = React.useRef<HTMLTableElement>(null);
@@ -453,7 +453,7 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
     const sorting = nextSorting(view.sorting, column.id, firstSortDesc(column), multi, defaultSorting);
 
     commit({ ...view, sorting, pageIndex: 0 }, 'sorting');
-    setAnnouncement(sorting
+    announce(sorting
       .map((sort) => labels.sortedBy(columnById.get(sort.id)?.header ?? sort.id, sort.desc ? 'desc' : 'asc'))
       .join('. '));
   };
