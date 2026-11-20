@@ -16,6 +16,17 @@ export interface AspectRatioProps extends React.ComponentProps<'div'>, BaseProps
 
 
 /* --------
+ * Constants Definition
+ * -------- */
+
+/**
+ * The default ratio, named once. Written inline as the default of the destructure, `16 / 9` is an
+ * expression the React Compiler refuses to reorder, and it skipped the whole component for it.
+ */
+const DEFAULT_RATIO = 16 / 9;
+
+
+/* --------
  * Component Definition
  * -------- */
 
@@ -34,7 +45,7 @@ export function AspectRatio(props: AspectRatioProps): React.ReactNode {
   const {
     children,
     className,
-    ratio = 16 / 9,
+    ratio = DEFAULT_RATIO,
     style,
     ...others
   } = props;

@@ -221,6 +221,18 @@ narrower stylesheet is the one you have to ask for.
 
 ## Invariants
 
+- **The React Compiler memoises this package, at build time.** `proedisMetadata.reactCompiler` runs
+  it over every component while rollup builds, so the published code carries its own memoisation and
+  a consumer configures nothing, on React 18 as on 19 (`target: '18'`, through
+  `react-compiler-runtime`). Hence the house rule "memoise by default" does **not** apply here:
+  `useMemo` / `useCallback` written by hand are noise, kept only where a stable identity is part of a
+  contract (a context value read by other subpaths, a callback handed to an effect elsewhere).
+  ⚠️ What replaces the discipline is the report: the compiler skips any function it cannot prove
+  safe and leaves it unmemoised, so the build prints `react compiler: N functions compiled, M
+  skipped` and one warning per skip. **M stays 0.** The rules of React are what keep it there: no
+  ref read or written while rendering, no prop or state mutated. Verified when it landed: 193
+  functions compiled, 0 skipped, and the jsdom cases of the bug fixes green on the compiled output
+  under React 19.2.5 in the workspace and under 18.3.1 from the packed tarball outside it.
 - **Classes, never inline styles, for anything a class can express.** An inline style beats a class,
   so `<Stack gap={4} className={'gap-8'} />` would stop working — and that override, resolved by
   `tailwind-merge` inside `cn`, is what makes these primitives bearable to use. Inline `style` is

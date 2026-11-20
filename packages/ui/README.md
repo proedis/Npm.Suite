@@ -1056,7 +1056,7 @@ another package. A recessed surface is `--muted`.
 
 | | |
 | --- | --- |
-| React | `>=18.0.0 <20.0.0` |
+| React | `>=18.0.0 <20.0.0`. The components are compiled by the React Compiler before publishing: nothing to configure, `react-compiler-runtime` arrives as a dependency |
 | Tailwind | `^4.1.5` — the stylesheet uses `@source`, `@source inline`, `@theme inline`, `@utility` and `@custom-variant`, and the error mark is one line tall with `h-lh` |
 | TypeScript | `>=5.2.0`, the suite floor — the emitted declarations are compiled against it |
 | Runtime | ES2022. The package root is server-renderable; `/hooks` and `/interactive/*` are client-only |

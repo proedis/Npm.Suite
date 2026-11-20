@@ -15,6 +15,8 @@ import getExternalDependenciesFromPackage from './scripts/utils/getExternalDepen
 
 import createTypes from './scripts/rollup-plugins/createTypes.mjs';
 
+import reactCompiler from './scripts/rollup-plugins/reactCompiler.mjs';
+
 import producePackageFiles from './scripts/rollup-plugins/producePackageFiles.mjs';
 
 
@@ -59,6 +61,13 @@ if (UNSUPPORTED_FORMATS.length) {
  * point at a file that was never written — caught by 'release:verify', but only after the fact.
  */
 const SUBPATH_ENTRIES = PACKAGE_METADATA.exports ?? [];
+
+/**
+ * Whether the package's components go through the React Compiler, declared through
+ * 'proedisMetadata.reactCompiler'. Opt-in per package: it changes the emitted code and adds
+ * 'react-compiler-runtime' to what the package needs at runtime. See the plugin for the details.
+ */
+const REACT_COMPILER = PACKAGE_METADATA.reactCompiler === true;
 
 const TSCONFIG_DECLARATION_FILENAME = 'tsconfig.declaration.json';
 const TSCONFIG_DECLARATION_PATH = resolvePath(process.cwd(), TSCONFIG_DECLARATION_FILENAME);
@@ -187,8 +196,15 @@ const buildConfiguration = defineConfig({
        * emit to a temporary outDir under the system temp folder, which then fails its own
        * 'outDir must be inside Rollup dir' validation.
        */
-      allowJs      : false
+      allowJs      : false,
+      /**
+       * Under the React Compiler the JSX stays in place for it to read, and the plugin below
+       * transforms it afterwards. The declaration build is a separate tsc run and is not affected.
+       */
+      ...(REACT_COMPILER ? { jsx: 'preserve' } : {})
     }),
+    // Memoise the components while building, for the packages that ask for it
+    REACT_COMPILER && reactCompiler(),
     // Enable the JSON Plugin
     json(),
     // Enable CommonJS output

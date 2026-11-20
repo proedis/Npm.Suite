@@ -226,6 +226,14 @@ the most likely way to break a package silently.
   default. The CLI sets `['cjs']`: consumed only through its `bin`, nothing referenced its
   ESM output and it was shipped as dead weight. A package narrowing this must also narrow
   anything that writes into the dropped directory.
+- `reactCompiler: true` — run the React Compiler over the package while it is built
+  (`scripts/rollup-plugins/reactCompiler.mjs`), so the published code is already memoised and no
+  consumer configures anything. Only `ui` sets it. It costs three things, all load-bearing: the
+  TypeScript plugin leaves JSX in place (`jsx: 'preserve'`) because the compiler recognises a
+  component by its JSX; `target: '18'` imports the cache from `react-compiler-runtime`, which the
+  package must list in `dependencies`; and the compiler **skips in silence** any function it cannot
+  prove safe, so the build prints every skip with its reason. A skip is a defect to fix, not noise:
+  the first build skipped `AspectRatio` over an inline `16 / 9` default.
 - `exports: string[]` — directory names below `src`, each holding its own barrel `index.ts`,
   published as additional entry points (`@proedis/utils/array`). `createPackageJson` writes them
   into both `exports` and `typesVersions` — the second one so a consumer whose `moduleResolution`
