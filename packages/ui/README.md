@@ -1050,6 +1050,7 @@ another package. A recessed surface is `--muted`.
 | `react` `>=18.0.0 <20.0.0` | `>=19.0.0 <20.0.0`: the compiled code imports `react/compiler-runtime`, and `ref` is passed as a prop |
 | `combobox-footer` on the "too many results" line of the single `Combobox` | `combobox-too-many`, as on the multiple one; `combobox-footer` is now only the footer of actions of the multiple field |
 | `resultsFor`, `onFlush` on a multiple `Combobox` | single field only: they never did anything on the multiple one |
+| `buttonVariants`, `alertVariants`, `textInputVariants` | no longer exported: the components lay themselves out through `Stack`, and a recipe on an element of your own would carry a layout no primitive gives it. A link drawn as a button is `<Button to={…}>`; any other element is `<Button render={<YourElement />}>`, which keeps the layout |
 | `useMediaQuery`, `usePrefersReducedMotion` from `@proedis/ui/hooks` | from `@proedis/react`, same signatures; `@proedis/ui/hooks` keeps `useBreakpoint` and `useIsMobile` |
 | `tailwindcss` `^4.0.0` | `^4.1.5`, see Compatibility |
 | a `Badge` with text renders the text as its child | the text is wrapped in `badge-label` and truncates with an ellipsis when the badge is too narrow |

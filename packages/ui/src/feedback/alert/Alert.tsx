@@ -20,6 +20,7 @@ import { isPresent } from '../../internal/presence';
 import { ClearGlyph, ToneGlyph } from '../../internal/glyphs';
 
 import type { BaseProps } from '../../core/base';
+import type { SpacingValue } from '../../core/responsive';
 
 
 /* --------
@@ -88,14 +89,9 @@ export type AlertTone = AlertProps['tone'];
 /** The default size, one source for `cva` and for the reported `data-size` */
 const DEFAULT_VARIANTS = { size: 'md' } as const;
 
-/*
- * The layout stays in the recipe: `alertVariants` is public, and a consumer who puts it on an element
- * of its own gets no Stack to lay that element out
- */
 const alertVariants = cva(
   [
-    // eslint-disable-next-line no-restricted-syntax -- public recipe, applied by consumers to their own elements
-    '@container flex items-start bg-card text-sm text-foreground',
+    '@container bg-card text-sm text-foreground',
 
     /* Transparent until the system draws borders itself: then it becomes the frame */
     'outline-1 -outline-offset-1 outline-transparent'
@@ -103,10 +99,8 @@ const alertVariants = cva(
   {
     variants: {
       size: {
-        // eslint-disable-next-line no-restricted-syntax -- public recipe, applied by consumers to their own elements
-        md: 'gap-3 rounded-lg border border-transparent px-4 py-3 shadow-sm',
-        // eslint-disable-next-line no-restricted-syntax -- public recipe, applied by consumers to their own elements
-        sm: 'gap-2 rounded-md border border-border p-2'
+        md: 'rounded-lg border border-transparent px-4 py-3 shadow-sm',
+        sm: 'rounded-md border border-border p-2'
       },
 
       /** The two severe tones also say it with the line, at half their ink */
@@ -120,6 +114,12 @@ const alertVariants = cva(
     defaultVariants: DEFAULT_VARIANTS
   }
 );
+
+/** The room between the icon, the text and the end of the row, per size: the row is a Stack */
+const ROW_GAP: Readonly<Record<AlertSize, SpacingValue>> = {
+  md: 3,
+  sm: 2
+};
 
 const ICON_BOX: Readonly<Record<AlertSize, { size: 'sm' | 'xs'; className: string }>> = {
   md: { size: 'sm', className: 'rounded-md' },
@@ -267,13 +267,16 @@ export const Alert = React.forwardRef<HTMLDivElement, AlertProps>((props, ref) =
   const box = ICON_BOX[size];
 
   return (
-    <div
+    <Stack
       {...rest}
       ref={handleRef}
       role={role}
       data-slot={'alert'}
       data-tone={tone}
       data-size={size}
+      direction={'horizontal'}
+      align={'start'}
+      gap={ROW_GAP[size]}
       className={cn(alertVariants({ size, tone }), baseClasses, className)}
     >
       {filled && (
@@ -319,12 +322,9 @@ export const Alert = React.forwardRef<HTMLDivElement, AlertProps>((props, ref) =
           )}
         </React.Fragment>
       )}
-    </div>
+    </Stack>
   );
 
 });
 
 Alert.displayName = 'Alert';
-
-
-export { alertVariants };

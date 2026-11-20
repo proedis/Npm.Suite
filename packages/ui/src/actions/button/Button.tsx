@@ -84,6 +84,9 @@ export type ButtonProps = StrictButtonProps & ButtonLoadingProps & Omit<
  * Constants Definition
  * -------- */
 
+/** The root of a button, a link or an element rendered in its place: content centred on one line */
+const ROOT_LAYOUT = { inline: true, direction: 'horizontal', align: 'center', justify: 'center' } as const;
+
 const DEFAULT_VARIANTS = {
   block: false,
   fill : 'solid',
@@ -139,12 +142,7 @@ const LAYER_COMPOUNDS = ([ 'solid', 'soft', 'plain' ] as const).flatMap((fill) =
  */
 const buttonVariants = cva(
   [
-    /*
-     * The layout stays in the recipe: `buttonVariants` is public, and a consumer who puts it on an
-     * element of its own (a link drawn as a button) gets no Stack to lay that element out
-     */
-    // eslint-disable-next-line no-restricted-syntax -- public recipe, applied by consumers to their own elements
-    'relative inline-flex shrink-0 cursor-pointer items-center justify-center rounded-md',
+    'relative shrink-0 cursor-pointer rounded-md',
     'border border-transparent font-medium whitespace-nowrap select-none',
     'transition-colors duration-100 motion-reduce:transition-none',
 
@@ -356,24 +354,37 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, r
     };
 
     return (
-      <a
+      <Stack
+        as={'a'}
         {...anchorRest}
         {...dataAttributes}
         {...(inert ? { 'aria-disabled': true, 'data-disabled': '', role: 'link' } : { href: link.href })}
         ref={ref as React.Ref<HTMLAnchorElement>}
         aria-busy={loading || undefined}
+        {...ROOT_LAYOUT}
         className={classes}
         onClick={handleAnchorClick}
       >
         {content}
-      </a>
+      </Stack>
     );
   }
+
+  /*
+   * The root is laid out by Stack, through Base UI's render. A render element of the caller's is kept
+   * and rendered through Stack in its place, so it keeps the layout too; a render function is the
+   * caller's to lay out, since its element is only known once it runs.
+   */
+  const ownRender = rest.render;
+  const render = React.isValidElement<Record<string, unknown>>(ownRender)
+    ? <Stack as={ownRender.type as React.ElementType} {...ownRender.props} {...ROOT_LAYOUT} />
+    : ownRender ?? <Stack as={'button'} {...ROOT_LAYOUT} />;
 
   return (
     <ButtonPrimitive
       {...rest}
       {...dataAttributes}
+      render={render}
       ref={ref}
       disabled={disabled || loading}
       focusableWhenDisabled={focusableWhenDisabled ?? loading}
@@ -387,6 +398,3 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, r
 });
 
 Button.displayName = 'Button';
-
-
-export { buttonVariants };

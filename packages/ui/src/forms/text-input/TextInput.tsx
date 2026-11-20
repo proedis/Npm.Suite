@@ -17,7 +17,7 @@ import { Spinner } from '../../primitives/Spinner';
 import { IconButton } from '../../actions/button/IconButton';
 import { useFieldControl } from '../field/fieldContext';
 import { isPresent } from '../../internal/presence';
-import { TEXT_CONTROL_FRAME, TEXT_CONTROL_SIZES, TEXT_CONTROL_TEXT, textControlState } from '../text-control/textControl';
+import { TEXT_CONTROL_FRAME, TEXT_CONTROL_GAP, TEXT_CONTROL_SIZES, TEXT_CONTROL_TEXT, textControlState } from '../text-control/textControl';
 
 import type { BaseProps } from '../../core/base';
 
@@ -112,18 +112,6 @@ const [ TextInputContext, useTextInputContext ] = optionalContextBuilder<TextInp
  * -------- */
 
 /**
- * The sizes of the recipe: the shared ones plus the gap of `TEXT_CONTROL_GAP`, written as a class
- * because the recipe lays its element out by itself (see below).
- */
-/* eslint-disable no-restricted-syntax -- public recipe, applied by consumers to their own elements */
-const RECIPE_SIZES = {
-  sm: `${TEXT_CONTROL_SIZES.sm} gap-1`,
-  md: `${TEXT_CONTROL_SIZES.md} gap-1.5`,
-  lg: `${TEXT_CONTROL_SIZES.lg} gap-1.5`
-} as const satisfies Readonly<Record<keyof typeof TEXT_CONTROL_SIZES, string>>;
-/* eslint-enable no-restricted-syntax */
-
-/**
  * The look of the frame and its states are the shared text-control classes: TextInput, Textarea,
  * NumberInput and the triggers of the lists read the same ones.
  */
@@ -131,18 +119,12 @@ const textInputVariants = cva(
   [
     TEXT_CONTROL_FRAME,
 
-    /*
-     * The layout stays in the recipe: `textInputVariants` is public, and a consumer who puts it on an
-     * element of its own gets no Stack to lay that element out. The frame below is a plain element for
-     * the same reason, as the Button is.
-     */
-    // eslint-disable-next-line no-restricted-syntax -- public recipe, applied by consumers to their own elements
-    'flex w-full cursor-text items-center',
+    'w-full cursor-text',
     '[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:text-muted-foreground'
   ],
   {
     variants: {
-      size: RECIPE_SIZES,
+      size: TEXT_CONTROL_SIZES,
 
       width: {
         short  : 'min-w-16',
@@ -291,8 +273,11 @@ const TextInputBase = React.forwardRef<HTMLInputElement, TextInputProps>((props,
   // Component Render
   // ----
   return (
-    <div
+    <Stack
       data-slot={'text-input'}
+      direction={'horizontal'}
+      align={'center'}
+      gap={TEXT_CONTROL_GAP[size]}
       data-size={size}
       data-width={width}
       data-loading={loading || undefined}
@@ -335,7 +320,7 @@ const TextInputBase = React.forwardRef<HTMLInputElement, TextInputProps>((props,
             <Stack as={'span'} data-slot={'text-input-trailing'} direction={'horizontal'} align={'center'} className={'shrink-0'}>{trailing}</Stack>
           )}
       </TextInputContext.Provider>
-    </div>
+    </Stack>
   );
 
 });
@@ -373,6 +358,3 @@ TextInputBase.displayName = 'TextInput';
  * `text-input-action`.
  */
 export const TextInput = Object.assign(TextInputBase, { Action: TextInputAction });
-
-
-export { textInputVariants };
