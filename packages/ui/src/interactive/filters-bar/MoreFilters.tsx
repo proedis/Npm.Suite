@@ -228,6 +228,8 @@ export function MoreFilters(props: MoreFiltersProps): React.ReactNode {
             leading={filtersBarGlyph('filter')}
             data-slot={'more-filters'}
             data-narrow={narrow || undefined}
+            data-active={active > 0 || undefined}
+            data-open={open || undefined}
           >
             {buttonFace.children}
           </Button>
@@ -247,8 +249,15 @@ export function MoreFilters(props: MoreFiltersProps): React.ReactNode {
               ? (
                 <React.Fragment>
                   <div data-slot={'more-filters-header'} className={HEADER}>
-                    <IconButton label={labels.back} icon={filtersBarGlyph('back')} size={'sm'} onClick={back} className={'size-6'} />
-                    <span className={'truncate'}>{current.label}</span>
+                    <IconButton
+                      label={labels.back}
+                      icon={filtersBarGlyph('back')}
+                      size={'sm'}
+                      data-slot={'more-filters-back'}
+                      onClick={back}
+                      className={'size-6'}
+                    />
+                    <span data-slot={'more-filters-title'} className={'truncate'}>{current.label}</span>
                   </div>
 
                   <FilterBody
@@ -279,21 +288,24 @@ export function MoreFilters(props: MoreFiltersProps): React.ReactNode {
                         type={'button'}
                         data-slot={'more-filters-row'}
                         data-filter-id={filter.id}
+                        data-active={values.length > 0 || undefined}
+                        data-disabled={off || undefined}
+                        data-loading={filter.loading || undefined}
                         aria-disabled={off || filter.loading || undefined}
                         aria-busy={filter.loading || undefined}
                         className={NAME_ROW}
                         onClick={() => enter(filter)}
                       >
-                        <span className={'flex min-w-0 flex-1 flex-col'}>
-                          <span>{filter.label}</span>
+                        <span data-slot={'more-filters-row-text'} className={'flex min-w-0 flex-1 flex-col'}>
+                          <span data-slot={'more-filters-row-label'}>{filter.label}</span>
                           {values.length > 0 && (
-                            <span className={'flex min-w-0 gap-1 text-xs text-muted-foreground'}>
+                            <span data-slot={'more-filters-row-values'} className={'flex min-w-0 gap-1 text-xs text-muted-foreground'}>
                               <span className={'truncate'}>{labels.values(values.slice(0, SHOWN_VALUES))}</span>
                               {rest > 0 && <span className={'flex-none'}>{labels.moreValues(rest)}</span>}
                             </span>
                           )}
                         </span>
-                        <span className={'mt-0.5 inline-flex shrink-0 text-muted-foreground [&_svg]:size-4'}>
+                        <span data-slot={'more-filters-row-end'} className={'mt-0.5 inline-flex shrink-0 text-muted-foreground [&_svg]:size-4'}>
                           {filter.loading ? <Spinner size={'sm'} className={'size-3.5'} label={labels.loading} /> : filtersBarGlyph('next')}
                         </span>
                       </button>

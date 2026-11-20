@@ -110,17 +110,17 @@ export function FilterDate(props: FilterDateProps): React.ReactNode {
         <div data-slot={'filter-date-footer'} className={'mt-1 flex items-center justify-between gap-1 border-t border-border pt-1'}>
           {draft && (
             <React.Fragment>
-              <Button size={'sm'} fill={'plain'} tone={'primary'} onClick={() => commitOpen({ from: draft, to: null })}>
+              <Button size={'sm'} fill={'plain'} tone={'primary'} data-slot={'filter-date-from'} onClick={() => commitOpen({ from: draft, to: null })}>
                 {labels.date.from}
               </Button>
-              <Button size={'sm'} fill={'plain'} tone={'primary'} onClick={() => commitOpen({ from: null, to: draft })}>
+              <Button size={'sm'} fill={'plain'} tone={'primary'} data-slot={'filter-date-until'} onClick={() => commitOpen({ from: null, to: draft })}>
                 {labels.date.until}
               </Button>
             </React.Fragment>
           )}
 
           {showClear && (
-            <Button size={'sm'} fill={'plain'} tone={'primary'} className={'ms-auto'} onClick={() => commitOpen({ from: null, to: null })}>
+            <Button size={'sm'} fill={'plain'} tone={'primary'} data-slot={'filter-date-clear'} className={'ms-auto'} onClick={() => commitOpen({ from: null, to: null })}>
               {labels.clear}
             </Button>
           )}

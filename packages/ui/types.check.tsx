@@ -20,6 +20,7 @@ import { Button, IconButton } from './src/interactive/button';
 import { Drawer } from './src/interactive/drawer';
 import { Checkbox, CheckboxGroup } from './src/interactive/checkbox';
 import { Field } from './src/interactive/field';
+import { FiltersBar } from './src/interactive/filters-bar';
 import { FieldShell } from './src/interactive/field-shell';
 import { PasswordInput } from './src/interactive/password-input';
 import { Radio, RadioGroup } from './src/interactive/radio';
@@ -29,6 +30,7 @@ import { Tabs } from './src/interactive/tabs';
 import { Toggle, ToggleGroup } from './src/interactive/toggle';
 
 import type { StackProps } from './src';
+import type { FiltersBarLabels } from './src/interactive/filters-bar';
 
 /*
  * The parts of a compound are reachable through the dot and nowhere else, so this import has to fail.
@@ -396,6 +398,30 @@ const namelessConfirm = (
 
 
 /* --------
+ * FiltersBar: a root that takes native div props and a ref, nothing in place of its children
+ * -------- */
+const filtersBarLabels = {} as FiltersBarLabels;
+const filtersBarRef = React.createRef<HTMLDivElement>();
+
+const filtersBarRoot = (
+  <FiltersBar
+    ref={filtersBarRef}
+    id={'filters'}
+    aria-label={'Filters'}
+    filters={[]}
+    onClear={() => undefined}
+    labels={filtersBarLabels}
+    hideBelow={'md'}
+  />
+);
+
+const filtersBarChildren = (
+  // @ts-expect-error the bar renders its own row, it takes no children
+  <FiltersBar filters={[]} onClear={() => undefined} labels={filtersBarLabels}>row</FiltersBar>
+);
+
+
+/* --------
  * Keep the compiler from pruning the assertions
  * -------- */
 export const CHECKED = [
@@ -413,5 +439,6 @@ export const CHECKED = [
   besideOnDesktop, wrongFieldOrientation, ownControl, wrongShellSize,
   namedToggle, namelessToggle, namedGroup, namelessGroup, chosenView, emptyView, namelessItem,
   formLibraryBox, namedRadioGroup, switchWithTitle, namedTabs, namelessTabs, closedTabs,
-  silentIconButton, silentPassword, namelessArrows, namelessConfirm
+  silentIconButton, silentPassword, namelessArrows, namelessConfirm,
+  filtersBarRoot, filtersBarChildren
 ];

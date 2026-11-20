@@ -392,9 +392,10 @@ export function FilterList(props: FilterListProps): React.ReactNode {
   return (
     <div data-slot={'filter-list'} className={'flex min-h-0 flex-col'}>
       {searchable && (
-        <div className={LIST_SEARCH}>
+        <div data-slot={'filter-list-search'} className={LIST_SEARCH}>
           <SearchGlyph />
           <input
+            data-slot={'filter-list-input'}
             ref={setTarget}
             type={'text'}
             role={'combobox'}
@@ -419,6 +420,7 @@ export function FilterList(props: FilterListProps): React.ReactNode {
 
       <div
         {...listProps}
+        data-slot={'filter-list-items'}
         ref={(element) => {
           listRef.current = element;
 
@@ -452,17 +454,17 @@ export function FilterList(props: FilterListProps): React.ReactNode {
             onClick={() => pick(item)}
           >
             {item === RETRY
-              ? <span className={'min-w-0 flex-1'}>{labels.remote.retry}</span>
+              ? <span data-slot={'filter-list-retry'} className={'min-w-0 flex-1'}>{labels.remote.retry}</span>
               : (
                 <React.Fragment>
-                  {multiple && <span className={OPTION_BOX} aria-hidden={'true'}><CheckGlyph /></span>}
-                  <span className={'flex min-w-0 flex-1 flex-col'}>
-                    <span>{item.label}</span>
+                  {multiple && <span data-slot={'filter-list-box'} className={OPTION_BOX} aria-hidden={'true'}><CheckGlyph /></span>}
+                  <span data-slot={'filter-list-item-text'} className={'flex min-w-0 flex-1 flex-col'}>
+                    <span data-slot={'filter-list-item-label'}>{item.label}</span>
                     {(item.code || item.description) && (
-                      <span className={'text-xs text-muted-foreground'}>{[ item.code, item.description ].filter(Boolean).join(' · ')}</span>
+                      <span data-slot={'filter-list-item-description'} className={'text-xs text-muted-foreground'}>{[ item.code, item.description ].filter(Boolean).join(' · ')}</span>
                     )}
                   </span>
-                  {!multiple && <span className={OPTION_TICK} aria-hidden={'true'}><CheckGlyph /></span>}
+                  {!multiple && <span data-slot={'filter-list-tick'} className={OPTION_TICK} aria-hidden={'true'}><CheckGlyph /></span>}
                 </React.Fragment>
               )}
           </div>
@@ -470,20 +472,21 @@ export function FilterList(props: FilterListProps): React.ReactNode {
       </div>
 
       {remote && !underMin && remote.hasMore && !searching && !failed && (
-        <div className={cn(LIST_MESSAGE, 'text-xs')}>{labels.remote.tooMany(remote.items.length)}</div>
+        <div data-slot={'filter-list-too-many'} className={cn(LIST_MESSAGE, 'text-xs')}>{labels.remote.tooMany(remote.items.length)}</div>
       )}
 
-      {remote && <div role={'status'} className={'sr-only'}>{status}</div>}
+      {remote && <div role={'status'} data-slot={'filter-list-status'} className={'sr-only'}>{status}</div>}
 
       {footer !== 'none' && (
         <div data-slot={'filter-list-footer'} className={LIST_FOOTER}>
           {footer === 'actions' && !remote
-            ? <Button size={'sm'} fill={'plain'} tone={'primary'} disabled={allChecked} onClick={selectAll}>{labels.selectAll}</Button>
+            ? <Button size={'sm'} fill={'plain'} tone={'primary'} data-slot={'filter-list-select-all'} disabled={allChecked} onClick={selectAll}>{labels.selectAll}</Button>
             : <span />}
           <Button
             size={'sm'}
             fill={'plain'}
             tone={'primary'}
+            data-slot={'filter-list-clear'}
             disabled={footer === 'actions' && !remote ? noneChecked : value.length === 0}
             onClick={footer === 'actions' && !remote ? clearReachable : () => change([])}
           >

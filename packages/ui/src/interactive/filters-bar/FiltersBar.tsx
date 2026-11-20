@@ -2,6 +2,8 @@
 
 import * as React from 'react';
 
+import { useForkRef } from '@proedis/react';
+
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
@@ -24,7 +26,7 @@ import type { FiltersBarFilter, FiltersBarLabels, FiltersBarSearch } from './fil
  * Types Definition
  * -------- */
 
-export interface FiltersBarProps extends BaseProps {
+export interface StrictFiltersBarProps extends BaseProps {
   /** The filters, in the order they appear. The bar holds no value: the page does, usually in its address */
   filters: readonly FiltersBarFilter[];
 
@@ -41,6 +43,8 @@ export interface FiltersBarProps extends BaseProps {
 
   className?: string;
 }
+
+export type FiltersBarProps = StrictFiltersBarProps & Omit<React.ComponentProps<'div'>, keyof StrictFiltersBarProps | 'ref' | 'children'>;
 
 interface Measures {
   available: number;
@@ -114,24 +118,45 @@ function sameMeasures(a: Measures | null, b: Measures): boolean {
  * focus to the first filter. The widths come from a hidden copy of the row, so measuring never moves
  * what the user sees.
  *
- * Slots: `filters-bar`, `filter` (with `data-active`), `filter-trigger`,
- * `filter-values`, `filter-remove`, `filter-panel`, `filter-list`, `filter-list-item`,
- * `filter-list-footer`, `filter-date`, `more-filters` (with `data-narrow`), `more-filters-panel` (with
- * `data-step`), `more-filters-row`, `more-filters-header`, `filters-bar-clear`.
+ * Slots: `filters-bar` (with `data-narrow`, `data-active`), `filter` (with `data-kind`, `data-active`,
+ * `data-open`, `data-disabled`, `data-loading`), `filter-trigger`, `filter-values`, `filter-remove`,
+ * `filter-panel`, `filter-list`, `filter-list-search`, `filter-list-input`, `filter-list-message`,
+ * `filter-list-items`, `filter-list-item` (with `data-highlighted`, `data-selected`, `data-disabled`),
+ * `filter-list-box`, `filter-list-tick`, `filter-list-item-text`, `filter-list-item-label`,
+ * `filter-list-item-description`, `filter-list-retry`, `filter-list-too-many`, `filter-list-status`,
+ * `filter-list-footer`, `filter-list-select-all`, `filter-list-clear`, `filter-date`,
+ * `filter-date-footer`, `filter-date-from`, `filter-date-until`, `filter-date-clear`, `more-filters`
+ * (with `data-narrow`, `data-active`, `data-open`), `more-filters-panel` (with `data-step`),
+ * `more-filters-header`, `more-filters-back`, `more-filters-title`, `more-filters-names`,
+ * `more-filters-row` (with `data-active`, `data-disabled`, `data-loading`), `more-filters-row-text`,
+ * `more-filters-row-label`, `more-filters-row-values`, `more-filters-row-end`, `filters-bar-clear`.
+ *
+ * Native `div` props and `ref` reach the root; the search, the filters and the panels are configured
+ * through their own props.
  */
-export function FiltersBar(props: FiltersBarProps): React.ReactNode {
+export const FiltersBar = React.forwardRef<HTMLDivElement, FiltersBarProps>((props, ref) => {
 
   // ----
   // Props Deconstruct
   // ----
-  const { className, filters, labels, onClear, search, searchThreshold = DEFAULT_THRESHOLD } = props;
-  const { baseClasses } = splitBaseProps(props);
+  const {
+    className,
+    filters,
+    labels,
+    onClear,
+    search,
+    searchThreshold = DEFAULT_THRESHOLD,
+    ...others
+  } = props;
+
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
   // Internal Hooks
   // ----
   const barRef = React.useRef<HTMLDivElement>(null);
+  const handleBarRef = useForkRef(barRef, ref);
   const copyRef = React.useRef<HTMLDivElement>(null);
   const triggersRef = React.useRef(new Map<string, HTMLButtonElement>());
   const moreRef = React.useRef<HTMLButtonElement | null>(null);
@@ -257,8 +282,11 @@ export function FiltersBar(props: FiltersBarProps): React.ReactNode {
 
   return (
     <div
-      ref={barRef}
+      {...rest}
+      ref={handleBarRef}
       data-slot={'filters-bar'}
+      data-narrow={visibleCount === 0 || undefined}
+      data-active={anyActive || undefined}
       className={cn('relative flex h-7 min-w-0 flex-1 items-center gap-2', baseClasses, className)}
     >
       {search && (
@@ -335,6 +363,6 @@ export function FiltersBar(props: FiltersBarProps): React.ReactNode {
     </div>
   );
 
-}
+});
 
 FiltersBar.displayName = 'FiltersBar';

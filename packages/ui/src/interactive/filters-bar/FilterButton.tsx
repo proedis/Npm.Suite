@@ -245,7 +245,11 @@ export function FilterButton(props: FilterButtonProps): React.ReactNode {
         ref={groupRef}
         data-slot={'filter'}
         data-filter-id={filter.id}
+        data-kind={filter.kind ?? 'list'}
         data-active={face.active || undefined}
+        data-open={open || undefined}
+        data-disabled={disabled || undefined}
+        data-loading={loading || undefined}
         className={'group/list-field inline-flex min-w-0 shrink-0 items-center'}
       >
         <Tooltip content={tooltip ?? filter.label} disabled={tooltip === null} truncatedOnly={truncatedOnly} align={'start'}>
