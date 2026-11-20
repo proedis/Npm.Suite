@@ -9,8 +9,9 @@ import { cn } from '../../core/cn';
 
 import { Stack } from '../../layout/Stack';
 
-import { CHOICE_ALIGN, CHOICE_FOCUS, CHOICE_ROW, ChoiceText } from '../choice/choice';
 import { isPresent } from '../../internal/presence';
+
+import { CHOICE_ALIGN, CHOICE_FOCUS, CHOICE_ROW, ChoiceText } from '../choice/choice';
 
 import type { BaseProps } from '../../core/base';
 

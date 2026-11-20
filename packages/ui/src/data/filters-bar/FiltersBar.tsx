@@ -10,8 +10,9 @@ import { cn } from '../../core/cn';
 import { Stack } from '../../layout/Stack';
 
 import { Button } from '../../actions/button/Button';
-import { SearchInput } from '../../forms/search-input/SearchInput';
 import { Tooltip } from '../../actions/tooltip/Tooltip';
+
+import { SearchInput } from '../../forms/search-input/SearchInput';
 
 import { FilterButton, FilterButtonCopy } from './FilterButton';
 import { filtersBarGlyph } from './filtersBarGlyphs';

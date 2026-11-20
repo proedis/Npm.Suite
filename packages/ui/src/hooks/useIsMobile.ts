@@ -3,6 +3,7 @@
 import { useBreakpoint } from './useBreakpoint';
 
 import type { MediaBreakpoint } from '../core/responsive';
+
 import type { UseBreakpointOptions } from './useBreakpoint';
 
 

@@ -13,14 +13,16 @@ import { cn } from '../../core/cn';
 
 import { Stack } from '../../layout/Stack';
 
+import { ClearGlyph } from '../../internal/glyphs';
+
 import { Button } from '../../actions/button/Button';
 import { IconButton } from '../../actions/button/IconButton';
+import { LIST_POSITIONER, LIST_SIDE_OFFSET } from '../../actions/list-panel/listPanel';
+
 import { Calendar } from '../calendar/Calendar';
 import { dateOrderOf, maskDate, maskRange, RANGE_SEPARATOR, readDate, readPastedDates, readRange, writeDate, writeRange } from '../calendar/dateText';
 import { useFieldControl, useNonNativeFieldLabel } from '../field/fieldContext';
-import { LIST_POSITIONER, LIST_SIDE_OFFSET } from '../../actions/list-panel/listPanel';
 import { TEXT_CONTROL_FRAME, TEXT_CONTROL_GAP, TEXT_CONTROL_SIZES, TEXT_CONTROL_TEXT, textControlState } from '../text-control/textControl';
-import { ClearGlyph } from '../../internal/glyphs';
 
 import type { BaseProps } from '../../core/base';
 

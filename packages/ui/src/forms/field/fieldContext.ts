@@ -1,8 +1,8 @@
 'use client';
 
-import type * as React from 'react';
-
 import { optionalContextBuilder, useEnhancedEffect } from '@proedis/react';
+
+import type * as React from 'react';
 
 
 /* --------

@@ -14,14 +14,17 @@ import { Stack } from '../../layout/Stack';
 
 import { Spinner } from '../../primitives/Spinner';
 
-import { IconButton } from '../../actions/button/IconButton';
-import { useFieldControl } from '../field/fieldContext';
 import { isPresent } from '../../internal/presence';
+
+import { IconButton } from '../../actions/button/IconButton';
+
+import { useFieldControl } from '../field/fieldContext';
 import { TEXT_CONTROL_FRAME, TEXT_CONTROL_GAP, TEXT_CONTROL_SIZES, TEXT_CONTROL_TEXT, textControlState } from '../text-control/textControl';
 
 import type { BaseProps } from '../../core/base';
 
 import type { IconButtonProps } from '../../actions/button/IconButton';
+
 import type { TextControlSize } from '../text-control/textControl';
 
 

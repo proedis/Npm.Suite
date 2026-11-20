@@ -11,12 +11,16 @@ import { cn } from '../../core/cn';
 
 import { Stack } from '../../layout/Stack';
 
-import { CHECKBOX_BOX } from '../choice/choice';
-import { CollapsibleSection } from '../../actions/collapsible/CollapsibleSection';
-import { Tooltip } from '../../actions/tooltip/Tooltip';
 import { CheckGlyph, DashGlyph } from '../../internal/glyphs';
 
+import { CollapsibleSection } from '../../actions/collapsible/CollapsibleSection';
+import { Tooltip } from '../../actions/tooltip/Tooltip';
+
+import { CHECKBOX_BOX } from '../choice/choice';
+
+
 import type { BaseProps } from '../../core/base';
+
 import type { CollapsibleSectionHeadingLevel } from '../../actions/collapsible/CollapsibleSection';
 
 

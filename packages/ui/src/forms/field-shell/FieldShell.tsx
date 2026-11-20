@@ -7,8 +7,9 @@ import { cn } from '../../core/cn';
 
 import { Stack } from '../../layout/Stack';
 
-import { useFieldControl } from '../field/fieldContext';
 import { isPresent } from '../../internal/presence';
+
+import { useFieldControl } from '../field/fieldContext';
 import { TEXT_CONTROL_FRAME, TEXT_CONTROL_GAP, TEXT_CONTROL_SIZES, textControlState } from '../text-control/textControl';
 
 import type { BaseProps } from '../../core/base';

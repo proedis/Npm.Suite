@@ -19,19 +19,22 @@ import {
 
 import { useAnnouncer, useDelayedBusy } from '@proedis/react';
 
-import { LoadingBar } from '../../primitives/LoadingBar';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
 import { Stack } from '../../layout/Stack';
 
+import { LoadingBar } from '../../primitives/LoadingBar';
+
 import { Button } from '../../actions/button/Button';
 import { IconButton } from '../../actions/button/IconButton';
-import { Checkbox } from '../../forms/checkbox/Checkbox';
-import { EmptyState } from '../../feedback/empty-state/EmptyState';
 import { Menu } from '../../actions/menu/Menu';
 import { SharedMenu, SharedMenuTrigger, createSharedMenuHandle } from '../../actions/menu/SharedMenu';
 import { Tooltip } from '../../actions/tooltip/Tooltip';
+
+import { EmptyState } from '../../feedback/empty-state/EmptyState';
+
+import { Checkbox } from '../../forms/checkbox/Checkbox';
 
 import {
   ACTIONS_COLUMN_STEPS,
@@ -44,8 +47,12 @@ import {
   readCellValue,
   sortValue
 } from './tableCells';
+import { TableColumnsButton } from './TableColumnsButton';
 import { useTableFormats } from './tableFormats';
 import { TableGlyph } from './tableGlyphs';
+import { TablePagination } from './TablePagination';
+import { CELL, ColumnGroup, HEAD, PIN_START, ROW, SkeletonRows, TruncationTooltip, markScroll } from './tableParts';
+import { TableSelectionBar, selectionMenuItems } from './TableSelectionBar';
 import {
   EMPTY_SELECTION,
   defaultVisibility,
@@ -61,15 +68,12 @@ import {
   setRowsSelected,
   withoutHidden
 } from './tableState';
-import { TableColumnsButton } from './TableColumnsButton';
-import { TablePagination } from './TablePagination';
-import { TableSelectionBar, selectionMenuItems } from './TableSelectionBar';
-import { CELL, ColumnGroup, HEAD, PIN_START, ROW, SkeletonRows, TruncationTooltip, markScroll } from './tableParts';
 import { useTableGrid } from './useTableGrid';
 
 import type { BaseProps } from '../../core/base';
 
 import type { MenuAnchor } from '../../actions/menu/menuPanel';
+
 import type {
   TableColumn,
   TableEmpty,

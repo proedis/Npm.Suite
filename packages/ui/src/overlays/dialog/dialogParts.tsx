@@ -2,11 +2,13 @@
 
 import * as React from 'react';
 
-import { AlertDialog } from '../alert-dialog/AlertDialog';
 import { Button } from '../../actions/button/Button';
 
-import type { AlertDialogLabels } from '../alert-dialog/AlertDialog';
+import { AlertDialog } from '../alert-dialog/AlertDialog';
+
 import type { ButtonProps } from '../../actions/button/Button';
+
+import type { AlertDialogLabels } from '../alert-dialog/AlertDialog';
 
 import type { DialogDiscard } from './Dialog';
 

@@ -12,7 +12,6 @@ import {
 } from '../core/responsive';
 
 import type { BaseProps } from '../core/base';
-
 import type { PolymorphicProps } from '../core/polymorphic';
 import type { Align, ColumnsValue, Direction, Justify, Responsive, SpacingValue } from '../core/responsive';
 

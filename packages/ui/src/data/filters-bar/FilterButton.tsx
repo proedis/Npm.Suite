@@ -10,15 +10,17 @@ import { Stack } from '../../layout/Stack';
 
 import { Spinner } from '../../primitives/Spinner';
 
+import { ClearGlyph } from '../../internal/glyphs';
+
 import { Button } from '../../actions/button/Button';
 import { IconButton } from '../../actions/button/IconButton';
 import { LIST_POSITIONER, LIST_SIDE_OFFSET, ListFieldEnd, OverflowTooltipList } from '../../actions/list-panel/listPanel';
 import { Tooltip } from '../../actions/tooltip/Tooltip';
+
 import { LIST_PANEL_LAYOUT } from '../../forms/list-field/listField';
 
 import { FilterBody, filterPanelClass } from './FilterBody';
 import { clearFilter, filterValueLabels, isFilterActive } from './filtersBarState';
-import { ClearGlyph } from '../../internal/glyphs';
 
 import type { FiltersBarFilter, FiltersBarLabels } from './filtersBarTypes';
 

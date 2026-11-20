@@ -4,8 +4,9 @@ import * as React from 'react';
 
 import { useForkRef } from '@proedis/react';
 
-import { TextInput } from '../text-input/TextInput';
 import { ClearGlyph, SearchGlyph } from '../../internal/glyphs';
+
+import { TextInput } from '../text-input/TextInput';
 
 import type { TextInputLoadingProps, TextInputProps } from '../text-input/TextInput';
 

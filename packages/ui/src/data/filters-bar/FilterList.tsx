@@ -11,8 +11,9 @@ import { Stack } from '../../layout/Stack';
 import { Spinner } from '../../primitives/Spinner';
 
 
-import { Button } from '../../actions/button/Button';
 import { CheckGlyph, SearchGlyph } from '../../internal/glyphs';
+
+import { Button } from '../../actions/button/Button';
 import {
   LIST_FOOTER,
   LIST_ITEM,
@@ -24,6 +25,7 @@ import {
   matchesSearch,
   normalizeForSearch
 } from '../../actions/list-panel/listPanel';
+
 import { LIST_RETRY, remoteListMessages } from '../../forms/list-field/listField';
 
 import type { FilterOption, FiltersBarLabels, RemoteListFilter } from './filtersBarTypes';

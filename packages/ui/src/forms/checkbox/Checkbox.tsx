@@ -13,9 +13,10 @@ import { cn } from '../../core/cn';
 
 import { Stack } from '../../layout/Stack';
 
-import { CHECKBOX_BOX, CHOICE_ALIGN, CHOICE_FOCUS, CHOICE_ROW, ChoiceText, GROUP_FOCUS_PROPS, baseOrientation, choiceGroupClasses } from '../choice/choice';
-import { isPresent } from '../../internal/presence';
 import { CheckGlyph, DashGlyph } from '../../internal/glyphs';
+import { isPresent } from '../../internal/presence';
+
+import { CHECKBOX_BOX, CHOICE_ALIGN, CHOICE_FOCUS, CHOICE_ROW, ChoiceText, GROUP_FOCUS_PROPS, baseOrientation, choiceGroupClasses } from '../choice/choice';
 import {
   useFieldControl,
   useFieldRegistryContext,

@@ -6,10 +6,11 @@ import { Stack } from '../../layout/Stack';
 
 import { VisuallyHidden } from '../../primitives/VisuallyHidden';
 
+import { ClearGlyph, ErrorGlyph } from '../../internal/glyphs';
+
 import { IconButton } from '../../actions/button/IconButton';
 import { LIST_CHIP, OverflowTooltipList } from '../../actions/list-panel/listPanel';
 import { Tooltip } from '../../actions/tooltip/Tooltip';
-import { ClearGlyph, ErrorGlyph } from '../../internal/glyphs';
 
 import type { ComboboxItem } from '../combobox/comboboxTypes';
 

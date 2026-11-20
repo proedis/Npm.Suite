@@ -2,19 +2,20 @@
 
 import * as React from 'react';
 
-import { Badge } from '../../display/badge/Badge';
 import { cn } from '../../core/cn';
 import { linkProps } from '../../core/link';
 
 import { Stack } from '../../layout/Stack';
 
+import { Badge } from '../../display/badge/Badge';
 import { AvatarGroup, Person } from '../../display/person/Person';
 
 import { TableGlyph } from './tableGlyphs';
 
+import type { AvatarGroupItem } from '../../display/person/Person';
+
 import type { TableFormats } from './tableFormats';
 import type { TableColumn, TableColumnWidth, TableLabels, TablePersonValue } from './tableTypes';
-import type { AvatarGroupItem } from '../../display/person/Person';
 
 
 /* --------

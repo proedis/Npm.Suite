@@ -4,10 +4,8 @@ import { splitBaseProps } from '../core/base';
 import { cn } from '../core/cn';
 import { alignClasses, gapClasses, justifyClasses } from '../core/responsive';
 
-import type { PolymorphicProps } from '../core/polymorphic';
-
 import type { BaseProps } from '../core/base';
-
+import type { PolymorphicProps } from '../core/polymorphic';
 import type { Align, Justify, Responsive, SpacingValue } from '../core/responsive';
 
 

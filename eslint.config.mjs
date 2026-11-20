@@ -75,6 +75,30 @@ export default proedis.defineConfig(
       'import/resolver': { node: { extensions: [ '.ts', '.tsx', '.js', '.mjs' ] } }
     },
     rules: {
+      /*
+       * One order for every import block of the package, so a reader sees the dependencies of a file in
+       * the order of the sections: React, the packages, @proedis, then each section from core to data,
+       * the modules of the same section, the files of the same module, and the types last in the same
+       * order. A group per section keeps a cross-section dependency visible at a glance.
+       */
+      'import/order': [ 'error', {
+        groups    : [ 'builtin', 'external', 'internal', 'parent', 'sibling', 'index', 'type' ],
+        pathGroups: [
+          { pattern: 'react', group: 'external', position: 'before' },
+          { pattern: '@proedis/**', group: 'external', position: 'after' },
+          ...[ ...UI_SECTIONS, 'hooks' ].map((section) => ({
+            pattern : `{../,../../,../../../}${section}/**`,
+            group   : 'parent',
+            position: 'before'
+          }))
+        ],
+        pathGroupsExcludedImportTypes: [ 'builtin' ],
+        distinctGroup                : true,
+        'newlines-between'           : 'always',
+        sortTypesGroup               : true,
+        'newlines-between-types'     : 'always',
+        alphabetize                  : { order: 'asc', caseInsensitive: true }
+      } ],
       'import/no-restricted-paths': [ 'error', {
         zones: [
           ...UI_SECTIONS.slice(0, -1).map((section, index) => ({

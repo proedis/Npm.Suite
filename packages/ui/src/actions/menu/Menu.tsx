@@ -8,10 +8,11 @@ import { cn } from '../../core/cn';
 
 import { Stack } from '../../layout/Stack';
 
+import { CheckGlyph } from '../../internal/glyphs';
+
 import { LIST_ITEM } from '../list-panel/listPanel';
 
 import { MenuContext, Panel, useAfterClose, useMenuContext } from './menuPanel';
-import { CheckGlyph } from '../../internal/glyphs';
 
 import type { LinkTarget } from '../../core/link';
 

@@ -11,13 +11,15 @@ import { cn } from '../../core/cn';
 
 import { Stack } from '../../layout/Stack';
 
-import { IconBox } from '../../display/icon-box/IconBox';
 import { VisuallyHidden } from '../../primitives/VisuallyHidden';
 
-import { IconButton } from '../../actions/button/IconButton';
 import { FOCUSABLE } from '../../internal/focus';
-import { isPresent } from '../../internal/presence';
 import { ClearGlyph, ToneGlyph } from '../../internal/glyphs';
+import { isPresent } from '../../internal/presence';
+
+import { IconButton } from '../../actions/button/IconButton';
+
+import { IconBox } from '../../display/icon-box/IconBox';
 
 import type { BaseProps } from '../../core/base';
 import type { SpacingValue } from '../../core/responsive';

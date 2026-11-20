@@ -13,8 +13,9 @@ import { Stack } from '../../layout/Stack';
 
 import { Spinner } from '../../primitives/Spinner';
 
-import { useFieldControl } from '../field/fieldContext';
 import { isPresent } from '../../internal/presence';
+
+import { useFieldControl } from '../field/fieldContext';
 import { TEXT_CONTROL_FRAME, TEXT_CONTROL_GAP, TEXT_CONTROL_SIZES, TEXT_CONTROL_TEXT, textControlState } from '../text-control/textControl';
 
 import { acceptsTyping, cleanPaste, separatorsOf, widthClass } from './numberText';

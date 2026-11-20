@@ -4,7 +4,6 @@ import * as React from 'react';
 
 import dayjs from 'dayjs';
 
-import type { Dayjs } from 'dayjs';
 import { cn } from '../../core/cn';
 
 import { Stack } from '../../layout/Stack';
@@ -13,6 +12,8 @@ import { Button } from '../../actions/button/Button';
 import { IconButton } from '../../actions/button/IconButton';
 
 import { intlWeekStart } from './dateText';
+
+import type { Dayjs } from 'dayjs';
 
 
 /* --------

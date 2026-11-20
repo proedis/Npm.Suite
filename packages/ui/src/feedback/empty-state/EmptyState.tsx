@@ -7,10 +7,12 @@ import { cn } from '../../core/cn';
 
 import { Stack } from '../../layout/Stack';
 
-import { IconBox } from '../../display/icon-box/IconBox';
+import { ClearGlyph, ToneGlyph } from '../../internal/glyphs';
 
 import { Button } from '../../actions/button/Button';
-import { ClearGlyph, ToneGlyph } from '../../internal/glyphs';
+
+import { IconBox } from '../../display/icon-box/IconBox';
+
 
 import type { BaseProps } from '../../core/base';
 import type { LinkTarget } from '../../core/link';

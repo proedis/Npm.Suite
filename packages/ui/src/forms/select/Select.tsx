@@ -15,8 +15,9 @@ import { Stack } from '../../layout/Stack';
 
 import { Spinner } from '../../primitives/Spinner';
 
+import { CheckGlyph, ClearGlyph, SearchGlyph } from '../../internal/glyphs';
+
 import { IconButton } from '../../actions/button/IconButton';
-import { useFieldControl, useNonNativeFieldLabel } from '../field/fieldContext';
 import {
   LIST_ITEM,
   LIST_ITEMS,
@@ -30,9 +31,10 @@ import {
   matchesSearch,
   normalizeForSearch
 } from '../../actions/list-panel/listPanel';
+
+import { useFieldControl, useNonNativeFieldLabel } from '../field/fieldContext';
 import { LIST_ITEM_LAYOUT, LIST_PANEL_LAYOUT, toggleFromFrame } from '../list-field/listField';
 import { TEXT_CONTROL_FRAME, TEXT_CONTROL_GAP, TEXT_CONTROL_SIZES, TEXT_CONTROL_TEXT, textControlState } from '../text-control/textControl';
-import { CheckGlyph, ClearGlyph, SearchGlyph } from '../../internal/glyphs';
 
 import type { BaseProps } from '../../core/base';
 

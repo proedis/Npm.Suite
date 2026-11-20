@@ -5,6 +5,7 @@ import * as React from 'react';
 import { Stack } from '../../layout/Stack';
 
 import { Button } from '../../actions/button/Button';
+
 import { Calendar } from '../../forms/calendar/Calendar';
 
 import { isFilterActive } from './filtersBarState';

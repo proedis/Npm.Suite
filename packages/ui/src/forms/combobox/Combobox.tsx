@@ -15,8 +15,9 @@ import { Stack } from '../../layout/Stack';
 import { Spinner } from '../../primitives/Spinner';
 
 
+import { CheckGlyph, ClearGlyph, SearchGlyph } from '../../internal/glyphs';
+
 import { IconButton } from '../../actions/button/IconButton';
-import { useFieldControl } from '../field/fieldContext';
 import {
   ChevronGlyph,
   LIST_ITEM,
@@ -26,11 +27,12 @@ import {
   LIST_POSITIONER,
   LIST_SIDE_OFFSET
 } from '../../actions/list-panel/listPanel';
+
+import { useFieldControl } from '../field/fieldContext';
 import { LIST_ITEM_LAYOUT, LIST_PANEL_LAYOUT, LIST_RETRY, remoteListMessages } from '../list-field/listField';
 import { TEXT_CONTROL_FRAME, TEXT_CONTROL_GAP, TEXT_CONTROL_SIZES, TEXT_CONTROL_TEXT, textControlState } from '../text-control/textControl';
 
 import { MultipleCombobox } from './MultipleCombobox';
-import { CheckGlyph, ClearGlyph, SearchGlyph } from '../../internal/glyphs';
 
 import type { ComboboxItem, ComboboxProps, SingleComboboxProps } from './comboboxTypes';
 

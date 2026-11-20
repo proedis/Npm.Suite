@@ -1,9 +1,11 @@
 import * as React from 'react';
 
 import { responsiveClasses } from '../../core/responsive';
-import { isPresent } from '../../internal/presence';
 
 import { Stack } from '../../layout/Stack';
+
+import { isPresent } from '../../internal/presence';
+
 
 import type { Direction, Responsive } from '../../core/responsive';
 

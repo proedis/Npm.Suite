@@ -2,8 +2,9 @@
 
 import * as React from 'react';
 
-import { TextInput } from '../text-input/TextInput';
 import { EyeGlyph, EyeOffGlyph } from '../../internal/glyphs';
+
+import { TextInput } from '../text-input/TextInput';
 
 import type { TextInputLoadingProps, TextInputProps } from '../text-input/TextInput';
 

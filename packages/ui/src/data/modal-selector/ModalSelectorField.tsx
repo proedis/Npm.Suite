@@ -2,20 +2,24 @@
 
 import * as React from 'react';
 
-import { VisuallyHidden } from '../../primitives/VisuallyHidden';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
 import { Stack } from '../../layout/Stack';
 
-import { IconButton } from '../../actions/button/IconButton';
-import { useFieldControl, useNonNativeFieldLabel } from '../../forms/field/fieldContext';
-import { OverflowTooltipList } from '../../actions/list-panel/listPanel';
-import { TEXT_CONTROL_FRAME, TEXT_CONTROL_GAP, TEXT_CONTROL_SIZES, textControlState } from '../../forms/text-control/textControl';
-import { Tooltip } from '../../actions/tooltip/Tooltip';
+import { VisuallyHidden } from '../../primitives/VisuallyHidden';
+
 import { ClearGlyph } from '../../internal/glyphs';
 
+import { IconButton } from '../../actions/button/IconButton';
+import { OverflowTooltipList } from '../../actions/list-panel/listPanel';
+import { Tooltip } from '../../actions/tooltip/Tooltip';
+
+import { useFieldControl, useNonNativeFieldLabel } from '../../forms/field/fieldContext';
+import { TEXT_CONTROL_FRAME, TEXT_CONTROL_GAP, TEXT_CONTROL_SIZES, textControlState } from '../../forms/text-control/textControl';
+
 import type { BaseProps } from '../../core/base';
+
 import type { TextControlSize } from '../../forms/text-control/textControl';
 
 import type { ModalSelectorRowLabel } from './modalSelectorTypes';

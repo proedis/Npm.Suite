@@ -1,6 +1,6 @@
-import type * as React from 'react';
-
 import { cn } from '../../core/cn';
+
+import type * as React from 'react';
 
 
 /* --------

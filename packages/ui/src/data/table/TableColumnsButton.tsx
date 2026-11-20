@@ -4,11 +4,14 @@ import * as React from 'react';
 
 import { Stack } from '../../layout/Stack';
 
-import { BadgeCounter } from '../../display/badge-counter/BadgeCounter';
 
 import { Button } from '../../actions/button/Button';
 import { IconButton } from '../../actions/button/IconButton';
+
+import { BadgeCounter } from '../../display/badge-counter/BadgeCounter';
+
 import { Checkbox } from '../../forms/checkbox/Checkbox';
+
 import { Popover } from '../../overlays/popover/Popover';
 
 import { TableGlyph } from './tableGlyphs';

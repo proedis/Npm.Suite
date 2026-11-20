@@ -13,9 +13,10 @@ import { cn } from '../../core/cn';
 
 import { Stack } from '../../layout/Stack';
 
+import { isPresent } from '../../internal/presence';
+
 import { CHOICE_ALIGN, CHOICE_FOCUS, CHOICE_ROW, ChoiceText, GROUP_FOCUS_PROPS, baseOrientation, choiceGroupClasses } from '../choice/choice';
 import { useFieldControl, useFieldRegistryContext, useNonNativeFieldLabel } from '../field/fieldContext';
-import { isPresent } from '../../internal/presence';
 
 import type { BaseProps } from '../../core/base';
 import type { Direction, Responsive } from '../../core/responsive';

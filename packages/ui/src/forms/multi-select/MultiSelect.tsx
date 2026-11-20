@@ -15,8 +15,9 @@ import { Stack } from '../../layout/Stack';
 import { Spinner } from '../../primitives/Spinner';
 import { VisuallyHidden } from '../../primitives/VisuallyHidden';
 
+import { CheckGlyph, SearchGlyph } from '../../internal/glyphs';
+
 import { Button } from '../../actions/button/Button';
-import { useFieldControl, useNonNativeFieldLabel } from '../field/fieldContext';
 import {
   LIST_FOOTER,
   LIST_ITEM,
@@ -31,9 +32,10 @@ import {
   ListFieldEnd,
   matchesSearch
 } from '../../actions/list-panel/listPanel';
+
+import { useFieldControl, useNonNativeFieldLabel } from '../field/fieldContext';
 import { LIST_ITEM_LAYOUT, LIST_PANEL_LAYOUT, ListChips, toggleFromFrame } from '../list-field/listField';
 import { TEXT_CONTROL_FRAME, TEXT_CONTROL_GAP, TEXT_CONTROL_SIZES, textControlState } from '../text-control/textControl';
-import { CheckGlyph, SearchGlyph } from '../../internal/glyphs';
 
 import type { BaseProps } from '../../core/base';
 

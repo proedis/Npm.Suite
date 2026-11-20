@@ -8,8 +8,9 @@ import { cn } from '../../core/cn';
 import { Stack } from '../../layout/Stack';
 
 import { Divider } from '../../primitives/Divider';
-import { Item } from '../item/Item';
 import { Spinner } from '../../primitives/Spinner';
+
+import { Item } from '../item/Item';
 
 import type { BaseProps } from '../../core/base';
 import type { PolymorphicProps } from '../../core/polymorphic';

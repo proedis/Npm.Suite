@@ -1,6 +1,7 @@
 import type * as React from 'react';
 
 import type { DialogDiscard } from '../../overlays/dialog/Dialog';
+
 import type { FiltersBarFilter, FiltersBarLabels, FiltersBarSearch } from '../filters-bar/filtersBarTypes';
 import type { TableColumn, TableCustomColumn, TableSelection, TableStatus } from '../table/tableTypes';
 

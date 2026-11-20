@@ -11,11 +11,12 @@ import { Stack } from '../../layout/Stack';
 
 import { VisuallyHidden } from '../../primitives/VisuallyHidden';
 
+import { ClearGlyph, ToneGlyph } from '../../internal/glyphs';
+
 import { Button } from '../../actions/button/Button';
 import { IconButton } from '../../actions/button/IconButton';
 
 import { NotificationsContext, StatusMark, useNotificationsState } from './toastShared';
-import { ClearGlyph, ToneGlyph } from '../../internal/glyphs';
 
 import type { Job, JobStatus, Notifications, NotificationsState, UndoOptions } from './notificationsStore';
 

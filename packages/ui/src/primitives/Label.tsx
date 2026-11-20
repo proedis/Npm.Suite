@@ -5,9 +5,8 @@ import { cn } from '../core/cn';
 
 import { Stack } from '../layout/Stack';
 
-import type { PolymorphicProps } from '../core/polymorphic';
-
 import type { BaseProps } from '../core/base';
+import type { PolymorphicProps } from '../core/polymorphic';
 
 
 /* --------

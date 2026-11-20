@@ -9,10 +9,12 @@ import { useEnhancedEffect, useForkRef } from '@proedis/react';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 import { responsiveClasses, toResponsiveMap } from '../../core/responsive';
-import { isPresent } from '../../internal/presence';
-import { ErrorGlyph } from '../../internal/glyphs';
 
 import { Stack } from '../../layout/Stack';
+
+import { ErrorGlyph } from '../../internal/glyphs';
+import { isPresent } from '../../internal/presence';
+
 
 import {
   FieldControlContext,

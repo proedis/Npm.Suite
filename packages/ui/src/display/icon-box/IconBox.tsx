@@ -4,13 +4,12 @@ import { cva, type VariantProps } from 'class-variance-authority';
 
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
+import { TONE_COMPOUNDS } from '../../core/tone';
 
 import { Stack } from '../../layout/Stack';
 
 import type { BaseProps } from '../../core/base';
 import type { PolymorphicProps } from '../../core/polymorphic';
-import { TONE_COMPOUNDS } from '../../core/tone';
-
 import type { Tone } from '../../core/tone';
 
 

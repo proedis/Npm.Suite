@@ -1,8 +1,9 @@
 'use client';
 
+import { Toast as ToastPrimitive } from '@base-ui/react/toast';
+
 import type * as React from 'react';
 
-import { Toast as ToastPrimitive } from '@base-ui/react/toast';
 
 import type { LinkTarget } from '../../core/link';
 

@@ -12,13 +12,14 @@ import { TONE_CLASSES } from '../../core/tone';
 import { Stack } from '../../layout/Stack';
 
 import { BusyVeil } from '../../primitives/BusyVeil';
-import { IconBox } from '../../display/icon-box/IconBox';
 import { VisuallyHidden } from '../../primitives/VisuallyHidden';
 
 
 import { FOCUSABLE } from '../../internal/focus';
-import { isPresent } from '../../internal/presence';
 import { ToneGlyph } from '../../internal/glyphs';
+import { isPresent } from '../../internal/presence';
+
+import { IconBox } from '../../display/icon-box/IconBox';
 
 
 /*

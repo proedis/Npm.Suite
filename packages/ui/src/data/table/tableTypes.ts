@@ -2,6 +2,7 @@ import type * as React from 'react';
 
 import type { LinkTarget } from '../../core/link';
 import type { Tone, ToneFill } from '../../core/tone';
+
 import type { AvatarGroupItem, AvatarIdentity } from '../../display/person/Person';
 
 

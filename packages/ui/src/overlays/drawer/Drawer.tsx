@@ -6,10 +6,15 @@ import { Dialog as DialogPrimitive } from '@base-ui/react/dialog';
 
 import { optionalContextBuilder } from '@proedis/react';
 
+import { ClearGlyph } from '../../internal/glyphs';
+import { isPresent } from '../../internal/presence';
+
 import { IconButton } from '../../actions/button/IconButton';
-import { DiscardPrompt, OverlayCancel } from '../dialog/dialogParts';
+
 import { FormHostContext } from '../../forms/field/fieldContext';
 import { FormSubmit } from '../../forms/form/Form';
+
+import { DiscardPrompt, OverlayCancel } from '../dialog/dialogParts';
 import {
   firstField,
   focusTarget,
@@ -26,10 +31,9 @@ import {
   useOrigin,
   useOverlayBusy
 } from '../overlay-shell/overlayShell';
-import { isPresent } from '../../internal/presence';
-import { ClearGlyph } from '../../internal/glyphs';
 
 import type { ButtonProps } from '../../actions/button/Button';
+
 import type { DialogDiscard, DialogLabels } from '../dialog/Dialog';
 import type { OverlayBusy, OverlaySection, OverlaySize } from '../overlay-shell/overlayShell';
 

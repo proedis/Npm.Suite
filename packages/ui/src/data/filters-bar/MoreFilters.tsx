@@ -14,6 +14,7 @@ import { Button } from '../../actions/button/Button';
 import { IconButton } from '../../actions/button/IconButton';
 import { LIST_ITEM, LIST_POSITIONER, LIST_SIDE_OFFSET } from '../../actions/list-panel/listPanel';
 import { Tooltip } from '../../actions/tooltip/Tooltip';
+
 import { LIST_PANEL_LAYOUT } from '../../forms/list-field/listField';
 
 import { FilterBody, filterPanelClass } from './FilterBody';

@@ -8,13 +8,15 @@ import { cn } from '../../core/cn';
 
 import { Stack } from '../../layout/Stack';
 
+import { FOCUSABLE } from '../../internal/focus';
+import { ClearGlyph } from '../../internal/glyphs';
+import { isPresent } from '../../internal/presence';
+
 import { CloseWhenAnchorHidden } from '../../actions/anchor/CloseWhenAnchorHidden';
 import { IconButton } from '../../actions/button/IconButton';
+
 import { FormHostContext } from '../../forms/field/fieldContext';
-import { FOCUSABLE } from '../../internal/focus';
 import { FormSubmit } from '../../forms/form/Form';
-import { isPresent } from '../../internal/presence';
-import { ClearGlyph } from '../../internal/glyphs';
 
 
 /* --------

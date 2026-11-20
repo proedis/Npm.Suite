@@ -10,10 +10,11 @@ import { linkProps } from '../../core/link';
 
 import { Stack } from '../../layout/Stack';
 
-import { BadgeCounter } from '../../display/badge-counter/BadgeCounter';
 
 import { Button } from '../../actions/button/Button';
 import { IconButton } from '../../actions/button/IconButton';
+
+import { BadgeCounter } from '../../display/badge-counter/BadgeCounter';
 
 import { StatusMark, useNotificationsContext } from './toastShared';
 
