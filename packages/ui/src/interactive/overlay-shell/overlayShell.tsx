@@ -149,11 +149,45 @@ export interface OverlayBusyState {
   timedOut: boolean;
 }
 
-/** The timing of a waiting dialog: inert at once, the veil later, and a limit on a save */
+/**
+ * The timing of a waiting dialog: inert at once, the veil later, and a limit on a save.
+ *
+ * The limit belongs to one save. When the wait ends the timeout is forgotten, adjusted while
+ * rendering, so the next save of a dialog that stayed mounted gets its full limit instead of being
+ * reported as timed out at once. `onTimeout` is read from a ref: a caller passes it inline, and as a
+ * dependency of the timer it restarted the limit on every render of the page.
+ */
 export function useOverlayBusy(busy: OverlayBusy | 'action', timeoutMs: number, onTimeout?: () => void): OverlayBusyState {
+
+  // ----
+  // Internal Hooks
+  // ----
   const wait = useDelayedBusy(busy !== false);
+
+
+  // ----
+  // Internal Refs
+  // ----
+  const onTimeoutRef = React.useRef(onTimeout);
+
+
+  // ----
+  // Internal State
+  // ----
   const [ timedOutFor, setTimedOutFor ] = React.useState<OverlayBusy | 'action'>(false);
   const saving = busy === 'submit' || busy === 'action';
+
+  if (!saving && timedOutFor !== false) {
+    setTimedOutFor(false);
+  }
+
+
+  // ----
+  // Lifecycle Events
+  // ----
+  React.useEffect(() => {
+    onTimeoutRef.current = onTimeout;
+  });
 
   React.useEffect(() => {
     if (!saving) {
@@ -162,11 +196,16 @@ export function useOverlayBusy(busy: OverlayBusy | 'action', timeoutMs: number, 
 
     const timer = window.setTimeout(() => {
       setTimedOutFor(busy);
-      onTimeout?.();
+      onTimeoutRef.current?.();
     }, timeoutMs);
 
     return () => window.clearTimeout(timer);
-  }, [ saving, busy, timeoutMs, onTimeout ]);
+  }, [ saving, busy, timeoutMs ]);
+
+
+  // ----
+  // Hook Return
+  // ----
 
   const timedOut = saving && timedOutFor === busy;
 
