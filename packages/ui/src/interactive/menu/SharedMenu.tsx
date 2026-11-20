@@ -109,9 +109,22 @@ export function SharedMenu<P>(props: SharedMenuProps<P>): React.ReactNode {
         return undefined;
       }
 
-      window.addEventListener('scroll', close, { capture: true, passive: true });
+      /*
+       * The page moving under a menu opened at the pointer closes it. A scroll listened to in the
+       * capture phase hears the menu's own list as well, which scrolls when it is long, and that one
+       * must not close it.
+       */
+      const handleScroll = (event: Event): void => {
+        if (event.target instanceof Element && event.target.closest('[role="menu"]') !== null) {
+          return;
+        }
 
-      return () => window.removeEventListener('scroll', close, { capture: true });
+        close();
+      };
+
+      window.addEventListener('scroll', handleScroll, { capture: true, passive: true });
+
+      return () => window.removeEventListener('scroll', handleScroll, { capture: true });
     },
     [ anchor, close ]
   );
