@@ -6,9 +6,8 @@ import { Dialog as DialogPrimitive } from '@base-ui/react/dialog';
 
 import { optionalContextBuilder } from '@proedis/react';
 
-import { AlertDialog } from '../alert-dialog/AlertDialog';
-import { Button } from '../button/Button';
 import { IconButton } from '../button/IconButton';
+import { DiscardPrompt, OverlayCancel } from '../dialog/dialogParts';
 import { FormHostContext } from '../field/fieldContext';
 import { FormSubmit } from '../form/Form';
 import {
@@ -477,20 +476,11 @@ function DrawerRoot(props: DrawerProps): React.ReactNode {
             />
 
             {discard && (
-              <AlertDialog
+              <DiscardPrompt
+                discard={discard}
                 open={pending !== null}
-                onOpenChange={(next) => {
-                  if (!next) {
-                    setPending(null);
-                  }
-                }}
-                tone={'warning'}
-                icon={discard.icon}
-                title={discard.title}
-                description={discard.description}
-                actionLabel={discard.action}
-                cancelLabel={discard.cancel}
-                onAction={() => {
+                onCancel={() => setPending(null)}
+                onConfirm={() => {
                   const move = pending;
 
                   setPending(null);
@@ -499,7 +489,6 @@ function DrawerRoot(props: DrawerProps): React.ReactNode {
                     perform(move);
                   }
                 }}
-                labels={{ busyLoad: '', busyAction: '', close: '', timeout: { title: '', description: '' } }}
               />
             )}
           </OverlayFrame>
@@ -513,21 +502,14 @@ function DrawerRoot(props: DrawerProps): React.ReactNode {
 DrawerRoot.displayName = 'Drawer';
 
 
-/** Cancel in a form: back to the detail when there is one, through the discard prompt when changed */
+/**
+ * Cancel in a form: back to the detail when there is one, through the discard prompt when changed.
+ * The caller's click runs first; a `preventDefault` in it keeps the drawer open
+ */
 const DrawerCancel = React.forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
-  const { onClick, ...others } = props;
   const { requestCancel } = useDrawerGateContext();
 
-  /** The caller's click runs first; a `preventDefault` in it keeps the drawer open */
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>): void => {
-    onClick?.(event as Parameters<NonNullable<typeof onClick>>[0]);
-
-    if (!event.defaultPrevented) {
-      requestCancel();
-    }
-  };
-
-  return <Button fill={'solid'} tone={'secondary'} {...others} ref={ref} onClick={handleClick} />;
+  return <OverlayCancel {...props} ref={ref} onRequest={requestCancel} />;
 });
 
 DrawerCancel.displayName = 'Drawer.Cancel';

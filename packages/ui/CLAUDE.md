@@ -104,7 +104,9 @@ shared by Table and ModalSelector), `tone-glyphs` (the four marks of a tone: cir
 an i, check, triangle, exclamation mark), `roving` (the arrows of a group of buttons, written by hand because
 Base UI's ToggleGroup skips an `aria-disabled` item), `anchor` (closing a floating layer when its
 control leaves the view), `overlay-shell` (container, veil, header, body with scroll shades, footer,
-error box, waiting veil, jolt and nesting level of Dialog, AlertDialog and Drawer). A control marks the element that takes its field's focus with
+error box, waiting veil, jolt and nesting level of Dialog, AlertDialog and Drawer), `dialog/dialogParts`
+(the discard prompt that `dirty` opens and the Cancel that goes through the overlay's gate, shared by
+Dialog and Drawer; apart from `overlay-shell` because it renders an AlertDialog, which imports the shell). A control marks the element that takes its field's focus with
 `data-field-control`: the frame lights from it, the error summary focuses it.
 
 Three choices of tranche 3 that look improvable and are not:

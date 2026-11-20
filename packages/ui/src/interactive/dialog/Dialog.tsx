@@ -6,8 +6,6 @@ import { Dialog as DialogPrimitive } from '@base-ui/react/dialog';
 
 import { optionalContextBuilder } from '@proedis/react';
 
-import { AlertDialog } from '../alert-dialog/AlertDialog';
-import { Button } from '../button/Button';
 import { IconButton } from '../button/IconButton';
 import { FormHostContext } from '../field/fieldContext';
 import { FormSubmit } from '../form/Form';
@@ -27,6 +25,8 @@ import {
   useOverlayBusy
 } from '../overlay-shell/overlayShell';
 import { ClearGlyph } from '../text-input/glyphs';
+
+import { DiscardPrompt, OverlayCancel } from './dialogParts';
 
 import type { ButtonProps } from '../button/Button';
 import type { OverlayBusy, OverlaySection, OverlaySize } from '../overlay-shell/overlayShell';
@@ -369,20 +369,14 @@ function DialogRoot(props: DialogProps): React.ReactNode {
             />
 
             {discard && (
-              <AlertDialog
+              <DiscardPrompt
+                discard={discard}
                 open={discarding}
-                onOpenChange={setDiscarding}
-                tone={'warning'}
-                icon={discard.icon}
-                title={discard.title}
-                description={discard.description}
-                actionLabel={discard.action}
-                cancelLabel={discard.cancel}
-                onAction={() => {
+                onCancel={() => setDiscarding(false)}
+                onConfirm={() => {
                   setDiscarding(false);
                   onOpenChange(false);
                 }}
-                labels={{ busyLoad: '', busyAction: '', close: '', timeout: { title: '', description: '' } }}
               />
             )}
           </OverlayFrame>
@@ -396,21 +390,14 @@ function DialogRoot(props: DialogProps): React.ReactNode {
 DialogRoot.displayName = 'Dialog';
 
 
-/** The exit next to the primary: the same gate as the x, so `dirty` asks first */
+/**
+ * The exit next to the primary: the same gate as the x, so `dirty` asks first. The caller's click
+ * runs first; a `preventDefault` in it keeps the dialog open
+ */
 const DialogCancel = React.forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
-  const { onClick, ...others } = props;
   const { requestClose } = useDialogCloseContext();
 
-  /** The caller's click runs first; a `preventDefault` in it keeps the dialog open */
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>): void => {
-    onClick?.(event as Parameters<NonNullable<typeof onClick>>[0]);
-
-    if (!event.defaultPrevented) {
-      requestClose();
-    }
-  };
-
-  return <Button fill={'solid'} tone={'secondary'} {...others} ref={ref} onClick={handleClick} />;
+  return <OverlayCancel {...props} ref={ref} onRequest={requestClose} />;
 });
 
 DialogCancel.displayName = 'Dialog.Cancel';
