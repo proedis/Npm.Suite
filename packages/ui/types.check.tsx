@@ -15,24 +15,24 @@
 import * as React from 'react';
 
 import { Badge, Box, Container, Heading, IconBox, Item, Label, Spinner, Stack, Surface, VisuallyHidden } from './src';
-import { AlertDialog } from './src/interactive/alert-dialog';
-import { Button, IconButton } from './src/interactive/button';
-import { Drawer } from './src/interactive/drawer';
-import { Checkbox, CheckboxGroup } from './src/interactive/checkbox';
-import { Combobox } from './src/interactive/combobox';
-import { Detail } from './src/interactive/detail';
-import { Field } from './src/interactive/field';
-import { FiltersBar } from './src/interactive/filters-bar';
-import { FieldShell } from './src/interactive/field-shell';
-import { PasswordInput } from './src/interactive/password-input';
-import { Radio, RadioGroup } from './src/interactive/radio';
-import { SegmentedControl } from './src/interactive/segmented-control';
-import { Switch } from './src/interactive/switch';
-import { Tabs } from './src/interactive/tabs';
-import { Toggle, ToggleGroup } from './src/interactive/toggle';
+import { AlertDialog } from './src/overlays/alert-dialog';
+import { Button, IconButton } from './src/actions/button';
+import { Drawer } from './src/overlays/drawer';
+import { Checkbox, CheckboxGroup } from './src/forms/checkbox';
+import { Combobox } from './src/forms/combobox';
+import { Detail } from './src/data/detail';
+import { Field } from './src/forms/field';
+import { FiltersBar } from './src/data/filters-bar';
+import { FieldShell } from './src/forms/field-shell';
+import { PasswordInput } from './src/forms/password-input';
+import { Radio, RadioGroup } from './src/forms/radio';
+import { SegmentedControl } from './src/actions/segmented-control';
+import { Switch } from './src/forms/switch';
+import { Tabs } from './src/actions/tabs';
+import { Toggle, ToggleGroup } from './src/actions/toggle';
 
 import type { StackProps } from './src';
-import type { FiltersBarLabels } from './src/interactive/filters-bar';
+import type { FiltersBarLabels } from './src/data/filters-bar';
 
 /*
  * The parts of a compound are reachable through the dot and nowhere else, so this import has to fail.

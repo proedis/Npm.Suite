@@ -31,4 +31,18 @@ export * from './core';
 
 export * from './layout';
 
-export * from './components';
+export * from './primitives';
+
+export * from './display/badge';
+
+export * from './display/badge-counter';
+
+export * from './display/heading';
+
+export * from './display/icon-box';
+
+export * from './display/item';
+
+export * from './display/labeled-content';
+
+export * from './display/surface';
