@@ -169,8 +169,18 @@ Three things every interactive component does, on top of "Writing a new componen
   `labels`, `loadingLabel`, a `title` function for anything with a count).
 - **Every part has its `data-slot`, every resolved variant and state its `data-*`.** That is the
   surface a product's skin targets with unlayered rules, so a rename is a major.
-- **A component that can be a trigger forwards its ref.** The React range starts at 18, where a
-  function component given to `render` receives no ref and a tooltip or a menu has nothing to anchor to.
+- **A component that can be a trigger forwards its ref, and spreads the rest of its props.** The React
+  range starts at 18, where a function component given to `render` receives no ref and a tooltip or a
+  menu has nothing to anchor to; and a trigger also hands down its handlers and `aria-*`, which a
+  closed list of props drops. The same spread is what lets a form library reach `onBlur`.
+- **When the root is not the control, the two get different props.** A `Checkbox` is a row (`<label>`)
+  around a box that takes the focus; a `TextInput` is a frame around an `<input>`. `className` and the
+  shared props go on the root, where the layout is; the native props, the `ref` and every `aria-*` go
+  on the control, where the focus is. `TextInput`, `Checkbox`, `Radio` and `Switch` follow it.
+- **A name the component cannot do without is in the type, not in a comment.** An icon-only `Toggle`
+  or `SegmentedControl.Item` without `aria-label`, a `ToggleGroup` or `SegmentedControl` with neither
+  `aria-label` nor `aria-labelledby`, a `SegmentedControl` with neither `value` nor `defaultValue` (it
+  is never empty): each is a union that does not compile, asserted in `types.check.tsx`.
 - **A layout prop whose right value depends on the width is `Responsive<T>`**, as in the primitives,
   built with `responsiveClasses` and declared with every prefix in the `@source inline(...)` block of
   `theme.css`. Today: `Field` `span` and `breakBefore`, the `orientation` of the two groups (through

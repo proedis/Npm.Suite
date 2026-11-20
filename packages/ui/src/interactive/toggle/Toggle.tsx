@@ -31,10 +31,7 @@ import type { BaseProps } from '../../core/base';
 
 export type ToggleSize = 'sm' | 'md';
 
-export interface ToggleProps extends BaseProps {
-  /** The visible label, optional with `leading`. It does not change with the state: the state is `aria-pressed` */
-  children?: React.ReactNode;
-
+export interface StrictToggleProps extends BaseProps {
   /** The icon, as a node */
   leading?: React.ReactNode;
 
@@ -60,13 +57,27 @@ export interface ToggleProps extends BaseProps {
   /** A change is being saved: clicks are ignored, nothing changes in its look */
   pending?: boolean;
 
-  /** Required without visible text; it is also the text of the tooltip */
-  'aria-label'?: string;
-
   className?: string;
 }
 
-export interface ToggleGroupProps extends BaseProps {
+/**
+ * A toggle always has a name: its visible label, or, icon only, an `aria-label`, which is also the
+ * text of its tooltip. The type asks for one of the two rather than trusting a comment.
+ */
+export type ToggleNameProps =
+  | {
+    /** The visible label, optional with `leading`. It does not change with the state: the state is `aria-pressed` */
+    children: React.ReactNode;
+    'aria-label'?: string;
+  }
+  | { children?: undefined; 'aria-label': string };
+
+export type ToggleProps = StrictToggleProps & ToggleNameProps & Omit<
+  React.ComponentProps<'button'>,
+  keyof StrictToggleProps | 'children' | 'aria-label' | 'ref' | 'value' | 'defaultValue' | 'onChange'
+>;
+
+export interface StrictToggleGroupProps extends BaseProps {
   /** The items on */
   value?: string[];
   defaultValue?: string[];
@@ -83,13 +94,19 @@ export interface ToggleGroupProps extends BaseProps {
 
   pending?: boolean;
 
-  /** One of the two is required: a group always has a name */
-  'aria-label'?: string;
-  'aria-labelledby'?: string;
-
   children: React.ReactNode;
   className?: string;
 }
+
+/** A group always has a name, and the type asks for it */
+export type ToggleGroupNameProps =
+  | { 'aria-label': string; 'aria-labelledby'?: string }
+  | { 'aria-label'?: string; 'aria-labelledby': string };
+
+export type ToggleGroupProps = StrictToggleGroupProps & ToggleGroupNameProps & Omit<
+  React.ComponentProps<'div'>,
+  keyof StrictToggleGroupProps | 'aria-label' | 'aria-labelledby' | 'ref' | 'defaultValue' | 'onChange'
+>;
 
 interface ToggleGroupContextValue {
   size: ToggleSize;
@@ -159,10 +176,11 @@ export const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>((props, r
     pending = false,
     pressed,
     size,
-    value
+    value,
+    ...others
   } = props;
 
-  const { baseClasses } = splitBaseProps(props);
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -200,6 +218,7 @@ export const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>((props, r
   // ----
   const toggle = (
     <TogglePrimitive
+      {...rest}
       ref={ref}
       value={value}
       pressed={pressed}
@@ -207,9 +226,9 @@ export const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>((props, r
       onPressedChange={handlePressedChange}
       aria-label={ariaLabel}
       aria-disabled={isDisabled || undefined}
-      data-disabled={isDisabled ? '' : undefined}
-      data-pending={isPending ? '' : undefined}
-      data-icon-only={iconOnly ? '' : undefined}
+      data-disabled={isDisabled || undefined}
+      data-pending={isPending || undefined}
+      data-icon-only={iconOnly || undefined}
       data-size={resolvedSize}
       data-slot={'toggle'}
       className={cn(
@@ -263,16 +282,14 @@ Toggle.displayName = 'Toggle';
  * </ToggleGroup>
  * ```
  *
- * Parts with a slot: `toggle-group` (with `data-size`, `data-disabled`).
+ * Parts with a slot: `toggle-group` (with `data-size`, `data-disabled`, `data-pending`).
  */
-export function ToggleGroup(props: ToggleGroupProps): React.ReactNode {
+export const ToggleGroup = React.forwardRef<HTMLDivElement, ToggleGroupProps>((props, ref) => {
 
   // ----
   // Props Deconstruct
   // ----
   const {
-    'aria-label': ariaLabel,
-    'aria-labelledby': ariaLabelledBy,
     children,
     className,
     defaultValue,
@@ -281,10 +298,11 @@ export function ToggleGroup(props: ToggleGroupProps): React.ReactNode {
     onValueChange,
     pending = false,
     size = 'md',
-    value
+    value,
+    ...others
   } = props;
 
-  const { baseClasses } = splitBaseProps(props);
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -315,18 +333,22 @@ export function ToggleGroup(props: ToggleGroupProps): React.ReactNode {
   return (
     <ToggleGroupContext.Provider value={context}>
       <ToggleGroupPrimitive
+        {...rest}
+        ref={ref}
         multiple
         loopFocus
         value={value}
         defaultValue={defaultValue}
         onValueChange={handleValueChange}
-        onKeyDown={(event: React.KeyboardEvent<HTMLDivElement>) => handleRovingKeyDown(event, '[data-slot=toggle]')}
-        aria-label={ariaLabel}
-        aria-labelledby={ariaLabelledBy}
+        onKeyDown={(event: React.KeyboardEvent<HTMLDivElement>) => {
+          rest.onKeyDown?.(event);
+          handleRovingKeyDown(event, '[data-slot=toggle]');
+        }}
         aria-disabled={disabled || undefined}
         data-slot={'toggle-group'}
         data-size={size}
-        data-disabled={disabled ? '' : undefined}
+        data-disabled={disabled || undefined}
+        data-pending={pending || undefined}
         className={cn('inline-flex shrink-0 items-center gap-1', baseClasses, className)}
       >
         {children}
@@ -334,6 +356,6 @@ export function ToggleGroup(props: ToggleGroupProps): React.ReactNode {
     </ToggleGroupContext.Provider>
   );
 
-}
+});
 
 ToggleGroup.displayName = 'ToggleGroup';

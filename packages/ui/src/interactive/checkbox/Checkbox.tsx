@@ -8,6 +8,7 @@ import { Field as FieldPrimitive } from '@base-ui/react/field';
 
 import { optionalContextBuilder, useEnhancedEffect } from '@proedis/react';
 
+import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
 import { CHECKBOX_BOX, CHOICE_ALIGN, CHOICE_FOCUS, CHOICE_ROW, CheckGlyph, ChoiceText, DashGlyph, GROUP_FOCUS_PROPS, baseOrientation, choiceGroupClasses } from '../choice/choice';
@@ -17,6 +18,7 @@ import {
   useNonNativeFieldLabel
 } from '../field/fieldContext';
 
+import type { BaseProps } from '../../core/base';
 import type { Direction, Responsive } from '../../core/responsive';
 
 
@@ -24,7 +26,7 @@ import type { Direction, Responsive } from '../../core/responsive';
  * Types Definition
  * -------- */
 
-export interface CheckboxProps {
+export interface StrictCheckboxProps extends BaseProps {
   /** The label of the option, as content. Without it the box needs an `aria-label` */
   children?: React.ReactNode;
 
@@ -58,13 +60,20 @@ export interface CheckboxProps {
   /** The name it is submitted under */
   name?: string;
 
-  id?: string;
+  /** Classes for the row, last so they win */
   className?: string;
-  'aria-label'?: string;
-  'aria-describedby'?: string;
 }
 
-export interface CheckboxGroupProps {
+/**
+ * The row takes `className` and the shared props; everything else a `<span>` accepts goes on the box,
+ * the element that takes the focus: `id`, `aria-*`, `onBlur` for a form library, a tooltip's handlers.
+ */
+export type CheckboxProps = StrictCheckboxProps & Omit<
+  React.ComponentProps<'span'>,
+  keyof StrictCheckboxProps | 'ref' | 'onChange' | 'defaultValue'
+>;
+
+export interface StrictCheckboxGroupProps extends BaseProps {
   /** The values that are checked */
   value?: string[];
   defaultValue?: string[];
@@ -83,8 +92,16 @@ export interface CheckboxGroupProps {
   readOnly?: boolean;
 
   children?: React.ReactNode;
+
+  /** Classes for the group, last so they win */
   className?: string;
 }
+
+/** Outside a `Field` the group needs a name of its own: `aria-label` or `aria-labelledby` */
+export type CheckboxGroupProps = StrictCheckboxGroupProps & Omit<
+  React.ComponentProps<'div'>,
+  keyof StrictCheckboxGroupProps | 'ref' | 'onChange' | 'defaultValue'
+>;
 
 interface GroupChild {
   readonly value: string;
@@ -138,9 +155,10 @@ const BOX = [ CHECKBOX_BOX, CHOICE_ALIGN, CHOICE_FOCUS ].join(' ');
  * change when it is empty or partial, clears them when it is checked. Disabled and read-only options
  * keep their value. Two levels at most, and the children are indented.
  *
- * Slots: `checkbox-group` (with `data-orientation`), and the slots of each `Checkbox`.
+ * Slots: `checkbox-group` (with `data-orientation`, `data-disabled`, `data-readonly`, `data-invalid`),
+ * and the slots of each `Checkbox`.
  */
-export function CheckboxGroup(props: CheckboxGroupProps): React.ReactNode {
+export const CheckboxGroup = React.forwardRef<HTMLDivElement, CheckboxGroupProps>((props, ref) => {
 
   // ----
   // Props Deconstruct
@@ -153,8 +171,11 @@ export function CheckboxGroup(props: CheckboxGroupProps): React.ReactNode {
     onValueChange,
     orientation = 'vertical',
     readOnly = false,
-    value
+    value,
+    ...others
   } = props;
+
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -209,22 +230,30 @@ export function CheckboxGroup(props: CheckboxGroupProps): React.ReactNode {
   // ----
   // Component Render
   // ----
+  const isDisabled = disabled || field.disabled;
+
   return (
     <CheckboxGroupPrimitive
+      {...rest}
+      ref={ref}
       value={current}
       onValueChange={(next) => state.setValue(next)}
-      disabled={disabled || field.disabled}
+      disabled={isDisabled}
       aria-invalid={field.invalid || undefined}
       aria-required={field.required || undefined}
       aria-readonly={readOnly || undefined}
       {...GROUP_FOCUS_PROPS}
       data-slot={'checkbox-group'}
       data-orientation={baseOrientation(orientation)}
+      data-disabled={isDisabled || undefined}
+      data-readonly={readOnly || undefined}
+      data-invalid={field.invalid || undefined}
       data-field-control={''}
       className={cn(
         'flex',
         choiceGroupClasses(orientation),
         'has-[>[data-parent]]:*:not-data-parent:ms-6',
+        baseClasses,
         className
       )}
     >
@@ -234,7 +263,7 @@ export function CheckboxGroup(props: CheckboxGroupProps): React.ReactNode {
     </CheckboxGroupPrimitive>
   );
 
-}
+});
 
 CheckboxGroup.displayName = 'CheckboxGroup';
 
@@ -261,24 +290,25 @@ CheckboxGroup.displayName = 'CheckboxGroup';
  * Read only keeps it reachable and submitted, grey at full opacity; disabled is half opacity and out
  * of the Tab order. The description says why.
  *
- * Slots: `checkbox` (the row, with `data-disabled`, `data-readonly`, `data-parent`), `checkbox-box`,
- * `checkbox-indicator`, `checkbox-text`, `checkbox-label`, `checkbox-description`.
+ * Slots: `checkbox` (the row, with `data-disabled`, `data-readonly`, `data-invalid`, `data-parent`),
+ * `checkbox-box`, `checkbox-indicator`, `checkbox-text`, `checkbox-label`, `checkbox-description`.
+ *
+ * The ref and the native props reach the box, the element that takes the focus, so a checkbox can be
+ * the trigger of a tooltip or the target of a form library; `className` and the shared props reach the row.
  */
-export function Checkbox(props: CheckboxProps): React.ReactNode {
+export const Checkbox = React.forwardRef<HTMLSpanElement, CheckboxProps>((props, ref) => {
 
   // ----
   // Props Deconstruct
   // ----
   const {
     'aria-describedby': ariaDescribedBy,
-    'aria-label': ariaLabel,
     checked,
     children,
     className,
     defaultChecked,
     description,
     disabled = false,
-    id,
     indeterminate = false,
     invalid = false,
     name,
@@ -286,8 +316,11 @@ export function Checkbox(props: CheckboxProps): React.ReactNode {
     parent = false,
     readOnly = false,
     required = false,
-    value
+    value,
+    ...others
   } = props;
+
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -363,7 +396,8 @@ export function Checkbox(props: CheckboxProps): React.ReactNode {
 
   const box = (
     <CheckboxPrimitive.Root
-      id={id}
+      {...rest}
+      ref={ref}
       name={parent ? undefined : name}
       value={parent ? undefined : value}
       /*
@@ -384,7 +418,6 @@ export function Checkbox(props: CheckboxProps): React.ReactNode {
       }}
       disabled={isDisabled}
       readOnly={isReadOnly}
-      aria-label={ariaLabel}
       aria-describedby={describedBy}
       aria-required={showRequired || undefined}
       aria-invalid={isInvalid || undefined}
@@ -404,8 +437,9 @@ export function Checkbox(props: CheckboxProps): React.ReactNode {
       data-slot={'checkbox'}
       data-disabled={isDisabled || undefined}
       data-readonly={isReadOnly || undefined}
+      data-invalid={isInvalid || undefined}
       data-parent={parent || undefined}
-      className={cn(CHOICE_ROW, className)}
+      className={cn(CHOICE_ROW, baseClasses, className)}
     >
       {box}
       <ChoiceText
@@ -418,9 +452,12 @@ export function Checkbox(props: CheckboxProps): React.ReactNode {
     </label>
   );
 
-  /* In a group each option is its own item, so the group's name does not become the option's name */
-  return group ? <FieldPrimitive.Item disabled={isDisabled}>{row}</FieldPrimitive.Item> : row;
+  /*
+   * In a group inside a `Field` each option is its own item, so the group's name does not become the
+   * option's name. Base UI's item demands a field around it: outside one, a named group crashed.
+   */
+  return group && registry ? <FieldPrimitive.Item disabled={isDisabled}>{row}</FieldPrimitive.Item> : row;
 
-}
+});
 
 Checkbox.displayName = 'Checkbox';

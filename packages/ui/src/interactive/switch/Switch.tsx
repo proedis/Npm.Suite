@@ -16,7 +16,7 @@ import type { BaseProps } from '../../core/base';
  * Types Definition
  * -------- */
 
-export interface SwitchProps extends BaseProps {
+export interface StrictSwitchProps extends BaseProps {
   /** What is on, as content. It does not change between on and off */
   children?: React.ReactNode;
 
@@ -39,10 +39,13 @@ export interface SwitchProps extends BaseProps {
   disabled?: boolean;
 
   name?: string;
-  id?: string;
+
+  /** Classes for the row, last so they win */
   className?: string;
-  'aria-label'?: string;
 }
+
+/** The row takes `className` and the shared props; the native props and the ref reach the track, which takes the focus */
+export type SwitchProps = StrictSwitchProps & Omit<React.ComponentProps<'span'>, keyof StrictSwitchProps | 'ref' | 'onChange'>;
 
 
 /* --------
@@ -90,28 +93,31 @@ const THUMB = [
  *
  * Slots: `switch` (the row, with `data-disabled`, `data-readonly`), `switch-track`, `switch-thumb`,
  * `switch-text`, `switch-label`, `switch-description`.
+ *
+ * The ref and the native props reach the track, the element that takes the focus; `className` and the
+ * shared props reach the row.
  */
-export function Switch(props: SwitchProps): React.ReactNode {
+export const Switch = React.forwardRef<HTMLSpanElement, SwitchProps>((props, ref) => {
 
   // ----
   // Props Deconstruct
   // ----
   const {
-    'aria-label': ariaLabel,
+    'aria-describedby': ariaDescribedBy,
     checked,
     children,
     className,
     defaultChecked,
     description,
     disabled = false,
-    id,
     name,
     onCheckedChange,
     pending = false,
-    readOnly = false
+    readOnly = false,
+    ...others
   } = props;
 
-  const { baseClasses } = splitBaseProps(props);
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -133,7 +139,8 @@ export function Switch(props: SwitchProps): React.ReactNode {
       className={cn(CHOICE_ROW, baseClasses, className)}
     >
       <SwitchPrimitive.Root
-        id={id}
+        {...rest}
+        ref={ref}
         name={name}
         checked={checked}
         defaultChecked={defaultChecked}
@@ -148,8 +155,7 @@ export function Switch(props: SwitchProps): React.ReactNode {
         }}
         disabled={disabled}
         readOnly={readOnly}
-        aria-label={ariaLabel}
-        aria-describedby={hasDescription ? descriptionId : undefined}
+        aria-describedby={[ ariaDescribedBy, hasDescription ? descriptionId : undefined ].filter(Boolean).join(' ') || undefined}
         aria-busy={pending || undefined}
         data-slot={'switch-track'}
         className={TRACK}
@@ -161,6 +167,6 @@ export function Switch(props: SwitchProps): React.ReactNode {
     </label>
   );
 
-}
+});
 
 Switch.displayName = 'Switch';

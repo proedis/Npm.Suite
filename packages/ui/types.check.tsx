@@ -16,10 +16,13 @@ import * as React from 'react';
 
 import { Badge, Box, Container, Heading, IconBox, Item, Label, Spinner, Stack, Surface, VisuallyHidden } from './src';
 import { Button } from './src/interactive/button';
-import { CheckboxGroup } from './src/interactive/checkbox';
+import { Checkbox, CheckboxGroup } from './src/interactive/checkbox';
 import { Field } from './src/interactive/field';
 import { FieldShell } from './src/interactive/field-shell';
-import { RadioGroup } from './src/interactive/radio';
+import { Radio, RadioGroup } from './src/interactive/radio';
+import { SegmentedControl } from './src/interactive/segmented-control';
+import { Switch } from './src/interactive/switch';
+import { Toggle, ToggleGroup } from './src/interactive/toggle';
 
 import type { StackProps } from './src';
 
@@ -316,6 +319,40 @@ const wrongShellSize = <FieldShell size={'xl'}>no</FieldShell>;
 
 
 /* --------
+ * The choice family: names the type asks for, the native props of the focused element
+ * -------- */
+
+const namedToggle = <Toggle aria-label={'Auto refresh'} leading={'R'} pressed={false} />;
+
+/** @ts-expect-error an icon-only toggle has no name without `aria-label` */
+const namelessToggle = <Toggle leading={'R'} pressed={false} />;
+
+const namedGroup = <ToggleGroup aria-label={'Columns'}><Toggle value={'a'}>A</Toggle></ToggleGroup>;
+
+/** @ts-expect-error a group always has a name */
+const namelessGroup = <ToggleGroup><Toggle value={'a'}>A</Toggle></ToggleGroup>;
+
+const chosenView = (
+  <SegmentedControl aria-label={'View'} defaultValue={'table'}>
+    <SegmentedControl.Item value={'table'}>Table</SegmentedControl.Item>
+    <SegmentedControl.Item value={'map'} aria-label={'Map'} leading={'M'} />
+  </SegmentedControl>
+);
+
+/** @ts-expect-error never empty: `value` or `defaultValue` */
+const emptyView = <SegmentedControl aria-label={'View'}><SegmentedControl.Item value={'a'}>A</SegmentedControl.Item></SegmentedControl>;
+
+/** @ts-expect-error an icon-only item has no name without `aria-label` */
+const namelessItem = <SegmentedControl.Item value={'map'} leading={'M'} />;
+
+const formLibraryBox = <Checkbox onBlur={() => undefined} aria-label={'Terms'} hideBelow={'md'} />;
+
+const namedRadioGroup = <RadioGroup aria-labelledby={'title'} hideFrom={'lg'}><Radio value={'a'} onFocus={() => undefined}>A</Radio></RadioGroup>;
+
+const switchWithTitle = <Switch title={'Saved at once'} onBlur={() => undefined}>Notify</Switch>;
+
+
+/* --------
  * Keep the compiler from pruning the assertions
  * -------- */
 export const CHECKED = [
@@ -330,5 +367,7 @@ export const CHECKED = [
   baseIsNotABreakpoint, unknownBreakpoint, asAWrapper, labelDefault, quietLabel, spanWithHtmlFor,
   skipLink, contradictoryProps, throughAComponent, missingComponentProp,
   responsiveSpan, singleSpan, wrongSpan, responsiveGroups, wrongOrientation, responsiveBlock, wrongHide,
-  besideOnDesktop, wrongFieldOrientation, ownControl, wrongShellSize
+  besideOnDesktop, wrongFieldOrientation, ownControl, wrongShellSize,
+  namedToggle, namelessToggle, namedGroup, namelessGroup, chosenView, emptyView, namelessItem,
+  formLibraryBox, namedRadioGroup, switchWithTitle
 ];

@@ -8,11 +8,13 @@ import { RadioGroup as RadioGroupPrimitive } from '@base-ui/react/radio-group';
 
 import { optionalContextBuilder } from '@proedis/react';
 
+import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
 import { CHOICE_ALIGN, CHOICE_FOCUS, CHOICE_ROW, ChoiceText, GROUP_FOCUS_PROPS, baseOrientation, choiceGroupClasses } from '../choice/choice';
-import { useFieldControl, useNonNativeFieldLabel } from '../field/fieldContext';
+import { useFieldControl, useFieldRegistryContext, useNonNativeFieldLabel } from '../field/fieldContext';
 
+import type { BaseProps } from '../../core/base';
 import type { Direction, Responsive } from '../../core/responsive';
 
 
@@ -22,7 +24,7 @@ import type { Direction, Responsive } from '../../core/responsive';
 
 export type RadioVariant = 'default' | 'card';
 
-export interface RadioGroupProps {
+export interface StrictRadioGroupProps extends BaseProps {
   /** The chosen option */
   value?: string;
   defaultValue?: string;
@@ -49,10 +51,18 @@ export interface RadioGroupProps {
   name?: string;
 
   children?: React.ReactNode;
+
+  /** Classes for the group, last so they win */
   className?: string;
 }
 
-export interface RadioProps {
+/** Outside a `Field` the group needs a name of its own: `aria-label` or `aria-labelledby` */
+export type RadioGroupProps = StrictRadioGroupProps & Omit<
+  React.ComponentProps<'div'>,
+  keyof StrictRadioGroupProps | 'ref' | 'onChange' | 'defaultValue'
+>;
+
+export interface StrictRadioProps extends BaseProps {
   /** The value of the option */
   value: string;
 
@@ -64,8 +74,12 @@ export interface RadioProps {
 
   disabled?: boolean;
 
+  /** Classes for the row, last so they win */
   className?: string;
 }
+
+/** The row takes `className` and the shared props; the native props and the ref reach the circle, which takes the focus */
+export type RadioProps = StrictRadioProps & Omit<React.ComponentProps<'span'>, keyof StrictRadioProps | 'ref' | 'onChange'>;
 
 interface RadioGroupState {
   readonly variant: RadioVariant;
@@ -143,10 +157,11 @@ const CARD = [
  * wrapping around. Once something is chosen there is no going back to nothing. In a field the label
  * names the group and is not clickable.
  *
- * Slots: `radio-group` (with `data-variant`, `data-orientation`), `radio` (the row or card),
+ * Slots: `radio-group` (with `data-variant`, `data-orientation`, `data-disabled`, `data-readonly`,
+ * `data-invalid`), `radio` (the row or card),
  * `radio-circle`, `radio-dot`, `radio-text`, `radio-label`, `radio-description`.
  */
-export function RadioGroup(props: RadioGroupProps): React.ReactNode {
+export const RadioGroup = React.forwardRef<HTMLDivElement, RadioGroupProps>((props, ref) => {
 
   // ----
   // Props Deconstruct
@@ -162,8 +177,11 @@ export function RadioGroup(props: RadioGroupProps): React.ReactNode {
     orientation = 'vertical',
     readOnly = false,
     value,
-    variant = 'default'
+    variant = 'default',
+    ...others
   } = props;
+
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -178,6 +196,7 @@ export function RadioGroup(props: RadioGroupProps): React.ReactNode {
   // Memoized Data
   // ----
   const isInvalid = invalid || field.invalid;
+  const isDisabled = disabled || field.disabled;
 
   const state = React.useMemo<RadioGroupState>(
     () => ({ variant, invalid: isInvalid, readOnly }),
@@ -190,10 +209,12 @@ export function RadioGroup(props: RadioGroupProps): React.ReactNode {
   // ----
   return (
     <RadioGroupPrimitive
+      {...rest}
+      ref={ref}
       value={value}
       defaultValue={defaultValue}
       onValueChange={(next) => onValueChange?.(next as string)}
-      disabled={disabled || field.disabled}
+      disabled={isDisabled}
       readOnly={readOnly}
       name={name}
       aria-invalid={isInvalid || undefined}
@@ -202,10 +223,14 @@ export function RadioGroup(props: RadioGroupProps): React.ReactNode {
       data-slot={'radio-group'}
       data-variant={variant}
       data-orientation={baseOrientation(orientation)}
+      data-disabled={isDisabled || undefined}
+      data-readonly={readOnly || undefined}
+      data-invalid={isInvalid || undefined}
       data-field-control={''}
       className={cn(
         'flex',
         choiceGroupClasses(orientation, variant === 'card' ? 'card' : 'list'),
+        baseClasses,
         className
       )}
     >
@@ -215,7 +240,7 @@ export function RadioGroup(props: RadioGroupProps): React.ReactNode {
     </RadioGroupPrimitive>
   );
 
-}
+});
 
 RadioGroup.displayName = 'RadioGroup';
 
@@ -224,13 +249,20 @@ RadioGroup.displayName = 'RadioGroup';
  * Component Definition
  * -------- */
 
-/** An option of a `RadioGroup`. The label is its content */
-export function Radio(props: RadioProps): React.ReactNode {
+/**
+ * An option of a `RadioGroup`. The label is its content.
+ *
+ * The ref and the native props reach the circle, the element that takes the focus, so an option can
+ * be the trigger of a tooltip; `className` and the shared props reach the row.
+ */
+export const Radio = React.forwardRef<HTMLSpanElement, RadioProps>((props, ref) => {
 
   // ----
   // Props Deconstruct
   // ----
-  const { children, className, description, disabled = false, value } = props;
+  const { 'aria-describedby': ariaDescribedBy, children, className, description, disabled = false, value, ...others } = props;
+
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -238,6 +270,7 @@ export function Radio(props: RadioProps): React.ReactNode {
   // ----
   const group = useRadioGroupContext();
   const field = useFieldControl();
+  const registry = useFieldRegistryContext();
   const descriptionId = React.useId();
 
 
@@ -247,32 +280,38 @@ export function Radio(props: RadioProps): React.ReactNode {
   const isDisabled = disabled || field.disabled;
   const hasDescription = description !== null && description !== undefined && description !== false;
 
-  return (
-    <FieldPrimitive.Item disabled={isDisabled}>
-      <label
-        data-slot={'radio'}
-        data-variant={group.variant}
-        data-disabled={isDisabled || undefined}
-        data-readonly={group.readOnly || undefined}
+  const row = (
+    <label
+      data-slot={'radio'}
+      data-variant={group.variant}
+      data-disabled={isDisabled || undefined}
+      data-readonly={group.readOnly || undefined}
+      data-invalid={group.invalid || undefined}
+      className={cn(CHOICE_ROW, group.variant === 'card' && CARD, baseClasses, className)}
+    >
+      <RadioPrimitive.Root
+        {...rest}
+        ref={ref}
+        value={value}
+        disabled={isDisabled}
+        aria-describedby={[ ariaDescribedBy, hasDescription ? descriptionId : undefined ].filter(Boolean).join(' ') || undefined}
         data-invalid={group.invalid || undefined}
-        className={cn(CHOICE_ROW, group.variant === 'card' && CARD, className)}
+        data-slot={'radio-circle'}
+        className={CIRCLE}
       >
-        <RadioPrimitive.Root
-          value={value}
-          disabled={isDisabled}
-          aria-describedby={hasDescription ? descriptionId : undefined}
-          data-invalid={group.invalid || undefined}
-          data-slot={'radio-circle'}
-          className={CIRCLE}
-        >
-          <RadioPrimitive.Indicator data-slot={'radio-dot'} className={DOT} />
-        </RadioPrimitive.Root>
+        <RadioPrimitive.Indicator data-slot={'radio-dot'} className={DOT} />
+      </RadioPrimitive.Root>
 
-        <ChoiceText slot={'radio'} label={children} description={description} descriptionId={descriptionId} />
-      </label>
-    </FieldPrimitive.Item>
+      <ChoiceText slot={'radio'} label={children} description={description} descriptionId={descriptionId} />
+    </label>
   );
 
-}
+  /*
+   * Inside a `Field` each option is its own item, so the field's label names the group and not the
+   * option. Base UI's item demands a field around it: outside one, a group named by `aria-label` crashed.
+   */
+  return registry ? <FieldPrimitive.Item disabled={isDisabled}>{row}</FieldPrimitive.Item> : row;
+
+});
 
 Radio.displayName = 'Radio';

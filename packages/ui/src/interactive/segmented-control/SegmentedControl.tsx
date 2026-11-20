@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Toggle as TogglePrimitive } from '@base-ui/react/toggle';
 import { ToggleGroup as ToggleGroupPrimitive } from '@base-ui/react/toggle-group';
 
-import { optionalContextBuilder, useEnhancedEffect } from '@proedis/react';
+import { optionalContextBuilder, useEnhancedEffect, useForkRef } from '@proedis/react';
 
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
@@ -24,10 +24,7 @@ import type { BaseProps } from '../../core/base';
 
 export type SegmentedControlSize = 'sm' | 'md';
 
-export interface SegmentedControlProps extends BaseProps {
-  /** The chosen view. Never empty: one of this and `defaultValue` is required */
-  value?: string;
-  defaultValue?: string;
+export interface StrictSegmentedControlProps extends BaseProps {
   onValueChange?: (value: string) => void;
 
   /** `sm` in a card header or a 28px bar, `md` in a page header. Defaults to `md` */
@@ -37,25 +34,30 @@ export interface SegmentedControlProps extends BaseProps {
   disabled?: boolean;
   disabledReason?: React.ReactNode;
 
-  /** One of the two is required: "View", "Period" */
-  'aria-label'?: string;
-  'aria-labelledby'?: string;
-
   children: React.ReactNode;
   className?: string;
 }
 
-export interface SegmentedControlItemProps {
-  value: string;
+/** The chosen view. Never empty, so the type asks for one of the two */
+export type SegmentedControlValueProps =
+  | { value: string; defaultValue?: undefined }
+  | { value?: undefined; defaultValue: string };
 
-  /** The visible label, one word */
-  children?: React.ReactNode;
+/** A control always has a name, "View", "Period": `aria-label` or `aria-labelledby` */
+export type SegmentedControlNameProps =
+  | { 'aria-label': string; 'aria-labelledby'?: string }
+  | { 'aria-label'?: string; 'aria-labelledby': string };
+
+export type SegmentedControlProps = StrictSegmentedControlProps & SegmentedControlValueProps & SegmentedControlNameProps & Omit<
+  React.ComponentProps<'div'>,
+  keyof StrictSegmentedControlProps | 'value' | 'defaultValue' | 'aria-label' | 'aria-labelledby' | 'ref' | 'onChange'
+>;
+
+export interface StrictSegmentedControlItemProps {
+  value: string;
 
   /** The icon, as a node */
   leading?: React.ReactNode;
-
-  /** Required without `children`; it is also the text of the tooltip */
-  'aria-label'?: string;
 
   /** Never on the chosen item: a view left without data stays chosen and its content says so */
   disabled?: boolean;
@@ -63,6 +65,16 @@ export interface SegmentedControlItemProps {
 
   className?: string;
 }
+
+/** An item has a name: its visible label, one word, or, icon only, an `aria-label` that is also its tooltip */
+export type SegmentedControlItemNameProps =
+  | { children: React.ReactNode; 'aria-label'?: string }
+  | { children?: undefined; 'aria-label': string };
+
+export type SegmentedControlItemProps = StrictSegmentedControlItemProps & SegmentedControlItemNameProps & Omit<
+  React.ComponentProps<'button'>,
+  keyof StrictSegmentedControlItemProps | 'children' | 'aria-label' | 'ref' | 'defaultValue' | 'onChange'
+>;
 
 /** The box of the chosen item inside the rail, in pixels */
 interface IndicatorBox {
@@ -139,7 +151,8 @@ function SegmentedControlItem(props: SegmentedControlItemProps, ref: React.Forwa
     disabled = false,
     disabledReason,
     leading,
-    value
+    value,
+    ...rest
   } = props;
 
 
@@ -176,14 +189,15 @@ function SegmentedControlItem(props: SegmentedControlItemProps, ref: React.Forwa
   // ----
   const item = (
     <TogglePrimitive
+      {...rest}
       {...tabStop}
       ref={ref}
       value={value}
       onPressedChange={handlePressedChange}
       aria-label={ariaLabel}
       aria-disabled={isDisabled || undefined}
-      data-disabled={isDisabled ? '' : undefined}
-      data-icon-only={iconOnly ? '' : undefined}
+      data-disabled={isDisabled || undefined}
+      data-icon-only={iconOnly || undefined}
       data-slot={'segmented-control-item'}
       className={cn(
         PRESSABLE_BASE,
@@ -248,14 +262,12 @@ function SegmentedControlItem(props: SegmentedControlItemProps, ref: React.Forwa
  * (with `data-pressed`, `data-disabled`, `data-icon-only`), `segmented-control-content`,
  * `segmented-control-leading`.
  */
-function SegmentedControlRoot(props: SegmentedControlProps): React.ReactNode {
+const SegmentedControlRoot = React.forwardRef<HTMLDivElement, SegmentedControlProps>((props, ref) => {
 
   // ----
   // Props Deconstruct
   // ----
   const {
-    'aria-label': ariaLabel,
-    'aria-labelledby': ariaLabelledBy,
     children,
     className,
     defaultValue,
@@ -263,10 +275,11 @@ function SegmentedControlRoot(props: SegmentedControlProps): React.ReactNode {
     disabledReason,
     onValueChange,
     size = 'md',
-    value
+    value,
+    ...others
   } = props;
 
-  const { baseClasses } = splitBaseProps(props);
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -277,6 +290,7 @@ function SegmentedControlRoot(props: SegmentedControlProps): React.ReactNode {
   const [ indicator, setIndicator ] = React.useState<IndicatorBox | null>(null);
 
   const railRef = React.useRef<HTMLDivElement>(null);
+  const handleRef = useForkRef(railRef, ref);
 
   const chosen = value !== undefined ? value : ownValue;
 
@@ -354,19 +368,27 @@ function SegmentedControlRoot(props: SegmentedControlProps): React.ReactNode {
   return (
     <SegmentedContext.Provider value={context}>
       <ToggleGroupPrimitive
-        ref={railRef}
+        {...rest}
+        ref={handleRef}
         loopFocus
         value={chosen !== undefined ? [ chosen ] : []}
         onValueChange={handleValueChange}
-        onFocus={() => setFocusInside(true)}
-        onBlur={handleBlur}
-        onKeyDown={(event: React.KeyboardEvent<HTMLDivElement>) => handleRovingKeyDown(event, '[data-slot=segmented-control-item]')}
-        aria-label={ariaLabel}
-        aria-labelledby={ariaLabelledBy}
+        onFocus={(event: React.FocusEvent<HTMLDivElement>) => {
+          rest.onFocus?.(event);
+          setFocusInside(true);
+        }}
+        onBlur={(event: React.FocusEvent<HTMLDivElement>) => {
+          rest.onBlur?.(event);
+          handleBlur(event);
+        }}
+        onKeyDown={(event: React.KeyboardEvent<HTMLDivElement>) => {
+          rest.onKeyDown?.(event);
+          handleRovingKeyDown(event, '[data-slot=segmented-control-item]');
+        }}
         aria-disabled={disabled || undefined}
         data-slot={'segmented-control'}
         data-size={size}
-        data-disabled={disabled ? '' : undefined}
+        data-disabled={disabled || undefined}
         className={cn(
           'relative inline-grid shrink-0 grid-flow-col auto-cols-fr items-stretch rounded-md bg-muted inset-ring inset-ring-border',
           'has-data-icon-only:auto-cols-auto',
@@ -383,7 +405,7 @@ function SegmentedControlRoot(props: SegmentedControlProps): React.ReactNode {
           <span
             aria-hidden
             data-slot={'segmented-control-indicator'}
-            data-disabled={disabled ? '' : undefined}
+            data-disabled={disabled || undefined}
             className={INDICATOR}
             style={{
               '--indicator-left'  : `${indicator.left}px`,
@@ -398,7 +420,7 @@ function SegmentedControlRoot(props: SegmentedControlProps): React.ReactNode {
     </SegmentedContext.Provider>
   );
 
-}
+});
 
 
 export const SegmentedControl = Object.assign(SegmentedControlRoot, {
