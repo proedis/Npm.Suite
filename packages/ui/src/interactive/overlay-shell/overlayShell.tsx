@@ -7,6 +7,7 @@ import { Dialog as DialogPrimitive } from '@base-ui/react/dialog';
 import { inertValue, optionalContextBuilder, useDelayedBusy, useSyncedRef } from '@proedis/react';
 
 import { cn } from '../../core/cn';
+import { TONE_CLASSES } from '../../core/tone';
 
 import { BusyVeil } from '../../components/BusyVeil';
 import { IconBox } from '../../components/IconBox';
@@ -411,7 +412,10 @@ export const OverlayError = React.forwardRef<HTMLDivElement, { children: React.R
     ref={ref}
     tabIndex={-1}
     data-slot={`${props.dataSlot}-error`}
-    className={'flex items-start gap-2 rounded-md bg-destructive-soft px-3 py-2 text-destructive-soft-foreground outline-none focus-visible:outline-2 focus-visible:outline-ring'}
+    className={cn(
+      'flex items-start gap-2 rounded-md px-3 py-2 outline-none focus-visible:outline-2 focus-visible:outline-ring',
+      TONE_CLASSES.soft.destructive
+    )}
   >
     <ToneGlyph tone={'destructive'} className={'mt-0.5 size-4 shrink-0'} />
     <div data-slot={`${props.dataSlot}-error-message`} className={'min-w-0 flex-1'}>{props.children}</div>
@@ -638,7 +642,7 @@ export function OverlayBody(props: OverlayBodyProps): React.ReactNode {
                 >
                   <span className={'min-w-0 flex-1'}>{section.label}</span>
                   {errors > 0 && (
-                    <span className={'inline-flex items-center gap-1 text-xs text-destructive'}>
+                    <span className={cn('inline-flex items-center gap-1 text-xs', TONE_CLASSES.plain.destructive)}>
                       <ToneGlyph tone={'destructive'} className={'size-3.5'} />
                       {errors}
                     </span>

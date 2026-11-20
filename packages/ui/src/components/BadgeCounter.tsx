@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import { splitBaseProps } from '../core/base';
 import { cn } from '../core/cn';
+import { TONE_CLASSES } from '../core/tone';
 
 import type { BaseProps } from '../core/base';
 
@@ -31,8 +32,8 @@ export interface BadgeCounterProps extends BaseProps {
  * -------- */
 
 const TONES: Readonly<Record<BadgeCounterTone, string>> = {
-  info       : 'bg-info text-info-foreground',
-  destructive: 'bg-destructive text-destructive-foreground'
+  info       : TONE_CLASSES.solid.info,
+  destructive: TONE_CLASSES.solid.destructive
 };
 
 
