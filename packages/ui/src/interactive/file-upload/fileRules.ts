@@ -64,6 +64,11 @@ export function acceptsFile(file: Pick<File, 'name' | 'type'>, accept: string | 
       return name.endsWith(rule);
     }
 
+    // Any type at all: the family test below would look for a type whose family is the star itself
+    if (rule === '*' || rule === '*/*') {
+      return true;
+    }
+
     if (rule.endsWith('/*')) {
       return type.startsWith(rule.slice(0, -1));
     }
