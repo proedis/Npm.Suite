@@ -217,6 +217,11 @@ export function useSearchQuery<TItem>(options: UseSearchQueryOptions<TItem>): Se
     isPending,
     error      : query.error,
     retry      : () => {
+      /* `refetch` ignores `enabled`: under `minChars` it would send the request the hook promises never leaves */
+      if (!active) {
+        return;
+      }
+
       query.refetch().catch(() => undefined);
     },
     flush: () => setDebounced(trimmed)
