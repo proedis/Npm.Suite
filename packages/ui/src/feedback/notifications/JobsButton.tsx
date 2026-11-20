@@ -8,6 +8,8 @@ import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 import { linkProps } from '../../core/link';
 
+import { Stack } from '../../layout/Stack';
+
 import { BadgeCounter } from '../../display/badge-counter/BadgeCounter';
 
 import { Button } from '../../actions/button/Button';
@@ -75,21 +77,35 @@ function HistoryRow(props: {
     : entry.title;
 
   return (
-    <li data-slot={'jobs-history-row'} data-unseen={unseen || undefined} className={'flex items-start gap-2 rounded-sm px-3 py-2'}>
+    <Stack
+      as={'li'}
+      data-slot={'jobs-history-row'}
+      data-unseen={unseen || undefined}
+      direction={'horizontal'}
+      align={'start'}
+      gap={2}
+      className={'rounded-sm px-3 py-2'}
+    >
       <StatusMark status={entry.status} className={'mt-0.5'} />
       <div className={'min-w-0 flex-1'}>
         <div className={cn(unseen ? 'font-semibold' : 'font-normal')}>{title}</div>
         {entry.detail !== null && entry.detail !== undefined && <div className={'text-xs text-muted-foreground'}>{entry.detail}</div>}
-        <div className={'flex items-center gap-1.5 text-xs text-muted-foreground'}>
+        <Stack
+          data-slot={'jobs-history-row-meta'}
+          direction={'horizontal'}
+          align={'center'}
+          gap={1.5}
+          className={'text-xs text-muted-foreground'}
+        >
           {unseen && <span aria-hidden className={'size-2 rounded-full bg-info'} />}
           {labels.time(entry.time)}
           {undoOpen && entry.undo?.until && <span>{`· ${labels.undoUntil(entry.undo.until)}`}</span>}
-        </div>
+        </Stack>
       </div>
       {undoOpen && entry.undo && (
         <Button size={'sm'} fill={'plain'} tone={'primary'} onClick={() => onUndo(entry.id)}>{labels.undo}</Button>
       )}
-    </li>
+    </Stack>
   );
 }
 
@@ -112,7 +128,7 @@ function HistoryRow(props: {
  * "Undo" stays on its row until the operation can no longer be undone. Needs `NotificationsProvider`.
  *
  * Parts with a slot: `jobs` (the wrapper of the button and its badge), `jobs-button`, `jobs-history`,
- * `jobs-history-row` (with `data-unseen`).
+ * `jobs-history-row` (with `data-unseen`), `jobs-history-row-meta`.
  */
 export function JobsButton(props: JobsButtonProps): React.ReactNode {
 
@@ -167,7 +183,7 @@ export function JobsButton(props: JobsButtonProps): React.ReactNode {
   // ----
   return (
     <PopoverPrimitive.Root open={open} onOpenChange={handleOpenChange}>
-      <span data-slot={'jobs'} className={cn('relative inline-flex', baseClasses, className)}>
+      <Stack as={'span'} data-slot={'jobs'} inline direction={'horizontal'} className={cn('relative', baseClasses, className)}>
         <PopoverPrimitive.Trigger
           render={(
             <IconButton
@@ -180,14 +196,15 @@ export function JobsButton(props: JobsButtonProps): React.ReactNode {
         />
         <BadgeCounter count={unseen.length} tone={hasError ? 'destructive' : 'info'} />
         {unseen.length > 0 && <span id={countId} hidden>{labels.unseen(unseen.length)}</span>}
-      </span>
+      </Stack>
 
       <PopoverPrimitive.Portal>
         <PopoverPrimitive.Positioner sideOffset={4} collisionPadding={8} align={'end'} className={'z-popover'}>
           <PopoverPrimitive.Popup
             data-slot={'jobs-history'}
+            render={<Stack />}
             className={cn(
-              'flex max-h-(--available-height) w-90 flex-col rounded-md bg-popover p-1 text-sm text-popover-foreground shadow-md outline-none',
+              'max-h-(--available-height) w-90 rounded-md bg-popover p-1 text-sm text-popover-foreground shadow-md outline-none',
               'transition-opacity duration-150 data-starting-style:opacity-0 data-ending-style:transition-none motion-reduce:transition-none'
             )}
           >

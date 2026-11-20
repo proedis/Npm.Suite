@@ -9,6 +9,8 @@ import { useForkRef } from '@proedis/react';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 import { IconBox } from '../../display/icon-box/IconBox';
 import { VisuallyHidden } from '../../primitives/VisuallyHidden';
 
@@ -86,8 +88,13 @@ export type AlertTone = AlertProps['tone'];
 /** The default size, one source for `cva` and for the reported `data-size` */
 const DEFAULT_VARIANTS = { size: 'md' } as const;
 
+/*
+ * The layout stays in the recipe: `alertVariants` is public, and a consumer who puts it on an element
+ * of its own gets no Stack to lay that element out
+ */
 const alertVariants = cva(
   [
+    // eslint-disable-next-line no-restricted-syntax -- public recipe, applied by consumers to their own elements
     '@container flex items-start bg-card text-sm text-foreground',
 
     /* Transparent until the system draws borders itself: then it becomes the frame */
@@ -96,7 +103,9 @@ const alertVariants = cva(
   {
     variants: {
       size: {
+        // eslint-disable-next-line no-restricted-syntax -- public recipe, applied by consumers to their own elements
         md: 'gap-3 rounded-lg border border-transparent px-4 py-3 shadow-sm',
+        // eslint-disable-next-line no-restricted-syntax -- public recipe, applied by consumers to their own elements
         sm: 'gap-2 rounded-md border border-border p-2'
       },
 
@@ -116,6 +125,13 @@ const ICON_BOX: Readonly<Record<AlertSize, { size: 'sm' | 'xs'; className: strin
   md: { size: 'sm', className: 'rounded-md' },
   sm: { size: 'xs', className: 'rounded-sm' }
 };
+
+/**
+ * From a 448px container the action goes beside the text. A container query, which the responsive
+ * props of Stack cannot take: they speak the viewport breakpoints
+ */
+// eslint-disable-next-line no-restricted-syntax -- a container query (@md), not a viewport breakpoint
+const BODY_WIDE = '@md:flex-row @md:items-start @md:gap-3';
 
 /** The first line of text centred on the box: (32 - 20) / 2 and (24 - 20) / 2 */
 const TEXT_OFFSET: Readonly<Record<AlertSize, string>> = {
@@ -266,7 +282,7 @@ export const Alert = React.forwardRef<HTMLDivElement, AlertProps>((props, ref) =
             <ToneGlyph tone={tone} />
           </IconBox>
 
-          <div data-slot={'alert-body'} className={'flex min-w-0 flex-1 flex-col gap-2 @md:flex-row @md:items-start @md:gap-3'}>
+          <Stack data-slot={'alert-body'} gap={2} className={cn('min-w-0 flex-1', BODY_WIDE)}>
             <div className={cn('min-w-0 flex-1 max-w-prose wrap-anywhere', TEXT_OFFSET[size])}>
               {hasTitle && (
                 <div data-slot={'alert-title'} className={'font-semibold text-foreground'}>
@@ -281,11 +297,15 @@ export const Alert = React.forwardRef<HTMLDivElement, AlertProps>((props, ref) =
             </div>
 
             {action !== null && action !== undefined && (
-              <div data-slot={'alert-action'} className={cn('flex shrink-0 @md:ms-auto', size === 'md' ? '@md:mt-0.5' : '@md:-my-0.5')}>
+              <Stack
+                data-slot={'alert-action'}
+                direction={'horizontal'}
+                className={cn('shrink-0 @md:ms-auto', size === 'md' ? '@md:mt-0.5' : '@md:-my-0.5')}
+              >
                 {action}
-              </div>
+              </Stack>
             )}
-          </div>
+          </Stack>
 
           {onDismiss && dismissLabel && (
             <IconButton

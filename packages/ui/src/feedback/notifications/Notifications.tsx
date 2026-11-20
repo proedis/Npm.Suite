@@ -7,6 +7,8 @@ import { Toast as ToastPrimitive } from '@base-ui/react/toast';
 import { cn } from '../../core/cn';
 import { linkProps } from '../../core/link';
 
+import { Stack } from '../../layout/Stack';
+
 import { VisuallyHidden } from '../../primitives/VisuallyHidden';
 
 import { Button } from '../../actions/button/Button';
@@ -111,8 +113,9 @@ function ConfirmationRows(props: { labels: NotificationsLabels; store: Notificat
       toast={toast}
       swipeDirection={[]}
       data-slot={'toast-confirmation'}
+      render={<Stack direction={'horizontal'} align={'center'} gap={3} />}
       className={cn(
-        'pointer-events-auto flex max-w-120 min-h-12 items-center gap-3 rounded-md bg-popover py-2.5 ps-4 pe-2 text-sm text-popover-foreground shadow-lg outline-none wrap-anywhere',
+        'pointer-events-auto max-w-120 min-h-12 rounded-md bg-popover py-2.5 ps-4 pe-2 text-sm text-popover-foreground shadow-lg outline-none wrap-anywhere',
         'focus-visible:outline-2 focus-visible:outline-ring',
         'transition duration-150 data-starting-style:translate-y-2 data-starting-style:opacity-0 data-ending-style:opacity-0 motion-reduce:transition-none'
       )}
@@ -148,12 +151,17 @@ function JobRow(props: { job: Job; labels: NotificationsLabels; store: Notificat
 
   if (action?.target) {
     actionButton = (
-      <a
+      <Stack
+        as={'a'}
         {...linkProps(action.target)}
-        className={'inline-flex h-control-sm shrink-0 items-center rounded-md px-2.5 text-xs font-medium text-primary hover:underline focus-visible:outline-2 focus-visible:outline-ring'}
+        data-slot={'toast-job-link'}
+        inline
+        direction={'horizontal'}
+        align={'center'}
+        className={'h-control-sm shrink-0 rounded-md px-2.5 text-xs font-medium text-primary hover:underline focus-visible:outline-2 focus-visible:outline-ring'}
       >
         {action.label}
-      </a>
+      </Stack>
     );
   }
   else if (action?.onClick) {
@@ -161,7 +169,7 @@ function JobRow(props: { job: Job; labels: NotificationsLabels; store: Notificat
   }
 
   return (
-    <li data-slot={'toast-job'} data-status={job.status} className={'flex items-start gap-3 px-4 py-2.5'}>
+    <Stack as={'li'} data-slot={'toast-job'} data-status={job.status} direction={'horizontal'} align={'start'} gap={3} className={'px-4 py-2.5'}>
       <StatusMark status={job.status} className={'mt-0.5'} />
 
       <div className={'min-w-0 flex-1'}>
@@ -187,7 +195,7 @@ function JobRow(props: { job: Job; labels: NotificationsLabels; store: Notificat
         )}
       </div>
 
-      <div className={'-my-0.5 flex shrink-0 items-center gap-0.5'}>
+      <Stack data-slot={'toast-job-actions'} direction={'horizontal'} align={'center'} gap={0.5} className={'-my-0.5 shrink-0'}>
         {job.status === 'running' && job.onStop && (
           <Button size={'sm'} fill={'plain'} tone={'primary'} onClick={() => store.stop(job.id)}>{labels.stop}</Button>
         )}
@@ -198,8 +206,8 @@ function JobRow(props: { job: Job; labels: NotificationsLabels; store: Notificat
         {concluded && (
           <IconButton label={labels.dismiss} icon={<ClearGlyph />} size={'sm'} onClick={() => store.dismiss(job.id)} />
         )}
-      </div>
-    </li>
+      </Stack>
+    </Stack>
   );
 }
 
@@ -339,8 +347,14 @@ function JobsPanel(props: JobsPanelProps): React.ReactNode {
     >
       {state.expanded
         ? (
-          <div data-slot={'toast-jobs-panel'} className={'flex toast-panel-width flex-col rounded-md bg-popover shadow-lg'}>
-            <div className={'flex h-12 flex-none items-center gap-2 border-b border-border ps-4 pe-2'}>
+          <Stack data-slot={'toast-jobs-panel'} className={'toast-panel-width rounded-md bg-popover shadow-lg'}>
+            <Stack
+              data-slot={'toast-jobs-header'}
+              direction={'horizontal'}
+              align={'center'}
+              gap={2}
+              className={'h-12 flex-none border-b border-border ps-4 pe-2'}
+            >
               <div className={'min-w-0 flex-1 truncate'}>
                 <span className={'font-semibold'}>{labels.title}</span>
                 {countsText && <span aria-hidden className={'ms-2 text-xs text-muted-foreground'}>{countsText}</span>}
@@ -349,28 +363,32 @@ function JobsPanel(props: JobsPanelProps): React.ReactNode {
                 <Button size={'sm'} fill={'plain'} tone={'muted'} onClick={() => store.clearConcluded()}>{labels.clear}</Button>
               )}
               <IconButton label={labels.collapse} icon={<CollapseGlyph />} size={'sm'} onClick={collapse} />
-            </div>
+            </Stack>
             <ul className={'max-h-80 overflow-y-auto overscroll-contain py-1'}>
               {ordered.map((job) => <JobRow key={job.id} job={job} labels={labels} store={store} />)}
             </ul>
-          </div>
+          </Stack>
         )
         : (
-          <button
+          <Stack
+            as={'button'}
             type={'button'}
             data-slot={'toast-jobs-bar'}
             data-status={urgent}
             aria-expanded={false}
+            direction={'horizontal'}
+            align={'center'}
+            gap={2}
             onClick={() => store.setExpanded(true)}
             className={cn(
-              'flex h-10 items-center gap-2 rounded-md bg-popover px-4 text-sm shadow-lg outline-none',
+              'h-10 rounded-md bg-popover px-4 text-sm shadow-lg outline-none',
               'hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring'
             )}
           >
             <StatusMark status={urgent} />
             <span className={'font-medium'}>{labels.title}</span>
             {countsText && <span className={'text-xs text-muted-foreground'}>{countsText}</span>}
-          </button>
+          </Stack>
         )}
     </section>
   );
@@ -405,8 +423,9 @@ function JobsPanel(props: JobsPanelProps): React.ReactNode {
  * Only changes of state are announced, an error once and urgently. Both stand left of an open
  * drawer and above dialogs (`z-toast`).
  *
- * Parts with a slot: `toast-confirmation`, `toast-jobs` (with `data-expanded`), `toast-jobs-bar` (with `data-status`),
- * `toast-jobs-panel`, `toast-job` (with `data-status`).
+ * Parts with a slot: `toast-viewport`, `toast-confirmation`, `toast-jobs` (with `data-expanded`), `toast-jobs-bar`
+ * (with `data-status`), `toast-jobs-panel`, `toast-jobs-header`, `toast-job` (with `data-status`), `toast-job-actions`,
+ * `toast-job-link`.
  */
 export function NotificationsProvider(props: NotificationsProviderProps): React.ReactNode {
 
@@ -487,7 +506,9 @@ export function NotificationsProvider(props: NotificationsProviderProps): React.
         <ToastPrimitive.Portal>
           <ToastPrimitive.Viewport
             aria-label={labels.confirmRegion}
-            className={'pointer-events-none fixed bottom-4 z-toast flex toast-span justify-center px-4 outline-none'}
+            data-slot={'toast-viewport'}
+            render={<Stack direction={'horizontal'} justify={'center'} />}
+            className={'pointer-events-none fixed bottom-4 z-toast toast-span px-4 outline-none'}
           >
             <ConfirmationRows labels={labels} store={notifications.store} />
           </ToastPrimitive.Viewport>

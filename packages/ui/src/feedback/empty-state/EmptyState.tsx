@@ -5,6 +5,8 @@ import * as React from 'react';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 import { IconBox } from '../../display/icon-box/IconBox';
 
 import { Button } from '../../actions/button/Button';
@@ -102,14 +104,14 @@ const BOX_TONE = {
 
 const LAYOUT = {
   page: {
-    root : 'items-center px-6 py-12 text-center',
+    root : 'px-6 py-12 text-center',
     box  : 'mb-4',
     title: 'max-w-110 text-xl font-semibold text-foreground',
     text : 'mt-2 max-w-110 text-sm text-muted-foreground',
     acts : 'mt-6'
   },
   panel: {
-    root : 'items-center px-4 py-8 text-center',
+    root : 'px-4 py-8 text-center',
     box  : 'mb-3',
     title: 'max-w-90 text-sm font-semibold text-foreground',
     text : 'mt-1 max-w-90 text-xs text-muted-foreground',
@@ -192,18 +194,21 @@ export const EmptyState = React.forwardRef<HTMLElement, EmptyStateProps>((props,
     const isError = kind === 'error';
 
     return (
-      <div
+      <Stack
         {...rest}
         data-slot={'empty-state'}
         data-size={size}
         data-kind={kind}
-        className={cn('flex items-start gap-1.5 text-xs wrap-anywhere', isError ? 'text-destructive' : 'text-muted-foreground', baseClasses, className)}
+        direction={'horizontal'}
+        align={'start'}
+        gap={1.5}
+        className={cn('text-xs wrap-anywhere', isError ? 'text-destructive' : 'text-muted-foreground', baseClasses, className)}
       >
         {isError && <ToneGlyph tone={'destructive'} className={'mt-px size-3.5 shrink-0'} />}
         <span ref={ref as React.Ref<HTMLSpanElement>} tabIndex={-1} data-slot={'empty-state-title'} className={'outline-none'}>
           {title}
         </span>
-      </div>
+      </Stack>
     );
   }
 
@@ -212,12 +217,13 @@ export const EmptyState = React.forwardRef<HTMLElement, EmptyStateProps>((props,
   const buttonSize = size === 'page' ? 'md' : 'sm';
 
   return (
-    <div
+    <Stack
       {...rest}
       data-slot={'empty-state'}
       data-size={size}
       data-kind={kind}
-      className={cn('flex flex-col wrap-anywhere', layout.root, baseClasses, className)}
+      align={'center'}
+      className={cn('wrap-anywhere', layout.root, baseClasses, className)}
     >
       <IconBox data-slot={'empty-state-icon'} size={size === 'page' ? 'md' : 'sm'} fill={'soft'} tone={BOX_TONE[kind]} className={layout.box}>
         {icon}
@@ -232,7 +238,7 @@ export const EmptyState = React.forwardRef<HTMLElement, EmptyStateProps>((props,
       )}
 
       {actions.length > 0 && (
-        <div data-slot={'empty-state-actions'} className={cn('flex flex-wrap justify-center gap-2', layout.acts)}>
+        <Stack data-slot={'empty-state-actions'} direction={'horizontal'} wrap justify={'center'} gap={2} className={layout.acts}>
           {actions.slice(0, 2).map((action) => (
             <Button
               key={action.label}
@@ -245,9 +251,9 @@ export const EmptyState = React.forwardRef<HTMLElement, EmptyStateProps>((props,
               {action.label}
             </Button>
           ))}
-        </div>
+        </Stack>
       )}
-    </div>
+    </Stack>
   );
 
 });
