@@ -5,6 +5,8 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 import type { BaseProps } from '../../core/base';
 import type { PolymorphicProps } from '../../core/polymorphic';
 import type { SpacingValue } from '../../core/responsive';
@@ -369,10 +371,12 @@ export function Heading<E extends React.ElementType = 'div'>(props: HeadingProps
   // Component Render
   // ----
   return (
-    <Component
+    <Stack
+      as={Component}
       data-slot={'heading'}
       data-gap={gap}
-      className={cn('flex min-w-0 flex-col', `gap-${gap}`, baseClasses, className)}
+      gap={gap}
+      className={cn('min-w-0', baseClasses, className)}
       {...rest}
     />
   );

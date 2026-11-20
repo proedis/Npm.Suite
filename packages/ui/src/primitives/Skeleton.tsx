@@ -5,6 +5,8 @@ import { cva } from 'class-variance-authority';
 import { splitBaseProps } from '../core/base';
 import { cn } from '../core/cn';
 
+import { Stack } from '../layout/Stack';
+
 import type { BaseProps } from '../core/base';
 
 
@@ -84,7 +86,7 @@ export function Skeleton(props: SkeletonProps): React.ReactNode {
   // ----
   if (shape === 'text' && lines !== undefined && lines > 1) {
     return (
-      <span aria-hidden data-slot={'skeleton-lines'} className={cn('flex flex-col gap-2.5', baseClasses, className)} {...rest}>
+      <Stack as={'span'} aria-hidden data-slot={'skeleton-lines'} gap={2.5} className={cn(baseClasses, className)} {...rest}>
         {Array.from({ length: lines }, (_, index) => (
           <span
             key={index}
@@ -93,7 +95,7 @@ export function Skeleton(props: SkeletonProps): React.ReactNode {
             className={cn(skeletonVariants({ shape: 'text' }), index === lines - 1 && 'w-3/5')}
           />
         ))}
-      </span>
+      </Stack>
     );
   }
 

@@ -3,6 +3,8 @@ import * as React from 'react';
 import { splitBaseProps } from '../core/base';
 import { cn } from '../core/cn';
 
+import { Stack } from '../layout/Stack';
+
 import type { PolymorphicProps } from '../core/polymorphic';
 
 import type { BaseProps } from '../core/base';
@@ -101,10 +103,12 @@ export function Label<E extends React.ElementType = 'label'>(props: LabelProps<E
   // Component Render
   // ----
   return (
-    <Component
+    <Stack
+      as={Component}
       data-slot={'label'}
       data-emphasis={emphasis}
-      className={cn('flex min-w-0 flex-col gap-0.5', baseClasses, className)}
+      gap={0.5}
+      className={cn('min-w-0', baseClasses, className)}
       {...rest}
     >
       {/* The line height comes AFTER the emphasis: a size carries its own, and tailwind-merge
@@ -118,7 +122,7 @@ export function Label<E extends React.ElementType = 'label'>(props: LabelProps<E
           {description}
         </span>
       )}
-    </Component>
+    </Stack>
   );
 
 }

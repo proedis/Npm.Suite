@@ -2,6 +2,8 @@ import * as React from 'react';
 
 import { cn } from '../core/cn';
 
+import { Stack } from '../layout/Stack';
+
 import { Spinner } from './Spinner';
 
 
@@ -53,11 +55,14 @@ export function BusyVeil(props: BusyVeilProps): React.ReactNode {
   // Component Render
   // ----
   return (
-    <div
+    <Stack
       data-slot={'busy-veil'}
       data-visible={visible || undefined}
+      align={'center'}
+      justify={'center'}
+      gap={2}
       className={cn(
-        'pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-2',
+        'pointer-events-none absolute inset-0 z-10',
         'bg-busy-veil text-sm font-medium text-foreground',
         'transition-opacity duration-150 motion-reduce:transition-none',
         visible ? 'pointer-events-auto opacity-100' : 'opacity-0',
@@ -66,7 +71,7 @@ export function BusyVeil(props: BusyVeilProps): React.ReactNode {
     >
       {visible && <Spinner size={'md'} className={'text-primary'} />}
       <span role={'status'} data-slot={'busy-veil-label'}>{visible ? label : ''}</span>
-    </div>
+    </Stack>
   );
 
 }

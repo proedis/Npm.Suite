@@ -15,7 +15,7 @@ const UI_SECTIONS = [ 'core', 'layout', 'primitives', 'internal', 'actions', 'di
  * commit that moves its hand-written containers onto Stack, Cluster and Grid, and from then on stays
  * locked. `layout` itself never joins: it is where those classes are written, once.
  */
-const UI_LAYOUT_LOCKED = [];
+const UI_LAYOUT_LOCKED = [ 'primitives', 'internal', 'display' ];
 
 /** A display class (`flex`, `inline-flex`, `grid`, `inline-grid`), with or without variants */
 const DISPLAY = String.raw`(?:^|\s)(?:[^\s:]+:)*(?:inline-)?(?:flex|grid)(?:\s|$)`;

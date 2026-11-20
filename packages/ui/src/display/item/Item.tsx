@@ -4,7 +4,8 @@ import { cva, type VariantProps } from 'class-variance-authority';
 
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
-import { alignClasses, directionClasses, gapClasses } from '../../core/responsive';
+
+import { Stack } from '../../layout/Stack';
 
 import type { BaseProps } from '../../core/base';
 import type { PolymorphicProps } from '../../core/polymorphic';
@@ -49,7 +50,7 @@ const SLOT_PLUMBING = cn(
 /* --------
  * Variants Definition
  * -------- */
-const itemVariants = cva('relative flex outline-none', {
+const itemVariants = cva('relative outline-none', {
   variants: {
     /**
      * Row padding on the item itself.
@@ -133,9 +134,13 @@ function ItemActions<E extends React.ElementType = 'div'>(props: ItemActionsProp
   // Component Render
   // ----
   return (
-    <Component
+    <Stack
+      as={Component}
       data-slot={'item-actions'}
-      className={cn('flex shrink-0 items-center gap-1.5', baseClasses, className)}
+      direction={'horizontal'}
+      align={'center'}
+      gap={1.5}
+      className={cn('shrink-0', baseClasses, className)}
       {...rest}
     />
   );
@@ -169,9 +174,13 @@ function ItemTrailing<E extends React.ElementType = 'span'>(props: ItemTrailingP
   // Component Render
   // ----
   return (
-    <Component
+    <Stack
+      as={Component}
       data-slot={'item-trailing'}
-      className={cn('inline-flex shrink-0 items-center text-muted-foreground', baseClasses, className)}
+      inline
+      direction={'horizontal'}
+      align={'center'}
+      className={cn('shrink-0 text-muted-foreground', baseClasses, className)}
       {...rest}
     />
   );
@@ -269,9 +278,6 @@ export function Item<E extends React.ElementType = 'div'>(props: ItemProps<E>): 
   // ----
   const classes = cn(
     itemVariants({ inset, interactive }),
-    directionClasses(direction),
-    alignClasses(align),
-    gapClasses(gap),
     SLOT_PLUMBING,
     baseClasses,
     className
@@ -282,10 +288,14 @@ export function Item<E extends React.ElementType = 'div'>(props: ItemProps<E>): 
   // Component Render
   // ----
   return (
-    <Component
+    <Stack
+      as={Component}
       data-slot={'item'}
       data-inset={inset || undefined}
       data-interactive={interactive || undefined}
+      direction={direction}
+      align={align}
+      gap={gap}
       className={classes}
       {...rest}
     />

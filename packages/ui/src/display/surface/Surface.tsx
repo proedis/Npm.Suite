@@ -4,7 +4,8 @@ import { cva, type VariantProps } from 'class-variance-authority';
 
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
-import { justifyClasses } from '../../core/responsive';
+
+import { Stack } from '../../layout/Stack';
 
 import { Divider } from '../../primitives/Divider';
 import { Item } from '../item/Item';
@@ -56,7 +57,7 @@ const DEFAULT_PADDING_CLASS = 'p-5';
  * because it says what the thing *is*. The criterion is whether the default is an opinion or a
  * measurement.
  */
-const surfaceVariants = cva('relative flex flex-col overflow-hidden bg-card text-card-foreground', {
+const surfaceVariants = cva('relative overflow-hidden bg-card text-card-foreground', {
   variants: {
     elevation: {
       default: DEFAULT_ELEVATION_CLASS,
@@ -283,13 +284,16 @@ function SurfaceFooter<E extends React.ElementType = 'div'>(props: SurfaceFooter
   // Component Render
   // ----
   return (
-    <Component
+    <Stack
+      as={Component}
       data-slot={'surface-footer'}
       data-muted={muted || undefined}
+      direction={'horizontal'}
+      align={'center'}
+      justify={justify}
+      gap={2.5}
       className={cn(
-        'flex items-center gap-2.5',
         DEFAULT_PADDING_CLASS,
-        justifyClasses(justify),
         muted && 'bg-muted/40',
         baseClasses,
         className
@@ -316,7 +320,7 @@ SurfaceFooter.displayName = 'Surface.Footer';
  * difference nobody can see, and it was the only reason the class list needed a number nobody named.
  */
 const SurfaceLoadingOverlay: React.FunctionComponent<{ label?: string }> = ({ label }) => (
-  <div
+  <Stack
     /*
      * The live region is HERE, not on the spinner, and the spinner stays decorative. Both carrying a
      * label would announce it twice — the spinner's own `sr-only` copy and the visible line saying the
@@ -327,14 +331,14 @@ const SurfaceLoadingOverlay: React.FunctionComponent<{ label?: string }> = ({ la
       ? { 'aria-hidden': true }
       : { 'aria-live': 'polite' as const, role: 'status' })}
     data-slot={'surface-loading'}
-    className={cn(
-      'absolute inset-0 z-5 flex flex-col items-center justify-center gap-3',
-      'bg-card/60 backdrop-blur-xs'
-    )}
+    align={'center'}
+    justify={'center'}
+    gap={3}
+    className={'absolute inset-0 z-5 bg-card/60 backdrop-blur-xs'}
   >
     <Spinner size={'lg'} className={'text-primary'} />
     {label !== undefined && <span className={'text-xs font-medium text-muted-foreground'}>{label}</span>}
-  </div>
+  </Stack>
 );
 
 SurfaceLoadingOverlay.displayName = 'Surface.LoadingOverlay';
@@ -388,7 +392,8 @@ export function Surface<E extends React.ElementType = 'div'>(props: SurfaceProps
   // Component Render
   // ----
   return (
-    <Component
+    <Stack
+      as={Component}
       data-slot={'surface'}
       data-elevation={elevation}
       data-loading={loading || undefined}
@@ -396,18 +401,18 @@ export function Surface<E extends React.ElementType = 'div'>(props: SurfaceProps
       className={cn(surfaceVariants({ elevation, radius }), baseClasses, className)}
       {...rest}
     >
-      <div
+      <Stack
         data-slot={'surface-body'}
         className={cn(
-          'flex min-w-0 flex-col transition-opacity duration-300',
+          'min-w-0 transition-opacity duration-300',
           loading && 'pointer-events-none opacity-45'
         )}
       >
         {children}
-      </div>
+      </Stack>
 
       {loading && <SurfaceLoadingOverlay label={loadingLabel} />}
-    </Component>
+    </Stack>
   );
 
 }

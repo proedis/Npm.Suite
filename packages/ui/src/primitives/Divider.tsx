@@ -3,6 +3,8 @@ import * as React from 'react';
 import { splitBaseProps } from '../core/base';
 import { cn } from '../core/cn';
 
+import { Stack } from '../layout/Stack';
+
 import type { BaseProps } from '../core/base';
 
 
@@ -62,19 +64,22 @@ export function Divider(props: DividerProps): React.ReactNode {
 
   if (label !== null && label !== undefined) {
     return (
-      <div
+      <Stack
         aria-orientation={'horizontal'}
         data-labelled={true}
         data-orientation={'horizontal'}
         data-slot={'divider'}
         role={'separator'}
-        className={cn('flex items-center gap-3', baseClasses, className)}
+        direction={'horizontal'}
+        align={'center'}
+        gap={3}
+        className={cn(baseClasses, className)}
         {...rest}
       >
         <span className={'h-px flex-1 bg-border'} />
         <span className={'text-xs font-medium text-muted-foreground'}>{label}</span>
         <span className={'h-px flex-1 bg-border'} />
-      </div>
+      </Stack>
     );
   }
 

@@ -6,8 +6,11 @@ import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 import { TONE_COMPOUNDS } from '../../core/tone';
 
+import { Stack } from '../../layout/Stack';
+
 import type { BaseProps } from '../../core/base';
 import type { PolymorphicProps } from '../../core/polymorphic';
+import type { SpacingValue } from '../../core/responsive';
 import type { Tone } from '../../core/tone';
 
 
@@ -44,7 +47,7 @@ const DEFAULT_VARIANTS = {
  */
 const badgeVariants = cva(
   cn(
-    'inline-flex max-w-full min-w-0 shrink-0 items-center justify-center rounded-full align-middle',
+    'max-w-full min-w-0 shrink-0 rounded-full align-middle',
     'font-medium whitespace-nowrap tabular-nums select-none',
 
     /*
@@ -76,9 +79,9 @@ const badgeVariants = cva(
 
       /** Heights and paddings from the declared scale. The references write 18px, 22px and 28px */
       size: {
-        sm: 'h-5 gap-1 px-1.5 text-2xs',
-        md: 'h-6 gap-1 px-2 text-xs',
-        lg: 'h-7 gap-1.5 px-2.5 text-xs'
+        sm: 'h-5 px-1.5 text-2xs',
+        md: 'h-6 px-2 text-xs',
+        lg: 'h-7 px-2.5 text-xs'
       }
     },
 
@@ -88,6 +91,14 @@ const badgeVariants = cva(
     defaultVariants: DEFAULT_VARIANTS
   }
 );
+
+
+/** The room between the dot, an icon and the label, per size: the row itself is a Stack */
+const GAP: Readonly<Record<NonNullable<VariantProps<typeof badgeVariants>['size']>, SpacingValue>> = {
+  sm: 1,
+  md: 1,
+  lg: 1.5
+};
 
 
 /* --------
@@ -197,12 +208,18 @@ export function Badge<E extends React.ElementType = 'span'>(props: BadgeProps<E>
   // Component Render
   // ----
   return (
-    <Component
+    <Stack
+      as={Component}
       data-slot={'badge'}
       data-dot={dot || undefined}
       data-fill={fill}
       data-size={size}
       data-tone={tone}
+      inline
+      direction={'horizontal'}
+      align={'center'}
+      justify={'center'}
+      gap={GAP[size ?? DEFAULT_VARIANTS.size]}
       className={classes}
       {...rest}
     >
@@ -210,7 +227,7 @@ export function Badge<E extends React.ElementType = 'span'>(props: BadgeProps<E>
       {typeof children === 'string' || typeof children === 'number'
         ? <span data-slot={'badge-label'} className={'min-w-0 truncate'}>{children}</span>
         : children}
-    </Component>
+    </Stack>
   );
 
 }

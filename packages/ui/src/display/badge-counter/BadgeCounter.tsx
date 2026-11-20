@@ -4,6 +4,8 @@ import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 import { TONE_CLASSES } from '../../core/tone';
 
+import { Stack } from '../../layout/Stack';
+
 import type { BaseProps } from '../../core/base';
 
 
@@ -83,12 +85,17 @@ export function BadgeCounter(props: BadgeCounterProps): React.ReactNode {
   }
 
   return (
-    <span
+    <Stack
+      as={'span'}
       aria-hidden
       data-slot={'badge-counter'}
       data-tone={tone}
+      inline
+      direction={'horizontal'}
+      align={'center'}
+      justify={'center'}
       className={cn(
-        'pointer-events-none absolute -end-1.5 -top-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1',
+        'pointer-events-none absolute -end-1.5 -top-1.5 h-4 min-w-4 rounded-full px-1',
         'text-xs leading-none font-semibold tabular-nums ring-2 ring-card select-none',
         'print:print-exact forced-colors:border forced-colors:border-solid',
         TONES[tone],
@@ -98,7 +105,7 @@ export function BadgeCounter(props: BadgeCounterProps): React.ReactNode {
       {...rest}
     >
       {count > max ? `${max}+` : count}
-    </span>
+    </Stack>
   );
 
 }

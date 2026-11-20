@@ -5,6 +5,8 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 import type { BaseProps } from '../../core/base';
 import type { PolymorphicProps } from '../../core/polymorphic';
 import { TONE_COMPOUNDS } from '../../core/tone';
@@ -49,7 +51,7 @@ const DEFAULT_VARIANTS = {
  */
 const iconBoxVariants = cva(
   cn(
-    'relative inline-flex shrink-0 items-center justify-center select-none',
+    'relative shrink-0 select-none',
     '[&_svg]:pointer-events-none [&_svg]:shrink-0'
   ),
   {
@@ -240,12 +242,17 @@ export function IconBox<E extends React.ElementType = 'span'>(props: IconBoxProp
    * the one an application most wants to retune.
    */
   return (
-    <Component
+    <Stack
+      as={Component}
       data-slot={'icon-box'}
       data-fill={fill}
       data-shape={shape}
       data-size={size}
       data-tone={tone}
+      inline
+      direction={'horizontal'}
+      align={'center'}
+      justify={'center'}
       className={classes}
       {...rest}
     >
@@ -256,7 +263,7 @@ export function IconBox<E extends React.ElementType = 'span'>(props: IconBoxProp
         </React.Fragment>
       )}
       {children}
-    </Component>
+    </Stack>
   );
 
 }

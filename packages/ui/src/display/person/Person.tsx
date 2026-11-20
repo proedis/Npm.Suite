@@ -12,6 +12,8 @@ import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 import { linkProps } from '../../core/link';
 
+import { Stack } from '../../layout/Stack';
+
 import { Tooltip } from '../../actions/tooltip/Tooltip';
 
 import type { BaseProps } from '../../core/base';
@@ -224,6 +226,7 @@ export const Avatar = React.forwardRef<HTMLSpanElement, AvatarProps>((props, ref
   const circle = (
     <AvatarPrimitive.Root
       ref={ref}
+      render={<Stack as={'span'} inline direction={'horizontal'} align={'center'} justify={'center'} />}
       role={decorative ? undefined : 'img'}
       aria-label={decorative ? undefined : name}
       aria-hidden={decorative || undefined}
@@ -235,7 +238,7 @@ export const Avatar = React.forwardRef<HTMLSpanElement, AvatarProps>((props, ref
       data-inactive={inactive || undefined}
       data-decorative={decorative || undefined}
       className={cn(
-        'relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full font-semibold select-none',
+        'relative shrink-0 overflow-hidden rounded-full font-semibold select-none',
         'after:pointer-events-none after:absolute after:inset-0 after:rounded-full after:inset-ring after:inset-ring-foreground/8',
         'outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
         SIZES[size],
@@ -247,7 +250,11 @@ export const Avatar = React.forwardRef<HTMLSpanElement, AvatarProps>((props, ref
       {src && (
         <AvatarPrimitive.Image src={src} alt={''} data-slot={'avatar-image'} className={cn('size-full object-cover', inactive && 'grayscale')} />
       )}
-      <AvatarPrimitive.Fallback delay={src ? 600 : undefined} data-slot={'avatar-fallback'} className={'inline-flex items-center justify-center'}>
+      <AvatarPrimitive.Fallback
+        delay={src ? 600 : undefined}
+        data-slot={'avatar-fallback'}
+        render={<Stack as={'span'} inline direction={'horizontal'} align={'center'} justify={'center'} />}
+      >
         {identity.kind === 'person' ? identity.initials : <KindGlyph kind={identity.kind} />}
       </AvatarPrimitive.Fallback>
     </AvatarPrimitive.Root>
@@ -333,11 +340,11 @@ export const Person = React.forwardRef<HTMLSpanElement, PersonProps>((props, ref
                 'transition-opacity duration-150 data-starting-style:opacity-0 data-ending-style:transition-none motion-reduce:transition-none'
               )}
             >
-              <div className={'flex items-center gap-3'}>
+              <Stack data-slot={'person-card-header'} direction={'horizontal'} align={'center'} gap={3}>
                 <Avatar {...avatar} size={40} decorative />
                 <div className={'min-w-0 font-semibold'}>{name}</div>
-              </div>
-              <div inert={inertValue(true)} className={'mt-3 flex flex-col gap-2'}>{preview}</div>
+              </Stack>
+              <Stack data-slot={'person-card-preview'} inert={inertValue(true)} gap={2} className={'mt-3'}>{preview}</Stack>
             </PreviewCardPrimitive.Popup>
           </PreviewCardPrimitive.Positioner>
         </PreviewCardPrimitive.Portal>
@@ -346,34 +353,39 @@ export const Person = React.forwardRef<HTMLSpanElement, PersonProps>((props, ref
     : nameElement;
 
   const nameLine = (
-    <span className={'flex min-w-0 items-baseline gap-1'}>
+    <Stack as={'span'} data-slot={'person-name-line'} direction={'horizontal'} align={'baseline'} gap={1} className={'min-w-0'}>
       {withCard}
       {suffix !== null && suffix !== undefined && suffix !== '' && (
         <span data-slot={'person-suffix'} className={'shrink-0 text-muted-foreground'}>{suffix}</span>
       )}
-    </span>
+    </Stack>
   );
 
   return (
-    <span
+    <Stack
+      as={'span'}
       {...rest}
       ref={ref}
       data-slot={'person'}
       data-layout={layout}
-      className={cn('inline-flex max-w-full min-w-0 items-start gap-2 text-sm', baseClasses, className)}
+      inline
+      direction={'horizontal'}
+      align={'start'}
+      gap={2}
+      className={cn('max-w-full min-w-0 text-sm', baseClasses, className)}
     >
       <Avatar {...avatar} size={24} decorative className={stacked ? undefined : '-my-0.5'} />
       {stacked
         ? (
-          <span className={'flex min-w-0 flex-col'}>
+          <Stack as={'span'} data-slot={'person-text'} className={'min-w-0'}>
             {nameLine}
             {children !== null && children !== undefined && (
               <span data-slot={'person-detail'} className={'text-muted-foreground'}>{children}</span>
             )}
-          </span>
+          </Stack>
         )
         : nameLine}
-    </span>
+    </Stack>
   );
 
 });
@@ -423,8 +435,9 @@ export const AvatarGroup = React.forwardRef<HTMLButtonElement, AvatarGroupProps>
         aria-label={label}
         data-slot={'avatar-group'}
         data-size={size}
+        render={<Stack as={'button'} inline direction={'horizontal'} align={'center'} />}
         className={cn(
-          'inline-flex shrink-0 cursor-default items-center rounded-full outline-none',
+          'shrink-0 cursor-default rounded-full outline-none',
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
           OVERLAP[size],
           baseClasses,
@@ -435,17 +448,22 @@ export const AvatarGroup = React.forwardRef<HTMLButtonElement, AvatarGroupProps>
           <Avatar key={item.id} {...item.avatar} size={size} decorative className={'ring-2 avatar-ring'} />
         ))}
         {hidden > 0 && (
-          <span
+          <Stack
+            as={'span'}
             aria-hidden
             data-slot={'avatar-group-count'}
+            inline
+            direction={'horizontal'}
+            align={'center'}
+            justify={'center'}
             className={cn(
-              'relative inline-flex shrink-0 items-center justify-center rounded-full bg-muted font-semibold text-muted-foreground tabular-nums ring-2 avatar-ring',
+              'relative shrink-0 rounded-full bg-muted font-semibold text-muted-foreground tabular-nums ring-2 avatar-ring',
               size === 24 ? 'h-6 text-2xs' : 'h-8 text-xs',
               hidden > 9 ? 'px-1.5' : size === 24 ? 'w-6' : 'w-8'
             )}
           >
             {countText}
-          </span>
+          </Stack>
         )}
       </PopoverPrimitive.Trigger>
 
@@ -453,13 +471,14 @@ export const AvatarGroup = React.forwardRef<HTMLButtonElement, AvatarGroupProps>
         <PopoverPrimitive.Positioner sideOffset={8} collisionPadding={8} align={'start'} className={'z-popover'}>
           <PopoverPrimitive.Popup
             data-slot={'avatar-group-list'}
+            render={<Stack />}
             className={cn(
-              'flex max-h-(--available-height) w-75 flex-col overflow-y-auto overscroll-contain rounded-md bg-popover p-3 text-sm text-popover-foreground shadow-md outline-none',
+              'max-h-(--available-height) w-75 overflow-y-auto overscroll-contain rounded-md bg-popover p-3 text-sm text-popover-foreground shadow-md outline-none',
               'transition-opacity duration-150 data-starting-style:opacity-0 data-ending-style:transition-none motion-reduce:transition-none'
             )}
           >
             <PopoverPrimitive.Title className={'mb-2 text-xs font-semibold text-muted-foreground'}>{title}</PopoverPrimitive.Title>
-            <ul data-slot={'avatar-group-items'} className={'flex flex-col gap-2'}>
+            <Stack as={'ul'} data-slot={'avatar-group-items'} gap={2}>
               {items.map((item) => (
                 <li key={item.id} data-slot={'avatar-group-item'}>
                   <Person avatar={item.avatar} name={item.name} target={item.target} layout={item.description ? 'stacked' : 'inline'}>
@@ -467,7 +486,7 @@ export const AvatarGroup = React.forwardRef<HTMLButtonElement, AvatarGroupProps>
                   </Person>
                 </li>
               ))}
-            </ul>
+            </Stack>
           </PopoverPrimitive.Popup>
         </PopoverPrimitive.Positioner>
       </PopoverPrimitive.Portal>

@@ -3,6 +3,8 @@ import * as React from 'react';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 import { Label } from '../../primitives/Label';
 
 import type { BaseProps } from '../../core/base';
@@ -170,22 +172,24 @@ export function LabeledContent<E extends React.ElementType = 'div'>(
    * shrinks. Declared as descendant classes so no caller has to write them, at the known cost that
    * their specificity beats the part's own `className`.
    */
-  const arrangement = inline
-    ? cn(
-      'flex items-center justify-between gap-4',
-      '[&>[data-slot=labeled-content-label]]:grow',
-      '[&>[data-slot=labeled-content-value]]:shrink-0 [&>[data-slot=labeled-content-value]]:text-right'
-    )
-    : 'flex flex-col gap-1';
+  const arrangement = inline && cn(
+    '[&>[data-slot=labeled-content-label]]:grow',
+    '[&>[data-slot=labeled-content-value]]:shrink-0 [&>[data-slot=labeled-content-value]]:text-right'
+  );
 
 
   // ----
   // Component Render
   // ----
   return (
-    <Component
+    <Stack
+      as={Component}
       data-slot={'labeled-content'}
       data-inline={inline || undefined}
+      direction={inline ? 'horizontal' : 'vertical'}
+      align={inline ? 'center' : undefined}
+      justify={inline ? 'between' : undefined}
+      gap={inline ? 4 : 1}
       className={cn('min-w-0', arrangement, baseClasses, className)}
       {...rest}
     />

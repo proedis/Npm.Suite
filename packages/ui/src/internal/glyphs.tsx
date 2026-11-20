@@ -2,6 +2,8 @@ import * as React from 'react';
 
 import { cn } from '../core/cn';
 
+import { Stack } from '../layout/Stack';
+
 
 /*
  * Every mark more than one component draws, in one place: the package carries no icon library, for
@@ -146,9 +148,9 @@ export function ToneGlyph(props: { tone: ToneGlyphTone; className?: string; slot
  */
 export function ErrorGlyph(): React.ReactNode {
   return (
-    <span data-slot={'field-error-icon-box'} className={'flex h-lh shrink-0 items-center'}>
+    <Stack as={'span'} data-slot={'field-error-icon-box'} direction={'horizontal'} align={'center'} className={'h-lh shrink-0'}>
       <ToneGlyph tone={'destructive'} slot={'field-error-icon'} className={'size-3.5'} />
-    </span>
+    </Stack>
   );
 }
 
