@@ -68,7 +68,7 @@ const TRACK = [
 const THUMB = [
   'size-3 rounded-full bg-primary-foreground transition-transform duration-100 motion-reduce:transition-none',
   'data-checked:translate-x-3 rtl:data-checked:-translate-x-3',
-  'in-data-readonly:bg-input in-data-readonly:data-checked:bg-card'
+  'in-data-readonly:bg-border in-data-readonly:data-checked:bg-card'
 ].join(' ');
 
 
