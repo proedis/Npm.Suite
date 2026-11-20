@@ -19,7 +19,8 @@ const twMerge = extendTailwindMerge({
       spacing: [ 'control-sm', 'control-md', 'control-lg' ]
     },
     classGroups: {
-      'grid-cols': [ { 'grid-cols': [ 'field' ] } ],
+      'grid-cols': [ { 'grid-cols': [ 'field', 'field-horizontal' ] } ],
+      animate    : [ { animate: [ 'loading-bar', 'nudge-x', 'nudge-y' ] } ],
       z          : [ { z: [ 'dialog', 'popover', 'toast', 'tooltip' ] } ]
     }
   }
