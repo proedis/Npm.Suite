@@ -2,6 +2,8 @@
 
 import * as React from 'react';
 
+import { Stack } from '../../layout/Stack';
+
 import { BadgeCounter } from '../../display/badge-counter/BadgeCounter';
 
 import { Button } from '../../actions/button/Button';
@@ -54,7 +56,7 @@ export function TableColumnsButton<TData>(props: {
   // Component Render
   // ----
   return (
-    <span data-slot={'table-columns'} className={'relative inline-flex shrink-0'}>
+    <Stack as={'span'} data-slot={'table-columns'} inline direction={'horizontal'} className={'relative shrink-0'}>
       <Popover
         trigger={(
           <IconButton
@@ -70,7 +72,7 @@ export function TableColumnsButton<TData>(props: {
         labels={{ close: labels.close }}
         footer={<Button size={'sm'} fill={'plain'} tone={'secondary'} onClick={onReset} className={'me-auto'}>{labels.columnsReset}</Button>}
       >
-        <div className={'flex flex-col gap-2'}>
+        <Stack data-slot={'table-columns-list'} gap={2}>
           {columns.map((column) => {
             const locked = column.kind === 'code' || column.hideable === false;
 
@@ -86,12 +88,12 @@ export function TableColumnsButton<TData>(props: {
               </Checkbox>
             );
           })}
-        </div>
+        </Stack>
       </Popover>
 
       <BadgeCounter count={changed} tone={'info'} />
       {changed > 0 && <span id={countId} hidden>{labels.columnsChanged(changed)}</span>}
-    </span>
+    </Stack>
   );
 
 }

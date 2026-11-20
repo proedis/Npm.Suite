@@ -6,10 +6,12 @@ import { VisuallyHidden } from '../../primitives/VisuallyHidden';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 import { IconButton } from '../../actions/button/IconButton';
 import { useFieldControl, useNonNativeFieldLabel } from '../../forms/field/fieldContext';
 import { OverflowTooltipList } from '../../actions/list-panel/listPanel';
-import { TEXT_CONTROL_FRAME, TEXT_CONTROL_SIZES, textControlState } from '../../forms/text-control/textControl';
+import { TEXT_CONTROL_FRAME, TEXT_CONTROL_GAP, TEXT_CONTROL_SIZES, textControlState } from '../../forms/text-control/textControl';
 import { Tooltip } from '../../actions/tooltip/Tooltip';
 import { ClearGlyph } from '../../internal/glyphs';
 
@@ -82,7 +84,8 @@ export type ModalSelectorFieldProps<TData> = StrictModalSelectorFieldProps<TData
 
 const MAX_CHIPS = 3;
 
-const CHIP = 'inline-flex h-5 max-w-30 shrink-0 items-center truncate rounded-sm bg-secondary px-1.5 text-xs font-medium text-secondary-foreground';
+/** A chosen value, an inline row through Stack */
+const CHIP = 'h-5 max-w-30 shrink-0 truncate rounded-sm bg-secondary px-1.5 text-xs font-medium text-secondary-foreground';
 
 
 /* --------
@@ -125,8 +128,10 @@ function ListGlyph(): React.ReactNode {
  * The x of an optional field is not a Tab stop.
  *
  * Slots: `modal-selector-field` (the frame, with `data-size` and the states), `modal-selector-field-button`,
- * `modal-selector-field-placeholder`, `modal-selector-field-value`, `modal-selector-field-code`,
- * `modal-selector-field-chip`, `modal-selector-field-more`, `modal-selector-field-clear`.
+ * `modal-selector-field-content`, `modal-selector-field-placeholder`, `modal-selector-field-single`,
+ * `modal-selector-field-value`, `modal-selector-field-code`, `modal-selector-field-chips`,
+ * `modal-selector-field-chip`, `modal-selector-field-more`, `modal-selector-field-end`,
+ * `modal-selector-field-clear`, `modal-selector-field-glyph`.
  */
 export function ModalSelectorField<TData>(props: ModalSelectorFieldProps<TData>): React.ReactNode {
 
@@ -206,25 +211,58 @@ export function ModalSelectorField<TData>(props: ModalSelectorFieldProps<TData>)
   }
   else if (!multiple) {
     content = (
-      <span className={'flex min-w-0 items-baseline gap-1.5'}>
+      <Stack
+        as={'span'}
+        data-slot={'modal-selector-field-single'}
+        direction={'horizontal'}
+        align={'baseline'}
+        gap={1.5}
+        className={'min-w-0'}
+      >
         <span data-slot={'modal-selector-field-value'} className={'min-w-0 truncate'}>{named[0]!.label}</span>
         {named[0]!.code && <span data-slot={'modal-selector-field-code'} className={'shrink-0 text-muted-foreground tabular-nums'}>{named[0]!.code}</span>}
-      </span>
+      </Stack>
     );
   }
   else {
     content = (
-      <span className={'flex min-w-0 items-center gap-1.5 overflow-hidden'}>
-        {named.slice(0, MAX_CHIPS).map((item, index) => <span key={`${item.label}-${index}`} data-slot={'modal-selector-field-chip'} className={CHIP}>{item.label}</span>)}
+      <Stack
+        as={'span'}
+        data-slot={'modal-selector-field-chips'}
+        direction={'horizontal'}
+        align={'center'}
+        gap={1.5}
+        className={'min-w-0 overflow-hidden'}
+      >
+        {named.slice(0, MAX_CHIPS).map((item, index) => (
+          <Stack
+            as={'span'}
+            key={`${item.label}-${index}`}
+            data-slot={'modal-selector-field-chip'}
+            inline
+            direction={'horizontal'}
+            align={'center'}
+            className={CHIP}
+          >
+            {item.label}
+          </Stack>
+        ))}
         {hidden.length > 0 && (
           <Tooltip content={<OverflowTooltipList values={hidden.map((item) => item.label)} />}>
-            <span data-slot={'modal-selector-field-more'} className={cn(CHIP, 'pointer-events-auto')}>
+            <Stack
+              as={'span'}
+              data-slot={'modal-selector-field-more'}
+              inline
+              direction={'horizontal'}
+              align={'center'}
+              className={cn(CHIP, 'pointer-events-auto')}
+            >
               <span aria-hidden={labels.more ? 'true' : undefined}>{`+${hidden.length}`}</span>
               {labels.more && <VisuallyHidden>{labels.more(hidden.length)}</VisuallyHidden>}
-            </span>
+            </Stack>
           </Tooltip>
         )}
-      </span>
+      </Stack>
     );
   }
 
@@ -232,14 +270,17 @@ export function ModalSelectorField<TData>(props: ModalSelectorFieldProps<TData>)
   const canClear = !isRequired && !inert && named.length > 0 && onClear !== undefined;
 
   return (
-    <div
+    <Stack
       data-slot={'modal-selector-field'}
       data-size={size}
       {...textControlState({ invalid: invalid || field.invalid, readOnly, disabled: isDisabled })}
+      direction={'horizontal'}
+      align={'center'}
+      gap={TEXT_CONTROL_GAP[size]}
       className={cn(
         TEXT_CONTROL_FRAME,
         TEXT_CONTROL_SIZES[size],
-        'relative flex w-full min-w-60 items-center',
+        'relative w-full min-w-60',
         '[&_svg]:shrink-0 [&_svg]:text-muted-foreground',
         baseClasses,
         className
@@ -275,9 +316,24 @@ export function ModalSelectorField<TData>(props: ModalSelectorFieldProps<TData>)
         <VisuallyHidden id={summaryId}>{summary}</VisuallyHidden>
       </button>
 
-      <span className={'pointer-events-none relative z-10 flex min-w-0 flex-1 items-center'}>{content}</span>
+      <Stack
+        as={'span'}
+        data-slot={'modal-selector-field-content'}
+        direction={'horizontal'}
+        align={'center'}
+        className={'pointer-events-none relative z-10 min-w-0 flex-1'}
+      >
+        {content}
+      </Stack>
 
-      <span className={'relative z-10 flex shrink-0 items-center gap-1'}>
+      <Stack
+        as={'span'}
+        data-slot={'modal-selector-field-end'}
+        direction={'horizontal'}
+        align={'center'}
+        gap={1}
+        className={'relative z-10 shrink-0'}
+      >
         {canClear && (
           <IconButton
             label={labels.clear}
@@ -290,9 +346,17 @@ export function ModalSelectorField<TData>(props: ModalSelectorFieldProps<TData>)
             onClick={onClear}
           />
         )}
-        <span className={'pointer-events-none inline-flex'}><ListGlyph /></span>
-      </span>
-    </div>
+        <Stack
+          as={'span'}
+          data-slot={'modal-selector-field-glyph'}
+          inline
+          direction={'horizontal'}
+          className={'pointer-events-none'}
+        >
+          <ListGlyph />
+        </Stack>
+      </Stack>
+    </Stack>
   );
 
 }

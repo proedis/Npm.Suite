@@ -9,6 +9,8 @@ import { useDelayedBusy } from '@proedis/react';
 import { LoadingBar } from '../../primitives/LoadingBar';
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 import { Button } from '../../actions/button/Button';
 import { IconButton } from '../../actions/button/IconButton';
 import { Dialog } from '../../overlays/dialog/Dialog';
@@ -59,7 +61,7 @@ const CHOSEN_BAR = [
 
 /** The box of a row with several values: the Checkbox's drawing, with no focus of its own */
 const ROW_BOX = [
-  'inline-flex size-4 shrink-0 items-center justify-center rounded-sm border border-input bg-card align-middle text-primary-foreground',
+  'size-4 shrink-0 rounded-sm border border-input bg-card align-middle text-primary-foreground',
   'group-data-selected/row:border-transparent group-data-selected/row:bg-primary',
   'data-locked:border-transparent data-locked:bg-muted-foreground'
 ].join(' ');
@@ -113,9 +115,12 @@ function sameIds(a: readonly string[], b: readonly string[]): boolean {
  * filters change; "Show only the chosen ones" suspends them. "Select all" (with `supportsAll`) chooses
  * every row of the filter, and changing the search or the filters undoes it.
  *
- * Slots: `modal-selector-toolbar`, `modal-selector-count`, `modal-selector-frame`, `modal-selector-list`,
- * `modal-selector-row` (with `data-selected`, `data-active`, `data-disabled`). The frame reports
- * `data-mode`, `data-multiple` and `data-status`. The footer is the dialog's, `dialog-footer`: the selector
+ * Slots: `modal-selector-toolbar`, `modal-selector-toolbar-row`, `modal-selector-only-selected`,
+ * `modal-selector-only-selected-label`, `modal-selector-query` (the search and the filters),
+ * `modal-selector-count`, `modal-selector-keys`, `modal-selector-key`, `modal-selector-chosen`,
+ * `modal-selector-body`, `modal-selector-frame`, `modal-selector-list`, `modal-selector-row` (with
+ * `data-selected`, `data-active`, `data-disabled`), `modal-selector-row-box`, `modal-selector-row-name`.
+ * The frame reports `data-mode`, `data-multiple` and `data-status`. The footer is the dialog's, `dialog-footer`: the selector
  * is a `Dialog`, and the slots of its shell are the dialog's.
  */
 export function ModalSelector<TData>(props: ModalSelectorProps<TData>): React.ReactNode {
@@ -513,7 +518,19 @@ export function ModalSelector<TData>(props: ModalSelectorProps<TData>): React.Re
       >
         {multiple && (
           <td className={cn(CELL, ACTIVE_INK, PIN_START, CHOSEN_BAR, 'start-0 ps-3 pe-0')}>
-            <span aria-hidden={'true'} data-locked={locked ? '' : undefined} className={ROW_BOX}><CheckGlyph /></span>
+            <Stack
+              as={'span'}
+              aria-hidden={'true'}
+              data-slot={'modal-selector-row-box'}
+              data-locked={locked ? '' : undefined}
+              inline
+              direction={'horizontal'}
+              align={'center'}
+              justify={'center'}
+              className={ROW_BOX}
+            >
+              <CheckGlyph />
+            </Stack>
           </td>
         )}
 
@@ -532,10 +549,17 @@ export function ModalSelector<TData>(props: ModalSelectorProps<TData>): React.Re
           };
           const body = isName && note
             ? (
-              <span className={'flex min-w-0 items-baseline gap-1.5'}>
+              <Stack
+                as={'span'}
+                data-slot={'modal-selector-row-name'}
+                direction={'horizontal'}
+                align={'baseline'}
+                gap={1.5}
+                className={'min-w-0'}
+              >
                 <span data-truncate={''} className={'min-w-0 truncate'}>{content}</span>
                 <span className={'shrink-0 text-xs text-muted-foreground'}>{note}</span>
-              </span>
+              </Stack>
             )
             : content;
 
@@ -583,24 +607,54 @@ export function ModalSelector<TData>(props: ModalSelectorProps<TData>): React.Re
   }
 
   const keysLine = (
-    <span aria-hidden={'true'} className={'ms-auto flex shrink-0 items-center gap-3'}>
+    <Stack
+      as={'span'}
+      aria-hidden={'true'}
+      data-slot={'modal-selector-keys'}
+      direction={'horizontal'}
+      align={'center'}
+      gap={3}
+      className={'ms-auto shrink-0'}
+    >
       {labels.keys.map((key) => (
-        <span key={key.label} className={'inline-flex items-center gap-1'}>
+        <Stack
+          as={'span'}
+          key={key.label}
+          data-slot={'modal-selector-key'}
+          inline
+          direction={'horizontal'}
+          align={'center'}
+          gap={1}
+        >
           {key.keys.map((name) => <kbd key={name} className={KBD}>{name}</kbd>)}
           <span>{key.label}</span>
-        </span>
+        </Stack>
       ))}
-    </span>
+    </Stack>
   );
 
   const toolbar = (
-    <div data-slot={'modal-selector-toolbar'} className={'flex min-w-0 flex-col gap-2'}>
-      <div className={'flex h-7 min-w-0 items-center gap-2'}>
+    <Stack data-slot={'modal-selector-toolbar'} gap={2} className={'min-w-0'}>
+      <Stack data-slot={'modal-selector-toolbar-row'} direction={'horizontal'} align={'center'} gap={2} className={'h-7 min-w-0'}>
         {onlySelected && (
-          <span className={'inline-flex shrink-0 items-center'}>
-            <span className={'inline-flex h-control-sm items-center rounded-s-md bg-primary-soft ps-2.5 pe-1.5 text-xs font-medium text-primary-soft-foreground'}>
+          <Stack
+            as={'span'}
+            data-slot={'modal-selector-only-selected'}
+            inline
+            direction={'horizontal'}
+            align={'center'}
+            className={'shrink-0'}
+          >
+            <Stack
+              as={'span'}
+              data-slot={'modal-selector-only-selected-label'}
+              inline
+              direction={'horizontal'}
+              align={'center'}
+              className={'h-control-sm rounded-s-md bg-primary-soft ps-2.5 pe-1.5 text-xs font-medium text-primary-soft-foreground'}
+            >
               {labels.onlySelected}
-            </span>
+            </Stack>
             <IconButton
               label={labels.removeOnlySelected}
               icon={<ClearGlyph />}
@@ -610,10 +664,17 @@ export function ModalSelector<TData>(props: ModalSelectorProps<TData>): React.Re
               className={'w-6 rounded-s-none focus-visible:-outline-offset-2 focus-visible:ring-0'}
               onClick={() => setOnlySelected(false)}
             />
-          </span>
+          </Stack>
         )}
 
-        <div inert={onlySelected} className={cn('flex min-w-0 flex-1 items-center gap-2', onlySelected && 'opacity-50')}>
+        <Stack
+          inert={onlySelected}
+          data-slot={'modal-selector-query'}
+          direction={'horizontal'}
+          align={'center'}
+          gap={2}
+          className={cn('min-w-0 flex-1', onlySelected && 'opacity-50')}
+        >
           <Tooltip content={search.label} disabled={quietSearch}>
             <SearchInput
               size={'sm'}
@@ -638,10 +699,16 @@ export function ModalSelector<TData>(props: ModalSelectorProps<TData>): React.Re
           {filters && filters.length > 0 && (
             <FiltersBar filters={filters} onClear={onClearFilters ?? (() => undefined)} labels={labels.filtersBar} />
           )}
-        </div>
-      </div>
+        </Stack>
+      </Stack>
 
-      <div data-slot={'modal-selector-count'} className={'flex h-4 min-w-0 items-center gap-2 text-xs text-muted-foreground tabular-nums'}>
+      <Stack
+        data-slot={'modal-selector-count'}
+        direction={'horizontal'}
+        align={'center'}
+        gap={2}
+        className={'h-4 min-w-0 text-xs text-muted-foreground tabular-nums'}
+      >
         <span className={'truncate'}>{countText}</span>
         {showSelectAll && (
           <Button size={'sm'} fill={'plain'} tone={'primary'} className={'h-4 px-1'} onClick={() => setDraft({ all: true, excludedIds: [] })}>
@@ -649,17 +716,17 @@ export function ModalSelector<TData>(props: ModalSelectorProps<TData>): React.Re
           </Button>
         )}
         {keysLine}
-      </div>
+      </Stack>
 
       <div role={'status'} className={'sr-only'}>{waiting ? '' : countText}</div>
-    </div>
+    </Stack>
   );
 
   let footerStart: React.ReactNode = null;
 
   if (props.multiple) {
     footerStart = (
-      <span className={'flex items-center gap-2'}>
+      <Stack as={'span'} data-slot={'modal-selector-chosen'} direction={'horizontal'} align={'center'} gap={2}>
         <span aria-live={'polite'} className={'text-sm font-medium tabular-nums'}>
           {draft.all ? labels.allSelected(count, draft.excludedIds.length) : labels.selected(count)}
         </span>
@@ -668,7 +735,7 @@ export function ModalSelector<TData>(props: ModalSelectorProps<TData>): React.Re
             {labels.showOnlySelected}
           </Button>
         )}
-      </span>
+      </Stack>
     );
   }
   else if (props.selectedRow) {
@@ -703,13 +770,14 @@ export function ModalSelector<TData>(props: ModalSelectorProps<TData>): React.Re
       )}
       labels={{ close: labels.close, busySubmit: labels.busySubmit }}
     >
-      <div className={'flex h-88 min-h-56 flex-col pb-2'}>
-        <div
+      <Stack data-slot={'modal-selector-body'} className={'h-88 min-h-56 pb-2'}>
+        <Stack
           data-slot={'modal-selector-frame'}
+          /* After the layout props: the mode of the selector, which wins over the stack's own `data-mode` */
           data-mode={mode}
           data-multiple={multiple || undefined}
           data-status={status}
-          className={'relative flex max-h-full min-h-0 flex-col overflow-hidden rounded-md border border-border'}
+          className={'relative max-h-full min-h-0 overflow-hidden rounded-md border border-border'}
         >
           {showBusy && <LoadingBar className={'absolute inset-x-0 top-8 z-30 -mt-0.5'} />}
 
@@ -753,8 +821,8 @@ export function ModalSelector<TData>(props: ModalSelectorProps<TData>): React.Re
 
             {state}
           </div>
-        </div>
-      </div>
+        </Stack>
+      </Stack>
 
       <TruncationTooltip handle={tooltipHandle} />
     </Dialog>

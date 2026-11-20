@@ -8,6 +8,8 @@ import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 import { responsiveClasses, toResponsiveMap } from '../../core/responsive';
 
+import { Stack } from '../../layout/Stack';
+
 import { Button } from '../../actions/button/Button';
 import { EmptyState } from '../../feedback/empty-state/EmptyState';
 import { FIELD_SPAN } from '../../forms/field/Field';
@@ -189,6 +191,17 @@ function breakClasses(breakBefore: Responsive<boolean>): string[] {
 /** How long the check stays after a copy: a constant, not a prop */
 const COPIED_FOR = 1500;
 
+/**
+ * The six columns of a form section, and the container its spans query (`@max-lg`). Written by hand:
+ * the gap across is not the gap down, which one `gap` of Stack cannot say.
+ */
+// eslint-disable-next-line no-restricted-syntax -- gap-x differs from gap-y, and it is the container the spans query
+const GRID = '@container grid grid-cols-6 gap-x-6 gap-y-5';
+
+/** One value on the three rows of the grid it sits in, so a label that wraps keeps the values aligned */
+// eslint-disable-next-line no-restricted-syntax -- a subgrid on the rows of the parent, which Stack cannot express
+const ITEM = 'group/detail-item row-span-3 grid min-w-0 grid-rows-subgrid gap-y-1';
+
 
 /* --------
  * Context Definition
@@ -285,7 +298,7 @@ const DetailSection = React.forwardRef<HTMLDivElement, DetailSectionProps>((prop
   const Title = HEADING_ELEMENT[headingLevel];
 
   return (
-    <div
+    <Stack
       {...rest}
       ref={ref}
       data-slot={'detail-section'}
@@ -295,8 +308,9 @@ const DetailSection = React.forwardRef<HTMLDivElement, DetailSectionProps>((prop
       role={hasTitle ? 'group' : undefined}
       aria-labelledby={hasTitle ? titleId : undefined}
       aria-busy={loading || undefined}
+      gap={3}
       className={cn(
-        'flex flex-col gap-3 border-border',
+        'border-border',
         '[[data-slot=detail-section]+&]:mt-6 [[data-slot=detail-section]+&]:border-t [[data-slot=detail-section]+&]:pt-6',
         baseClasses,
         className
@@ -310,17 +324,17 @@ const DetailSection = React.forwardRef<HTMLDivElement, DetailSectionProps>((prop
 
       {hasError
         ? (
-          <div data-slot={'detail-section-error'} className={'flex flex-col items-start gap-2'}>
+          <Stack data-slot={'detail-section-error'} align={'start'} gap={2}>
             <EmptyState size={'inline'} kind={'error'} title={error} />
             {onRetry && <Button size={'sm'} fill={'solid'} tone={'secondary'} onClick={onRetry}>{labels.retry}</Button>}
-          </div>
+          </Stack>
         )
         : (
           <DetailSectionLoadingContext.Provider value={loading}>
             {children}
           </DetailSectionLoadingContext.Provider>
         )}
-    </div>
+    </Stack>
   );
 
 });
@@ -354,7 +368,7 @@ const DetailGrid = React.forwardRef<HTMLDListElement, DetailGridProps>((props, r
       {...rest}
       ref={ref}
       data-slot={'detail-grid'}
-      className={cn('@container grid grid-cols-6 gap-x-6 gap-y-5', baseClasses, className)}
+      className={cn(GRID, baseClasses, className)}
     />
   );
 
@@ -519,7 +533,7 @@ const DetailItem = React.forwardRef<HTMLDivElement, DetailItemProps>((props, ref
       data-label-hidden={hideLabel || undefined}
       data-copyable={copyable || undefined}
       className={cn(
-        'group/detail-item row-span-3 grid min-w-0 grid-rows-subgrid gap-y-1',
+        ITEM,
         spanClasses(resolvedSpan, DETAIL_SPAN[type]),
         breakClasses(breakBefore),
         baseClasses,
@@ -533,15 +547,19 @@ const DetailItem = React.forwardRef<HTMLDivElement, DetailItemProps>((props, ref
         {label}
       </dt>
 
-      <dd
+      <Stack
+        as={'dd'}
         data-slot={'detail-value'}
+        direction={'horizontal'}
+        align={type === 'paragraph' || type === 'list' ? 'start' : 'center'}
+        gap={2}
         className={cn(
-          'm-0 flex min-h-control-md min-w-0 items-center gap-2 text-sm text-foreground',
-          (type === 'paragraph' || type === 'list') && 'items-start py-1.5'
+          'm-0 min-h-control-md min-w-0 text-sm text-foreground',
+          (type === 'paragraph' || type === 'list') && 'py-1.5'
         )}
       >
         {renderValue()}
-      </dd>
+      </Stack>
     </div>
   );
 
@@ -602,13 +620,13 @@ const DetailRoot = React.forwardRef<HTMLDivElement, DetailProps>((props, ref) =>
   // Component Render
   // ----
   return (
-    <div {...rest} ref={ref} data-slot={'detail'} className={cn('flex flex-col', baseClasses, className)}>
+    <Stack {...rest} ref={ref} data-slot={'detail'} className={cn(baseClasses, className)}>
       <DetailContext.Provider value={state}>
         {children}
       </DetailContext.Provider>
 
       <span data-slot={'detail-status'} role={'status'} className={'sr-only'}>{announcement}</span>
-    </div>
+    </Stack>
   );
 
 });

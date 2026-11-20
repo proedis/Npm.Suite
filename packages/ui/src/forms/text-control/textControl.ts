@@ -64,17 +64,14 @@ export const TEXT_CONTROL_SELF = [
 
 
 /**
- * Height, padding, gap and icon size of the three sizes, shared so that two controls of a row line up.
- * The gap is also in `TEXT_CONTROL_GAP`, which the frames of this section hand to their Stack: it stays
- * here while data spreads these classes on a frame of its own, and leaves when data moves.
+ * Height, padding and icon size of the three sizes, shared so that two controls of a row line up. The
+ * gap is `TEXT_CONTROL_GAP`, which every frame hands to its Stack.
  */
-/* eslint-disable no-restricted-syntax -- shared class constant consumed by data, migrated with it */
 export const TEXT_CONTROL_SIZES = {
-  sm: 'h-control-sm gap-1 px-2 [&_svg]:size-3.5',
-  md: 'h-control-md gap-1.5 px-2.5 [&_svg]:size-4',
-  lg: 'h-control-lg gap-1.5 px-3 [&_svg]:size-4'
+  sm: 'h-control-sm px-2 [&_svg]:size-3.5',
+  md: 'h-control-md px-2.5 [&_svg]:size-4',
+  lg: 'h-control-lg px-3 [&_svg]:size-4'
 } as const;
-/* eslint-enable no-restricted-syntax */
 
 
 /** The room between the parts of a frame, per size: the frame itself is a Stack */

@@ -6,6 +6,8 @@ import { useDelayedBusy, useForkRef } from '@proedis/react';
 
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 import { Spinner } from '../../primitives/Spinner';
 
 
@@ -71,7 +73,7 @@ export interface FilterListProps {
  * Constants Definition
  * -------- */
 
-const OPTION_TICK = 'mt-0.5 inline-flex size-4 shrink-0 text-primary opacity-0 group-data-selected/option:opacity-100';
+const OPTION_TICK = 'mt-0.5 size-4 shrink-0 text-primary opacity-0 group-data-selected/option:opacity-100';
 
 /** How long a typed prefix keeps growing on a list without search */
 const TYPEAHEAD_MS = 500;
@@ -358,9 +360,9 @@ export function FilterList(props: FilterListProps): React.ReactNode {
   } as const;
 
   return (
-    <div data-slot={'filter-list'} className={'flex min-h-0 flex-col'}>
+    <Stack data-slot={'filter-list'} className={'min-h-0'}>
       {searchable && (
-        <div data-slot={'filter-list-search'} className={LIST_SEARCH}>
+        <Stack data-slot={'filter-list-search'} direction={'horizontal'} align={'center'} gap={2} className={LIST_SEARCH}>
           <SearchGlyph />
           <input
             data-slot={'filter-list-input'}
@@ -381,7 +383,7 @@ export function FilterList(props: FilterListProps): React.ReactNode {
             className={LIST_SEARCH_INPUT}
           />
           {showBusy && <Spinner size={'sm'} className={'size-3.5'} />}
-        </div>
+        </Stack>
       )}
 
       {message && <div data-slot={'filter-list-message'} className={cn(LIST_MESSAGE, remote && 'text-xs')}>{message}</div>}
@@ -402,7 +404,7 @@ export function FilterList(props: FilterListProps): React.ReactNode {
         className={cn(LIST_ITEMS, 'empty:hidden')}
       >
         {items.map((item, index) => (
-          <div
+          <Stack
             key={item.value}
             id={`${baseId}-${index}`}
             role={'option'}
@@ -412,6 +414,9 @@ export function FilterList(props: FilterListProps): React.ReactNode {
             data-highlighted={index === activeIndex ? '' : undefined}
             data-selected={value.includes(item.value) ? '' : undefined}
             data-disabled={item.disabled ? '' : undefined}
+            direction={'horizontal'}
+            align={'start'}
+            gap={2}
             className={cn(LIST_ITEM, 'group/option', (item.code || item.description) && 'min-h-12')}
             onPointerMove={() => {
               if (!item.disabled && index !== activeIndex) {
@@ -425,17 +430,41 @@ export function FilterList(props: FilterListProps): React.ReactNode {
               ? <span data-slot={'filter-list-retry'} className={'min-w-0 flex-1'}>{labels.remote.retry}</span>
               : (
                 <React.Fragment>
-                  {multiple && <span data-slot={'filter-list-box'} className={LIST_OPTION_BOX} aria-hidden={'true'}><CheckGlyph /></span>}
-                  <span data-slot={'filter-list-item-text'} className={'flex min-w-0 flex-1 flex-col'}>
+                  {multiple && (
+                    <Stack
+                      as={'span'}
+                      data-slot={'filter-list-box'}
+                      inline
+                      direction={'horizontal'}
+                      align={'center'}
+                      justify={'center'}
+                      className={LIST_OPTION_BOX}
+                      aria-hidden={'true'}
+                    >
+                      <CheckGlyph />
+                    </Stack>
+                  )}
+                  <Stack as={'span'} data-slot={'filter-list-item-text'} className={'min-w-0 flex-1'}>
                     <span data-slot={'filter-list-item-label'}>{item.label}</span>
                     {(item.code || item.description) && (
                       <span data-slot={'filter-list-item-description'} className={'text-xs text-muted-foreground'}>{[ item.code, item.description ].filter(Boolean).join(' · ')}</span>
                     )}
-                  </span>
-                  {!multiple && <span data-slot={'filter-list-tick'} className={OPTION_TICK} aria-hidden={'true'}><CheckGlyph /></span>}
+                  </Stack>
+                  {!multiple && (
+                    <Stack
+                      as={'span'}
+                      data-slot={'filter-list-tick'}
+                      inline
+                      direction={'horizontal'}
+                      className={OPTION_TICK}
+                      aria-hidden={'true'}
+                    >
+                      <CheckGlyph />
+                    </Stack>
+                  )}
                 </React.Fragment>
               )}
-          </div>
+          </Stack>
         ))}
       </div>
 
@@ -446,7 +475,14 @@ export function FilterList(props: FilterListProps): React.ReactNode {
       {remote && <div role={'status'} data-slot={'filter-list-status'} className={'sr-only'}>{status}</div>}
 
       {footer !== 'none' && (
-        <div data-slot={'filter-list-footer'} className={LIST_FOOTER}>
+        <Stack
+          data-slot={'filter-list-footer'}
+          direction={'horizontal'}
+          align={'center'}
+          justify={'between'}
+          gap={1}
+          className={LIST_FOOTER}
+        >
           {footer === 'actions' && !remote
             ? <Button size={'sm'} fill={'plain'} tone={'primary'} data-slot={'filter-list-select-all'} disabled={allChecked} onClick={selectAll}>{labels.selectAll}</Button>
             : <span />}
@@ -460,9 +496,9 @@ export function FilterList(props: FilterListProps): React.ReactNode {
           >
             {labels.clear}
           </Button>
-        </div>
+        </Stack>
       )}
-    </div>
+    </Stack>
   );
 
 }

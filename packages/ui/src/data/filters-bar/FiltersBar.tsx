@@ -7,6 +7,8 @@ import { useForkRef } from '@proedis/react';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 import { Button } from '../../actions/button/Button';
 import { SearchInput } from '../../forms/search-input/SearchInput';
 import { Tooltip } from '../../actions/tooltip/Tooltip';
@@ -129,7 +131,9 @@ function sameMeasures(a: Measures | null, b: Measures): boolean {
  * (with `data-narrow`, `data-active`, `data-open`), `more-filters-panel` (with `data-step`),
  * `more-filters-header`, `more-filters-back`, `more-filters-title`, `more-filters-names`,
  * `more-filters-row` (with `data-active`, `data-disabled`, `data-loading`), `more-filters-row-text`,
- * `more-filters-row-label`, `more-filters-row-values`, `more-filters-row-end`, `filters-bar-clear`.
+ * `more-filters-row-label`, `more-filters-row-values`, `more-filters-row-end`, `filters-bar-clear`, and in
+ * the hidden copy that measures the row `filters-bar-measure`, `filters-bar-measure-filter`,
+ * `filters-bar-measure-more`, `filters-bar-measure-clear`.
  *
  * Native `div` props and `ref` reach the root; the search, the filters and the panels are configured
  * through their own props.
@@ -281,13 +285,16 @@ export const FiltersBar = React.forwardRef<HTMLDivElement, FiltersBarProps>((pro
   const morePanel = moreFiltersButtonProps(visibleCount === 0, filters.filter(isFilterActive).length, labels);
 
   return (
-    <div
+    <Stack
       {...rest}
       ref={handleBarRef}
       data-slot={'filters-bar'}
       data-narrow={visibleCount === 0 || undefined}
       data-active={anyActive || undefined}
-      className={cn('relative flex h-7 min-w-0 flex-1 items-center gap-2', baseClasses, className)}
+      direction={'horizontal'}
+      align={'center'}
+      gap={2}
+      className={cn('relative h-7 min-w-0 flex-1', baseClasses, className)}
     >
       {search && (
         <Tooltip content={search.label} disabled={quietSearch}>
@@ -347,20 +354,27 @@ export const FiltersBar = React.forwardRef<HTMLDivElement, FiltersBarProps>((pro
 
       {/* The copy that measures: every filter as it would look in the row, "More filters", "Clear filters" */}
       <div aria-hidden={'true'} inert className={'pointer-events-none invisible absolute start-0 top-0 size-0 overflow-hidden'}>
-        <div ref={copyRef} className={'flex w-max items-center gap-2'}>
+        <Stack
+          ref={copyRef}
+          data-slot={'filters-bar-measure'}
+          direction={'horizontal'}
+          align={'center'}
+          gap={2}
+          className={'w-max'}
+        >
           {search && <span data-copy={'search'} className={'w-60 shrink-0'} />}
           {filters.map((filter) => <FilterButtonCopy key={filter.id} filter={filter} squeeze={null} labels={labels} />)}
-          <span data-copy={'more'} className={'inline-flex'}>
+          <Stack as={'span'} data-copy={'more'} data-slot={'filters-bar-measure-more'} inline direction={'horizontal'}>
             <Button tabIndex={-1} size={'sm'} fill={morePanel.fill} tone={morePanel.tone} leading={filtersBarGlyph('filter')}>
               {moreFiltersButtonProps(false, filters.filter(isFilterActive).length, labels).children}
             </Button>
-          </span>
-          <span data-copy={'clear'} className={'inline-flex'}>
+          </Stack>
+          <Stack as={'span'} data-copy={'clear'} data-slot={'filters-bar-measure-clear'} inline direction={'horizontal'}>
             <Button tabIndex={-1} size={'sm'} fill={'plain'} tone={'destructive'}>{labels.clearAll}</Button>
-          </span>
-        </div>
+          </Stack>
+        </Stack>
       </div>
-    </div>
+    </Stack>
   );
 
 });

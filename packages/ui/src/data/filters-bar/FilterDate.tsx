@@ -2,6 +2,8 @@
 
 import * as React from 'react';
 
+import { Stack } from '../../layout/Stack';
+
 import { Button } from '../../actions/button/Button';
 import { Calendar } from '../../forms/calendar/Calendar';
 
@@ -91,7 +93,7 @@ export function FilterDate(props: FilterDateProps): React.ReactNode {
   const showClear = clearable && !draft && isFilterActive(filter);
 
   return (
-    <div data-slot={'filter-date'} className={'flex flex-col'}>
+    <Stack data-slot={'filter-date'}>
       <Calendar
         autoFocus
         locale={filter.locale}
@@ -107,7 +109,14 @@ export function FilterDate(props: FilterDateProps): React.ReactNode {
       />
 
       {(draft || showClear) && (
-        <div data-slot={'filter-date-footer'} className={'mt-1 flex items-center justify-between gap-1 border-t border-border pt-1'}>
+        <Stack
+          data-slot={'filter-date-footer'}
+          direction={'horizontal'}
+          align={'center'}
+          justify={'between'}
+          gap={1}
+          className={'mt-1 border-t border-border pt-1'}
+        >
           {draft && (
             <React.Fragment>
               <Button size={'sm'} fill={'plain'} tone={'primary'} data-slot={'filter-date-from'} onClick={() => commitOpen({ from: draft, to: null })}>
@@ -124,9 +133,9 @@ export function FilterDate(props: FilterDateProps): React.ReactNode {
               {labels.clear}
             </Button>
           )}
-        </div>
+        </Stack>
       )}
-    </div>
+    </Stack>
   );
 
 }

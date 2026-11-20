@@ -6,6 +6,8 @@ import { Badge } from '../../display/badge/Badge';
 import { cn } from '../../core/cn';
 import { linkProps } from '../../core/link';
 
+import { Stack } from '../../layout/Stack';
+
 import { AvatarGroup, Person } from '../../display/person/Person';
 
 import { TableGlyph } from './tableGlyphs';
@@ -188,10 +190,16 @@ export function CellContent<TData>(props: {
   if (column.kind === 'boolean') {
     return value === true
       ? (
-        <span className={'inline-flex align-middle text-muted-foreground'}>
+        <Stack
+          as={'span'}
+          data-slot={'table-cell-check'}
+          inline
+          direction={'horizontal'}
+          className={'align-middle text-muted-foreground'}
+        >
           <TableGlyph name={'check'} className={'size-4'} />
           <span className={'sr-only'}>{labels.yes}</span>
-        </span>
+        </Stack>
       )
       : <span className={'sr-only'}>{labels.no}</span>;
   }

@@ -11,11 +11,11 @@ const UI = 'packages/ui/src';
 const UI_SECTIONS = [ 'core', 'layout', 'primitives', 'internal', 'actions', 'display', 'feedback', 'forms', 'overlays', 'data' ];
 
 /**
- * The sections where layout comes from the layout primitives only. A section joins the list in the
- * commit that moves its hand-written containers onto Stack, Cluster and Grid, and from then on stays
- * locked. `layout` itself never joins: it is where those classes are written, once.
+ * Where layout comes from the layout primitives only: every section but `layout`, which is where those
+ * classes are written, once. The sections joined one by one while their containers moved onto Stack,
+ * Cluster and Grid; now all of them are in.
  */
-const UI_LAYOUT_LOCKED = [ 'primitives', 'internal', 'actions', 'display', 'feedback', 'forms', 'overlays' ];
+const UI_LAYOUT_LOCKED = UI_SECTIONS.filter((section) => section !== 'layout').concat('hooks');
 
 /** A display class (`flex`, `inline-flex`, `grid`, `inline-grid`), with or without variants */
 const DISPLAY = String.raw`(?:^|\s)(?:[^\s:]+:)*(?:inline-)?(?:flex|grid)(?:\s|$)`;

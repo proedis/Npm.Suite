@@ -6,12 +6,15 @@ import { Popover as PopoverPrimitive } from '@base-ui/react/popover';
 
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 import { Spinner } from '../../primitives/Spinner';
 
 import { Button } from '../../actions/button/Button';
 import { IconButton } from '../../actions/button/IconButton';
 import { LIST_POSITIONER, LIST_SIDE_OFFSET, ListFieldEnd, OverflowTooltipList } from '../../actions/list-panel/listPanel';
 import { Tooltip } from '../../actions/tooltip/Tooltip';
+import { LIST_PANEL_LAYOUT } from '../../forms/list-field/listField';
 
 import { FilterBody, filterPanelClass } from './FilterBody';
 import { clearFilter, filterValueLabels, isFilterActive } from './filtersBarState';
@@ -102,7 +105,15 @@ export function FilterButtonCopy(props: FilterFaceProps): React.ReactNode {
   const face = filterFace(props);
 
   return (
-    <span data-filter-copy={''} data-active={face.active || undefined} className={'inline-flex shrink-0'}>
+    <Stack
+      as={'span'}
+      data-slot={'filters-bar-measure-filter'}
+      data-filter-copy={''}
+      data-active={face.active || undefined}
+      inline
+      direction={'horizontal'}
+      className={'shrink-0'}
+    >
       {face.active
         ? (
           <React.Fragment>
@@ -115,7 +126,7 @@ export function FilterButtonCopy(props: FilterFaceProps): React.ReactNode {
             {face.content}
           </Button>
         )}
-    </span>
+    </Stack>
   );
 }
 
@@ -231,7 +242,8 @@ export function FilterButton(props: FilterButtonProps): React.ReactNode {
 
   return (
     <PopoverPrimitive.Root open={open} onOpenChange={handleOpenChange} modal={false}>
-      <span
+      <Stack
+        as={'span'}
         ref={groupRef}
         data-slot={'filter'}
         data-filter-id={filter.id}
@@ -240,7 +252,10 @@ export function FilterButton(props: FilterButtonProps): React.ReactNode {
         data-open={open || undefined}
         data-disabled={disabled || undefined}
         data-loading={loading || undefined}
-        className={'group/list-field inline-flex min-w-0 shrink-0 items-center'}
+        inline
+        direction={'horizontal'}
+        align={'center'}
+        className={'group/list-field min-w-0 shrink-0'}
       >
         <Tooltip content={tooltip ?? filter.label} disabled={tooltip === null} truncatedOnly={truncatedOnly} align={'start'}>
           <PopoverPrimitive.Trigger render={trigger} />
@@ -258,7 +273,7 @@ export function FilterButton(props: FilterButtonProps): React.ReactNode {
             onClick={handleRemove}
           />
         )}
-      </span>
+      </Stack>
 
       <PopoverPrimitive.Portal>
         <PopoverPrimitive.Positioner
@@ -272,6 +287,7 @@ export function FilterButton(props: FilterButtonProps): React.ReactNode {
             aria-label={filter.label}
             initialFocus={filter.kind === 'date' ? false : focusRef}
             data-slot={'filter-panel'}
+            render={LIST_PANEL_LAYOUT}
             className={filterPanelClass(filter)}
           >
             <FilterBody

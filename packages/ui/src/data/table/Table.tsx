@@ -23,6 +23,8 @@ import { LoadingBar } from '../../primitives/LoadingBar';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 import { Button } from '../../actions/button/Button';
 import { IconButton } from '../../actions/button/IconButton';
 import { Checkbox } from '../../forms/checkbox/Checkbox';
@@ -251,12 +253,12 @@ function SortArrow(props: { direction: false | 'asc' | 'desc' }): React.ReactNod
  * sideways, with shades on the side where there is more. A right click on a row opens the menu
  * of its ⋯, Shift F10 too; on a chosen row the menu of the selection.
  *
- * Parts with a slot: `table` (with `data-mode`, `data-status`), `table-toolbar`, `table-count`,
- * `table-card`, `table-scroller`, `table-grid`, `table-head`, `table-header-cell` (with `data-kind`),
- * `table-select-all`, `table-actions-header`, `table-body`, `table-row` (with `data-selected`),
- * `table-select-cell`, `table-cell` (with `data-kind`), `table-row-actions` (with `data-empty` when the
- * row has none), `table-skeleton-row`, `table-state`, `table-selection-bar`, `table-columns`,
- * `table-pagination`.
+ * Parts with a slot: `table` (with `data-mode`, `data-status`), `table-toolbar`, `table-toolbar-content`,
+ * `table-count`, `table-card`, `table-scroller`, `table-grid`, `table-head`, `table-header-cell` (with
+ * `data-kind`), `table-sort`, `table-select-all`, `table-actions-header`, `table-body`, `table-row` (with
+ * `data-selected`), `table-select-cell`, `table-select-blocked`, `table-cell` (with `data-kind`),
+ * `table-row-actions` (with `data-empty` when the row has none), `table-row-actions-buttons`,
+ * `table-skeleton-row`, `table-state`, `table-selection-bar`, `table-columns`, `table-pagination`.
  */
 export function Table<TData extends object>(props: TableProps<TData>): React.ReactNode {
 
@@ -683,11 +685,17 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
 
     const content = column.sortable
       ? (
-        <button
+        <Stack
+          as={'button'}
           type={'button'}
+          data-slot={'table-sort'}
           data-grid-target
+          inline
+          direction={'horizontal'}
+          align={'center'}
+          gap={1}
           className={cn(
-            'group/sort -mx-1 inline-flex h-6 max-w-full items-center gap-1 rounded-sm px-1 outline-none',
+            'group/sort -mx-1 h-6 max-w-full rounded-sm px-1 outline-none',
 
             /* Under the pointer only the ink darkens: no fill, the header stays light */
             'transition-colors duration-100 hover:text-foreground motion-reduce:transition-none',
@@ -707,7 +715,7 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
           {view.sorting.length > 1 && sort && <span aria-hidden className={'text-xs font-semibold tabular-nums'}>{sortIndex + 1}</span>}
           <SortArrow direction={direction} />
           {sortIndex > 0 && sort && <span className={'sr-only'}>{`, ${labels.sortPriority(sortIndex + 1, sort.desc ? 'desc' : 'asc')}`}</span>}
-        </button>
+        </Stack>
       )
       : label;
 
@@ -768,7 +776,15 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
 
     return (
       <td data-slot={'table-row-actions'} className={cn(CELL, 'ps-3 pe-2 text-end')}>
-        <span className={'inline-flex items-center justify-end gap-1'}>
+        <Stack
+          as={'span'}
+          data-slot={'table-row-actions-buttons'}
+          inline
+          direction={'horizontal'}
+          align={'center'}
+          justify={'end'}
+          gap={1}
+        >
           {inline.map((id) => {
             const action = spec.actions.find((candidate) => candidate.id === id);
 
@@ -812,7 +828,7 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
               />
             )}
           />
-        </span>
+        </Stack>
       </td>
     );
   };
@@ -913,14 +929,21 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
   // Component Render
   // ----
   return (
-    <div
+    <Stack
       {...rest}
       data-slot={'table'}
+      /* After the layout props: the mode of the table, which wins over the stack's own `data-mode` */
       data-mode={mode}
       data-status={status}
-      className={cn('flex min-h-0 flex-col', baseClasses, className)}
+      className={cn('min-h-0', baseClasses, className)}
     >
-      <div data-slot={'table-toolbar'} className={'mb-3 flex h-7 min-w-0 shrink-0 items-center gap-2'}>
+      <Stack
+        data-slot={'table-toolbar'}
+        direction={'horizontal'}
+        align={'center'}
+        gap={2}
+        className={'mb-3 h-7 min-w-0 shrink-0'}
+      >
         {chosen
           ? (
             <TableSelectionBar
@@ -936,7 +959,9 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
           )
           : (
             <React.Fragment>
-              <div className={'flex min-w-0 flex-1 items-center'}>{toolbar}</div>
+              <Stack data-slot={'table-toolbar-content'} direction={'horizontal'} align={'center'} className={'min-w-0 flex-1'}>
+                {toolbar}
+              </Stack>
               <span data-slot={'table-count'} aria-live={'polite'} className={'shrink-0 text-xs text-muted-foreground tabular-nums'}>
                 {firstLoad || failedEmpty ? '' : labels.count(rowCount)}
               </span>
@@ -949,9 +974,9 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
               />
             </React.Fragment>
           )}
-      </div>
+      </Stack>
 
-      <div data-slot={'table-card'} className={'relative flex min-h-0 flex-col overflow-hidden rounded-lg bg-card shadow-sm'}>
+      <Stack data-slot={'table-card'} className={'relative min-h-0 overflow-hidden rounded-lg bg-card shadow-sm'}>
         {/* On the line under the header, which is the first thing in the card */}
         {fetching && <LoadingBar className={'absolute inset-x-0 top-8 z-30 -mt-0.5'} />}
 
@@ -1050,9 +1075,15 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
                           )
                           : (
                             <Tooltip content={reason}>
-                              <span className={'inline-flex align-middle'}>
+                              <Stack
+                                as={'span'}
+                                data-slot={'table-select-blocked'}
+                                inline
+                                direction={'horizontal'}
+                                className={'align-middle'}
+                              >
                                 <Checkbox aria-label={labels.selectRow(row)} checked={isChosen} readOnly />
-                              </span>
+                              </Stack>
                             </Tooltip>
                           )}
                       </td>
@@ -1089,7 +1120,7 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
             labels={labels}
           />
         )}
-      </div>
+      </Stack>
 
       <span className={'sr-only'} aria-live={'polite'}>{announcement}</span>
 
@@ -1112,7 +1143,7 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
       </SharedMenu>
 
       <TruncationTooltip handle={tooltipHandle} />
-    </div>
+    </Stack>
   );
 
 }

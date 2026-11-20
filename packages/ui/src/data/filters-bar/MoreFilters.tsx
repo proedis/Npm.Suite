@@ -6,12 +6,15 @@ import { Popover as PopoverPrimitive } from '@base-ui/react/popover';
 
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 import { Spinner } from '../../primitives/Spinner';
 
 import { Button } from '../../actions/button/Button';
 import { IconButton } from '../../actions/button/IconButton';
 import { LIST_ITEM, LIST_POSITIONER, LIST_SIDE_OFFSET } from '../../actions/list-panel/listPanel';
 import { Tooltip } from '../../actions/tooltip/Tooltip';
+import { LIST_PANEL_LAYOUT } from '../../forms/list-field/listField';
 
 import { FilterBody, filterPanelClass } from './FilterBody';
 import { filtersBarGlyph } from './filtersBarGlyphs';
@@ -48,7 +51,7 @@ export interface MoreFiltersProps {
 
 const SHOWN_VALUES = 2;
 
-const HEADER = '-mx-1 -mt-1 mb-1 flex h-8 shrink-0 items-center gap-1 border-b border-border ps-0.5 pe-3 font-medium';
+const HEADER = '-mx-1 -mt-1 mb-1 h-8 shrink-0 border-b border-border ps-0.5 pe-3 font-medium';
 
 const NAME_ROW = cn(
   LIST_ITEM,
@@ -243,12 +246,13 @@ export function MoreFilters(props: MoreFiltersProps): React.ReactNode {
             initialFocus={firstRowRef}
             data-slot={'more-filters-panel'}
             data-step={current ? 'values' : 'names'}
+            render={LIST_PANEL_LAYOUT}
             className={filterPanelClass(current)}
           >
             {current
               ? (
                 <React.Fragment>
-                  <div data-slot={'more-filters-header'} className={HEADER}>
+                  <Stack data-slot={'more-filters-header'} direction={'horizontal'} align={'center'} gap={1} className={HEADER}>
                     <IconButton
                       label={labels.back}
                       icon={filtersBarGlyph('back')}
@@ -258,7 +262,7 @@ export function MoreFilters(props: MoreFiltersProps): React.ReactNode {
                       className={'size-6'}
                     />
                     <span data-slot={'more-filters-title'} className={'truncate'}>{current.label}</span>
-                  </div>
+                  </Stack>
 
                   <FilterBody
                     key={current.id}
@@ -275,14 +279,15 @@ export function MoreFilters(props: MoreFiltersProps): React.ReactNode {
                 </React.Fragment>
               )
               : (
-                <div ref={rowsRef} data-slot={'more-filters-names'} className={'flex flex-col'} onKeyDown={handleRowsKeyDown}>
+                <Stack ref={rowsRef} data-slot={'more-filters-names'} onKeyDown={handleRowsKeyDown}>
                   {filters.map((filter, index) => {
                     const values = filterValueLabels(filter, labels);
                     const off = (filter.disabled ?? false) && values.length === 0;
                     const rest = values.length - SHOWN_VALUES;
 
                     const row = (
-                      <button
+                      <Stack
+                        as={'button'}
                         key={filter.id}
                         ref={index === 0 ? firstRowRef : undefined}
                         type={'button'}
@@ -293,29 +298,44 @@ export function MoreFilters(props: MoreFiltersProps): React.ReactNode {
                         data-loading={filter.loading || undefined}
                         aria-disabled={off || filter.loading || undefined}
                         aria-busy={filter.loading || undefined}
+                        direction={'horizontal'}
+                        align={'start'}
+                        gap={2}
                         className={NAME_ROW}
                         onClick={() => enter(filter)}
                       >
-                        <span data-slot={'more-filters-row-text'} className={'flex min-w-0 flex-1 flex-col'}>
+                        <Stack as={'span'} data-slot={'more-filters-row-text'} className={'min-w-0 flex-1'}>
                           <span data-slot={'more-filters-row-label'}>{filter.label}</span>
                           {values.length > 0 && (
-                            <span data-slot={'more-filters-row-values'} className={'flex min-w-0 gap-1 text-xs text-muted-foreground'}>
+                            <Stack
+                              as={'span'}
+                              data-slot={'more-filters-row-values'}
+                              direction={'horizontal'}
+                              gap={1}
+                              className={'min-w-0 text-xs text-muted-foreground'}
+                            >
                               <span className={'truncate'}>{labels.values(values.slice(0, SHOWN_VALUES))}</span>
                               {rest > 0 && <span className={'flex-none'}>{labels.moreValues(rest)}</span>}
-                            </span>
+                            </Stack>
                           )}
-                        </span>
-                        <span data-slot={'more-filters-row-end'} className={'mt-0.5 inline-flex shrink-0 text-muted-foreground [&_svg]:size-4'}>
+                        </Stack>
+                        <Stack
+                          as={'span'}
+                          data-slot={'more-filters-row-end'}
+                          inline
+                          direction={'horizontal'}
+                          className={'mt-0.5 shrink-0 text-muted-foreground [&_svg]:size-4'}
+                        >
                           {filter.loading ? <Spinner size={'sm'} className={'size-3.5'} label={labels.loading} /> : filtersBarGlyph('next')}
-                        </span>
-                      </button>
+                        </Stack>
+                      </Stack>
                     );
 
                     return off && filter.disabledReason
                       ? <Tooltip key={filter.id} content={filter.disabledReason} side={'right'}>{row}</Tooltip>
                       : row;
                   })}
-                </div>
+                </Stack>
               )}
           </PopoverPrimitive.Popup>
         </PopoverPrimitive.Positioner>

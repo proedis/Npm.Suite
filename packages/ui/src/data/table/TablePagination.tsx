@@ -2,6 +2,8 @@
 
 import * as React from 'react';
 
+import { Stack } from '../../layout/Stack';
+
 import { Button } from '../../actions/button/Button';
 import { IconButton } from '../../actions/button/IconButton';
 import { Select } from '../../forms/select/Select';
@@ -105,9 +107,12 @@ export function TablePagination<TData>(props: TablePaginationProps<TData>): Reac
   // Component Render
   // ----
   return (
-    <div
+    <Stack
       data-slot={'table-pagination'}
-      className={'flex h-11 shrink-0 items-center gap-2 border-t border-border ps-3 pe-2 text-xs text-muted-foreground tabular-nums'}
+      direction={'horizontal'}
+      align={'center'}
+      gap={2}
+      className={'h-11 shrink-0 border-t border-border ps-3 pe-2 text-xs text-muted-foreground tabular-nums'}
     >
       <span id={labelId} className={'shrink-0'}>{labels.rowsPerPage}</span>
       <Select
@@ -128,23 +133,37 @@ export function TablePagination<TData>(props: TablePaginationProps<TData>): Reac
       <span className={'flex-1'} />
 
       {failed && (
-        <span data-slot={'table-pagination-error'} className={'flex min-w-0 items-center gap-1 text-destructive'}>
+        <Stack
+          as={'span'}
+          data-slot={'table-pagination-error'}
+          direction={'horizontal'}
+          align={'center'}
+          gap={1}
+          className={'min-w-0 text-destructive'}
+        >
           <span className={'truncate'}>{labels.rowsError(pageIndex * pageSize + 1, Math.min(rowCount, (pageIndex + 1) * pageSize))}</span>
           {failed.onRetry && (
             <Button size={'sm'} fill={'plain'} tone={'destructive'} onClick={failed.onRetry}>{labels.retry}</Button>
           )}
-        </span>
+        </Stack>
       )}
 
       <span className={'shrink-0 text-foreground'}>{labels.range(from, to, rowCount)}</span>
 
-      <span className={'ms-2 inline-flex shrink-0 gap-1'}>
+      <Stack
+        as={'span'}
+        data-slot={'table-pagination-arrows'}
+        inline
+        direction={'horizontal'}
+        gap={1}
+        className={'ms-2 shrink-0'}
+      >
         <Arrow glyph={'first'} label={labels.firstPage} off={atStart} onClick={() => onPageChange(0)} />
         <Arrow glyph={'previous'} label={labels.previousPage} off={atStart} onClick={() => onPageChange(pageIndex - 1)} />
         <Arrow glyph={'next'} label={labels.nextPage} off={atEnd} onClick={() => onPageChange(pageIndex + 1)} />
         <Arrow glyph={'last'} label={labels.lastPage} off={atEnd} onClick={() => onPageChange(last)} />
-      </span>
-    </div>
+      </Stack>
+    </Stack>
   );
 
 }

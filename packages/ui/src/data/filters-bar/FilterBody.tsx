@@ -44,7 +44,7 @@ export interface FilterBodyProps {
 const LONG_LIST = 200;
 
 const PANEL_BASE = [
-  'flex max-h-(--available-height) flex-col rounded-md bg-popover p-1 text-sm text-popover-foreground shadow-md outline-none',
+  'max-h-(--available-height) rounded-md bg-popover p-1 text-sm text-popover-foreground shadow-md outline-none',
   'transition-opacity duration-150 data-starting-style:opacity-0 data-ending-style:opacity-0 motion-reduce:transition-none'
 ].join(' ');
 

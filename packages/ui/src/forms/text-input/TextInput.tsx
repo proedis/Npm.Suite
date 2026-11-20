@@ -112,6 +112,18 @@ const [ TextInputContext, useTextInputContext ] = optionalContextBuilder<TextInp
  * -------- */
 
 /**
+ * The sizes of the recipe: the shared ones plus the gap of `TEXT_CONTROL_GAP`, written as a class
+ * because the recipe lays its element out by itself (see below).
+ */
+/* eslint-disable no-restricted-syntax -- public recipe, applied by consumers to their own elements */
+const RECIPE_SIZES = {
+  sm: `${TEXT_CONTROL_SIZES.sm} gap-1`,
+  md: `${TEXT_CONTROL_SIZES.md} gap-1.5`,
+  lg: `${TEXT_CONTROL_SIZES.lg} gap-1.5`
+} as const satisfies Readonly<Record<keyof typeof TEXT_CONTROL_SIZES, string>>;
+/* eslint-enable no-restricted-syntax */
+
+/**
  * The look of the frame and its states are the shared text-control classes: TextInput, Textarea,
  * NumberInput and the triggers of the lists read the same ones.
  */
@@ -130,7 +142,7 @@ const textInputVariants = cva(
   ],
   {
     variants: {
-      size: TEXT_CONTROL_SIZES,
+      size: RECIPE_SIZES,
 
       width: {
         short  : 'min-w-16',

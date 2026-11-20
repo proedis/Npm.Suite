@@ -129,6 +129,12 @@ const ITEM_ICON = 'mt-0.5 shrink-0 text-muted-foreground group-data-disabled/men
 /** The mark at the end of a checkbox or radio item, shown when it is chosen */
 const ITEM_INDICATOR = <Stack as={'span'} inline direction={'horizontal'} />;
 
+/** The layout of an item (`LIST_ITEM`): a row aligned at the top, given through `render` to the Base UI part */
+const ITEM_LAYOUT = <Stack direction={'horizontal'} align={'start'} gap={2} />;
+
+/** The same row for the item that is a link, which Base UI renders as an anchor */
+const LINK_ITEM_LAYOUT = <Stack as={'a'} direction={'horizontal'} align={'start'} gap={2} />;
+
 
 /* --------
  * Helpers
@@ -330,6 +336,7 @@ const MenuItem = React.forwardRef<HTMLElement, MenuItemProps>((props, ref) => {
     return (
       <MenuPrimitive.LinkItem
         {...shared}
+        render={LINK_ITEM_LAYOUT}
         ref={ref as React.Ref<HTMLAnchorElement>}
         closeOnClick
         href={to.href}
@@ -350,6 +357,7 @@ const MenuItem = React.forwardRef<HTMLElement, MenuItemProps>((props, ref) => {
   return (
     <MenuPrimitive.Item
       {...shared}
+      render={ITEM_LAYOUT}
       ref={ref as React.Ref<HTMLDivElement>}
       disabled={disabled}
       onClick={() => {
@@ -414,7 +422,13 @@ function MenuRadioItem(props: MenuRadioItemProps): React.ReactNode {
   const { children, disabled = false, value } = props;
 
   return (
-    <MenuPrimitive.RadioItem value={value} disabled={disabled} data-slot={'menu-radio-item'} className={cn(ITEM, 'data-checked:font-medium')}>
+    <MenuPrimitive.RadioItem
+      value={value}
+      disabled={disabled}
+      data-slot={'menu-radio-item'}
+      render={ITEM_LAYOUT}
+      className={cn(ITEM, 'data-checked:font-medium')}
+    >
       <span className={'min-w-0 flex-1 group-data-disabled/menu-item:opacity-50'}>{children}</span>
       <MenuPrimitive.RadioItemIndicator
         data-slot={'menu-radio-item-indicator'}
@@ -439,6 +453,7 @@ function MenuCheckboxItem(props: MenuCheckboxItemProps): React.ReactNode {
       onCheckedChange={(next: boolean) => onCheckedChange(next)}
       disabled={disabled}
       data-slot={'menu-checkbox-item'}
+      render={ITEM_LAYOUT}
       className={cn(ITEM, 'data-checked:font-medium')}
     >
       <span className={'min-w-0 flex-1 group-data-disabled/menu-item:opacity-50'}>{children}</span>
@@ -465,7 +480,14 @@ function MenuSubmenu(props: MenuSubmenuProps): React.ReactNode {
 
   return (
     <MenuPrimitive.SubmenuRoot>
-      <MenuPrimitive.SubmenuTrigger openOnHover delay={100} disabled={disabled} data-slot={'menu-submenu-trigger'} className={ITEM}>
+      <MenuPrimitive.SubmenuTrigger
+        openOnHover
+        delay={100}
+        disabled={disabled}
+        data-slot={'menu-submenu-trigger'}
+        render={ITEM_LAYOUT}
+        className={ITEM}
+      >
         {icon !== null && icon !== undefined && <ItemIcon>{icon}</ItemIcon>}
         <span className={'min-w-0 flex-1 group-data-disabled/menu-item:opacity-50'}>{label}</span>
         <ChevronEndGlyph />

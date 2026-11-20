@@ -2,6 +2,8 @@
 
 import * as React from 'react';
 
+import { Stack } from '../../layout/Stack';
+
 import { Button } from '../../actions/button/Button';
 import { IconButton } from '../../actions/button/IconButton';
 import { Menu } from '../../actions/menu/Menu';
@@ -104,9 +106,12 @@ export function TableSelectionBar(props: TableSelectionBarProps): React.ReactNod
   // Component Render
   // ----
   return (
-    <div
+    <Stack
       data-slot={'table-selection-bar'}
-      className={'flex h-7 min-w-0 flex-1 items-center gap-2 rounded-md bg-primary-soft ps-3 pe-1 text-primary-soft-foreground'}
+      direction={'horizontal'}
+      align={'center'}
+      gap={2}
+      className={'h-7 min-w-0 flex-1 rounded-md bg-primary-soft ps-3 pe-1 text-primary-soft-foreground'}
     >
       <span aria-live={'polite'} className={'shrink-0 text-xs font-semibold tabular-nums'}>{text}</span>
       {extra}
@@ -138,7 +143,7 @@ export function TableSelectionBar(props: TableSelectionBarProps): React.ReactNod
       )}
 
       <Button size={'sm'} fill={'plain'} tone={'primary'} onClick={onClear} className={'ms-auto'}>{labels.deselect}</Button>
-    </div>
+    </Stack>
   );
 
 }

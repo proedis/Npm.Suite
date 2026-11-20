@@ -48,10 +48,9 @@ export const LIST_POSITIONER = 'z-popover outline-none';
 
 export const LIST_SIDE_OFFSET = 4;
 
-/** The panel: as wide as the field, never under 160px, never taller than the room there is */
+/** The panel: as wide as the field, never under 160px, never taller than the room there is. A column, through Stack */
 export const LIST_PANEL = [
-  // eslint-disable-next-line no-restricted-syntax -- shared class constant consumed by forms and data, migrated with them
-  'flex max-h-(--available-height) w-(--anchor-width) min-w-40 flex-col',
+  'max-h-(--available-height) w-(--anchor-width) min-w-40',
   'rounded-md bg-popover p-1 text-sm text-popover-foreground shadow-md outline-none',
   'transition-opacity duration-150 data-starting-style:opacity-0 data-ending-style:opacity-0',
   'motion-reduce:transition-none'
@@ -62,19 +61,18 @@ export const LIST_ITEMS = 'max-h-68 overflow-y-auto scrollbar-thin outline-none'
 
 /**
  * An item: at least 32px, wraps rather than truncating, the tick on its first line. Active with the
- * pointer or the keyboard, the same surface; disabled at half, skipped by the arrows.
+ * pointer or the keyboard, the same surface; disabled at half, skipped by the arrows. A row aligned at
+ * the top with a gap of 2, through Stack.
  */
 export const LIST_ITEM = [
-  // eslint-disable-next-line no-restricted-syntax -- shared class constant consumed by forms and data, migrated with them
-  'relative flex min-h-8 cursor-default items-start gap-2 rounded-sm px-2 py-1.5 outline-none select-none',
+  'relative min-h-8 cursor-default rounded-sm px-2 py-1.5 outline-none select-none',
   'data-highlighted:bg-accent data-highlighted:text-accent-foreground',
   'data-disabled:opacity-50'
 ].join(' ');
 
-/** The search row at the top of a panel: 32px, a rule under it, out of the scrolling area */
+/** The search row at the top of a panel: 32px, a rule under it, out of the scrolling area. A centred row with a gap of 2 */
 export const LIST_SEARCH = [
-  // eslint-disable-next-line no-restricted-syntax -- shared class constant consumed by forms and data, migrated with them
-  '-mx-1 -mt-1 mb-1 flex h-8 shrink-0 items-center gap-2 border-b border-border px-3',
+  '-mx-1 -mt-1 mb-1 h-8 shrink-0 border-b border-border px-3',
   '[&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground'
 ].join(' ');
 
@@ -83,20 +81,17 @@ export const LIST_SEARCH_INPUT = 'h-full min-w-0 flex-1 bg-transparent outline-n
 /** A line of text in the panel: no results, the hint, a status. Never an empty list */
 export const LIST_MESSAGE = 'px-2 py-1.5 text-muted-foreground';
 
-/** The footer of actions: a rule above it, out of the scrolling area */
-// eslint-disable-next-line no-restricted-syntax -- shared class constant consumed by forms and data, migrated with them
-export const LIST_FOOTER = '-mx-1 -mb-1 mt-1 flex h-9 shrink-0 items-center justify-between gap-1 border-t border-border px-0.5';
+/** The footer of actions: a rule above it, out of the scrolling area. A centred row, its ends apart, with a gap of 1 */
+export const LIST_FOOTER = '-mx-1 -mb-1 mt-1 h-9 shrink-0 border-t border-border px-0.5';
 
-/** The box of an option of a multiple list, filled with `primary` when the option is chosen */
+/** The box of an option of a multiple list, filled with `primary` when the option is chosen. Inline, its mark centred */
 export const LIST_OPTION_BOX = [
-  // eslint-disable-next-line no-restricted-syntax -- shared class constant consumed by forms and data, migrated with them
-  'mt-0.5 inline-flex size-4 shrink-0 items-center justify-center rounded-sm border border-input bg-card text-primary-foreground',
+  'mt-0.5 size-4 shrink-0 rounded-sm border border-input bg-card text-primary-foreground',
   'group-data-selected/option:border-transparent group-data-selected/option:bg-primary'
 ].join(' ');
 
-/** A chosen value inside a multiple field */
-// eslint-disable-next-line no-restricted-syntax -- shared class constant consumed by forms and data, migrated with them
-export const LIST_CHIP = 'inline-flex h-5 max-w-full shrink-0 items-center gap-0.5 rounded-sm bg-secondary ps-1.5 text-xs font-medium text-secondary-foreground';
+/** A chosen value inside a multiple field. An inline row, centred, with a gap of 0.5 */
+export const LIST_CHIP = 'h-5 max-w-full shrink-0 rounded-sm bg-secondary ps-1.5 text-xs font-medium text-secondary-foreground';
 
 /** Values listed by name in a tooltip, at most; past it, one line says how many more */
 export const TOOLTIP_LIST_LIMIT = 10;
