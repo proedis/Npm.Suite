@@ -217,6 +217,22 @@ export function AlertDialog(props: AlertDialogProps): React.ReactNode {
   const [ typed, setTyped ] = React.useState('');
   const [ mismatch, setMismatch ] = React.useState(false);
 
+  /**
+   * Every opening starts with an empty confirmation, adjusted while rendering. Clearing it on close
+   * was not enough: the usual close is the page setting `open` to false once the action succeeded,
+   * which never goes through `onOpenChange`, so the next opening found the action already armed.
+   */
+  const [ seenOpen, setSeenOpen ] = React.useState(open);
+
+  if (seenOpen !== open) {
+    setSeenOpen(open);
+
+    if (open) {
+      setTyped('');
+      setMismatch(false);
+    }
+  }
+
   const outcome = wait.timedOut ? labels.timeout : result;
   const numeric = confirmText !== undefined && /^[\d.\s]+$/.test(confirmText);
   const matches = confirmText === undefined || normalizeConfirm(typed, numeric) === normalizeConfirm(confirmText, numeric);
@@ -229,11 +245,6 @@ export function AlertDialog(props: AlertDialogProps): React.ReactNode {
     /* While the action runs nothing closes; after the timeout the exit is the way out */
     if (!next && busy === 'action' && !wait.timedOut) {
       return;
-    }
-
-    if (!next) {
-      setTyped('');
-      setMismatch(false);
     }
 
     onOpenChange(next);
