@@ -19,7 +19,6 @@
     "@proedis/react": "^2.1.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "react-compiler-runtime": "^1.0.0",
     "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
@@ -46,7 +45,7 @@
       },
       "react": {
         "from": "root",
-        "range": ">=18.0.0 <20.0.0"
+        "range": ">=19.0.0 <20.0.0"
       },
       "tailwindcss": {
         "range": "^4.1.5"

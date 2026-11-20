@@ -12,9 +12,12 @@ import { babel } from '@rollup/plugin-babel';
  * TypeScript transform would have produced it skips every component that calls no hook. The JSX is
  * then transformed here with the automatic runtime, the same output `jsx: 'react-jsx'` gives.
  *
- * `target: '18'` makes the compiled code import its cache from `react-compiler-runtime` rather than
- * from `react/compiler-runtime`, which only exists since React 19: the package keeps the React range
- * it declares, and must list `react-compiler-runtime` among its `dependencies`.
+ * `target: '19'` makes the compiled code import its cache from `react/compiler-runtime`, which React
+ * ships since 19.0: nothing else to install, and the import is external because `react` is a peer.
+ * ⚠️ A package that opts in must therefore declare a React range starting at 19. Under 18 that
+ * import does not resolve, and the failure is at the consumer's runtime, not in this build. A
+ * package that has to keep 18 needs `target: '18'` and `react-compiler-runtime` in its
+ * `dependencies` instead.
  *
  * ⚠️ The compiler **skips in silence** any function it cannot prove safe (a ref read while
  * rendering, a mutation of a prop) and leaves it as written, unmemoised. That is the one way this
@@ -54,7 +57,7 @@ export default function reactCompiler() {
       parserOpts  : { plugins: [ 'jsx' ] },
       plugins     : [
         /* The compiler has to see the code first, before any other transform */
-        [ 'babel-plugin-react-compiler', { target: '18', logger } ],
+        [ 'babel-plugin-react-compiler', { target: '19', logger } ],
         [ '@babel/plugin-transform-react-jsx', { runtime: 'automatic' } ]
       ]
     }),

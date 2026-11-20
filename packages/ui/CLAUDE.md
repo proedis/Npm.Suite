@@ -169,10 +169,14 @@ Three things every interactive component does, on top of "Writing a new componen
   `labels`, `loadingLabel`, a `title` function for anything with a count).
 - **Every part has its `data-slot`, every resolved variant and state its `data-*`.** That is the
   surface a product's skin targets with unlayered rules, so a rename is a major.
-- **A component that can be a trigger forwards its ref, and spreads the rest of its props.** The React
-  range starts at 18, where a function component given to `render` receives no ref and a tooltip or a
-  menu has nothing to anchor to; and a trigger also hands down its handlers and `aria-*`, which a
-  closed list of props drops. The same spread is what lets a form library reach `onBlur`.
+- **A component that can be a trigger takes its ref, and spreads the rest of its props.** A tooltip or
+  a menu anchors to the element its trigger renders, and a trigger also hands down its handlers and
+  `aria-*`, which a closed list of props drops. The same spread is what lets a form library reach
+  `onBlur`. The package is React 19 only (`>=19.0.0 <20.0.0`), where `ref` is an ordinary prop: a
+  component that spreads its props onto its element forwards the ref with them, and new code takes it
+  that way. The `forwardRef` already in the interactive tier dates from when the range started at 18,
+  where a function component given to `render` received no ref; it still works on 19 and is not
+  rewritten for its own sake.
 - **When the root is not the control, the two get different props.** A `Checkbox` is a row (`<label>`)
   around a box that takes the focus; a `TextInput` is a frame around an `<input>`. `className` and the
   shared props go on the root, where the layout is; the native props, the `ref` and every `aria-*` go
@@ -253,8 +257,8 @@ narrower stylesheet is the one you have to ask for.
 
 - **The React Compiler memoises this package, at build time.** `proedisMetadata.reactCompiler` runs
   it over every component while rollup builds, so the published code carries its own memoisation and
-  a consumer configures nothing, on React 18 as on 19 (`target: '18'`, through
-  `react-compiler-runtime`). Hence the house rule "memoise by default" does **not** apply here:
+  a consumer configures nothing (`target: '19'`, the cache imported from `react/compiler-runtime`,
+  which React itself ships: that import is why the React range starts at 19). Hence the house rule "memoise by default" does **not** apply here:
   `useMemo` / `useCallback` written by hand are noise, kept only where a stable identity is part of a
   contract (a context value read by other subpaths, a callback handed to an effect elsewhere).
   ⚠️ What replaces the discipline is the report: the compiler skips any function it cannot prove
@@ -262,7 +266,9 @@ narrower stylesheet is the one you have to ask for.
   skipped` and one warning per skip. **M stays 0.** The rules of React are what keep it there: no
   ref read or written while rendering, no prop or state mutated. Verified when it landed: 193
   functions compiled, 0 skipped, and the jsdom cases of the bug fixes green on the compiled output
-  under React 19.2.5 in the workspace and under 18.3.1 from the packed tarball outside it.
+  under React 19.2.5 in the workspace and under 18.3.1 from the packed tarball outside it. Re-verified
+  with `target: '19'` when the range was narrowed: the packed tarball installed outside the workspace
+  against React 19.0.0 and 19.2.5.
 - **Classes, never inline styles, for anything a class can express.** An inline style beats a class,
   so `<Stack gap={4} className={'gap-8'} />` would stop working — and that override, resolved by
   `tailwind-merge` inside `cn`, is what makes these primitives bearable to use. Inline `style` is
@@ -751,7 +757,8 @@ What was run when the vocabulary, the six new primitives and the responsive alig
   `TS2578: Unused '@ts-expect-error' directive`.
 - **The emitted declarations compiled against `@types/react` 18.3.31 and 19.2.18**, from a directory
   outside the workspace holding only the packed tarball and its own dependencies, `skipLibCheck: false`
-  — which is what the repository's React range asks for whenever a public signature moves. Both exit
+  — which is what the React range asked for while it started at 18. Since the package is React 19
+  only, `@types/react` 19 is the one that has to hold. Both exit
   0, negative assertion included, so the generic surface resolves identically through the `.d.ts` on
   both type majors.
 - **43 cases for the shared props**: `hideBelow` and `hideFrom` on each of the sixteen primitives that

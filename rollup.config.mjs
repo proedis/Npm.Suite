@@ -64,8 +64,8 @@ const SUBPATH_ENTRIES = PACKAGE_METADATA.exports ?? [];
 
 /**
  * Whether the package's components go through the React Compiler, declared through
- * 'proedisMetadata.reactCompiler'. Opt-in per package: it changes the emitted code and adds
- * 'react-compiler-runtime' to what the package needs at runtime. See the plugin for the details.
+ * 'proedisMetadata.reactCompiler'. Opt-in per package: it changes the emitted code, which then
+ * imports 'react/compiler-runtime', so the package's React range has to start at 19. See the plugin.
  */
 const REACT_COMPILER = PACKAGE_METADATA.reactCompiler === true;
 

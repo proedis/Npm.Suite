@@ -77,7 +77,7 @@ One or the other, never both: the full sheet imports the narrow one itself. See
 
 | Peer | Range |
 | --- | --- |
-| `react` | `>=18.0.0 <20.0.0` |
+| `react` | `>=19.0.0 <20.0.0` |
 | `tailwindcss` | `^4.1.5` |
 | `@base-ui/react` | `^1.7.0`, **optional**: only for the `interactive/*` subpaths |
 | `dayjs` | `^1.11.0`, **optional**: only for `interactive/date-picker`, `interactive/filters-bar` and `interactive/modal-selector`, with the locale loaded by the application |
@@ -1047,6 +1047,7 @@ another package. A recessed surface is `--muted`.
 
 | 1.x | 2.0 |
 | --- | --- |
+| `react` `>=18.0.0 <20.0.0` | `>=19.0.0 <20.0.0`: the compiled code imports `react/compiler-runtime`, and `ref` is passed as a prop |
 | `useMediaQuery`, `usePrefersReducedMotion` from `@proedis/ui/hooks` | from `@proedis/react`, same signatures; `@proedis/ui/hooks` keeps `useBreakpoint` and `useIsMobile` |
 | `tailwindcss` `^4.0.0` | `^4.1.5`, see Compatibility |
 | a `Badge` with text renders the text as its child | the text is wrapped in `badge-label` and truncates with an ellipsis when the badge is too narrow |
@@ -1055,7 +1056,7 @@ another package. A recessed surface is `--muted`.
 
 | | |
 | --- | --- |
-| React | `>=18.0.0 <20.0.0`. The components are compiled by the React Compiler before publishing: nothing to configure, `react-compiler-runtime` arrives as a dependency |
+| React | `>=19.0.0 <20.0.0`. The components are compiled by the React Compiler before publishing, against the `react/compiler-runtime` React 19 ships: nothing to configure, nothing else to install |
 | Tailwind | `^4.1.5` — the stylesheet uses `@source`, `@source inline`, `@theme inline`, `@utility` and `@custom-variant`, and the error mark is one line tall with `h-lh` |
 | TypeScript | `>=5.2.0`, the suite floor — the emitted declarations are compiled against it |
 | Runtime | ES2022. The package root is server-renderable; `/hooks` and `/interactive/*` are client-only |

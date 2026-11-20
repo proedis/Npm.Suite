@@ -230,8 +230,9 @@ the most likely way to break a package silently.
   (`scripts/rollup-plugins/reactCompiler.mjs`), so the published code is already memoised and no
   consumer configures anything. Only `ui` sets it. It costs three things, all load-bearing: the
   TypeScript plugin leaves JSX in place (`jsx: 'preserve'`) because the compiler recognises a
-  component by its JSX; `target: '18'` imports the cache from `react-compiler-runtime`, which the
-  package must list in `dependencies`; and the compiler **skips in silence** any function it cannot
+  component by its JSX; `target: '19'` imports the cache from `react/compiler-runtime`, which React
+  ships since 19.0, so the package's React range **must start at 19** (under 18 the import does not
+  resolve, and it fails at the consumer's runtime, not in the build); and the compiler **skips in silence** any function it cannot
   prove safe, so the build prints every skip with its reason. A skip is a defect to fix, not noise:
   the first build skipped `AspectRatio` over an inline `16 / 9` default.
 - `exports: string[]` — directory names below `src`, each holding its own barrel `index.ts`,
@@ -482,6 +483,10 @@ Published peer ranges are deliberately wider than the versions pinned here: `rea
 `@tanstack/react-query` `^5.0.0`, `rxjs` `^7.0.0`, `dayjs` `>=1.11.0`, `zod` `^4.0.0`,
 `tailwindcss` `^4.0.0`, `eslint` `>=9.0.0 <10.0.0`, `@react-native-async-storage/async-storage`
 `>=1.18.0 <4.0.0`, `typescript` `>=5.2.0`.
+
+⚠️ `@proedis/ui` is the exception on React: it declares `>=19.0.0 <20.0.0`. It is compiled by the React
+Compiler against `react/compiler-runtime`, and on 19 `ref` is a prop, which its polymorphic primitives
+rely on to forward one without `forwardRef`. The other React packages keep the 18 floor.
 
 ⚠️ `react-dom` is **not** a peer of anything here and must not be added as one: no package in the
 suite imports it. The React range above covers `react` alone.

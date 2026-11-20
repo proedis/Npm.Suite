@@ -1773,7 +1773,6 @@ __metadata:
     clsx: "npm:^2.1.1"
     cpy-cli: "npm:5.0.0"
     dayjs: "npm:^1.11.12"
-    react-compiler-runtime: "npm:^1.0.0"
     rollup: "npm:^4.62.4"
     tailwind-merge: "npm:^3.6.0"
   languageName: unknown
@@ -8306,15 +8305,6 @@ __metadata:
   version: 1.2.3
   resolution: "queue-microtask@npm:1.2.3"
   checksum: 10c0/900a93d3cdae3acd7d16f642c29a642aea32c2026446151f0778c62ac089d4b8e6c986811076e1ae180a694cedf077d453a11b58ff0a865629a4f82ab558e102
-  languageName: node
-  linkType: hard
-
-"react-compiler-runtime@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "react-compiler-runtime@npm:1.0.0"
-  peerDependencies:
-    react: ^17.0.0 || ^18.0.0 || ^19.0.0 || ^0.0.0-experimental
-  checksum: 10c0/e081192380ae32d18bebaf341071ae8aecf80f4401b188f80e4b77e8d8995bb4c7175b8c3f75e8307019eac2015edf45c7999f788dcfcd99fdbe2ba9a2d465a4
   languageName: node
   linkType: hard
 
