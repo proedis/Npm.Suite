@@ -6,6 +6,8 @@ import { Combobox as ComboboxPrimitive } from '@base-ui/react/combobox';
 import { Input } from '@base-ui/react/input';
 import { Select as SelectPrimitive } from '@base-ui/react/select';
 
+import { useForkRef } from '@proedis/react';
+
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
@@ -92,9 +94,8 @@ export interface StrictSelectProps extends BaseProps {
   /** The texts of the search, the empty list and the clear button */
   labels: SelectLabels;
 
-  id?: string;
+  /** Classes for the frame, last so they win */
   className?: string;
-  'aria-label'?: string;
 }
 
 /** `loadingLabel` is required with `loading`: the options are on their way, the field does not open */
@@ -102,7 +103,14 @@ export type SelectLoadingProps =
   | { loading?: false; loadingLabel?: string }
   | { loading: true; loadingLabel: string };
 
-export type SelectProps = StrictSelectProps & SelectLoadingProps;
+/**
+ * The frame takes `className` and the shared props; the native props and the ref reach the button
+ * that opens the list, the element that takes the focus: `id`, `aria-*`, `onBlur` for a form library.
+ */
+export type SelectProps = StrictSelectProps & SelectLoadingProps & Omit<
+  React.ComponentProps<'button'>,
+  keyof StrictSelectProps | 'loading' | 'ref' | 'children' | 'value' | 'defaultValue' | 'onChange' | 'type'
+>;
 
 
 /* --------
@@ -161,17 +169,15 @@ function firstStartingWith(options: readonly SelectOption[], key: string): Selec
  * `select-clear`, `list-field-end`, `list-chevron`, `select-panel`, `select-search`, `select-item`,
  * `select-empty`.
  */
-export function Select(props: SelectProps): React.ReactNode {
+export const Select = React.forwardRef<HTMLButtonElement, SelectProps>((props, forwardedRef) => {
 
   // ----
   // Props Deconstruct
   // ----
   const {
-    'aria-label': ariaLabel,
     className,
     defaultValue = null,
     disabled = false,
-    id,
     invalid = false,
     labels,
     loading = false,
@@ -188,7 +194,7 @@ export function Select(props: SelectProps): React.ReactNode {
     ...others
   } = props;
 
-  const { baseClasses } = splitBaseProps(others);
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -200,6 +206,7 @@ export function Select(props: SelectProps): React.ReactNode {
 
   const frameRef = React.useRef<HTMLDivElement>(null);
   const triggerRef = React.useRef<HTMLButtonElement>(null);
+  const handleTriggerRef = useForkRef(triggerRef, forwardedRef);
   const pendingKeyRef = React.useRef<string | null>(null);
   const popupRef = React.useRef<HTMLDivElement>(null);
 
@@ -263,6 +270,8 @@ export function Select(props: SelectProps): React.ReactNode {
   };
 
   const handleTriggerKeyDown = (event: React.KeyboardEvent<HTMLButtonElement> & { preventBaseUIHandler?: () => void }): void => {
+    rest.onKeyDown?.(event);
+
     if (open || event.ctrlKey || event.metaKey || event.altKey) {
       return;
     }
@@ -354,8 +363,7 @@ export function Select(props: SelectProps): React.ReactNode {
   );
 
   const triggerAttributes = {
-    id,
-    'aria-label'        : ariaLabel,
+    ...rest,
     'aria-required'     : isRequired || undefined,
     'aria-invalid'      : isInvalid || undefined,
     'data-slot'         : 'select-trigger',
@@ -367,9 +375,11 @@ export function Select(props: SelectProps): React.ReactNode {
     return (
       <div {...frameAttributes} className={frameClasses}>
         <Input
+          id={rest.id}
+          aria-label={rest['aria-label']}
+          aria-labelledby={rest['aria-labelledby']}
+          aria-describedby={rest['aria-describedby']}
           readOnly
-          id={id}
-          aria-label={ariaLabel}
           value={selected?.label ?? ''}
           data-slot={'select-value'}
           data-field-control={''}
@@ -382,8 +392,8 @@ export function Select(props: SelectProps): React.ReactNode {
 
   const item = (option: SelectOption, content: React.ReactNode, Indicator: React.ElementType): React.ReactNode => (
     <React.Fragment>
-      <span className={'min-w-0 flex-1'}>{content}</span>
-      <Indicator className={TICK}>
+      <span data-slot={'select-item-label'} className={'min-w-0 flex-1'}>{content}</span>
+      <Indicator data-slot={'select-item-tick'} className={TICK}>
         <CheckGlyph />
       </Indicator>
     </React.Fragment>
@@ -404,7 +414,7 @@ export function Select(props: SelectProps): React.ReactNode {
       >
         <div ref={frameRef} {...frameAttributes} className={frameClasses} onMouseDown={handleFrameMouseDown}>
           <SelectPrimitive.Trigger
-            ref={triggerRef}
+            ref={handleTriggerRef}
             {...triggerAttributes}
             className={TRIGGER}
             onKeyDown={handleTriggerKeyDown}
@@ -468,7 +478,7 @@ export function Select(props: SelectProps): React.ReactNode {
     >
       <div ref={frameRef} {...frameAttributes} className={frameClasses} onMouseDown={handleFrameMouseDown}>
         <ComboboxPrimitive.Trigger
-          ref={triggerRef}
+          ref={handleTriggerRef}
           {...triggerAttributes}
           className={TRIGGER}
           onKeyDown={handleTriggerKeyDown}
@@ -490,7 +500,7 @@ export function Select(props: SelectProps): React.ReactNode {
           <ComboboxPrimitive.Popup ref={popupRef} data-slot={'select-panel'} className={LIST_PANEL}>
             <div data-slot={'select-search'} className={LIST_SEARCH}>
               <SearchGlyph />
-              <ComboboxPrimitive.Input placeholder={labels.search} className={LIST_SEARCH_INPUT} />
+              <ComboboxPrimitive.Input data-slot={'select-search-input'} placeholder={labels.search} className={LIST_SEARCH_INPUT} />
             </div>
 
             <ComboboxPrimitive.Empty data-slot={'select-empty'} className={cn(LIST_MESSAGE, 'empty:hidden')}>
@@ -517,6 +527,6 @@ export function Select(props: SelectProps): React.ReactNode {
     </ComboboxPrimitive.Root>
   );
 
-}
+});
 
 Select.displayName = 'Select';

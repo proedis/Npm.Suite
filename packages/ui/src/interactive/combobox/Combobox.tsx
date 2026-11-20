@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Combobox as ComboboxPrimitive } from '@base-ui/react/combobox';
 import { Input } from '@base-ui/react/input';
 
-import { useDelayedBusy } from '@proedis/react';
+import { useDelayedBusy, useForkRef } from '@proedis/react';
 
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
@@ -107,20 +107,20 @@ function sameText(a: string, b: string): boolean {
  * - after an error the only item is "Retry", already active.
  *
  * Slots: `combobox` (the frame, with `data-size` and the states), `combobox-input`, `combobox-code`,
- * `combobox-clear`, `combobox-panel`, `combobox-item`, `combobox-message`, `combobox-current`,
- * `combobox-footer`, `combobox-status`.
+ * `combobox-end`, `combobox-clear`, `combobox-chevron`, `combobox-panel`, `combobox-item`,
+ * `combobox-message`, `combobox-current`, `combobox-footer`, `combobox-status`. With `multiple`, also
+ * `combobox-trigger`, `combobox-chips`, `combobox-more`, `combobox-search`, `combobox-item-box`,
+ * `combobox-item-text`, `combobox-item-label`, `combobox-retry`, `combobox-too-many`.
  */
-function SingleCombobox(props: SingleComboboxProps): React.ReactNode {
+const SingleCombobox = React.forwardRef<HTMLInputElement, SingleComboboxProps>((props, forwardedRef) => {
 
   // ----
   // Props Deconstruct
   // ----
   const {
-    'aria-label': ariaLabel,
     className,
     disabled = false,
     hasMore = false,
-    id,
     invalid = false,
     items,
     labels,
@@ -141,7 +141,7 @@ function SingleCombobox(props: SingleComboboxProps): React.ReactNode {
     ...others
   } = props;
 
-  const { baseClasses } = splitBaseProps(others);
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -152,6 +152,7 @@ function SingleCombobox(props: SingleComboboxProps): React.ReactNode {
 
   const frameRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const handleInputRef = useForkRef(inputRef, forwardedRef);
   const pendingEnterRef = React.useRef(false);
 
 
@@ -357,9 +358,8 @@ function SingleCombobox(props: SingleComboboxProps): React.ReactNode {
     return (
       <div {...frameAttributes} className={frameClasses}>
         <Input
+          {...rest}
           readOnly
-          id={id}
-          aria-label={ariaLabel}
           value={restText(selected)}
           data-slot={'combobox-input'}
           data-field-control={''}
@@ -432,23 +432,31 @@ function SingleCombobox(props: SingleComboboxProps): React.ReactNode {
         <SearchGlyph />
 
         <ComboboxPrimitive.Input
-          ref={inputRef}
-          id={id}
-          aria-label={ariaLabel}
+          {...rest}
+          ref={handleInputRef}
           aria-required={isRequired || undefined}
           aria-invalid={isInvalid || undefined}
           placeholder={labels.placeholder}
           data-slot={'combobox-input'}
           data-field-control={''}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          onKeyDown={handleKeyDown}
+          onFocus={(event: React.FocusEvent<HTMLInputElement>) => {
+            rest.onFocus?.(event);
+            handleFocus();
+          }}
+          onBlur={(event: React.FocusEvent<HTMLInputElement>) => {
+            rest.onBlur?.(event);
+            handleBlur();
+          }}
+          onKeyDown={(event: React.KeyboardEvent<HTMLInputElement> & { preventBaseUIHandler?: () => void }) => {
+            rest.onKeyDown?.(event);
+            handleKeyDown(event);
+          }}
           className={cn('h-full min-w-0 flex-1 truncate bg-transparent outline-none', TEXT_CONTROL_TEXT)}
         />
 
         {!focused && selected?.code && <span data-slot={'combobox-code'} className={CODE}>{selected.code}</span>}
 
-        <span className={'flex shrink-0 items-center gap-1'}>
+        <span data-slot={'combobox-end'} className={'flex shrink-0 items-center gap-1'}>
           {clearKind && (
             <IconButton
               label={clearKind === 'search' ? labels.clearSearch : labels.clear}
@@ -465,7 +473,7 @@ function SingleCombobox(props: SingleComboboxProps): React.ReactNode {
           {showBusy
             ? <Spinner size={'sm'} className={size === 'sm' ? 'size-3.5' : undefined} />
             : (
-              <ComboboxPrimitive.Trigger tabIndex={-1} aria-hidden={'true'} className={'flex items-center outline-none'}>
+              <ComboboxPrimitive.Trigger data-slot={'combobox-chevron'} tabIndex={-1} aria-hidden={'true'} className={'flex items-center outline-none'}>
                 <ChevronGlyph />
               </ComboboxPrimitive.Trigger>
             )}
@@ -529,17 +537,20 @@ function SingleCombobox(props: SingleComboboxProps): React.ReactNode {
     </ComboboxPrimitive.Root>
   );
 
-}
+});
 
-SingleCombobox.displayName = 'Combobox';
+SingleCombobox.displayName = 'SingleCombobox';
 
 
 /**
  * The choice of a record, or of several with `multiple`, among results that arrive from the server.
  * See the two variants above and in `MultipleCombobox`.
  */
-export function Combobox(props: ComboboxProps): React.ReactNode {
-  return props.multiple ? <MultipleCombobox {...props} /> : <SingleCombobox {...props} />;
-}
+/** The ref is the element that takes the focus: the text of the single field, the button of the multiple one */
+export const Combobox = React.forwardRef<HTMLElement, ComboboxProps>((props, ref) => (
+  props.multiple
+    ? <MultipleCombobox {...props} ref={ref as React.Ref<HTMLButtonElement>} />
+    : <SingleCombobox {...props} ref={ref as React.Ref<HTMLInputElement>} />
+));
 
 Combobox.displayName = 'Combobox';

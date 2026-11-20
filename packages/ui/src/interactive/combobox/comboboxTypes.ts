@@ -1,3 +1,5 @@
+import type * as React from 'react';
+
 import type { BaseProps } from '../../core/base';
 
 import type { TextControlSize } from '../text-control/textControl';
@@ -98,12 +100,11 @@ export interface ComboboxSearchProps extends BaseProps {
   readOnly?: boolean;
   disabled?: boolean;
 
-  id?: string;
+  /** Classes for the frame, last so they win */
   className?: string;
-  'aria-label'?: string;
 }
 
-export interface SingleComboboxProps extends ComboboxSearchProps {
+export interface StrictSingleComboboxProps extends ComboboxSearchProps {
   multiple?: false;
 
   /** The key of the chosen record, or `null` */
@@ -116,7 +117,8 @@ export interface SingleComboboxProps extends ComboboxSearchProps {
   labels: ComboboxLabels;
 }
 
-export interface MultipleComboboxLabels extends ComboboxLabels {
+/** The multiple field has no x of its own: `clear` and `clearSearch` are not asked for */
+export interface MultipleComboboxLabels extends Omit<ComboboxLabels, 'clear' | 'clearSearch'> {
   /** The footer action that clears every value */
   readonly clearAll: string;
 
@@ -130,7 +132,7 @@ export interface MultipleComboboxLabels extends ComboboxLabels {
   readonly moreRest: (count: number) => string;
 }
 
-export interface MultipleComboboxProps extends ComboboxSearchProps {
+export interface StrictMultipleComboboxProps extends ComboboxSearchProps {
   multiple: true;
 
   /** The keys of the chosen records, in the order they were chosen */
@@ -145,5 +147,17 @@ export interface MultipleComboboxProps extends ComboboxSearchProps {
 
   labels: MultipleComboboxLabels;
 }
+
+/** The frame takes `className` and the shared props; the native props and the ref reach the text */
+export type SingleComboboxProps = StrictSingleComboboxProps & Omit<
+  React.ComponentProps<'input'>,
+  keyof StrictSingleComboboxProps | 'ref' | 'children' | 'value' | 'defaultValue' | 'onChange' | 'size' | 'type'
+>;
+
+/** The frame takes `className` and the shared props; the native props and the ref reach the button under the chips */
+export type MultipleComboboxProps = StrictMultipleComboboxProps & Omit<
+  React.ComponentProps<'button'>,
+  keyof StrictMultipleComboboxProps | 'ref' | 'children' | 'value' | 'defaultValue' | 'onChange' | 'type'
+>;
 
 export type ComboboxProps = SingleComboboxProps | MultipleComboboxProps;

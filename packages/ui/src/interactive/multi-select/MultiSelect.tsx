@@ -5,6 +5,8 @@ import * as React from 'react';
 import { Combobox as ComboboxPrimitive } from '@base-ui/react/combobox';
 import { Select as SelectPrimitive } from '@base-ui/react/select';
 
+import { useForkRef } from '@proedis/react';
+
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
@@ -92,16 +94,22 @@ export interface StrictMultiSelectProps extends BaseProps {
 
   labels: MultiSelectLabels;
 
-  id?: string;
+  /** Classes for the frame, last so they win */
   className?: string;
-  'aria-label'?: string;
 }
 
 export type MultiSelectLoadingProps =
   | { loading?: false; loadingLabel?: string }
   | { loading: true; loadingLabel: string };
 
-export type MultiSelectProps = StrictMultiSelectProps & MultiSelectLoadingProps;
+/**
+ * The frame takes `className` and the shared props; the native props and the ref reach the button that
+ * opens the list, under the chips, the element that takes the focus.
+ */
+export type MultiSelectProps = StrictMultiSelectProps & MultiSelectLoadingProps & Omit<
+  React.ComponentProps<'button'>,
+  keyof StrictMultiSelectProps | 'loading' | 'ref' | 'children' | 'value' | 'defaultValue' | 'onChange' | 'type'
+>;
 
 
 /* --------
@@ -149,17 +157,15 @@ const OPTION_BOX = [
  * `multi-select-more`, `multi-select-trigger`, `multi-select-panel`, `multi-select-item`,
  * `multi-select-footer`.
  */
-export function MultiSelect(props: MultiSelectProps): React.ReactNode {
+export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>((props, forwardedRef) => {
 
   // ----
   // Props Deconstruct
   // ----
   const {
-    'aria-label': ariaLabel,
     className,
     defaultValue = [],
     disabled = false,
-    id,
     invalid = false,
     labels,
     loading = false,
@@ -176,7 +182,7 @@ export function MultiSelect(props: MultiSelectProps): React.ReactNode {
     ...others
   } = props;
 
-  const { baseClasses } = splitBaseProps(others);
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -188,6 +194,7 @@ export function MultiSelect(props: MultiSelectProps): React.ReactNode {
 
   const frameRef = React.useRef<HTMLDivElement>(null);
   const triggerRef = React.useRef<HTMLButtonElement>(null);
+  const handleTriggerRef = useForkRef(triggerRef, forwardedRef);
   const summaryId = React.useId();
 
 
@@ -355,10 +362,9 @@ export function MultiSelect(props: MultiSelectProps): React.ReactNode {
 
   /** The trigger lies under the chips across the whole frame; what it says is the list of values */
   const triggerProps = {
-    ref                 : triggerRef,
-    id,
-    'aria-label'        : ariaLabel,
-    'aria-describedby'  : summaryId,
+    ...rest,
+    ref                 : handleTriggerRef,
+    'aria-describedby'  : [ summaryId, rest['aria-describedby'] ].filter(Boolean).join(' '),
     'aria-required'     : field.required || undefined,
     'aria-invalid'      : isInvalid || undefined,
     'data-slot'         : 'multi-select-trigger',
@@ -373,7 +379,15 @@ export function MultiSelect(props: MultiSelectProps): React.ReactNode {
   if (readOnly) {
     return (
       <div {...frameAttributes} className={frameClasses}>
-        <input readOnly aria-label={ariaLabel} value={chosen.map((option) => option.label).join(', ')} className={'sr-only'} data-field-control={''} />
+        <input
+          id={rest.id}
+          aria-label={rest['aria-label']}
+          aria-labelledby={rest['aria-labelledby']}
+          readOnly
+          value={chosen.map((option) => option.label).join(', ')}
+          className={'sr-only'}
+          data-field-control={''}
+        />
         {chips}
         {name && current.map((item) => <input key={item} type={'hidden'} name={name} value={item} />)}
       </div>
@@ -382,15 +396,19 @@ export function MultiSelect(props: MultiSelectProps): React.ReactNode {
 
   const optionContent = (option: SelectOption): React.ReactNode => (
     <React.Fragment>
-      <span className={OPTION_BOX} aria-hidden={'true'}><CheckGlyph /></span>
-      <span className={'min-w-0 flex-1'}>{option.label}</span>
+      <span data-slot={'multi-select-item-box'} className={OPTION_BOX} aria-hidden={'true'}><CheckGlyph /></span>
+      <span data-slot={'multi-select-item-label'} className={'min-w-0 flex-1'}>{option.label}</span>
     </React.Fragment>
   );
 
   const footer = (
     <div data-slot={'multi-select-footer'} className={LIST_FOOTER}>
-      <Button size={'sm'} fill={'plain'} tone={'primary'} disabled={allChecked} onClick={selectAll}>{labels.selectAll}</Button>
-      <Button size={'sm'} fill={'plain'} tone={'primary'} disabled={noneChecked} onClick={clearAll}>{labels.clear}</Button>
+      <Button data-slot={'multi-select-select-all'} size={'sm'} fill={'plain'} tone={'primary'} disabled={allChecked} onClick={selectAll}>
+        {labels.selectAll}
+      </Button>
+      <Button data-slot={'multi-select-clear-all'} size={'sm'} fill={'plain'} tone={'primary'} disabled={noneChecked} onClick={clearAll}>
+        {labels.clear}
+      </Button>
     </div>
   );
 
@@ -471,12 +489,14 @@ export function MultiSelect(props: MultiSelectProps): React.ReactNode {
       <ComboboxPrimitive.Portal>
         <ComboboxPrimitive.Positioner anchor={frameRef} sideOffset={LIST_SIDE_OFFSET} className={LIST_POSITIONER}>
           <ComboboxPrimitive.Popup data-slot={'multi-select-panel'} className={LIST_PANEL}>
-            <div className={LIST_SEARCH}>
+            <div data-slot={'multi-select-search'} className={LIST_SEARCH}>
               <SearchGlyph />
-              <ComboboxPrimitive.Input placeholder={labels.search} className={LIST_SEARCH_INPUT} />
+              <ComboboxPrimitive.Input data-slot={'multi-select-search-input'} placeholder={labels.search} className={LIST_SEARCH_INPUT} />
             </div>
 
-            <ComboboxPrimitive.Empty className={cn(LIST_MESSAGE, 'empty:hidden')}>{labels.noResults}</ComboboxPrimitive.Empty>
+            <ComboboxPrimitive.Empty data-slot={'multi-select-empty'} className={cn(LIST_MESSAGE, 'empty:hidden')}>
+              {labels.noResults}
+            </ComboboxPrimitive.Empty>
 
             <ComboboxPrimitive.List className={LIST_ITEMS}>
               {(option: SelectOption) => (
@@ -499,6 +519,6 @@ export function MultiSelect(props: MultiSelectProps): React.ReactNode {
     </ComboboxPrimitive.Root>
   );
 
-}
+});
 
 MultiSelect.displayName = 'MultiSelect';

@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import { Combobox as ComboboxPrimitive } from '@base-ui/react/combobox';
 
-import { useDelayedBusy } from '@proedis/react';
+import { useDelayedBusy, useForkRef } from '@proedis/react';
 
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
@@ -65,17 +65,15 @@ const OPTION_BOX = [
  * The text searched stays after a tick and is reset when the list closes. Backspace in the search does
  * not remove chips: a value goes with its x or from the list.
  */
-export function MultipleCombobox(props: MultipleComboboxProps): React.ReactNode {
+export const MultipleCombobox = React.forwardRef<HTMLButtonElement, MultipleComboboxProps>((props, forwardedRef) => {
 
   // ----
   // Props Deconstruct
   // ----
   const {
-    'aria-label': ariaLabel,
     className,
     disabled = false,
     hasMore = false,
-    id,
     invalid = false,
     items,
     labels,
@@ -95,7 +93,7 @@ export function MultipleCombobox(props: MultipleComboboxProps): React.ReactNode 
     ...others
   } = props;
 
-  const { baseClasses } = splitBaseProps(others);
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -108,6 +106,7 @@ export function MultipleCombobox(props: MultipleComboboxProps): React.ReactNode 
 
   const frameRef = React.useRef<HTMLDivElement>(null);
   const triggerRef = React.useRef<HTMLButtonElement>(null);
+  const handleTriggerRef = useForkRef(triggerRef, forwardedRef);
   const summaryId = React.useId();
 
 
@@ -288,8 +287,10 @@ export function MultipleCombobox(props: MultipleComboboxProps): React.ReactNode 
     return (
       <div {...frameAttributes} className={frameClasses}>
         <input
+          id={rest.id}
+          aria-label={rest['aria-label']}
+          aria-labelledby={rest['aria-labelledby']}
           readOnly
-          aria-label={ariaLabel}
           value={chosen.map((item) => item.label).join(', ')}
           className={'sr-only'}
           data-field-control={''}
@@ -336,10 +337,9 @@ export function MultipleCombobox(props: MultipleComboboxProps): React.ReactNode 
     >
       <div ref={frameRef} {...frameAttributes} className={frameClasses} onMouseDown={handleFrameMouseDown}>
         <ComboboxPrimitive.Trigger
-          ref={triggerRef}
-          id={id}
-          aria-label={ariaLabel}
-          aria-describedby={summaryId}
+          {...rest}
+          ref={handleTriggerRef}
+          aria-describedby={[ summaryId, rest['aria-describedby'] ].filter(Boolean).join(' ')}
           aria-required={required || field.required || undefined}
           aria-invalid={isInvalid || undefined}
           data-slot={'combobox-trigger'}
@@ -361,7 +361,7 @@ export function MultipleCombobox(props: MultipleComboboxProps): React.ReactNode 
       <ComboboxPrimitive.Portal>
         <ComboboxPrimitive.Positioner anchor={frameRef} sideOffset={LIST_SIDE_OFFSET} className={LIST_POSITIONER}>
           <ComboboxPrimitive.Popup data-slot={'combobox-panel'} className={cn(LIST_PANEL, 'min-w-80')}>
-            <div className={LIST_SEARCH}>
+            <div data-slot={'combobox-search'} className={LIST_SEARCH}>
               <SearchGlyph />
               <ComboboxPrimitive.Input
                 placeholder={labels.placeholder}
@@ -388,12 +388,12 @@ export function MultipleCombobox(props: MultipleComboboxProps): React.ReactNode 
                   className={cn(LIST_ITEM, 'group/option', item.code || item.description ? 'min-h-12' : '')}
                 >
                   {item === RETRY
-                    ? <span className={'min-w-0 flex-1'}>{labels.retry}</span>
+                    ? <span data-slot={'combobox-retry'} className={'min-w-0 flex-1'}>{labels.retry}</span>
                     : (
                       <React.Fragment>
-                        <span className={OPTION_BOX} aria-hidden={'true'}><CheckGlyph /></span>
-                        <span className={'flex min-w-0 flex-1 flex-col'}>
-                          <span>{item.label}</span>
+                        <span data-slot={'combobox-item-box'} className={OPTION_BOX} aria-hidden={'true'}><CheckGlyph /></span>
+                        <span data-slot={'combobox-item-text'} className={'flex min-w-0 flex-1 flex-col'}>
+                          <span data-slot={'combobox-item-label'}>{item.label}</span>
                           {(item.code || item.description) && (
                             <span className={'text-xs text-muted-foreground'}>
                               {[ item.code, item.description ].filter(Boolean).join(' · ')}
@@ -407,10 +407,10 @@ export function MultipleCombobox(props: MultipleComboboxProps): React.ReactNode 
             </ComboboxPrimitive.List>
 
             {!underMin && hasMore && !searching && !searchError && (
-              <div className={cn(LIST_MESSAGE, 'text-xs')}>{labels.tooMany(items.length)}</div>
+              <div data-slot={'combobox-too-many'} className={cn(LIST_MESSAGE, 'text-xs')}>{labels.tooMany(items.length)}</div>
             )}
 
-            <div className={LIST_FOOTER}>
+            <div data-slot={'combobox-footer'} className={LIST_FOOTER}>
               <span />
               <Button size={'sm'} fill={'plain'} tone={'primary'} disabled={chosen.length === 0} onClick={() => change([])}>
                 {labels.clearAll}
@@ -422,6 +422,6 @@ export function MultipleCombobox(props: MultipleComboboxProps): React.ReactNode 
     </ComboboxPrimitive.Root>
   );
 
-}
+});
 
-MultipleCombobox.displayName = 'Combobox';
+MultipleCombobox.displayName = 'MultipleCombobox';
