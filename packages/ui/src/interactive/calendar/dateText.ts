@@ -43,6 +43,27 @@ function pad(value: number, length: number): string {
 }
 
 
+/**
+ * The first day of the week for a language, counted as dayjs counts days (0 is Sunday), read from
+ * `Intl`: the same source as the names the calendar writes, so the two cannot disagree. `undefined`
+ * where the engine does not tell it (`getWeekInfo`, and the older `weekInfo` getter, are not
+ * everywhere).
+ */
+export function intlWeekStart(locale: string): number | undefined {
+  try {
+    const intl = new Intl.Locale(locale) as Intl.Locale & {
+      getWeekInfo?: () => { firstDay: number };
+      weekInfo?: { firstDay: number };
+    };
+    const info = intl.getWeekInfo?.() ?? intl.weekInfo;
+
+    return info ? info.firstDay % 7 : undefined;
+  }
+  catch {
+    return undefined;
+  }
+}
+
 /** The order of the parts and their separator, read from `Intl` for the language */
 export function dateOrderOf(locale: string | undefined): DateOrder {
   const parts = new Intl.DateTimeFormat(locale, { day: '2-digit', month: '2-digit', year: 'numeric' })

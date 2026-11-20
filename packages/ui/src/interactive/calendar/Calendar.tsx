@@ -10,6 +10,8 @@ import { cn } from '../../core/cn';
 import { Button } from '../button/Button';
 import { IconButton } from '../button/IconButton';
 
+import { intlWeekStart } from './dateText';
+
 
 /* --------
  * Types Definition
@@ -218,6 +220,14 @@ export function Calendar(props: CalendarProps): React.ReactNode {
   const today = dayjs().locale(locale ?? dayjs.locale()).startOf('day');
   const anchor = selected ?? range?.from ?? null;
 
+  /**
+   * The first day of the week comes from `Intl`, like the names of the days. Read from dayjs it
+   * silently became Sunday whenever the application had not loaded that dayjs locale: a Sunday first
+   * grid under Italian names. dayjs is the fallback where `Intl` cannot tell.
+   */
+  const weekStart = intlWeekStart(locale ?? dayjs.locale()) ?? dayjs.Ls[today.locale()]?.weekStart ?? 0;
+  const startOfWeek = (day: Dayjs): Dayjs => day.subtract((day.day() - weekStart + 7) % 7, 'day').startOf('day');
+
   const [ view, setView ] = React.useState<CalendarView>('days');
   const [ focused, setFocused ] = React.useState<Dayjs>(() => (anchor ? dayjs(anchor) : today).locale(locale ?? dayjs.locale()));
   const [ month, setMonth ] = React.useState<Dayjs>(() => focused.startOf('month'));
@@ -279,8 +289,8 @@ export function Calendar(props: CalendarProps): React.ReactNode {
       ArrowRight: () => focused.add(1, 'day'),
       ArrowUp   : () => focused.subtract(1, 'week'),
       ArrowDown : () => focused.add(1, 'week'),
-      Home      : () => focused.startOf('week'),
-      End       : () => focused.endOf('week').startOf('day'),
+      Home      : () => startOfWeek(focused),
+      End       : () => startOfWeek(focused).add(6, 'day'),
       PageUp    : () => focused.subtract(1, event.shiftKey ? 'year' : 'month'),
       PageDown  : () => focused.add(1, event.shiftKey ? 'year' : 'month')
     };
@@ -313,7 +323,7 @@ export function Calendar(props: CalendarProps): React.ReactNode {
   // Component Render
   // ----
   const intlLocale = locale ?? dayjs.locale();
-  const start = month.startOf('week');
+  const start = startOfWeek(month);
   const days = Array.from({ length: GRID_DAYS }, (_, index) => start.add(index, 'day'));
   const weekdays = days.slice(0, 7);
   const rows = Array.from({ length: 6 }, (_, row) => days.slice(row * 7, row * 7 + 7));
