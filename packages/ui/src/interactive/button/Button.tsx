@@ -313,14 +313,34 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, r
       ...anchorProps
     } = rest as typeof rest & { form?: unknown; formAction?: unknown; value?: unknown };
 
+    const { onClick: onAnchorClick, ...anchorRest } = anchorProps as React.ComponentProps<'a'>;
+    const link = linkProps(to);
+
+    /*
+     * The caller's click runs first, so a `preventDefault` in it keeps the navigation from happening,
+     * which is what `linkProps` is written to honour. A disabled or loading link runs neither: it has
+     * no `href`, and a handler still firing on it would be the one effect a disabled control must not
+     * have.
+     */
+    const handleAnchorClick = (event: React.MouseEvent<HTMLAnchorElement>): void => {
+      if (inert) {
+        event.preventDefault();
+        return;
+      }
+
+      onAnchorClick?.(event);
+      link.onClick(event);
+    };
+
     return (
       <a
-        {...(anchorProps as React.ComponentProps<'a'>)}
+        {...anchorRest}
         {...dataAttributes}
-        {...(inert ? { 'aria-disabled': true, 'data-disabled': '', role: 'link' } : linkProps(to))}
+        {...(inert ? { 'aria-disabled': true, 'data-disabled': '', role: 'link' } : { href: link.href })}
         ref={ref as React.Ref<HTMLAnchorElement>}
         aria-busy={loading || undefined}
         className={classes}
+        onClick={handleAnchorClick}
       >
         {content}
       </a>
