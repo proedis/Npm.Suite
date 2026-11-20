@@ -17,6 +17,13 @@ interface MutableRefLike<T> {
   current: T | null | undefined;
 }
 
+/**
+ * What a forked ref may be handed: a container, a callback, or nothing at all, which is what a
+ * forwarded ref is when the parent passed none. A callback ref is what `render` props and most
+ * libraries hand down, so a fork that only wrote `current` lost them silently.
+ */
+type ForkableRef<T> = MutableRefLike<T> | ((instance: T | null) => void) | null | undefined;
+
 
 /* --------
  * Hook Definition
@@ -38,16 +45,21 @@ interface MutableRefLike<T> {
  * @example
  * const Input = React.forwardRef<HTMLInputElement, Props>((props, ref) => {
  *   const innerRef = React.useRef<HTMLInputElement>(null);
- *   const handleRef = useForkRef(innerRef, ref as MutableRefLike<HTMLInputElement>);
+ *   const handleRef = useForkRef(innerRef, ref);
  *
  *   return <input {...props} ref={handleRef} />;
  * });
  */
-export function useForkRef<T>(...refs: MutableRefLike<T>[]): React.RefCallback<T> {
+export function useForkRef<T>(...refs: ForkableRef<T>[]): React.RefCallback<T> {
   return React.useCallback(
     (refValue: T | null) => {
       refs.forEach((ref) => {
-        ref.current = refValue ?? undefined;
+        if (typeof ref === 'function') {
+          ref(refValue);
+        }
+        else if (ref) {
+          ref.current = refValue;
+        }
       });
     },
     /**
