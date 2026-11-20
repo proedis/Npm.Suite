@@ -74,6 +74,20 @@ const [ AuthContext, useAuthContext ] = contextBuilder<AuthContextValue>('Auth')
 const { user } = useAuthContext();   // throws outside the provider, with the name in the message
 ```
 
+### 🏗️ `optionalContextBuilder(name, defaultValue)`
+
+The same pair for a context whose provider is **optional**: outside it the hook returns `defaultValue`
+instead of throwing. It is for a component that also works on its own and reads the context only when
+something above provides it, a control inside or outside a field, a dialog nested or not. The value may
+be anything, a primitive included, which `contextBuilder` cannot take: it tells a missing provider apart
+by a falsy value.
+
+```tsx
+const [ OverlayLevelContext, useOverlayLevel ] = optionalContextBuilder('OverlayLevel', 0);
+
+const level = useOverlayLevel();   // 0 with no provider above
+```
+
 ### 🎛️ `UIComponentProps` and `UIVoidComponentProps`
 
 The prop surface every Proedis component starts from — `className`, `style`, the element type
