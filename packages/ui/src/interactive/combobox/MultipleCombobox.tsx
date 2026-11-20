@@ -85,6 +85,7 @@ export function MultipleCombobox(props: MultipleComboboxProps): React.ReactNode 
     onRetry,
     onValueChange,
     readOnly = false,
+    required = false,
     searchError = false,
     searching = false,
     selectedItems,
@@ -335,7 +336,7 @@ export function MultipleCombobox(props: MultipleComboboxProps): React.ReactNode 
           id={id}
           aria-label={ariaLabel}
           aria-describedby={summaryId}
-          aria-required={field.required || undefined}
+          aria-required={required || field.required || undefined}
           aria-invalid={isInvalid || undefined}
           data-slot={'combobox-trigger'}
           data-field-control={''}
