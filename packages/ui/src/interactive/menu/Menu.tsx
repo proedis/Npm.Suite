@@ -9,9 +9,7 @@ import { cn } from '../../core/cn';
 import { CheckGlyph } from '../choice/choice';
 import { LIST_ITEM } from '../list-panel/listPanel';
 
-import { MenuContext, Panel, useMenuContext } from './menuPanel';
-
-import type { MenuContextValue } from './menuPanel';
+import { MenuContext, Panel, useAfterClose, useMenuContext } from './menuPanel';
 
 import type { LinkTarget } from '../../core/link';
 
@@ -224,8 +222,8 @@ function MenuRoot(props: MenuProps): React.ReactNode {
   // Internal State
   // ----
   const [ ownOpen, setOwnOpen ] = React.useState(false);
-  const pendingRef = React.useRef<(() => void) | null>(null);
   const triggerRef = React.useRef<HTMLButtonElement>(null);
+  const { context, handleOpenChangeComplete } = useAfterClose(triggerRef);
 
   const open = openProp ?? ownOpen;
 
@@ -242,35 +240,6 @@ function MenuRoot(props: MenuProps): React.ReactNode {
   }, [ openProp, onOpenChange ]);
 
   const closeOnHidden = React.useCallback(() => setOpen(false), [ setOpen ]);
-
-  const handleOpenChangeComplete = (next: boolean): void => {
-    if (next) {
-      return;
-    }
-
-    const action = pendingRef.current;
-
-    pendingRef.current = null;
-
-    /*
-     * The focus is back on the trigger before the action runs: a dialog it opens takes the trigger as
-     * the control to return to, instead of an item that is no longer there.
-     */
-    if (action) {
-      triggerRef.current?.focus({ preventScroll: true });
-      action();
-    }
-  };
-
-
-  // ----
-  // Memoized Data
-  // ----
-  const context = React.useMemo<MenuContextValue>(() => ({
-    afterClose: (action) => {
-      pendingRef.current = action;
-    }
-  }), []);
 
 
   // ----

@@ -38,6 +38,64 @@ export const [ MenuContext, useMenuContext ] = optionalContextBuilder<MenuContex
 
 
 /* --------
+ * Hooks
+ * -------- */
+
+/**
+ * An action chosen in a menu, run once the menu has finished closing rather than while it closes:
+ * the context to provide to the items, and the handler for `onOpenChangeComplete`. `triggerRef` is
+ * the control the menu opened from, read when the action runs.
+ *
+ * The focus is back on the trigger before the action runs: a dialog it opens takes the trigger as
+ * the control to return to, instead of an item that is no longer there. The context keeps its
+ * identity, so the items do not render again when the menu does.
+ */
+export function useAfterClose(triggerRef: { readonly current: HTMLElement | null }): {
+  context: MenuContextValue;
+  handleOpenChangeComplete: (open: boolean) => void;
+} {
+
+  // ----
+  // Internal State
+  // ----
+  const pendingRef = React.useRef<(() => void) | null>(null);
+
+
+  // ----
+  // Handlers
+  // ----
+  const handleOpenChangeComplete = (open: boolean): void => {
+    if (open) {
+      return;
+    }
+
+    const action = pendingRef.current;
+
+    pendingRef.current = null;
+
+    if (action) {
+      triggerRef.current?.focus({ preventScroll: true });
+      action();
+    }
+  };
+
+
+  // ----
+  // Memoized Data
+  // ----
+  const context = React.useMemo<MenuContextValue>(() => ({
+    afterClose: (action) => {
+      pendingRef.current = action;
+    }
+  }), []);
+
+
+  return { context, handleOpenChangeComplete };
+
+}
+
+
+/* --------
  * Component Definition
  * -------- */
 

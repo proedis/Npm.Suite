@@ -4,9 +4,9 @@ import * as React from 'react';
 
 import { Menu as MenuPrimitive } from '@base-ui/react/menu';
 
-import { MenuContext, Panel } from './menuPanel';
+import { MenuContext, Panel, useAfterClose } from './menuPanel';
 
-import type { MenuAnchor, MenuContextValue } from './menuPanel';
+import type { MenuAnchor } from './menuPanel';
 
 
 /* --------
@@ -67,8 +67,8 @@ export function SharedMenu<P>(props: SharedMenuProps<P>): React.ReactNode {
   // ----
   // Internal State
   // ----
-  const pendingRef = React.useRef<(() => void) | null>(null);
   const triggerRef = React.useRef<HTMLElement | null>(null);
+  const { context, handleOpenChangeComplete } = useAfterClose(triggerRef);
 
 
   // ----
@@ -80,21 +80,6 @@ export function SharedMenu<P>(props: SharedMenuProps<P>): React.ReactNode {
     }
 
     onOpenChange?.(open);
-  };
-
-  const handleOpenChangeComplete = (open: boolean): void => {
-    if (open) {
-      return;
-    }
-
-    const action = pendingRef.current;
-
-    pendingRef.current = null;
-
-    if (action) {
-      triggerRef.current?.focus({ preventScroll: true });
-      action();
-    }
   };
 
   const close = React.useCallback(() => handle.close(), [ handle ]);
@@ -128,16 +113,6 @@ export function SharedMenu<P>(props: SharedMenuProps<P>): React.ReactNode {
     },
     [ anchor, close ]
   );
-
-
-  // ----
-  // Memoized Data
-  // ----
-  const context = React.useMemo<MenuContextValue>(() => ({
-    afterClose: (action) => {
-      pendingRef.current = action;
-    }
-  }), []);
 
 
   // ----
