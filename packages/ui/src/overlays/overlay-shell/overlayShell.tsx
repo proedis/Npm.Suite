@@ -9,6 +9,8 @@ import { inertValue, optionalContextBuilder, useDelayedBusy, useSyncedRef } from
 import { cn } from '../../core/cn';
 import { TONE_CLASSES } from '../../core/tone';
 
+import { Stack } from '../../layout/Stack';
+
 import { BusyVeil } from '../../primitives/BusyVeil';
 import { IconBox } from '../../display/icon-box/IconBox';
 import { VisuallyHidden } from '../../primitives/VisuallyHidden';
@@ -297,9 +299,10 @@ export function OverlayFrame(props: OverlayFrameProps): React.ReactNode {
 
       <DialogPrimitive.Viewport
         data-slot={`${dataSlot}-viewport`}
+        render={<Stack direction={'horizontal'} align={isDrawer ? undefined : 'start'} justify={isDrawer ? 'end' : 'center'} />}
         className={cn(
-          'fixed inset-0 z-10 flex',
-          isDrawer ? 'justify-end p-2' : cn('items-start justify-center px-4 pb-4', DIALOG_TOP[Math.min(level, 2)])
+          'fixed inset-0 z-10',
+          isDrawer ? 'p-2' : cn('px-4 pb-4', DIALOG_TOP[Math.min(level, 2)])
         )}
         onPointerDown={(event: React.PointerEvent<HTMLDivElement>) => {
           if (event.target === event.currentTarget) {
@@ -316,8 +319,9 @@ export function OverlayFrame(props: OverlayFrameProps): React.ReactNode {
           {...dataAttributes}
           data-slot={dataSlot}
           data-size={size}
+          render={<Stack />}
           className={cn(
-            'relative flex min-w-0 flex-col rounded-lg bg-popover text-sm text-popover-foreground shadow-lg outline-none',
+            'relative min-w-0 rounded-lg bg-popover text-sm text-popover-foreground shadow-lg outline-none',
             'tabular-nums wrap-anywhere',
             DIALOG_WIDTHS[size],
             isDrawer
@@ -374,10 +378,13 @@ export function OverlayHeader(props: OverlayHeaderProps): React.ReactNode {
   const hasDescription = isPresent(description);
 
   return (
-    <div
+    <Stack
       data-slot={`${dataSlot}-header`}
       inert={inertValue(inert)}
-      className={cn('relative z-20 flex flex-none items-start gap-3 pt-4 pb-2 ps-6', symmetric ? 'pe-6' : 'pe-4')}
+      direction={'horizontal'}
+      align={'start'}
+      gap={3}
+      className={cn('relative z-20 flex-none pt-4 pb-2 ps-6', symmetric ? 'pe-6' : 'pe-4')}
     >
       {hasIcon && (
         <IconBox data-slot={`${dataSlot}-icon`} size={'sm'} fill={'soft'} tone={iconTone} className={'rounded-md'}>
@@ -397,29 +404,38 @@ export function OverlayHeader(props: OverlayHeaderProps): React.ReactNode {
       </div>
 
       {end !== null && end !== undefined && (
-        <div data-slot={`${dataSlot}-header-end`} className={cn('flex shrink-0 items-center gap-1', hasIcon ? 'mt-0.5' : '-mt-0.5')}>
+        <Stack
+          data-slot={`${dataSlot}-header-end`}
+          direction={'horizontal'}
+          align={'center'}
+          gap={1}
+          className={cn('shrink-0', hasIcon ? 'mt-0.5' : '-mt-0.5')}
+        >
           {end}
-        </div>
+        </Stack>
       )}
-    </div>
+    </Stack>
   );
 }
 
 
 /** The box at the top of the body for a send error or the error summary. It takes the focus when it changes */
 export const OverlayError = React.forwardRef<HTMLDivElement, { children: React.ReactNode; dataSlot: string }>((props, ref) => (
-  <div
+  <Stack
     ref={ref}
     tabIndex={-1}
     data-slot={`${props.dataSlot}-error`}
+    direction={'horizontal'}
+    align={'start'}
+    gap={2}
     className={cn(
-      'flex items-start gap-2 rounded-md px-3 py-2 outline-none focus-visible:outline-2 focus-visible:outline-ring',
+      'rounded-md px-3 py-2 outline-none focus-visible:outline-2 focus-visible:outline-ring',
       TONE_CLASSES.soft.destructive
     )}
   >
     <ToneGlyph tone={'destructive'} className={'mt-0.5 size-4 shrink-0'} />
     <div data-slot={`${props.dataSlot}-error-message`} className={'min-w-0 flex-1'}>{props.children}</div>
-  </div>
+  </Stack>
 ));
 
 OverlayError.displayName = 'OverlayError';
@@ -468,6 +484,14 @@ interface OverlayBodyProps {
 
   dataSlot: string;
 }
+
+/**
+ * The index of the sections shows once the content area is 768px wide. A container query, which the
+ * responsive props of Stack cannot take: they speak the viewport breakpoints. `hidden` replaces Stack's
+ * own `flex` below it
+ */
+// eslint-disable-next-line no-restricted-syntax -- display switched by a container query (@3xl), not a viewport breakpoint
+const INDEX_DISPLAY = 'hidden @3xl:flex';
 
 /**
  * The body that scrolls between a still header and footer. An 8px inner shadow shows at the top once
@@ -615,14 +639,21 @@ export function OverlayBody(props: OverlayBodyProps): React.ReactNode {
         </div>
       )}
 
-      <div data-slot={`${dataSlot}-content`} inert={inertValue(inert)} aria-busy={inert || undefined} className={'@container relative flex min-h-0 flex-1'}>
+      <Stack
+        data-slot={`${dataSlot}-content`}
+        inert={inertValue(inert)}
+        aria-busy={inert || undefined}
+        direction={'horizontal'}
+        className={'@container relative min-h-0 flex-1'}
+      >
         {hasSections && (
-          <nav aria-label={sectionsLabel} data-slot={`${dataSlot}-index`} className={'hidden w-44 shrink-0 flex-col gap-0.5 ps-6 pt-2 @3xl:flex'}>
+          <Stack as={'nav'} aria-label={sectionsLabel} data-slot={`${dataSlot}-index`} gap={0.5} className={cn('w-44 shrink-0 ps-6 pt-2', INDEX_DISPLAY)}>
             {sections.map((section) => {
               const errors = section.errors ?? 0;
 
               return (
-                <button
+                <Stack
+                  as={'button'}
                   key={section.id}
                   type={'button'}
                   data-slot={`${dataSlot}-index-item`}
@@ -632,8 +663,11 @@ export function OverlayBody(props: OverlayBodyProps): React.ReactNode {
                     ? `${section.label} · ${sectionErrors(errors)}`
                     : undefined}
                   onClick={() => goToSection(section.id)}
+                  direction={'horizontal'}
+                  align={'center'}
+                  gap={2}
                   className={cn(
-                    'relative flex min-h-8 items-center gap-2 rounded-sm px-2 py-1.5 text-start outline-none',
+                    'relative min-h-8 rounded-sm px-2 py-1.5 text-start outline-none',
                     'hover:bg-accent focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring',
                     'aria-[current=location]:bg-primary-soft aria-[current=location]:text-primary-soft-foreground',
                     'aria-[current=location]:before:absolute aria-[current=location]:before:inset-y-1 aria-[current=location]:before:start-0',
@@ -642,18 +676,26 @@ export function OverlayBody(props: OverlayBodyProps): React.ReactNode {
                 >
                   <span className={'min-w-0 flex-1'}>{section.label}</span>
                   {errors > 0 && (
-                    <span className={cn('inline-flex items-center gap-1 text-xs', TONE_CLASSES.plain.destructive)}>
+                    <Stack
+                      as={'span'}
+                      data-slot={`${dataSlot}-index-item-errors`}
+                      inline
+                      direction={'horizontal'}
+                      align={'center'}
+                      gap={1}
+                      className={cn('text-xs', TONE_CLASSES.plain.destructive)}
+                    >
                       <ToneGlyph tone={'destructive'} className={'size-3.5'} />
                       {errors}
-                    </span>
+                    </Stack>
                   )}
-                </button>
+                </Stack>
               );
             })}
-          </nav>
+          </Stack>
         )}
 
-        <div data-slot={`${dataSlot}-scroll`} className={'relative flex min-h-0 min-w-0 flex-1 flex-col'}>
+        <Stack data-slot={`${dataSlot}-scroll`} className={'relative min-h-0 min-w-0 flex-1'}>
           <div data-slot={`${dataSlot}-shade`} data-edge={'top'} data-visible={shades.top || undefined} className={cn(shade, 'top-0 bg-linear-to-b', shades.top ? 'opacity-100' : 'opacity-0')} />
 
           <div
@@ -668,16 +710,16 @@ export function OverlayBody(props: OverlayBodyProps): React.ReactNode {
             )}
           >
             <div ref={topRef} aria-hidden className={'h-px'} />
-            <div className={'flex flex-col gap-4'}>
+            <Stack data-slot={`${dataSlot}-body-content`} gap={4}>
               {hasError && <OverlayError ref={errorRef} dataSlot={dataSlot}>{error}</OverlayError>}
               {children}
-            </div>
+            </Stack>
             <div ref={bottomRef} aria-hidden className={'h-px'} />
           </div>
 
           <div data-slot={`${dataSlot}-shade`} data-edge={'bottom'} data-visible={shades.bottom || undefined} className={cn(shade, 'bottom-0 bg-linear-to-t', shades.bottom ? 'opacity-100' : 'opacity-0')} />
-        </div>
-      </div>
+        </Stack>
+      </Stack>
     </React.Fragment>
   );
 
@@ -689,12 +731,18 @@ export function OverlaySectionBlock(props: { id: string; title: React.ReactNode;
   const { children, id, title } = props;
 
   return (
-    <section data-overlay-section={id} data-slot={'overlay-section'} className={'flex flex-col gap-3 not-first:border-t not-first:border-border not-first:pt-6'}>
+    <Stack
+      as={'section'}
+      data-overlay-section={id}
+      data-slot={'overlay-section'}
+      gap={3}
+      className={'not-first:border-t not-first:border-border not-first:pt-6'}
+    >
       <h3 data-overlay-section-title tabIndex={-1} className={'scroll-mt-4 text-sm font-semibold text-foreground outline-none'}>
         {title}
       </h3>
       {children}
-    </section>
+    </Stack>
   );
 }
 
@@ -712,16 +760,25 @@ export function OverlayFooter(props: OverlayFooterProps): React.ReactNode {
   const { children, dataSlot, hasBody, inert, start } = props;
 
   return (
-    <div
+    <Stack
       data-slot={`${dataSlot}-footer`}
       inert={inertValue(inert)}
-      className={cn('flex flex-none flex-wrap items-center justify-end gap-2 px-6 pb-4', hasBody ? 'pt-4' : 'pt-2')}
+      direction={'horizontal'}
+      wrap
+      align={'center'}
+      justify={'end'}
+      gap={2}
+      className={cn('flex-none px-6 pb-4', hasBody ? 'pt-4' : 'pt-2')}
     >
       {isPresent(start) && (
-        <div data-slot={`${dataSlot}-footer-start`} className={'me-auto flex min-w-0 items-center gap-2'}>{start}</div>
+        <Stack data-slot={`${dataSlot}-footer-start`} direction={'horizontal'} align={'center'} gap={2} className={'me-auto min-w-0'}>
+          {start}
+        </Stack>
       )}
-      <div data-slot={`${dataSlot}-footer-actions`} className={'ms-auto flex flex-wrap items-center justify-end gap-2'}>{children}</div>
-    </div>
+      <Stack data-slot={`${dataSlot}-footer-actions`} direction={'horizontal'} wrap align={'center'} justify={'end'} gap={2} className={'ms-auto'}>
+        {children}
+      </Stack>
+    </Stack>
   );
 }
 

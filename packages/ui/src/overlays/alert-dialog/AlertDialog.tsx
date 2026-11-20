@@ -177,8 +177,9 @@ function normalizeConfirm(text: string, numeric: boolean): string {
  * the outcome becomes uncertain and only the exit stays. `result` turns it into an outcome.
  *
  * Parts with a slot: `alert-dialog` (with `data-tone`), `alert-dialog-header`, `alert-dialog-title`,
- * `alert-dialog-description`, `alert-dialog-icon`, `alert-dialog-body`, `alert-dialog-consequences`,
- * `alert-dialog-error`, `alert-dialog-footer`, `alert-dialog-cancel`, `alert-dialog-action`.
+ * `alert-dialog-description`, `alert-dialog-icon`, `alert-dialog-body`, `alert-dialog-body-content`,
+ * `alert-dialog-consequences`, `alert-dialog-error`, `alert-dialog-footer`, `alert-dialog-cancel`,
+ * `alert-dialog-action`.
  */
 export function AlertDialog(props: AlertDialogProps): React.ReactNode {
 

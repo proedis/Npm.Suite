@@ -170,7 +170,8 @@ const [ DialogCloseContext, useDialogCloseContext ] = optionalContextBuilder<Dia
  *
  * Parts with a slot: `dialog` (with `data-size`), `dialog-backdrop`, `dialog-viewport`,
  * `dialog-header`, `dialog-icon`, `dialog-title`, `dialog-description`, `dialog-close`,
- * `dialog-toolbar`, `dialog-index`, `dialog-body`, `dialog-error`, `dialog-footer`, `dialog-veil`.
+ * `dialog-toolbar`, `dialog-index`, `dialog-body`, `dialog-body-content`, `dialog-error`, `dialog-footer`,
+ * `dialog-veil`.
  */
 function DialogRoot(props: DialogProps): React.ReactNode {
 

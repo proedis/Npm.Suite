@@ -6,6 +6,8 @@ import { Popover as PopoverPrimitive } from '@base-ui/react/popover';
 
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 import { CloseWhenAnchorHidden } from '../../actions/anchor/CloseWhenAnchorHidden';
 import { IconButton } from '../../actions/button/IconButton';
 import { FormHostContext } from '../../forms/field/fieldContext';
@@ -121,7 +123,8 @@ function ArrowGlyph(): React.ReactNode {
  * field submits, and the popover renders no `<form>` of its own.
  *
  * Parts with a slot: `popover` (the popup, with `data-width`), `popover-arrow`, `popover-header`,
- * `popover-title`, `popover-close`, `popover-body`, `popover-description`, `popover-footer`.
+ * `popover-title`, `popover-close`, `popover-body`, `popover-body-content`, `popover-description`,
+ * `popover-footer`.
  */
 function PopoverRoot(props: PopoverProps): React.ReactNode {
 
@@ -252,8 +255,9 @@ function PopoverRoot(props: PopoverProps): React.ReactNode {
             finalFocus={finalFocus}
             data-slot={'popover'}
             data-width={width}
+            render={<Stack />}
             className={cn(
-              'relative flex max-h-(--available-height) flex-col rounded-md bg-popover text-sm text-popover-foreground shadow-md outline-none',
+              'relative max-h-(--available-height) rounded-md bg-popover text-sm text-popover-foreground shadow-md outline-none',
               'origin-(--transform-origin) tabular-nums wrap-anywhere',
               'transition duration-150 data-starting-style:scale-96 data-starting-style:opacity-0',
               'data-ending-style:transition-none motion-reduce:transition-none',
@@ -269,35 +273,49 @@ function PopoverRoot(props: PopoverProps): React.ReactNode {
             </PopoverPrimitive.Arrow>
 
             {hasTitle && (
-              <div data-slot={'popover-header'} className={'flex flex-none items-start gap-2 border-b border-border py-2 ps-4 pe-2'}>
+              <Stack
+                data-slot={'popover-header'}
+                direction={'horizontal'}
+                align={'start'}
+                gap={2}
+                className={'flex-none border-b border-border py-2 ps-4 pe-2'}
+              >
                 <PopoverPrimitive.Title data-slot={'popover-title'} className={'min-w-0 flex-1 py-1 text-sm font-semibold'}>
                   {title}
                 </PopoverPrimitive.Title>
                 {closeButton}
-              </div>
+              </Stack>
             )}
 
             <div ref={bodyRef} data-slot={'popover-body'} className={'min-h-0 overflow-y-auto overscroll-contain px-4 py-3'}>
               {!hasTitle && closeButton}
 
               <FormHostContext.Provider value={formHost}>
-                <div className={'flex flex-col gap-3'}>
+                <Stack data-slot={'popover-body-content'} gap={3}>
                   {hasDescription && (
                     <PopoverPrimitive.Description data-slot={'popover-description'}>
                       {description}
                     </PopoverPrimitive.Description>
                   )}
                   {children}
-                </div>
+                </Stack>
               </FormHostContext.Provider>
             </div>
 
             {hasFooter && (
-              <div ref={footerRef} data-slot={'popover-footer'} className={'flex flex-none items-center justify-end gap-2 border-t border-border px-4 py-2'}>
+              <Stack
+                ref={footerRef}
+                data-slot={'popover-footer'}
+                direction={'horizontal'}
+                align={'center'}
+                justify={'end'}
+                gap={2}
+                className={'flex-none border-t border-border px-4 py-2'}
+              >
                 <FormHostContext.Provider value={formHost}>
                   {footer}
                 </FormHostContext.Provider>
-              </div>
+              </Stack>
             )}
           </PopoverPrimitive.Popup>
         </PopoverPrimitive.Positioner>
