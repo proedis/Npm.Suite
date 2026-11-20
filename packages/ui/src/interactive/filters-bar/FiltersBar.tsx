@@ -47,6 +47,7 @@ interface Measures {
   filters: readonly FilterMeasure[];
   more: number;
   clear: number;
+  gap: number;
 }
 
 
@@ -55,12 +56,6 @@ interface Measures {
  * -------- */
 
 const DEFAULT_THRESHOLD = 8;
-
-/** 8px between the controls, as `gap-2` */
-const GAP = 8;
-
-/** The search is 240px wide, `w-60`: the room of the filters is measured with it whole */
-const SEARCH_WIDTH = 240;
 
 const MORE_ID = '\u0000more';
 
@@ -72,6 +67,7 @@ const MORE_ID = '\u0000more';
 function sameMeasures(a: Measures | null, b: Measures): boolean {
   return a !== null
     && a.available === b.available
+    && a.gap === b.gap
     && a.more === b.more
     && a.clear === b.clear
     && a.filters.length === b.filters.length
@@ -153,7 +149,7 @@ export function FiltersBar(props: FiltersBarProps): React.ReactNode {
   const [ quietSearch, setQuietSearch ] = React.useState(false);
 
   const fit = measures && measures.filters.length === filters.length
-    ? fitFilters({ ...measures, gap: GAP })
+    ? fitFilters(measures)
     : null;
 
   /* The row is counted again only with every list closed: nothing moves under the pointer */
@@ -220,10 +216,18 @@ export function FiltersBar(props: FiltersBarProps): React.ReactNode {
       return undefined;
     }
 
+    /*
+     * The gap and the room of the search are read from the copy, never written here in pixels: they
+     * are `gap-2` and `w-60`, steps of `--spacing`, and a rescaled theme would otherwise be fitted on
+     * the default widths. The search is measured whole, at the width it shrinks from.
+     */
     const measure = (): void => {
       const faces = Array.from(copy.querySelectorAll<HTMLElement>(':scope > [data-filter-copy]'));
+      const gap = Number.parseFloat(getComputedStyle(copy).columnGap) || 0;
+      const searchWidth = copy.querySelector(':scope > [data-copy=search]')?.getBoundingClientRect().width;
       const next: Measures = {
-        available: bar.clientWidth - (copy.dataset.search === undefined ? 0 : SEARCH_WIDTH + GAP),
+        gap,
+        available: bar.clientWidth - (searchWidth === undefined ? 0 : searchWidth + gap),
         filters  : faces.map((face) => ({
           width : face.getBoundingClientRect().width,
           values: face.querySelector('[data-slot=filter-values]')?.getBoundingClientRect().width ?? 0,
@@ -315,7 +319,8 @@ export function FiltersBar(props: FiltersBarProps): React.ReactNode {
 
       {/* The copy that measures: every filter as it would look in the row, "More filters", "Clear filters" */}
       <div aria-hidden={'true'} inert className={'pointer-events-none invisible absolute start-0 top-0 size-0 overflow-hidden'}>
-        <div ref={copyRef} data-search={search ? '' : undefined} className={'flex w-max items-center gap-2'}>
+        <div ref={copyRef} className={'flex w-max items-center gap-2'}>
+          {search && <span data-copy={'search'} className={'w-60 shrink-0'} />}
           {filters.map((filter) => <FilterButtonCopy key={filter.id} filter={filter} squeeze={null} labels={labels} />)}
           <span data-copy={'more'} className={'inline-flex'}>
             <Button tabIndex={-1} size={'sm'} fill={morePanel.fill} tone={morePanel.tone} leading={filtersBarGlyph('filter')}>
