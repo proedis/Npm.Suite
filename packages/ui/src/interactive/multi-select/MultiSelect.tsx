@@ -213,9 +213,18 @@ export function MultiSelect(props: MultiSelectProps): React.ReactNode {
   // Handlers
   // ----
 
-  /** Every change lands in the order of the list, whatever the order of the clicks */
+  /**
+   * Every change lands in the order of the list, whatever the order of the clicks.
+   *
+   * A chosen value that is not among the options (still loading, no longer offered) is kept, after
+   * the ones that are: the list orders what it shows, it does not decide what the value may hold.
+   */
   const change = (next: readonly string[]): void => {
-    const ordered = options.filter((option) => next.includes(option.value)).map((option) => option.value);
+    const offered = new Set(options.map((option) => option.value));
+    const ordered = [
+      ...options.filter((option) => next.includes(option.value)).map((option) => option.value),
+      ...next.filter((item, index) => !offered.has(item) && next.indexOf(item) === index)
+    ];
 
     if (value === undefined) {
       setOwnValue(ordered);
