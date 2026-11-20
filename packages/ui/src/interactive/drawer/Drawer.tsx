@@ -4,6 +4,8 @@ import * as React from 'react';
 
 import { Dialog as DialogPrimitive } from '@base-ui/react/dialog';
 
+import { optionalContextBuilder } from '@proedis/react';
+
 import { AlertDialog } from '../alert-dialog/AlertDialog';
 import { Button } from '../button/Button';
 import { IconButton } from '../button/IconButton';
@@ -111,7 +113,7 @@ interface DrawerGateValue {
  * Constants Definition
  * -------- */
 
-const DrawerGateContext = React.createContext<DrawerGateValue>({ requestCancel: () => undefined });
+const [ DrawerGateContext, useDrawerGateContext ] = optionalContextBuilder<DrawerGateValue>('DrawerGate', { requestCancel: () => undefined });
 
 
 /* --------
@@ -502,7 +504,7 @@ DrawerRoot.displayName = 'Drawer';
 /** Cancel in a form: back to the detail when there is one, through the discard prompt when changed */
 const DrawerCancel = React.forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
   const { onClick, ...others } = props;
-  const { requestCancel } = React.useContext(DrawerGateContext);
+  const { requestCancel } = useDrawerGateContext();
 
   /** The caller's click runs first; a `preventDefault` in it keeps the drawer open */
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>): void => {

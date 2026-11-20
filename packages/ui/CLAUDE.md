@@ -229,6 +229,14 @@ narrower stylesheet is the one you have to ask for.
 
 ## Invariants
 
+- **Every context comes from a builder of `@proedis/react`, never from `React.createContext`.**
+  `optionalContextBuilder(name, default)` where the component works without the provider (a control
+  outside a `Field`, a dialog not nested, a `Checkbox` outside a group), and that is twenty of the
+  twenty-one: the default is part of the component's contract. `contextBuilder(name)` where a missing
+  provider is a mistake, and so far only `Notifications`: `JobsButton` outside its provider used to
+  render nothing, a failure nobody would see, and now throws with the provider's name. A new context
+  picks one of the two by that question, and the name it passes is what DevTools shows.
+
 - **The React Compiler memoises this package, at build time.** `proedisMetadata.reactCompiler` runs
   it over every component while rollup builds, so the published code carries its own memoisation and
   a consumer configures nothing, on React 18 as on 19 (`target: '18'`, through

@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Toggle as TogglePrimitive } from '@base-ui/react/toggle';
 import { ToggleGroup as ToggleGroupPrimitive } from '@base-ui/react/toggle-group';
 
-import { useEnhancedEffect } from '@proedis/react';
+import { optionalContextBuilder, useEnhancedEffect } from '@proedis/react';
 
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
@@ -120,7 +120,7 @@ const INDICATOR = [
   'transition-all duration-200 ease-out motion-reduce:transition-none forced-colors:hidden'
 ].join(' ');
 
-const SegmentedContext = React.createContext<SegmentedContextValue | null>(null);
+const [ SegmentedContext, useSegmentedContext ] = optionalContextBuilder<SegmentedContextValue | null>('Segmented', null);
 
 
 /* --------
@@ -146,7 +146,7 @@ function SegmentedControlItem(props: SegmentedControlItemProps, ref: React.Forwa
   // ----
   // Internal Hooks
   // ----
-  const context = React.useContext(SegmentedContext);
+  const context = useSegmentedContext();
 
 
   // ----

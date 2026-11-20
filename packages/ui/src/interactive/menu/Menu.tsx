@@ -9,7 +9,7 @@ import { cn } from '../../core/cn';
 import { CheckGlyph } from '../choice/choice';
 import { LIST_ITEM } from '../list-panel/listPanel';
 
-import { MenuContext, Panel } from './menuPanel';
+import { MenuContext, Panel, useMenuContext } from './menuPanel';
 
 import type { MenuContextValue } from './menuPanel';
 
@@ -319,7 +319,7 @@ const MenuItem = React.forwardRef<HTMLElement, MenuItemProps>((props, ref) => {
   // ----
   // Internal Hooks
   // ----
-  const { afterClose } = React.useContext(MenuContext);
+  const { afterClose } = useMenuContext();
   const descriptionId = React.useId();
 
 

@@ -2,6 +2,8 @@
 
 import * as React from 'react';
 
+import { optionalContextBuilder } from '@proedis/react';
+
 import type { TableNumberFormat } from './tableTypes';
 
 
@@ -42,7 +44,7 @@ const RAW_FORMATS: TableFormats = {
   enumLabel: asText
 };
 
-const TableFormatsContext = React.createContext<TableFormats>(RAW_FORMATS);
+const [ TableFormatsContext, useTableFormatsContext ] = optionalContextBuilder<TableFormats>('TableFormats', RAW_FORMATS);
 
 
 /* --------
@@ -77,5 +79,5 @@ TableFormatsProvider.displayName = 'TableFormatsProvider';
 
 /** The formats in effect, for the cells of the package */
 export function useTableFormats(): TableFormats {
-  return React.useContext(TableFormatsContext);
+  return useTableFormatsContext();
 }

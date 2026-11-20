@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Input } from '@base-ui/react/input';
 import { cva } from 'class-variance-authority';
 
-import { useForkRef } from '@proedis/react';
+import { optionalContextBuilder, useForkRef } from '@proedis/react';
 
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
@@ -101,9 +101,7 @@ const ACTION_OFFSET: Readonly<Record<TextInputSize, string>> = {
  * Context Definition
  * -------- */
 
-const TextInputContext = React.createContext<TextInputState>({ size: 'md', inert: false });
-
-TextInputContext.displayName = 'TextInputContext';
+const [ TextInputContext, useTextInputContext ] = optionalContextBuilder<TextInputState>('TextInput', { size: 'md', inert: false });
 
 
 /* --------
@@ -174,7 +172,7 @@ const TextInputAction = React.forwardRef<HTMLButtonElement, TextInputActionProps
   // ----
   // Internal Hooks
   // ----
-  const { inert, size } = React.useContext(TextInputContext);
+  const { inert, size } = useTextInputContext();
 
 
   // ----

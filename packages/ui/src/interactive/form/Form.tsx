@@ -2,11 +2,13 @@
 
 import * as React from 'react';
 
+import { optionalContextBuilder } from '@proedis/react';
+
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
 import { Button } from '../button/Button';
-import { FormErrorRegistryContext, FormHostContext, FormSectionContext } from '../field/fieldContext';
+import { FormErrorRegistryContext, FormSectionContext, useFormHostContext } from '../field/fieldContext';
 
 import type { BaseProps } from '../../core/base';
 
@@ -86,9 +88,7 @@ const SUMMARY_THRESHOLD = 2;
  * Context Definition
  * -------- */
 
-const FormErrorStateContext = React.createContext<FormErrorState | null>(null);
-
-FormErrorStateContext.displayName = 'FormErrorStateContext';
+const [ FormErrorStateContext, useFormErrorStateContext ] = optionalContextBuilder<FormErrorState | null>('FormErrorState', null);
 
 
 /* --------
@@ -190,7 +190,7 @@ function FormErrorSummary(props: FormErrorSummaryProps): React.ReactNode {
   // ----
   // Internal Hooks
   // ----
-  const state = React.useContext(FormErrorStateContext);
+  const state = useFormErrorStateContext();
   const titleId = React.useId();
 
 
@@ -415,7 +415,7 @@ export function Form(props: FormProps): React.ReactNode {
   const { baseClasses, rest } = splitBaseProps(others);
 
   /* In a popover, a dialog or a drawer the id comes from it, and its submit button points here */
-  const host = React.useContext(FormHostContext);
+  const host = useFormHostContext();
 
 
   // ----
@@ -550,7 +550,7 @@ Form.Footer = FormFooter;
  * ```
  */
 export const FormSubmit = React.forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
-  const host = React.useContext(FormHostContext);
+  const host = useFormHostContext();
 
   return <Button {...props} ref={ref} type={'submit'} form={props.form ?? host?.formId} />;
 });

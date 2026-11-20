@@ -5,6 +5,8 @@ import * as React from 'react';
 import { Toggle as TogglePrimitive } from '@base-ui/react/toggle';
 import { ToggleGroup as ToggleGroupPrimitive } from '@base-ui/react/toggle-group';
 
+import { optionalContextBuilder } from '@proedis/react';
+
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
@@ -116,7 +118,7 @@ const CONTENT_GAP: Readonly<Record<ToggleSize, string>> = {
 const FOCUS_ALONE = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring focus-visible:ring-7 focus-visible:ring-ring/20';
 const FOCUS_IN_GROUP = cn(FOCUS_INSIDE, 'data-pressed:focus-visible:ring-3 data-pressed:focus-visible:ring-inset data-pressed:focus-visible:ring-card');
 
-const ToggleGroupContext = React.createContext<ToggleGroupContextValue | null>(null);
+const [ ToggleGroupContext, useToggleGroupContext ] = optionalContextBuilder<ToggleGroupContextValue | null>('ToggleGroup', null);
 
 
 /* --------
@@ -166,7 +168,7 @@ export const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>((props, r
   // ----
   // Internal Hooks
   // ----
-  const group = React.useContext(ToggleGroupContext);
+  const group = useToggleGroupContext();
 
 
   // ----

@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import { Dialog as DialogPrimitive } from '@base-ui/react/dialog';
 
-import { inertValue, useDelayedBusy, useSyncedRef } from '@proedis/react';
+import { inertValue, optionalContextBuilder, useDelayedBusy, useSyncedRef } from '@proedis/react';
 
 import { cn } from '../../core/cn';
 
@@ -63,7 +63,7 @@ const FIELD = 'input:not([disabled]):not([type="hidden"]), select:not([disabled]
  * How deep a dialog sits: 0 on the page, 1 opened from a dialog or a drawer, 2 for the discard prompt
  * over a nested one. Ours, so it does not depend on how Base UI marks its nesting.
  */
-export const OverlayLevelContext = React.createContext(0);
+export const [ OverlayLevelContext, useOverlayLevelContext ] = optionalContextBuilder('OverlayLevel', 0);
 
 
 /* --------
@@ -277,7 +277,7 @@ export function OverlayFrame(props: OverlayFrameProps): React.ReactNode {
   // ----
   // Internal Hooks
   // ----
-  const level = React.useContext(OverlayLevelContext);
+  const level = useOverlayLevelContext();
 
 
   // ----

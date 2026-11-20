@@ -2,6 +2,8 @@
 
 import * as React from 'react';
 
+import { contextBuilder } from '@proedis/react';
+
 import { cn } from '../../core/cn';
 
 import { Spinner } from '../../components/Spinner';
@@ -21,7 +23,7 @@ export interface NotificationsContextValue {
   state: NotificationsState;
 }
 
-export const NotificationsContext = React.createContext<NotificationsContextValue | null>(null);
+export const [ NotificationsContext, useNotificationsContext ] = contextBuilder<NotificationsContextValue>('Notifications');
 
 
 export function useNotificationsState(notifications: Notifications): NotificationsState {

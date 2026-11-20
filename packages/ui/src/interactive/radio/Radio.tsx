@@ -6,6 +6,8 @@ import { Field as FieldPrimitive } from '@base-ui/react/field';
 import { Radio as RadioPrimitive } from '@base-ui/react/radio';
 import { RadioGroup as RadioGroupPrimitive } from '@base-ui/react/radio-group';
 
+import { optionalContextBuilder } from '@proedis/react';
+
 import { cn } from '../../core/cn';
 
 import { CHOICE_ALIGN, CHOICE_FOCUS, CHOICE_ROW, ChoiceText, GROUP_FOCUS_PROPS, baseOrientation, choiceGroupClasses } from '../choice/choice';
@@ -76,9 +78,7 @@ interface RadioGroupState {
  * Context Definition
  * -------- */
 
-const RadioGroupContext = React.createContext<RadioGroupState>({ variant: 'default', invalid: false, readOnly: false });
-
-RadioGroupContext.displayName = 'RadioGroupContext';
+const [ RadioGroupContext, useRadioGroupContext ] = optionalContextBuilder<RadioGroupState>('RadioGroup', { variant: 'default', invalid: false, readOnly: false });
 
 
 /* --------
@@ -236,7 +236,7 @@ export function Radio(props: RadioProps): React.ReactNode {
   // ----
   // Internal Hooks
   // ----
-  const group = React.useContext(RadioGroupContext);
+  const group = useRadioGroupContext();
   const field = useFieldControl();
   const descriptionId = React.useId();
 

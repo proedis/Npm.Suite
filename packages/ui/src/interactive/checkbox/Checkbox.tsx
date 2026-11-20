@@ -6,14 +6,14 @@ import { Checkbox as CheckboxPrimitive } from '@base-ui/react/checkbox';
 import { CheckboxGroup as CheckboxGroupPrimitive } from '@base-ui/react/checkbox-group';
 import { Field as FieldPrimitive } from '@base-ui/react/field';
 
-import { useEnhancedEffect } from '@proedis/react';
+import { optionalContextBuilder, useEnhancedEffect } from '@proedis/react';
 
 import { cn } from '../../core/cn';
 
 import { CHECKBOX_BOX, CHOICE_ALIGN, CHOICE_FOCUS, CHOICE_ROW, CheckGlyph, ChoiceText, DashGlyph, GROUP_FOCUS_PROPS, baseOrientation, choiceGroupClasses } from '../choice/choice';
 import {
-  FieldRegistryContext,
   useFieldControl,
+  useFieldRegistryContext,
   useNonNativeFieldLabel
 } from '../field/fieldContext';
 
@@ -104,9 +104,7 @@ interface CheckboxGroupState {
  * Context Definition
  * -------- */
 
-const CheckboxGroupContext = React.createContext<CheckboxGroupState | null>(null);
-
-CheckboxGroupContext.displayName = 'CheckboxGroupContext';
+const [ CheckboxGroupContext, useCheckboxGroupContext ] = optionalContextBuilder<CheckboxGroupState | null>('CheckboxGroup', null);
 
 
 /* --------
@@ -296,8 +294,8 @@ export function Checkbox(props: CheckboxProps): React.ReactNode {
   // Internal Hooks
   // ----
   const field = useFieldControl();
-  const registry = React.useContext(FieldRegistryContext);
-  const group = React.useContext(CheckboxGroupContext);
+  const registry = useFieldRegistryContext();
+  const group = useCheckboxGroupContext();
   const descriptionId = React.useId();
   const childId = React.useId();
 

@@ -14,9 +14,11 @@ import {
   FieldControlContext,
   FieldLabelNativeContext,
   FieldRegistryContext,
-  FormErrorRegistryContext,
-  FormSectionContext,
-  useFieldControl
+  useFieldControl,
+  useFieldLabelNativeContext,
+  useFieldRegistryContext,
+  useFormErrorRegistryContext,
+  useFormSectionContext
 } from './fieldContext';
 import { ErrorGlyph } from './glyphs';
 
@@ -262,8 +264,8 @@ function FieldLabel(props: FieldLabelProps): React.ReactNode {
   // ----
   // Internal Hooks
   // ----
-  const registry = React.useContext(FieldRegistryContext);
-  const native = React.useContext(FieldLabelNativeContext);
+  const registry = useFieldRegistryContext();
+  const native = useFieldLabelNativeContext();
   const generatedId = React.useId();
   const labelId = id ?? generatedId;
 
@@ -379,8 +381,8 @@ function FieldError(props: FieldErrorProps): React.ReactNode {
   // ----
   // Internal Hooks
   // ----
-  const registry = React.useContext(FieldRegistryContext);
-  const formErrors = React.useContext(FormErrorRegistryContext);
+  const registry = useFieldRegistryContext();
+  const formErrors = useFormErrorRegistryContext();
   const id = React.useId();
 
 
@@ -530,7 +532,7 @@ export function Field(props: FieldProps): React.ReactNode {
   // ----
   const generatedId = React.useId();
   const fieldId = id ?? generatedId;
-  const inSection = React.useContext(FormSectionContext);
+  const inSection = useFormSectionContext();
 
 
   // ----

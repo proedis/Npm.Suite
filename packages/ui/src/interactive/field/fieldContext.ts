@@ -1,8 +1,8 @@
 'use client';
 
-import * as React from 'react';
+import type * as React from 'react';
 
-import { useEnhancedEffect } from '@proedis/react';
+import { optionalContextBuilder, useEnhancedEffect } from '@proedis/react';
 
 
 /* --------
@@ -73,34 +73,29 @@ export interface FormErrorRegistry {
 
 const NO_FIELD: FieldControlState = { required: false, invalid: false, disabled: false };
 
-export const FieldControlContext = React.createContext<FieldControlState>(NO_FIELD);
+export const [ FieldControlContext, useFieldControlContext ] = optionalContextBuilder<FieldControlState>('FieldControl', NO_FIELD);
 
-FieldControlContext.displayName = 'FieldControlContext';
 
-export const FieldRegistryContext = React.createContext<FieldRegistry | null>(null);
+export const [ FieldRegistryContext, useFieldRegistryContext ] = optionalContextBuilder<FieldRegistry | null>('FieldRegistry', null);
 
-FieldRegistryContext.displayName = 'FieldRegistryContext';
 
 /**
  * Whether a field stands in a `Form.Section`, whose grid places its parts: there the field ignores
  * its own `orientation`. Provided by `Form`, like the error registry
  */
-export const FormSectionContext = React.createContext(false);
+export const [ FormSectionContext, useFormSectionContext ] = optionalContextBuilder('FormSection', false);
 
-FormSectionContext.displayName = 'FormSectionContext';
 
 /** Whether `Field.Label` renders a native `<label>`. Private: written by the controls through the registry */
-export const FieldLabelNativeContext = React.createContext(true);
+export const [ FieldLabelNativeContext, useFieldLabelNativeContext ] = optionalContextBuilder('FieldLabelNative', true);
 
-FieldLabelNativeContext.displayName = 'FieldLabelNativeContext';
 
 /**
  * Owned here and provided by `Form`: the dependency goes one way, from `form` to `field`, so the two
  * subpaths never import each other in a circle.
  */
-export const FormErrorRegistryContext = React.createContext<FormErrorRegistry | null>(null);
+export const [ FormErrorRegistryContext, useFormErrorRegistryContext ] = optionalContextBuilder<FormErrorRegistry | null>('FormErrorRegistry', null);
 
-FormErrorRegistryContext.displayName = 'FormErrorRegistryContext';
 
 /**
  * The id a `Form` takes when it sits in a popover, a dialog or a drawer. They render their submit
@@ -111,9 +106,7 @@ export interface FormHost {
   readonly formId: string;
 }
 
-export const FormHostContext = React.createContext<FormHost | null>(null);
-
-FormHostContext.displayName = 'FormHostContext';
+export const [ FormHostContext, useFormHostContext ] = optionalContextBuilder<FormHost | null>('FormHost', null);
 
 
 /* --------
@@ -139,7 +132,7 @@ FormHostContext.displayName = 'FormHostContext';
  * disagree. Outside a field all three are `false`.
  */
 export function useFieldControl(): FieldControlState {
-  return React.useContext(FieldControlContext);
+  return useFieldControlContext();
 }
 
 
@@ -153,7 +146,7 @@ export function useNonNativeFieldLabel(): void {
   // ----
   // Internal Hooks
   // ----
-  const registry = React.useContext(FieldRegistryContext);
+  const registry = useFieldRegistryContext();
 
 
   // ----

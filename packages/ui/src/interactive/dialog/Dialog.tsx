@@ -4,6 +4,8 @@ import * as React from 'react';
 
 import { Dialog as DialogPrimitive } from '@base-ui/react/dialog';
 
+import { optionalContextBuilder } from '@proedis/react';
+
 import { AlertDialog } from '../alert-dialog/AlertDialog';
 import { Button } from '../button/Button';
 import { IconButton } from '../button/IconButton';
@@ -130,7 +132,7 @@ interface DialogCloseContextValue {
  * Constants Definition
  * -------- */
 
-const DialogCloseContext = React.createContext<DialogCloseContextValue>({ requestClose: () => undefined });
+const [ DialogCloseContext, useDialogCloseContext ] = optionalContextBuilder<DialogCloseContextValue>('DialogClose', { requestClose: () => undefined });
 
 
 /* --------
@@ -397,7 +399,7 @@ DialogRoot.displayName = 'Dialog';
 /** The exit next to the primary: the same gate as the x, so `dirty` asks first */
 const DialogCancel = React.forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
   const { onClick, ...others } = props;
-  const { requestClose } = React.useContext(DialogCloseContext);
+  const { requestClose } = useDialogCloseContext();
 
   /** The caller's click runs first; a `preventDefault` in it keeps the dialog open */
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>): void => {

@@ -4,6 +4,8 @@ import * as React from 'react';
 
 import { Menu as MenuPrimitive } from '@base-ui/react/menu';
 
+import { optionalContextBuilder } from '@proedis/react';
+
 import { cn } from '../../core/cn';
 
 import { CloseWhenAnchorHidden } from '../anchor/CloseWhenAnchorHidden';
@@ -32,7 +34,7 @@ const PANEL = [
   'transition-opacity duration-150 data-starting-style:opacity-0 data-ending-style:transition-none motion-reduce:transition-none'
 ].join(' ');
 
-export const MenuContext = React.createContext<MenuContextValue>({ afterClose: (action) => action() });
+export const [ MenuContext, useMenuContext ] = optionalContextBuilder<MenuContextValue>('Menu', { afterClose: (action) => action() });
 
 
 /* --------

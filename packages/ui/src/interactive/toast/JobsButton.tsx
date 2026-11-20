@@ -12,7 +12,7 @@ import { BadgeCounter } from '../../components/BadgeCounter';
 import { Button } from '../button/Button';
 import { IconButton } from '../button/IconButton';
 
-import { NotificationsContext, StatusMark } from './toastShared';
+import { StatusMark, useNotificationsContext } from './toastShared';
 
 import type { HistoryEntry } from './notificationsStore';
 
@@ -119,7 +119,7 @@ export function JobsButton(props: JobsButtonProps): React.ReactNode {
   // ----
   // Internal Hooks
   // ----
-  const context = React.useContext(NotificationsContext);
+  const context = useNotificationsContext();
   const countId = React.useId();
 
 
@@ -135,10 +135,7 @@ export function JobsButton(props: JobsButtonProps): React.ReactNode {
    */
   const [ unseenAtOpen, setUnseenAtOpen ] = React.useState<ReadonlySet<string>>(() => new Set());
 
-  if (!context) {
-    return null;
-  }
-
+  /* Outside a NotificationsProvider the hook throws, naming it: rendering nothing there was a silent failure */
   const { notifications, state } = context;
   const unseen = state.history.filter((entry) => !entry.seen);
   const hasError = unseen.some((entry) => entry.status === 'failed');

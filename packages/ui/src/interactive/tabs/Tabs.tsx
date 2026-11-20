@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import { Tabs as TabsPrimitive } from '@base-ui/react/tabs';
 
-import { inertValue, useOverflowItems } from '@proedis/react';
+import { inertValue, optionalContextBuilder, useOverflowItems } from '@proedis/react';
 
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
@@ -148,7 +148,7 @@ const PILL = [
   'group-data-active/tab:bg-card group-data-active/tab:text-primary-soft-foreground'
 ].join(' ');
 
-const TabsContext = React.createContext<TabsContextValue>({ value: undefined, items: [], hidden: new Set() });
+const [ TabsContext, useTabsContext ] = optionalContextBuilder<TabsContextValue>('Tabs', { value: undefined, items: [], hidden: new Set() });
 
 
 /* --------
@@ -444,7 +444,7 @@ TabsRoot.displayName = 'Tabs';
 /** A panel: mounted the first time its tab opens, then kept */
 function TabsPanel(props: TabsPanelProps): React.ReactNode {
   const { children, className, value } = props;
-  const { hidden, items, value: active } = React.useContext(TabsContext);
+  const { hidden, items, value: active } = useTabsContext();
 
   const isActive = active === value;
   const [ visited, setVisited ] = React.useState(isActive);

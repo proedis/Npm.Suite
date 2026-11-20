@@ -2,6 +2,8 @@
 
 import * as React from 'react';
 
+import { optionalContextBuilder } from '@proedis/react';
+
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
@@ -163,13 +165,10 @@ const COPIED_FOR = 1500;
  * Context Definition
  * -------- */
 
-const DetailContext = React.createContext<DetailState | null>(null);
+const [ DetailContext, useDetailContext ] = optionalContextBuilder<DetailState | null>('Detail', null);
 
-DetailContext.displayName = 'DetailContext';
 
-const DetailSectionLoadingContext = React.createContext(false);
-
-DetailSectionLoadingContext.displayName = 'DetailSectionLoadingContext';
+const [ DetailSectionLoadingContext, useDetailSectionLoadingContext ] = optionalContextBuilder('DetailSectionLoading', false);
 
 
 /* --------
@@ -182,7 +181,7 @@ function isPresent(node: React.ReactNode): boolean {
 
 
 function useDetail(part: string): DetailState {
-  const state = React.useContext(DetailContext);
+  const state = useDetailContext();
 
   if (!state) {
     throw new Error(`${part} must be rendered inside a Detail`);
@@ -370,7 +369,7 @@ function DetailItem(props: DetailItemProps): React.ReactNode {
   // Internal Hooks
   // ----
   const { announce, labels } = useDetail('Detail.Item');
-  const loading = React.useContext(DetailSectionLoadingContext);
+  const loading = useDetailSectionLoadingContext();
 
 
   // ----
