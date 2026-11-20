@@ -242,7 +242,23 @@ export function DatePicker(props: DatePickerProps): React.ReactNode {
   const date = !isRange ? (props.value !== undefined ? props.value : ownDate) : null;
   const range = isRange ? props.value ?? ownRange : EMPTY_RANGE;
 
-  const [ text, setText ] = React.useState(() => (isRange ? writeRange(range, dateOrder) : writeDate(date, dateOrder)));
+  /** The value as the field writes it: what the text shows whenever nobody is typing */
+  const written = isRange ? writeRange(range, dateOrder) : writeDate(date, dateOrder);
+
+  const [ text, setText ] = React.useState(written);
+
+  /**
+   * The written value the text last came from, or last went to. A value that differs from it arrived
+   * from outside (a reset, a record loaded after mount, a parent that normalised it) and replaces the
+   * text, adjusted while rendering. A value the field itself committed matches it, so a half date
+   * typed over a value and committed as `null` stays as typed, to be fixed.
+   */
+  const [ textSource, setTextSource ] = React.useState(written);
+
+  if (textSource !== written) {
+    setTextSource(written);
+    setText(written);
+  }
 
   const [ open, setOpen ] = React.useState(false);
 
@@ -270,6 +286,7 @@ export function DatePicker(props: DatePickerProps): React.ReactNode {
       setOwnDate(next);
     }
 
+    setTextSource(writeDate(next, dateOrder));
     props.onValueChange?.(next);
   };
 
@@ -282,6 +299,7 @@ export function DatePicker(props: DatePickerProps): React.ReactNode {
       setOwnRange(next);
     }
 
+    setTextSource(writeRange(next, dateOrder));
     props.onValueChange?.(next);
   };
 
@@ -301,17 +319,27 @@ export function DatePicker(props: DatePickerProps): React.ReactNode {
     }
   };
 
-  /** Leaving the field: read it, set the value, and say what was wrong */
+  /**
+   * Leaving the field: read it, set the value, and say what was wrong.
+   *
+   * A text that is still the value as written was not typed, so nothing is committed: opening the
+   * calendar runs this too, and must not report a change that never happened.
+   */
   const handleBlur = (): void => {
+    const typed = text !== written;
+
     if (!isRange) {
       const reading = readDate(text, dateOrder);
       const { iso, validity } = judge(reading);
 
-      if (reading.status === 'valid') {
-        setText(writeDate(iso, dateOrder));
+      if (typed) {
+        if (reading.status === 'valid') {
+          setText(writeDate(iso, dateOrder));
+        }
+
+        commitDate(iso);
       }
 
-      commitDate(iso);
       onValidityChange?.(validity, 'date');
       return;
     }
@@ -321,14 +349,16 @@ export function DatePicker(props: DatePickerProps): React.ReactNode {
     const to = judge(readings.to);
     const next = { from: from.iso, to: to.iso };
 
-    /* Rewritten only when both halves are read: a half typed wrong stays as typed, to be fixed */
-    if (from.iso !== null || readings.from.status === 'empty') {
-      if (to.iso !== null || readings.to.status === 'empty') {
-        setText(writeRange(next, dateOrder));
+    if (typed) {
+      /* Rewritten only when both halves are read: a half typed wrong stays as typed, to be fixed */
+      if (from.iso !== null || readings.from.status === 'empty') {
+        if (to.iso !== null || readings.to.status === 'empty') {
+          setText(writeRange(next, dateOrder));
+        }
       }
-    }
 
-    commitRange(next);
+      commitRange(next);
+    }
 
     if (from.validity) {
       onValidityChange?.(from.validity, 'from');
