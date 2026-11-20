@@ -61,7 +61,7 @@ export interface AlertDialogResult {
   readonly description: React.ReactNode;
 }
 
-export interface AlertDialogProps {
+export interface StrictAlertDialogProps {
   /** Controlled only */
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -80,9 +80,6 @@ export interface AlertDialogProps {
 
   /** Grade 2: the effects on other items, to read before choosing */
   consequences?: React.ReactNode;
-
-  /** Grade 3, always with `consequences`: the text to type to switch the action on */
-  confirmText?: string;
 
   /** The `solid destructive` action, with verb and object */
   actionLabel: React.ReactNode;
@@ -107,10 +104,26 @@ export interface AlertDialogProps {
   onTimeout?: () => void;
 
   /** Where the focus goes if the control that opened it is gone, and after a successful action */
-  returnFocus?: React.RefObject<HTMLElement | null> | (() => HTMLElement | null);
-
-  labels: AlertDialogLabels;
+  returnFocus?: { readonly current: HTMLElement | null } | (() => HTMLElement | null);
 }
+
+/**
+ * Grade 3, always with `consequences`: `confirmText` is the text to type to switch the action on. With
+ * it the field needs its label, its hint and its error, so those become required in the labels; an
+ * absent label left a field with no name in front of the one destructive action that asks for care.
+ */
+export type AlertDialogConfirmProps =
+  | { confirmText?: undefined; labels: AlertDialogLabels }
+  | {
+    confirmText: string;
+    labels: AlertDialogLabels & {
+      readonly confirmField: string;
+      readonly confirmHint: (text: string) => React.ReactNode;
+      readonly confirmMismatch: (text: string) => React.ReactNode;
+    };
+  };
+
+export type AlertDialogProps = StrictAlertDialogProps & AlertDialogConfirmProps;
 
 
 /* --------
@@ -118,7 +131,7 @@ export interface AlertDialogProps {
  * -------- */
 
 /** The comparison of the typed text: case, spaces, typographic apostrophes, « », thousands dots */
-export function normalizeConfirm(text: string, numeric: boolean): string {
+function normalizeConfirm(text: string, numeric: boolean): string {
   let value = text
     .normalize('NFC')
     .replace(/[’‘]/g, '\'')
@@ -278,6 +291,7 @@ export function AlertDialog(props: AlertDialogProps): React.ReactNode {
         placement={'dialog'}
         size={'sm'}
         dataSlot={'alert-dialog'}
+        dataAttributes={{ 'data-tone': tone }}
         nudging={nudging}
         onVeilPress={nudge}
         initialFocus={initialFocus}

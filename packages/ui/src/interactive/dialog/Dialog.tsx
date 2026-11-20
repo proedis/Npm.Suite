@@ -36,7 +36,7 @@ import type { OverlayBusy, OverlaySection, OverlaySize } from '../overlay-shell/
  * Types Definition
  * -------- */
 
-export type { OverlaySection as DialogSection };
+export type { OverlayBusy as DialogBusy, OverlaySection as DialogSection, OverlaySize as DialogSize };
 
 export interface DialogLabels {
   /** The name of the x, and its tooltip */
@@ -116,7 +116,7 @@ export interface DialogProps {
   onSubmitTimeout?: () => void;
 
   /** Where the focus goes on closing when the control that opened it is gone */
-  returnFocus?: React.RefObject<HTMLElement | null> | (() => HTMLElement | null);
+  returnFocus?: { readonly current: HTMLElement | null } | (() => HTMLElement | null);
 
   labels: DialogLabels;
 
@@ -416,11 +416,19 @@ const DialogCancel = React.forwardRef<HTMLButtonElement, ButtonProps>((props, re
 DialogCancel.displayName = 'Dialog.Cancel';
 
 
+/** The section block of the shell, under the name the React tree shows for this component */
+function DialogSection(props: React.ComponentProps<typeof OverlaySectionBlock>): React.ReactNode {
+  return <OverlaySectionBlock {...props} />;
+}
+
+DialogSection.displayName = 'Dialog.Section';
+
+
 export const Dialog = Object.assign(DialogRoot, {
   /** The submit button of the dialog's form, in its footer */
   Submit : FormSubmit,
   Cancel : DialogCancel,
 
   /** A titled section of the body, the target of the index */
-  Section: OverlaySectionBlock
+  Section: DialogSection
 });

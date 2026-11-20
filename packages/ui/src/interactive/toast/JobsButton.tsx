@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import { Popover as PopoverPrimitive } from '@base-ui/react/popover';
 
+import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 import { linkProps } from '../../core/link';
 
@@ -13,6 +14,8 @@ import { Button } from '../button/Button';
 import { IconButton } from '../button/IconButton';
 
 import { StatusMark, useNotificationsContext } from './toastShared';
+
+import type { BaseProps } from '../../core/base';
 
 import type { HistoryEntry } from './notificationsStore';
 
@@ -43,10 +46,12 @@ export interface JobsButtonLabels {
   readonly time: (time: Date) => string;
 }
 
-export interface JobsButtonProps {
+export interface JobsButtonProps extends BaseProps {
   /** The icon of the button, as a node */
   icon: React.ReactNode;
   labels: JobsButtonLabels;
+
+  /** Classes for the wrapper of the button and its badge, last so they win */
   className?: string;
 }
 
@@ -106,7 +111,8 @@ function HistoryRow(props: {
  * never changes. Opening the history marks them all as seen. A row with a destination is a real link;
  * "Undo" stays on its row until the operation can no longer be undone. Needs `NotificationsProvider`.
  *
- * Parts with a slot: `jobs-button`, `jobs-history`, `jobs-history-row` (with `data-unseen`).
+ * Parts with a slot: `jobs` (the wrapper of the button and its badge), `jobs-button`, `jobs-history`,
+ * `jobs-history-row` (with `data-unseen`).
  */
 export function JobsButton(props: JobsButtonProps): React.ReactNode {
 
@@ -114,6 +120,7 @@ export function JobsButton(props: JobsButtonProps): React.ReactNode {
   // Props Deconstruct
   // ----
   const { className, icon, labels } = props;
+  const { baseClasses } = splitBaseProps(props);
 
 
   // ----
@@ -160,7 +167,7 @@ export function JobsButton(props: JobsButtonProps): React.ReactNode {
   // ----
   return (
     <PopoverPrimitive.Root open={open} onOpenChange={handleOpenChange}>
-      <span className={cn('relative inline-flex', className)}>
+      <span data-slot={'jobs'} className={cn('relative inline-flex', baseClasses, className)}>
         <PopoverPrimitive.Trigger
           render={(
             <IconButton

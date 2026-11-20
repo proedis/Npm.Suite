@@ -10,14 +10,21 @@ import { Button } from './Button';
 
 import type { TooltipSide } from '../tooltip/Tooltip';
 
-import type { ButtonProps } from './Button';
+import type { ButtonLoadingProps, ButtonProps } from './Button';
 
 
 /* --------
  * Types Definition
  * -------- */
 
-export type IconButtonProps = Omit<ButtonProps, 'children' | 'leading' | 'trailing' | 'block' | 'aria-label'> & {
+/**
+ * `loading` and `loadingLabel` are taken out and put back as the union of `Button`: an `Omit` over that
+ * union flattens it, and `loading` without `loadingLabel` compiled again.
+ */
+export type IconButtonProps = Omit<
+  ButtonProps,
+  'children' | 'leading' | 'trailing' | 'block' | 'aria-label' | 'loading' | 'loadingLabel'
+> & ButtonLoadingProps & {
   /**
    * The name of the button, required: it is both the accessible name and the text of its tooltip.
    * One prop for the two, so they cannot disagree and neither can be forgotten.
@@ -80,7 +87,7 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>((
       <Button
         {...(rest as ButtonProps)}
         ref={ref}
-        data-icon-only={''}
+        data-icon-only
         aria-label={label}
         fill={fill}
         tone={tone}

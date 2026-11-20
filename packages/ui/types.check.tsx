@@ -15,10 +15,13 @@
 import * as React from 'react';
 
 import { Badge, Box, Container, Heading, IconBox, Item, Label, Spinner, Stack, Surface, VisuallyHidden } from './src';
-import { Button } from './src/interactive/button';
+import { AlertDialog } from './src/interactive/alert-dialog';
+import { Button, IconButton } from './src/interactive/button';
+import { Drawer } from './src/interactive/drawer';
 import { Checkbox, CheckboxGroup } from './src/interactive/checkbox';
 import { Field } from './src/interactive/field';
 import { FieldShell } from './src/interactive/field-shell';
+import { PasswordInput } from './src/interactive/password-input';
 import { Radio, RadioGroup } from './src/interactive/radio';
 import { SegmentedControl } from './src/interactive/segmented-control';
 import { Switch } from './src/interactive/switch';
@@ -362,6 +365,36 @@ const namelessTabs = <Tabs defaultValue={'a'} labels={{ overflow: 'More' }} item
 const closedTabs = <Tabs aria-label={'Sections'} labels={{ overflow: 'More' }} items={[ { value: 'a', label: 'A' } ]} />;
 
 
+/** @ts-expect-error `loading` asks for `loadingLabel`, through `IconButton` as through `Button` */
+const silentIconButton = <IconButton label={'Save'} icon={'S'} loading />;
+
+/** @ts-expect-error the same pair through `PasswordInput` */
+const silentPassword = <PasswordInput labels={{ show: 's', hide: 'h' }} loading />;
+
+const drawerLabels = { close: 'Close', discard: { title: 't', description: 'd', action: 'a', cancel: 'c' } };
+
+/** @ts-expect-error with arrows, the arrows need their names */
+const namelessArrows = <Drawer open onOpenChange={() => undefined} title={'T'} labels={drawerLabels} onNext={() => undefined} />;
+
+const alertLabels = { busyLoad: 'l', busyAction: 'a', close: 'c', timeout: { title: 't', description: 'd' } };
+
+const namelessConfirm = (
+  // @ts-expect-error a grade 3 confirmation needs the label, the hint and the error of its field
+  <AlertDialog
+    open
+    onOpenChange={() => undefined}
+    title={'T'}
+    description={'D'}
+    icon={'!'}
+    actionLabel={'Delete'}
+    onAction={() => undefined}
+    cancelLabel={'Cancel'}
+    confirmText={'ORDER-12'}
+    labels={alertLabels}
+  />
+);
+
+
 /* --------
  * Keep the compiler from pruning the assertions
  * -------- */
@@ -379,5 +412,6 @@ export const CHECKED = [
   responsiveSpan, singleSpan, wrongSpan, responsiveGroups, wrongOrientation, responsiveBlock, wrongHide,
   besideOnDesktop, wrongFieldOrientation, ownControl, wrongShellSize,
   namedToggle, namelessToggle, namedGroup, namelessGroup, chosenView, emptyView, namelessItem,
-  formLibraryBox, namedRadioGroup, switchWithTitle, namedTabs, namelessTabs, closedTabs
+  formLibraryBox, namedRadioGroup, switchWithTitle, namedTabs, namelessTabs, closedTabs,
+  silentIconButton, silentPassword, namelessArrows, namelessConfirm
 ];

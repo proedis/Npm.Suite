@@ -247,6 +247,7 @@ function PopoverRoot(props: PopoverProps): React.ReactNode {
             tabIndex={-1}
             aria-label={hasTitle ? undefined : ariaLabel}
             aria-busy={busy || undefined}
+            data-busy={busy || undefined}
             initialFocus={initialFocus}
             finalFocus={finalFocus}
             data-slot={'popover'}

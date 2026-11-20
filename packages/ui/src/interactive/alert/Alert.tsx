@@ -4,6 +4,8 @@ import * as React from 'react';
 
 import { cva } from 'class-variance-authority';
 
+import { useForkRef } from '@proedis/react';
+
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
@@ -67,7 +69,11 @@ type SevereAlertProps = CommonAlertProps & {
   dismissLabel?: never;
 };
 
-export type AlertProps = (MildAlertProps | SevereAlertProps) & BaseProps;
+/** The native props of a `<div>` reach the root; its role is the component's, from `live` and the tone */
+export type AlertProps = (MildAlertProps | SevereAlertProps) & BaseProps & Omit<
+  React.ComponentProps<'div'>,
+  keyof CommonAlertProps | 'title' | 'role' | 'ref'
+>;
 
 export type AlertTone = AlertProps['tone'];
 
@@ -75,6 +81,9 @@ export type AlertTone = AlertProps['tone'];
 /* --------
  * Variants Definition
  * -------- */
+
+/** The default size, one source for `cva` and for the reported `data-size` */
+const DEFAULT_VARIANTS = { size: 'md' } as const;
 
 const alertVariants = cva(
   [
@@ -98,7 +107,7 @@ const alertVariants = cva(
         destructive: 'border-destructive-soft-foreground/50'
       }
     },
-    defaultVariants: { size: 'md' }
+    defaultVariants: DEFAULT_VARIANTS
   }
 );
 
@@ -171,7 +180,7 @@ function focusAfter(root: HTMLElement): void {
  * Parts with a slot: `alert` (with `data-tone`, `data-size`), `alert-icon`, `alert-body`,
  * `alert-title`, `alert-text`, `alert-action`, `alert-dismiss`.
  */
-export function Alert(props: AlertProps): React.ReactNode {
+export const Alert = React.forwardRef<HTMLDivElement, AlertProps>((props, ref) => {
 
   // ----
   // Props Deconstruct
@@ -183,19 +192,21 @@ export function Alert(props: AlertProps): React.ReactNode {
     dismissLabel,
     live = false,
     onDismiss,
-    size = 'md',
+    size = DEFAULT_VARIANTS.size,
     title,
     tone,
-    toneLabel
+    toneLabel,
+    ...others
   } = props;
 
-  const { baseClasses } = splitBaseProps(props);
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
   // Internal Hooks
   // ----
   const rootRef = React.useRef<HTMLDivElement>(null);
+  const handleRef = useForkRef(rootRef, ref);
 
 
   // ----
@@ -242,7 +253,8 @@ export function Alert(props: AlertProps): React.ReactNode {
 
   return (
     <div
-      ref={rootRef}
+      {...rest}
+      ref={handleRef}
       role={role}
       data-slot={'alert'}
       data-tone={tone}
@@ -291,7 +303,7 @@ export function Alert(props: AlertProps): React.ReactNode {
     </div>
   );
 
-}
+});
 
 Alert.displayName = 'Alert';
 

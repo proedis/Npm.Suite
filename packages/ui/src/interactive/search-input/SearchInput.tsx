@@ -7,7 +7,7 @@ import { useForkRef } from '@proedis/react';
 import { ClearGlyph, SearchGlyph } from '../text-input/glyphs';
 import { TextInput } from '../text-input/TextInput';
 
-import type { TextInputProps } from '../text-input/TextInput';
+import type { TextInputLoadingProps, TextInputProps } from '../text-input/TextInput';
 
 
 /* --------
@@ -19,10 +19,11 @@ export interface SearchInputLabels {
   clear: string;
 }
 
+/** The loading pair is put back as the union of `TextInput`: an `Omit` over it flattens it */
 export type SearchInputProps = Omit<
   TextInputProps,
-  'type' | 'leading' | 'trailing' | 'value' | 'defaultValue' | 'onChange'
-> & {
+  'type' | 'leading' | 'trailing' | 'value' | 'defaultValue' | 'onChange' | 'loading' | 'loadingLabel'
+> & TextInputLoadingProps & {
   /** The texts of the clear action: the package writes none */
   labels: SearchInputLabels;
 

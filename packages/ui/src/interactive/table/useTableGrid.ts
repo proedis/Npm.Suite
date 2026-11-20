@@ -85,7 +85,7 @@ function entryPosition(rows: HTMLTableRowElement[]): Position {
  * controls inside the cells (links, checkboxes, the ⋯, a custom cell) are not ours to render. When the
  * focused control disappears with its row, the focus goes to the same place in the rows that remain.
  */
-export function useTableGrid(ref: React.RefObject<HTMLTableElement | null>, options: TableGridOptions): TableGrid {
+export function useTableGrid(ref: { readonly current: HTMLTableElement | null }, options: TableGridOptions): TableGrid {
 
   // ----
   // Options Deconstruct

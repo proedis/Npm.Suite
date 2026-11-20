@@ -169,7 +169,7 @@ export interface ModalSelectorCommonProps<TData> {
   confirmLabel: (count: number) => string;
 
   /** Where the focus goes on closing when the control that opened it is gone */
-  returnFocus?: React.RefObject<HTMLElement | null>;
+  returnFocus?: { readonly current: HTMLElement | null };
 
   labels: ModalSelectorLabels;
 }

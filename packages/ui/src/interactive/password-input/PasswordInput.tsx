@@ -5,7 +5,7 @@ import * as React from 'react';
 import { EyeGlyph, EyeOffGlyph } from '../text-input/glyphs';
 import { TextInput } from '../text-input/TextInput';
 
-import type { TextInputProps } from '../text-input/TextInput';
+import type { TextInputLoadingProps, TextInputProps } from '../text-input/TextInput';
 
 
 /* --------
@@ -20,7 +20,8 @@ export interface PasswordInputLabels {
   hide: string;
 }
 
-export type PasswordInputProps = Omit<TextInputProps, 'type' | 'trailing' | 'autoComplete'> & {
+/** The loading pair is put back as the union of `TextInput`: an `Omit` over it flattens it */
+export type PasswordInputProps = Omit<TextInputProps, 'type' | 'trailing' | 'autoComplete' | 'loading' | 'loadingLabel'> & TextInputLoadingProps & {
   /** The texts of the show and hide action: the package writes none */
   labels: PasswordInputLabels;
 

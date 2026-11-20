@@ -33,6 +33,8 @@ import type { ButtonProps } from '../button/Button';
 import type { DialogDiscard, DialogLabels } from '../dialog/Dialog';
 import type { OverlayBusy, OverlaySection, OverlaySize } from '../overlay-shell/overlayShell';
 
+export type { OverlayBusy as DrawerBusy, OverlaySection as DrawerSection, OverlaySize as DrawerSize };
+
 
 /* --------
  * Types Definition
@@ -44,7 +46,7 @@ export interface DrawerLabels extends DialogLabels {
   readonly next?: string;
 }
 
-export interface DrawerProps {
+export interface StrictDrawerProps {
   /** Controlled only: the caller ties it to the URL of the list */
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -76,10 +78,6 @@ export interface DrawerProps {
   /** A form opened from the detail: Cancel and Esc call it instead of closing */
   onBack?: () => void;
 
-  /** The previous and next item of the filtered list, in detail. Without, no arrows */
-  onPrevious?: () => void;
-  onNext?: () => void;
-
   /** "2 of 5", written by the caller */
   position?: React.ReactNode;
 
@@ -95,12 +93,25 @@ export interface DrawerProps {
   onSubmitTimeout?: () => void;
 
   /** Where the focus goes if the row of the item is gone */
-  returnFocus?: React.RefObject<HTMLElement | null> | (() => HTMLElement | null);
-
-  labels: DrawerLabels;
+  returnFocus?: { readonly current: HTMLElement | null } | (() => HTMLElement | null);
 
   className?: string;
 }
+
+/**
+ * The previous and next item of the filtered list, in detail; without, no arrows. With them, the
+ * arrows are icon buttons and need their names: `previous` and `next` become required in the labels,
+ * where an absent one left a button named by an empty string.
+ */
+export type DrawerNavigationProps =
+  | { onPrevious?: undefined; onNext?: undefined; labels: DrawerLabels }
+  | {
+    onPrevious?: () => void;
+    onNext?: () => void;
+    labels: DrawerLabels & { readonly previous: string; readonly next: string };
+  };
+
+export type DrawerProps = StrictDrawerProps & DrawerNavigationProps;
 
 type PendingMove = 'close' | 'back' | 'previous' | 'next';
 
@@ -407,6 +418,7 @@ function DrawerRoot(props: DrawerProps): React.ReactNode {
             placement={'drawer'}
             size={size}
             dataSlot={'drawer'}
+            dataAttributes={{ 'data-mode': mode }}
             popupRef={setPopup}
             nudging={nudging}
             onVeilPress={handleVeilPress}
@@ -521,8 +533,16 @@ const DrawerCancel = React.forwardRef<HTMLButtonElement, ButtonProps>((props, re
 DrawerCancel.displayName = 'Drawer.Cancel';
 
 
+/** The section block of the shell, under the name the React tree shows for this component */
+function DrawerSection(props: React.ComponentProps<typeof OverlaySectionBlock>): React.ReactNode {
+  return <OverlaySectionBlock {...props} />;
+}
+
+DrawerSection.displayName = 'Drawer.Section';
+
+
 export const Drawer = Object.assign(DrawerRoot, {
   Submit : FormSubmit,
   Cancel : DrawerCancel,
-  Section: OverlaySectionBlock
+  Section: DrawerSection
 });

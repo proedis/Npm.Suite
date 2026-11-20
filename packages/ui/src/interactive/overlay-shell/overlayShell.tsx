@@ -82,7 +82,7 @@ export function firstFocusable(container: HTMLElement | null): HTMLElement | nul
 /** The control focused when the overlay opened, or the fallback, or the title of the page */
 export function focusTarget(
   origin: HTMLElement | null,
-  fallback?: React.RefObject<HTMLElement | null> | (() => HTMLElement | null)
+  fallback?: { readonly current: HTMLElement | null } | (() => HTMLElement | null)
 ): HTMLElement | null {
   if (origin?.isConnected) {
     return origin;
@@ -109,7 +109,7 @@ export function focusTarget(
  * -------- */
 
 /** The control that had the focus when `open` turned on, captured before Base UI moves it */
-export function useOrigin(open: boolean): React.RefObject<HTMLElement | null> {
+export function useOrigin(open: boolean): { readonly current: HTMLElement | null } {
   const originRef = React.useRef<HTMLElement | null>(null);
 
   React.useLayoutEffect(() => {
@@ -235,6 +235,9 @@ interface OverlayFrameProps {
   onKeyDown?: (event: React.KeyboardEvent<HTMLDivElement>) => void;
 
   dataSlot: string;
+
+  /** The resolved variants of the component on top, written on the panel next to `data-size` */
+  dataAttributes?: Readonly<Record<`data-${string}`, string | true | undefined>>;
   className?: string;
   children: React.ReactNode;
 }
@@ -262,6 +265,7 @@ export function OverlayFrame(props: OverlayFrameProps): React.ReactNode {
     'aria-describedby': ariaDescribedBy,
     children,
     className,
+    dataAttributes,
     dataSlot,
     finalFocus,
     initialFocus,
@@ -314,6 +318,7 @@ export function OverlayFrame(props: OverlayFrameProps): React.ReactNode {
           finalFocus={finalFocus}
           aria-describedby={ariaDescribedBy}
           onKeyDown={onKeyDown}
+          {...dataAttributes}
           data-slot={dataSlot}
           data-size={size}
           className={cn(
@@ -385,7 +390,7 @@ export function OverlayHeader(props: OverlayHeaderProps): React.ReactNode {
         </IconBox>
       )}
 
-      <div className={cn('min-w-0 flex-1', hasIcon && 'pt-1')}>
+      <div data-slot={`${dataSlot}-heading`} className={cn('min-w-0 flex-1', hasIcon && 'pt-1')}>
         <DialogPrimitive.Title data-slot={`${dataSlot}-title`} className={'text-base font-semibold text-foreground'}>
           {title}
         </DialogPrimitive.Title>
@@ -397,7 +402,7 @@ export function OverlayHeader(props: OverlayHeaderProps): React.ReactNode {
       </div>
 
       {end !== null && end !== undefined && (
-        <div className={cn('flex shrink-0 items-center gap-1', hasIcon ? 'mt-0.5' : '-mt-0.5')}>
+        <div data-slot={`${dataSlot}-header-end`} className={cn('flex shrink-0 items-center gap-1', hasIcon ? 'mt-0.5' : '-mt-0.5')}>
           {end}
         </div>
       )}
@@ -415,7 +420,7 @@ export const OverlayError = React.forwardRef<HTMLDivElement, { children: React.R
     className={'flex items-start gap-2 rounded-md bg-destructive-soft px-3 py-2 text-destructive-soft-foreground outline-none focus-visible:outline-2 focus-visible:outline-ring'}
   >
     <ToneGlyph tone={'destructive'} className={'mt-0.5 size-4 shrink-0'} />
-    <div className={'min-w-0 flex-1'}>{props.children}</div>
+    <div data-slot={`${props.dataSlot}-error-message`} className={'min-w-0 flex-1'}>{props.children}</div>
   </div>
 ));
 
@@ -423,7 +428,7 @@ OverlayError.displayName = 'OverlayError';
 
 
 /** Focuses `ref` each time `value` changes to something present */
-export function useFocusWhenSet(value: unknown, ref: React.RefObject<HTMLElement | null>): void {
+export function useFocusWhenSet(value: unknown, ref: { readonly current: HTMLElement | null }): void {
 
   /*
    * What counts as a change. Text is compared as text; anything else (an error passed as an element)
@@ -447,7 +452,7 @@ interface OverlayBodyProps {
   children?: React.ReactNode;
   error?: React.ReactNode;
   errorRef?: React.Ref<HTMLDivElement>;
-  bodyRef?: React.RefObject<HTMLDivElement | null>;
+  bodyRef?: { readonly current: HTMLDivElement | null };
 
   /** A body with no fields takes the focus itself, to scroll with the keyboard */
   focusable?: boolean;
@@ -612,7 +617,7 @@ export function OverlayBody(props: OverlayBodyProps): React.ReactNode {
         </div>
       )}
 
-      <div inert={inertValue(inert)} aria-busy={inert || undefined} className={'@container relative flex min-h-0 flex-1'}>
+      <div data-slot={`${dataSlot}-content`} inert={inertValue(inert)} aria-busy={inert || undefined} className={'@container relative flex min-h-0 flex-1'}>
         {hasSections && (
           <nav aria-label={sectionsLabel} data-slot={`${dataSlot}-index`} className={'hidden w-44 shrink-0 flex-col gap-0.5 ps-6 pt-2 @3xl:flex'}>
             {sections.map((section) => {
@@ -622,6 +627,8 @@ export function OverlayBody(props: OverlayBodyProps): React.ReactNode {
                 <button
                   key={section.id}
                   type={'button'}
+                  data-slot={`${dataSlot}-index-item`}
+                  data-errors={errors > 0 || undefined}
                   aria-current={current === section.id ? 'location' : undefined}
                   aria-label={errors > 0 && sectionErrors && typeof section.label === 'string'
                     ? `${section.label} · ${sectionErrors(errors)}`
@@ -648,8 +655,8 @@ export function OverlayBody(props: OverlayBodyProps): React.ReactNode {
           </nav>
         )}
 
-        <div className={'relative flex min-h-0 min-w-0 flex-1 flex-col'}>
-          <div className={cn(shade, 'top-0 bg-linear-to-b', shades.top ? 'opacity-100' : 'opacity-0')} />
+        <div data-slot={`${dataSlot}-scroll`} className={'relative flex min-h-0 min-w-0 flex-1 flex-col'}>
+          <div data-slot={`${dataSlot}-shade`} data-edge={'top'} data-visible={shades.top || undefined} className={cn(shade, 'top-0 bg-linear-to-b', shades.top ? 'opacity-100' : 'opacity-0')} />
 
           <div
             ref={scrollerRef}
@@ -670,7 +677,7 @@ export function OverlayBody(props: OverlayBodyProps): React.ReactNode {
             <div ref={bottomRef} aria-hidden className={'h-px'} />
           </div>
 
-          <div className={cn(shade, 'bottom-0 bg-linear-to-t', shades.bottom ? 'opacity-100' : 'opacity-0')} />
+          <div data-slot={`${dataSlot}-shade`} data-edge={'bottom'} data-visible={shades.bottom || undefined} className={cn(shade, 'bottom-0 bg-linear-to-t', shades.bottom ? 'opacity-100' : 'opacity-0')} />
         </div>
       </div>
     </React.Fragment>
@@ -713,9 +720,9 @@ export function OverlayFooter(props: OverlayFooterProps): React.ReactNode {
       className={cn('flex flex-none flex-wrap items-center justify-end gap-2 px-6 pb-4', hasBody ? 'pt-4' : 'pt-2')}
     >
       {start !== null && start !== undefined && start !== false && (
-        <div className={'me-auto flex min-w-0 items-center gap-2'}>{start}</div>
+        <div data-slot={`${dataSlot}-footer-start`} className={'me-auto flex min-w-0 items-center gap-2'}>{start}</div>
       )}
-      <div className={'ms-auto flex flex-wrap items-center justify-end gap-2'}>{children}</div>
+      <div data-slot={`${dataSlot}-footer-actions`} className={'ms-auto flex flex-wrap items-center justify-end gap-2'}>{children}</div>
     </div>
   );
 }

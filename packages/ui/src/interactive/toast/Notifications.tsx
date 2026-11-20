@@ -360,6 +360,7 @@ function JobsPanel(props: JobsPanelProps): React.ReactNode {
           <button
             type={'button'}
             data-slot={'toast-jobs-bar'}
+            data-status={urgent}
             aria-expanded={false}
             onClick={() => store.setExpanded(true)}
             className={cn(
@@ -405,7 +406,7 @@ function JobsPanel(props: JobsPanelProps): React.ReactNode {
  * Only changes of state are announced, an error once and urgently. Both stand left of an open
  * drawer and above dialogs (`z-toast`).
  *
- * Parts with a slot: `toast-confirmation`, `toast-jobs` (with `data-expanded`), `toast-jobs-bar`,
+ * Parts with a slot: `toast-confirmation`, `toast-jobs` (with `data-expanded`), `toast-jobs-bar` (with `data-status`),
  * `toast-jobs-panel`, `toast-job` (with `data-status`).
  */
 export function NotificationsProvider(props: NotificationsProviderProps): React.ReactNode {

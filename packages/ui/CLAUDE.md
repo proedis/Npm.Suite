@@ -188,7 +188,11 @@ Three things every interactive component does, on top of "Writing a new componen
   does), `Button` `block`. The `data-*` of such a prop reports the value at `base`. A prop of meaning
   (`variant`, `tone`, `mode`, the `width` of `TextInput`) or one Base UI already flips (`side`,
   `align`) is not responsive. And every component that renders a root of its own takes `BaseProps`,
-  through `splitBaseProps(props)` and its classes before `className`.
+  through `splitBaseProps(props)` and its classes before `className`. ⚠️ The overlays rendered in a
+  portal (`Dialog`, `AlertDialog`, `Drawer`, `Popover`, `Menu`, `Tooltip`, the selector's dialog) are
+  exempt, decided on 2026-11-20: `hideBelow` on a panel that floats above the page hides nothing a
+  layout placed, and a component that hides its own trigger has the trigger to say so. The rest of
+  the contract (slots, `data-*`, the ref and the native props of the trigger) applies to them.
 
 Three things taken from the `form-control` of PinTips, shaped to this package (the rest of it was
 weighed and left out: shortcut props, a `role="alert"` error, a state icon on the border):

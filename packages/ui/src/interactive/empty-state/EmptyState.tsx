@@ -82,7 +82,11 @@ type SizedEmptyStateProps =
     headingLevel?: never;
   };
 
-export type EmptyStateProps = CommonEmptyStateProps & SizedEmptyStateProps;
+/** The native props of a `<div>` reach the root; the ref is the title's, which takes the focus */
+export type EmptyStateProps = CommonEmptyStateProps & SizedEmptyStateProps & Omit<
+  React.ComponentProps<'div'>,
+  keyof CommonEmptyStateProps | 'size' | 'icon' | 'description' | 'actions' | 'headingLevel' | 'ref' | 'children'
+>;
 
 
 /* --------
@@ -175,10 +179,11 @@ export const EmptyState = React.forwardRef<HTMLElement, EmptyStateProps>((props,
     icon,
     kind,
     size = 'panel',
-    title
+    title,
+    ...others
   } = props;
 
-  const { baseClasses } = splitBaseProps(props);
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -189,6 +194,7 @@ export const EmptyState = React.forwardRef<HTMLElement, EmptyStateProps>((props,
 
     return (
       <div
+        {...rest}
         data-slot={'empty-state'}
         data-size={size}
         data-kind={kind}
@@ -208,6 +214,7 @@ export const EmptyState = React.forwardRef<HTMLElement, EmptyStateProps>((props,
 
   return (
     <div
+      {...rest}
       data-slot={'empty-state'}
       data-size={size}
       data-kind={kind}
