@@ -1,0 +1,29 @@
+@import 'tailwindcss';
+@import '@proedis/ui/theme.css';
+
+/*
+ * The code of the examples and the snippets, highlighted at build time in two themes at once: each
+ * token carries both colours and the `dark` class picks one. The frame around it is the site's.
+ */
+.shiki-code span[style] {
+  color: var(--shiki-light);
+}
+
+.dark .shiki-code span[style] {
+  color: var(--shiki-dark);
+}
+
+.shiki-code .line {
+  display: inline-block;
+  min-width: 100%;
+}
+
+@layer base {
+  html {
+    scroll-padding-top: calc(var(--spacing) * 20);
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}

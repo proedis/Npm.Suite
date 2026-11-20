@@ -8,6 +8,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 packages (plus `eslint-config-proedis`). Nothing is deployed from here: the deliverable is a set of
 libraries consumed by Proedis applications. Versioning is **independent per package**.
 
+One workspace is not a package: `apps/ui-docs`, the documentation site of `@proedis/ui`, private and
+never published. See *The documentation site* below.
+
 ## Commands
 
 The package manager is **Yarn 4** (`packageManager: yarn@4.18.0`), resolved through corepack. Run
@@ -522,6 +525,39 @@ Every publishable package declares `"main": "src/index.ts"` (or `index.ts`). Ins
 consumers compile sibling TypeScript **source** directly; there is no
 build step between packages during development. The compiled entry points only exist in the
 generated `build/package.json`.
+
+### The documentation site, `apps/ui-docs`
+
+`@proedis/ui-docs` documents `@proedis/ui` with a page per component, built with the package itself.
+Vite, TanStack Router (file routes, `src/routeTree.gen.ts` generated and committed), Tailwind 4,
+Lucide. `yarn workspace @proedis/ui-docs dev` serves it on port 3200. It is `private`, so `lerna
+version` skips it and `release:verify` never sees it; `release:build` does build it, after `ui`.
+
+**It reads the package's source, not a build.** `@proedis/ui` and every `@proedis/ui/<subpath>` are
+aliased onto `packages/ui/src` in both `vite.config.ts` and `tsconfig.json` (the source manifest
+declares no subpath), and React is deduplicated, so the site always documents the branch it is on.
+
+Three Vite plugins under `plugins/` carry the site, and each exists so a page cannot drift from the
+package:
+
+- **`?example`**: `import x from '@/examples/<section>/<component>/<name>.tsx?example'` gives the
+  component and its own source, highlighted by Shiki at build time in two themes at once. The code
+  under a preview is the file that drew it.
+- **Tagged snippets**: `` tsx`…` ``, `` css`…` ``, `` bash`…` `` from `@/docs/snippet` are replaced by their
+  highlighted result while building. No highlighter reaches the browser.
+- **`virtual:ui-props/<Type>`**: the props of an exported type of the package, read by the
+  TypeScript compiler from its source: type as written, literal values, default (from `@default` or
+  the ``Defaults to `x` `` sentence of the JSDoc), requiredness, JSDoc, declaring interface. Only the
+  props the package declares; what comes from a native element or Base UI is one line on the page.
+
+`src/nav.ts` is the one list of pages: sidebar, pager and overview read it, and a page not yet written
+is listed with `ready: false`, greyed and not linked. A page names itself with `pageAt(route)`.
+
+The site lays out through the primitives like any consumer should: the `suite/ui-docs-layout` block of
+the root ESLint config forbids hand-written `flex`, `grid` and `gap-*`, but only in class contexts
+(`className`, `cn()`), since most of the site is prose about grids. A claim a page makes about types
+(a negative case that must not compile) is verified with a throwaway `@ts-expect-error` file before it
+is written down, in both directions.
 
 ## Package map
 

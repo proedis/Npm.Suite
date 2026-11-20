@@ -1,0 +1,17 @@
+{
+  "extends": "@proedis/tsconfig/react",
+  "compilerOptions": {
+    "types": [ "node", "vite/client" ],
+    "allowImportingTsExtensions": true,
+    "paths": {
+      "@/*": [ "./src/*" ],
+      "@proedis/ui": [ "../../packages/ui/src/index.ts" ],
+      "@proedis/ui/*": [ "../../packages/ui/src/*" ]
+    }
+  },
+  "include": [
+    "src",
+    "plugins",
+    "vite.config.ts"
+  ]
+}

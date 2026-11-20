@@ -1,0 +1,38 @@
+{
+  "name": "@proedis/ui-docs",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The documentation and the live examples of @proedis/ui",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && tsc -p tsconfig.json",
+    "preview": "vite preview",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@base-ui/react": "1.7.0",
+    "@proedis/react": "workspace:*",
+    "@proedis/ui": "workspace:*",
+    "@tanstack/react-router": "1.170.46",
+    "@tanstack/react-table": "9.3.1",
+    "dayjs": "^1.11.12",
+    "lucide-react": "1.77.0",
+    "react": "19.2.5",
+    "react-dom": "19.2.5"
+  },
+  "devDependencies": {
+    "@proedis/tsconfig": "workspace:*",
+    "@tailwindcss/vite": "4.3.5",
+    "@tanstack/router-plugin": "1.169.0",
+    "@types/node": "26.6.6",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "6.3.0",
+    "magic-string": "1.4.5",
+    "shiki": "4.6.0",
+    "tailwindcss": "4.3.5",
+    "typescript": "5.9.3",
+    "vite": "8.3.8"
+  }
+}
