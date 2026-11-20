@@ -496,9 +496,14 @@ export function NotificationsProvider(props: NotificationsProviderProps): React.
 
       <JobsPanel notifications={notifications} state={state} labels={labels} />
 
+      {/*
+        * The regions stay, their content is replaced on every message: keyed on the count the store
+        * keeps, a message equal to the previous one is a new node and is announced again. As plain
+        * text it was the same DOM, and a second identical error said nothing.
+        */}
       <VisuallyHidden>
-        <span role={'status'}>{state.polite.text}</span>
-        <span role={'alert'}>{state.assertive.text}</span>
+        <span role={'status'}><span key={state.polite.key}>{state.polite.text}</span></span>
+        <span role={'alert'}><span key={state.assertive.key}>{state.assertive.text}</span></span>
       </VisuallyHidden>
     </NotificationsContext.Provider>
   );
