@@ -273,7 +273,7 @@ const [ term, setTerm ] = React.useState('');
 const search = useSearchQuery({
   term,
   queryKey: (term, limit) => [ 'contracts', 'search', term, limit ],
-  queryFn : ({ term, limit, signal }) => client.get('/contracts', { query: { term, limit }, signal })
+  queryFn : ({ term, limit, signal }) => client.request<Contract[]>({ url: 'contracts', params: { term, limit } }, signal)
 });
 
 // search.items, search.hasMore, search.status, search.settledTerm, search.isPending, search.retry(), search.flush()

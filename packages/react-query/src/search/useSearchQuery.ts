@@ -115,7 +115,10 @@ function retryOnce(failureCount: number, error: unknown): boolean {
  * const search = useSearchQuery({
  *   term,
  *   queryKey: (term, limit) => [ 'estate-contracts', 'search', term, limit ],
- *   queryFn : ({ term, limit, signal }) => client.get('/estate-contracts', { query: { term, limit }, signal })
+ *   queryFn : ({ term, limit, signal }) => client.request<EstateContract[]>(
+ *     { url: 'estate-contracts', params: { term, limit } },
+ *     signal
+ *   )
  * });
  * ```
  *
