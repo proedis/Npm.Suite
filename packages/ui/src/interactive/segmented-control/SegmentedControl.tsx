@@ -84,12 +84,25 @@ interface IndicatorBox {
   height: number;
 }
 
+/** What the rail reads off its own items after every change of them */
+interface RailLayout {
+  /** The box of the chosen item, null when the value matches no item */
+  indicator: IndicatorBox | null;
+
+  /** The value of the item that takes the focus from outside */
+  tabStop: string | null;
+}
+
 interface SegmentedContextValue {
   size: SegmentedControlSize;
   disabled: boolean;
   disabledReason?: React.ReactNode;
 
-  /** The chosen value, and whether the focus is inside: from outside, only the chosen item is a Tab stop */
+  /**
+   * The item that is a Tab stop while the focus is outside: the chosen one, or, when the value matches
+   * no item, the first enabled one. Null until the rail has been read, then the chosen value is used
+   */
+  tabStop: string | null;
   value: string | undefined;
   focusInside: boolean;
 }
@@ -132,12 +145,38 @@ const INDICATOR = [
   'transition-all duration-200 ease-out motion-reduce:transition-none forced-colors:hidden'
 ].join(' ');
 
+const ITEM_SELECTOR = '[data-slot=segmented-control-item]';
+
 const [ SegmentedContext, useSegmentedContext ] = optionalContextBuilder<SegmentedContextValue | null>('Segmented', null);
 
 
 /* --------
  * Helpers
  * -------- */
+
+function sameLayout(a: RailLayout, b: RailLayout): boolean {
+  const boxA = a.indicator;
+  const boxB = b.indicator;
+
+  return a.tabStop === b.tabStop && (boxA === boxB || (
+    boxA !== null && boxB !== null
+    && boxA.left === boxB.left && boxA.top === boxB.top && boxA.width === boxB.width && boxA.height === boxB.height
+  ));
+}
+
+/** The chosen item's box and the Tab stop, read from the items the rail holds right now */
+function readRail(rail: HTMLElement): RailLayout {
+  const items = Array.from(rail.querySelectorAll<HTMLElement>(ITEM_SELECTOR));
+  const chosen = items.find((item) => item.hasAttribute('data-pressed'));
+  const target = chosen ?? items.find((item) => !item.hasAttribute('data-disabled')) ?? items[0];
+
+  return {
+    indicator: chosen
+      ? { left: chosen.offsetLeft, top: chosen.offsetTop, width: chosen.offsetWidth, height: chosen.offsetHeight }
+      : null,
+    tabStop: target?.dataset.value ?? null
+  };
+}
 
 function SegmentedControlItem(props: SegmentedControlItemProps, ref: React.ForwardedRef<HTMLButtonElement>): React.ReactNode {
 
@@ -170,8 +209,13 @@ function SegmentedControlItem(props: SegmentedControlItemProps, ref: React.Forwa
   const reason = context?.disabled ? context.disabledReason ?? disabledReason : disabled ? disabledReason : undefined;
   const iconOnly = children === null || children === undefined || children === false || children === '';
 
-  /* Coming in with Tab, the focus lands on the chosen item, wherever the arrows left it */
-  const tabStop = context && !context.focusInside ? { tabIndex: context.value === value ? 0 : -1 } : {};
+  /*
+   * Coming in with Tab, the focus lands on the chosen item, wherever the arrows left it. A value that
+   * matches no item (the items arrive later, or the value is stale) would leave no Tab stop at all and
+   * the control out of reach from the keyboard: the rail names the first enabled item instead
+   */
+  const tabTarget = context ? context.tabStop ?? context.value : undefined;
+  const tabStop = context && !context.focusInside ? { tabIndex: tabTarget === value ? 0 : -1 } : {};
 
 
   // ----
@@ -196,6 +240,7 @@ function SegmentedControlItem(props: SegmentedControlItemProps, ref: React.Forwa
       onPressedChange={handlePressedChange}
       aria-label={ariaLabel}
       aria-disabled={isDisabled || undefined}
+      data-value={value}
       data-disabled={isDisabled || undefined}
       data-icon-only={iconOnly || undefined}
       data-slot={'segmented-control-item'}
@@ -259,7 +304,7 @@ function SegmentedControlItem(props: SegmentedControlItemProps, ref: React.Forwa
  *
  * Parts with a slot: `segmented-control` (with `data-size`, `data-disabled`), `segmented-control-indicator`
  * (the fill that slides under the chosen item), `segmented-control-item`
- * (with `data-pressed`, `data-disabled`, `data-icon-only`), `segmented-control-content`,
+ * (with `data-value`, `data-pressed`, `data-disabled`, `data-icon-only`), `segmented-control-content`,
  * `segmented-control-leading`.
  */
 const SegmentedControlRoot = React.forwardRef<HTMLDivElement, SegmentedControlProps>((props, ref) => {
@@ -287,7 +332,7 @@ const SegmentedControlRoot = React.forwardRef<HTMLDivElement, SegmentedControlPr
   // ----
   const [ ownValue, setOwnValue ] = React.useState(defaultValue);
   const [ focusInside, setFocusInside ] = React.useState(false);
-  const [ indicator, setIndicator ] = React.useState<IndicatorBox | null>(null);
+  const [ layout, setLayout ] = React.useState<RailLayout>({ indicator: null, tabStop: null });
 
   const railRef = React.useRef<HTMLDivElement>(null);
   const handleRef = useForkRef(railRef, ref);
@@ -298,7 +343,13 @@ const SegmentedControlRoot = React.forwardRef<HTMLDivElement, SegmentedControlPr
   // ----
   // Lifecycle Events
   // ----
-  /* Where the chosen item is, measured again when the choice changes and when anything resizes */
+  /*
+   * The rail is read again whenever its items change, not when the props say so: a reordered or a
+   * removed item moves the chosen one without changing the choice, an item arriving after the value
+   * is the chosen one without the value changing, and Base UI sets `data-pressed` after the render.
+   * The mutations say all of it; the sizes (a label, a font loading, the rail) are said by the
+   * ResizeObserver, attached again to the items present after each mutation.
+   */
   useEnhancedEffect(() => {
     const rail = railRef.current;
 
@@ -307,34 +358,47 @@ const SegmentedControlRoot = React.forwardRef<HTMLDivElement, SegmentedControlPr
     }
 
     const measure = (): void => {
-      const item = rail.querySelector<HTMLElement>('[data-slot=segmented-control-item][data-pressed]');
+      const next = readRail(rail);
 
-      setIndicator(item
-        ? { left: item.offsetLeft, top: item.offsetTop, width: item.offsetWidth, height: item.offsetHeight }
-        : null);
+      setLayout((previous) => (sameLayout(previous, next) ? previous : next));
     };
 
+    const resize = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measure);
+
+    const observeItems = (): void => {
+      if (!resize) {
+        return;
+      }
+
+      resize.disconnect();
+      resize.observe(rail);
+      rail.querySelectorAll(ITEM_SELECTOR).forEach((item) => resize.observe(item));
+    };
+
+    const mutations = typeof MutationObserver === 'undefined'
+      ? null
+      : new MutationObserver(() => {
+        observeItems();
+        measure();
+      });
+
+    mutations?.observe(rail, { childList: true, subtree: true, attributes: true, attributeFilter: [ 'data-pressed', 'data-disabled' ] });
+    observeItems();
     measure();
 
-    if (typeof ResizeObserver === 'undefined') {
-      return undefined;
-    }
-
-    const observer = new ResizeObserver(measure);
-
-    observer.observe(rail);
-    rail.querySelectorAll('[data-slot=segmented-control-item]').forEach((item) => observer.observe(item));
-
-    return () => observer.disconnect();
-  }, [ chosen, size ]);
+    return () => {
+      mutations?.disconnect();
+      resize?.disconnect();
+    };
+  }, [ size ]);
 
 
   // ----
   // Memoized Data
   // ----
   const context = React.useMemo<SegmentedContextValue>(
-    () => ({ size, disabled, disabledReason, value: chosen, focusInside }),
-    [ size, disabled, disabledReason, chosen, focusInside ]
+    () => ({ size, disabled, disabledReason, tabStop: layout.tabStop, value: chosen, focusInside }),
+    [ size, disabled, disabledReason, layout.tabStop, chosen, focusInside ]
   );
 
 
@@ -401,17 +465,17 @@ const SegmentedControlRoot = React.forwardRef<HTMLDivElement, SegmentedControlPr
         )}
       >
         {/* First, so every item paints over it; absolute, so it takes no cell of the grid */}
-        {indicator && (
+        {layout.indicator && (
           <span
             aria-hidden
             data-slot={'segmented-control-indicator'}
             data-disabled={disabled || undefined}
             className={INDICATOR}
             style={{
-              '--indicator-left'  : `${indicator.left}px`,
-              '--indicator-top'   : `${indicator.top}px`,
-              '--indicator-width' : `${indicator.width}px`,
-              '--indicator-height': `${indicator.height}px`
+              '--indicator-left'  : `${layout.indicator.left}px`,
+              '--indicator-top'   : `${layout.indicator.top}px`,
+              '--indicator-width' : `${layout.indicator.width}px`,
+              '--indicator-height': `${layout.indicator.height}px`
             } as React.CSSProperties}
           />
         )}
