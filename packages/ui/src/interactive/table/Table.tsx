@@ -316,6 +316,13 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
   const gridRef = React.useRef<HTMLTableElement>(null);
   const scrollerRef = React.useRef<HTMLDivElement>(null);
   const filterKeyRef = React.useRef(filterKey);
+
+  /** The page and the selection of the last commit: what a change of filters has to report as reset */
+  const committedRef = React.useRef<{ pageIndex: number; selection: TableSelection; rowCount: number }>({
+    pageIndex: 0,
+    selection: EMPTY_SELECTION,
+    rowCount : 0
+  });
   const focusedRowRef = React.useRef<string | undefined>(undefined);
 
   const [ menuHandle ] = React.useState(() => createSharedMenuHandle<MenuPayload>());
@@ -529,26 +536,39 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
   // Lifecycle Events
   // ----
 
-  /* The page hears of what the table adjusted on its own */
+  /**
+   * The page hears of what the table adjusted on its own.
+   *
+   * What was reset is read from the **previous commit**, not from this one: uncontrolled, the reset
+   * already happened while rendering, so this commit's page is 0 and its selection empty, and a check
+   * against them would never report anything. The previous values are written by the effect below,
+   * which runs after this one.
+   */
   React.useEffect(
     () => {
       if (filterKeyRef.current === filterKey) {
         return;
       }
 
+      const before = committedRef.current;
+
       filterKeyRef.current = filterKey;
       anchorRowRef.current = null;
 
-      if (asked.pageIndex !== 0) {
+      if (before.pageIndex !== 0) {
         onStateChange?.({ ...asked, pageIndex: 0 }, 'filters');
       }
 
-      if (selectionCount(keptSelection, rowCount) > 0) {
+      if (selectionCount(before.selection, before.rowCount) > 0) {
         onSelectionChange?.(EMPTY_SELECTION);
       }
     },
-    [ asked, filterKey, keptSelection, onSelectionChange, onStateChange, rowCount ]
+    [ asked, filterKey, onSelectionChange, onStateChange ]
   );
+
+  React.useEffect(() => {
+    committedRef.current = { pageIndex: asked.pageIndex, selection: keptSelection, rowCount };
+  });
 
   React.useEffect(
     () => {
