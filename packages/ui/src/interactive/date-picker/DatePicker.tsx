@@ -6,6 +6,8 @@ import { Input } from '@base-ui/react/input';
 import { Popover as PopoverPrimitive } from '@base-ui/react/popover';
 import dayjs from 'dayjs';
 
+import { useForkRef } from '@proedis/react';
+
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
@@ -28,7 +30,7 @@ import type { DatePart, DateReading } from '../calendar/dateText';
  * Types Definition
  * -------- */
 
-export type { CalendarRange as DateRange, DayMeta };
+export type { CalendarLabels, CalendarRange as DateRange, DayMeta };
 
 export interface DatePickerLabels extends CalendarLabels {
   /** The order to type in, shown in the empty field: "dd/mm/yyyy". A period shows it twice */
@@ -88,9 +90,9 @@ interface CommonDatePickerProps extends BaseProps {
   labels: DatePickerLabels;
 
   name?: string;
-  id?: string;
+
+  /** Classes for the wrapper of the field, last so they win */
   className?: string;
-  'aria-label'?: string;
 }
 
 export interface DateModeProps extends CommonDatePickerProps {
@@ -113,7 +115,15 @@ export interface RangeModeProps extends CommonDatePickerProps {
   allowOpenRange?: boolean;
 }
 
-export type DatePickerProps = DateModeProps | RangeModeProps;
+/**
+ * The wrapper takes `className` and the shared props; everything else an `<input>` accepts reaches the
+ * text, the element that takes the focus: `id`, `aria-*`, `onBlur` for a form library. The component's
+ * own handlers run after the caller's.
+ */
+export type DatePickerProps = (DateModeProps | RangeModeProps) & Omit<
+  React.ComponentProps<'input'>,
+  keyof CommonDatePickerProps | 'value' | 'defaultValue' | 'onChange' | 'size' | 'type' | 'ref' | 'children'
+>;
 
 
 /* --------
@@ -185,19 +195,22 @@ function CalendarGlyph(): React.ReactNode {
  *
  * Slots: `date-picker`, `date-picker-field`, `date-picker-input`,
  * `date-picker-calendar-button`, `date-picker-clear`, `date-picker-panel`, `date-picker-footer`, and
- * the `calendar-*` slots of the grid.
+ * the `calendar-*` slots of the grid (`calendar-previous`, `calendar-next`, `calendar-weekdays`,
+ * `calendar-weekday`, `calendar-week`, `calendar-cell`, `calendar-day`, `calendar-month`,
+ * `calendar-year`). The footer holds `date-picker-footer-text`, `date-picker-today` and
+ * `date-picker-footer-clear`.
  */
-export function DatePicker(props: DatePickerProps): React.ReactNode {
+export const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>((props, forwardedRef) => {
 
   // ----
   // Props Deconstruct
   // ----
   const {
-    'aria-label': ariaLabel,
+    allowOpenRange: _allowOpenRange,
     className,
     dayMeta,
+    defaultValue: _defaultValue,
     disabled = false,
-    id,
     invalid = false,
     isDateUnavailable,
     labels,
@@ -208,11 +221,14 @@ export function DatePicker(props: DatePickerProps): React.ReactNode {
     onValidityChange,
     readOnly = false,
     required = false,
+    mode: _mode,
+    onValueChange: _onValueChange,
     size = 'md',
+    value: _value,
     ...others
-  } = props;
+  } = props as DatePickerProps & Partial<RangeModeProps>;
 
-  const { baseClasses } = splitBaseProps(others as BaseProps);
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -224,6 +240,7 @@ export function DatePicker(props: DatePickerProps): React.ReactNode {
   useNonNativeFieldLabel();
 
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const handleInputRef = useForkRef(inputRef, forwardedRef);
   const anchorRef = React.useRef<HTMLDivElement>(null);
   const popupRef = React.useRef<HTMLDivElement>(null);
 
@@ -560,28 +577,30 @@ export function DatePicker(props: DatePickerProps): React.ReactNode {
           className={cn(TEXT_CONTROL_FRAME, TEXT_CONTROL_SIZES[size], 'group/list-field flex items-center')}
         >
           <Input
-            ref={inputRef}
-            id={id}
+            {...rest}
+            ref={handleInputRef}
             name={isRange ? undefined : name}
             value={text}
             readOnly={readOnly}
             disabled={isDisabled}
             inputMode={'numeric'}
             placeholder={isRange ? `${labels.format}${RANGE_SEPARATOR}${labels.format}` : labels.format}
-            aria-label={ariaLabel}
             aria-required={isRequired || undefined}
             aria-invalid={isInvalid || undefined}
             data-slot={'date-picker-input'}
             data-field-control={''}
             className={cn('h-full shrink-0 bg-transparent outline-none', INPUT_WIDTH[isRange ? 'range' : 'date'], TEXT_CONTROL_TEXT, 'placeholder:text-muted-foreground')}
             onChange={handleChange}
-            onClick={() => {
+            onClick={(event: React.MouseEvent<HTMLInputElement>) => {
+              rest.onClick?.(event);
+
               if (!open && !readOnly && !isDisabled) {
                 setFocusGrid(false);
                 handleOpenChange(true);
               }
             }}
             onBlur={(event: React.FocusEvent<HTMLInputElement>) => {
+              rest.onBlur?.(event);
               handleBlur();
 
               /* Leaving for the next field closes the calendar; going into it or to its button does not */
@@ -591,8 +610,14 @@ export function DatePicker(props: DatePickerProps): React.ReactNode {
                 handleOpenChange(false);
               }
             }}
-            onPaste={handlePaste}
-            onKeyDown={handleKeyDown}
+            onPaste={(event: React.ClipboardEvent<HTMLInputElement>) => {
+              rest.onPaste?.(event);
+              handlePaste(event);
+            }}
+            onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
+              rest.onKeyDown?.(event);
+              handleKeyDown(event);
+            }}
           />
 
           {!readOnly && (
@@ -665,15 +690,16 @@ export function DatePicker(props: DatePickerProps): React.ReactNode {
             />
 
             <div data-slot={'date-picker-footer'} className={'mt-1 flex flex-col gap-1 border-t border-border pt-1'}>
-              {footerText && <span className={'px-1 text-xs text-muted-foreground'}>{footerText}</span>}
+              {footerText && <span data-slot={'date-picker-footer-text'} className={'px-1 text-xs text-muted-foreground'}>{footerText}</span>}
               <div className={'flex items-center justify-between'}>
                 {!isRange && (
-                  <Button size={'sm'} fill={'plain'} tone={'primary'} disabled={isDateUnavailable?.(today) || outOfLimits(today)} onClick={() => handleSelect(today)}>
+                  <Button data-slot={'date-picker-today'} size={'sm'} fill={'plain'} tone={'primary'} disabled={isDateUnavailable?.(today) || outOfLimits(today)} onClick={() => handleSelect(today)}>
                     {labels.today}
                   </Button>
                 )}
                 {canClear && (
                   <Button
+                    data-slot={'date-picker-footer-clear'}
                     size={'sm'}
                     fill={'plain'}
                     tone={'primary'}
@@ -694,6 +720,6 @@ export function DatePicker(props: DatePickerProps): React.ReactNode {
     </PopoverPrimitive.Root>
   );
 
-}
+});
 
 DatePicker.displayName = 'DatePicker';

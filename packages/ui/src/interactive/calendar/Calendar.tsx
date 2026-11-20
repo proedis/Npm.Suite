@@ -137,6 +137,7 @@ function CalendarHeader(props: CalendarHeaderProps): React.ReactNode {
   return (
     <div data-slot={'calendar-header'} className={'flex items-center justify-between gap-1 pb-1'}>
       <IconButton
+        data-slot={'calendar-previous'}
         label={props.previousLabel}
         icon={<ArrowGlyph direction={'left'} />}
         size={'sm'}
@@ -157,6 +158,7 @@ function CalendarHeader(props: CalendarHeaderProps): React.ReactNode {
         {props.title}
       </Button>
       <IconButton
+        data-slot={'calendar-next'}
         label={props.nextLabel}
         icon={<ArrowGlyph direction={'right'} />}
         size={'sm'}
@@ -361,11 +363,12 @@ export function Calendar(props: CalendarProps): React.ReactNode {
           />
 
           <div ref={gridRef} role={'grid'} aria-label={capitalize(monthYear.format(month.toDate()))} data-slot={'calendar-grid'} onKeyDown={handleGridKeyDown}>
-            <div role={'row'} className={'grid grid-cols-7'}>
+            <div role={'row'} data-slot={'calendar-weekdays'} className={'grid grid-cols-7'}>
               {weekdays.map((day) => (
                 <span
                   key={day.day()}
                   role={'columnheader'}
+                  data-slot={'calendar-weekday'}
                   aria-label={longWeekday.format(day.toDate())}
                   className={'flex h-8 items-center justify-center text-xs font-semibold text-muted-foreground'}
                 >
@@ -375,7 +378,7 @@ export function Calendar(props: CalendarProps): React.ReactNode {
             </div>
 
             {rows.map((row) => (
-              <div key={row[0].format(ISO)} role={'row'} className={'grid grid-cols-7'}>
+              <div key={row[0].format(ISO)} role={'row'} data-slot={'calendar-week'} className={'grid grid-cols-7'}>
                 {row.map((day, column) => {
                   const iso = day.format(ISO);
                   const meta = dayMeta?.(iso);
@@ -416,7 +419,7 @@ export function Calendar(props: CalendarProps): React.ReactNode {
                   );
 
                   return (
-                    <div key={iso} role={'gridcell'} aria-selected={isSelected || undefined} className={'p-px'}>
+                    <div key={iso} role={'gridcell'} data-slot={'calendar-cell'} aria-selected={isSelected || undefined} className={'p-px'}>
                       {cell}
                     </div>
                   );
@@ -443,6 +446,7 @@ export function Calendar(props: CalendarProps): React.ReactNode {
               <button
                 key={item.month()}
                 type={'button'}
+                data-slot={'calendar-month'}
                 data-selected={item.isSame(month, 'month') || undefined}
                 className={PICK_BUTTON}
                 onClick={() => {
@@ -473,6 +477,7 @@ export function Calendar(props: CalendarProps): React.ReactNode {
               <button
                 key={year}
                 type={'button'}
+                data-slot={'calendar-year'}
                 data-selected={year === month.year() || undefined}
                 className={PICK_BUTTON}
                 onClick={() => {
