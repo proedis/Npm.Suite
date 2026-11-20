@@ -428,11 +428,21 @@ OverlayError.displayName = 'OverlayError';
 
 /** Focuses `ref` each time `value` changes to something present */
 export function useFocusWhenSet(value: unknown, ref: React.RefObject<HTMLElement | null>): void {
+
+  /*
+   * What counts as a change. Text is compared as text; anything else (an error passed as an element)
+   * counts only when it arrives, because an element written inline is a new object at every render
+   * of the page, and comparing it by identity pulled the focus back to it while the user typed.
+   */
+  const key = value === null || value === undefined || value === false || value === ''
+    ? null
+    : (typeof value === 'string' || typeof value === 'number' ? value : true);
+
   React.useEffect(() => {
-    if (value !== null && value !== undefined && value !== false) {
+    if (key !== null) {
       ref.current?.focus();
     }
-  }, [ value, ref ]);
+  }, [ key, ref ]);
 }
 
 
