@@ -724,6 +724,12 @@ Re-run the whole list before touching anything the invariants call load-bearing.
 What was actually run when the package was written:
 
 - `npx tsc -p tsconfig.json` and `npx eslint packages/ui` — clean.
+- **The Tailwind floor, measured** when the peer was settled at `^4.1.5`: the built `theme.css`
+  compiled from an entry CSS with 4.0.0, 4.0.17, 4.1.0, 4.1.4, 4.1.5 and 4.3.5, then every candidate
+  the scanner finds in the built JavaScript passed to each version's compiler, plus the classes of
+  `@source inline`. 4.0.x fails to compile (`@source inline` is 4.1); 4.1.0 and 4.1.4 generate 918 of
+  919 classes, the missing one being `h-lh`; 4.1.5 and 4.3.5 generate the same 919. Re-run it before
+  using a utility newer than the floor: the build does not notice, a consumer on the floor would.
 - **The stylesheet compiled by real Tailwind** (4.3.0, through `compile()` with the package imported
   from an app entry CSS), asserting: `@source "."` registered with the package's own base; the whole
   declared scale emitted from the safelist with **zero** candidates, and everything outside it absent

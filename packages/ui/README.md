@@ -1059,7 +1059,7 @@ another package. A recessed surface is `--muted`.
 | | |
 | --- | --- |
 | React | `>=19.0.0 <20.0.0`. The components are compiled by the React Compiler before publishing, against the `react/compiler-runtime` React 19 ships: nothing to configure, nothing else to install |
-| Tailwind | `^4.1.5` — the stylesheet uses `@source`, `@source inline`, `@theme inline`, `@utility` and `@custom-variant`, and the error mark is one line tall with `h-lh` |
+| Tailwind | `^4.1.5` — the stylesheet uses `@source`, `@source inline`, `@theme inline`, `@utility` and `@custom-variant`, and the error mark is one line tall with `h-lh`. Measured: 4.0 does not compile the stylesheet, 4.1.0 to 4.1.4 compile it without `h-lh`, 4.1.5 generates the same classes as the latest 4.x |
 | TypeScript | `>=5.2.0`, the suite floor — the emitted declarations are compiled against it |
 | Runtime | ES2022. The package root is server-renderable; `/hooks` and `/interactive/*` are client-only |
 | Base UI | `^1.7.0`, optional, for `/interactive/*` only |

@@ -481,8 +481,14 @@ off, from outside the workspace; re-run it after touching any public React signa
 Published peer ranges are deliberately wider than the versions pinned here: `react`
 `>=18.0.0 <20.0.0`, `reflect-metadata` `^0.1.13 || ^0.2.0`, `class-transformer` `^0.5.1`,
 `@tanstack/react-query` `^5.0.0`, `rxjs` `^7.0.0`, `dayjs` `>=1.11.0`, `zod` `^4.0.0`,
-`tailwindcss` `^4.0.0`, `eslint` `>=9.0.0 <10.0.0`, `@react-native-async-storage/async-storage`
+`tailwindcss` `^4.1.5`, `eslint` `>=9.0.0 <10.0.0`, `@react-native-async-storage/async-storage`
 `>=1.18.0 <4.0.0`, `typescript` `>=5.2.0`.
+
+`tailwindcss` is the one range set by measurement rather than widened: only `@proedis/ui` declares it,
+and its stylesheet was compiled with each candidate floor. 4.0 does not compile it (`@source inline`
+arrived in 4.1); 4.1.0 to 4.1.4 compile it but miss `h-lh`, the box that centres the error mark on
+the first line of its message; from 4.1.5 the classes generated are the same set as the latest 4.x.
+`1.0.0` and `1.0.1` of the package were published with `^4.0.0`, a range that never worked.
 
 ⚠️ `@proedis/ui` is the exception on React: it declares `>=19.0.0 <20.0.0`. It is compiled by the React
 Compiler against `react/compiler-runtime`, and on 19 `ref` is a prop, which its polymorphic primitives
