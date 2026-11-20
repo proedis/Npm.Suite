@@ -501,9 +501,19 @@ DrawerRoot.displayName = 'Drawer';
 
 /** Cancel in a form: back to the detail when there is one, through the discard prompt when changed */
 const DrawerCancel = React.forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
+  const { onClick, ...others } = props;
   const { requestCancel } = React.useContext(DrawerGateContext);
 
-  return <Button fill={'solid'} tone={'secondary'} {...props} ref={ref} onClick={requestCancel} />;
+  /** The caller's click runs first; a `preventDefault` in it keeps the drawer open */
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>): void => {
+    onClick?.(event as Parameters<NonNullable<typeof onClick>>[0]);
+
+    if (!event.defaultPrevented) {
+      requestCancel();
+    }
+  };
+
+  return <Button fill={'solid'} tone={'secondary'} {...others} ref={ref} onClick={handleClick} />;
 });
 
 DrawerCancel.displayName = 'Drawer.Cancel';

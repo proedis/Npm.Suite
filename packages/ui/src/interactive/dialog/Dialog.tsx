@@ -396,9 +396,19 @@ DialogRoot.displayName = 'Dialog';
 
 /** The exit next to the primary: the same gate as the x, so `dirty` asks first */
 const DialogCancel = React.forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
+  const { onClick, ...others } = props;
   const { requestClose } = React.useContext(DialogCloseContext);
 
-  return <Button fill={'solid'} tone={'secondary'} {...props} ref={ref} onClick={requestClose} />;
+  /** The caller's click runs first; a `preventDefault` in it keeps the dialog open */
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>): void => {
+    onClick?.(event as Parameters<NonNullable<typeof onClick>>[0]);
+
+    if (!event.defaultPrevented) {
+      requestClose();
+    }
+  };
+
+  return <Button fill={'solid'} tone={'secondary'} {...others} ref={ref} onClick={handleClick} />;
 });
 
 DialogCancel.displayName = 'Dialog.Cancel';
