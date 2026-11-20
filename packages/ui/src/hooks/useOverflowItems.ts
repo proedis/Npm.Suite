@@ -11,8 +11,11 @@ export interface OverflowItemsOptions {
   /** How many items: before the first measure they are all shown */
   count: number;
 
-  /** The space between two items, in pixels */
-  gap: number;
+  /**
+   * The space between two items, in pixels. Leave it out to read it from the copy (its `column-gap`),
+   * which is what keeps the fit right when a product rescales `--spacing` or restyles the row
+   */
+  gap?: number;
 
   /**
    * The room the "More" control takes once something overflows, its gap and divider included. Leave it
@@ -39,6 +42,7 @@ interface Measures {
   available: number;
   widths: readonly number[];
   reserve: number;
+  gap: number;
 }
 
 
@@ -101,7 +105,7 @@ export function fitItems(
  * one child per item, so measuring never moves what the user sees.
  *
  * ```tsx
- * const { visible, overflow } = useOverflowItems(rowRef, copyRef, { count: tabs.length, gap: 4, reserve: 88, pinned: active });
+ * const { visible, overflow } = useOverflowItems(rowRef, copyRef, { count: tabs.length, pinned: active });
  * ```
  *
  * It measures again when the row or the copy changes size, so a count that arrives late is taken in.
@@ -146,15 +150,17 @@ export function useOverflowItems(
       const reserveElement = children.find((child) => child.hasAttribute('data-overflow-reserve'));
       const widths = children.filter((child) => child !== reserveElement).map((child) => child.getBoundingClientRect().width);
       const measuredReserve = reserveElement ? reserveElement.getBoundingClientRect().width : 0;
+      const measuredGap = Number.parseFloat(getComputedStyle(copy).columnGap) || 0;
 
       setMeasures((previous) => (
         previous
         && previous.available === available
         && previous.reserve === measuredReserve
+        && previous.gap === measuredGap
         && previous.widths.length === widths.length
         && previous.widths.every((width, index) => width === widths[index])
           ? previous
-          : { available, widths, reserve: measuredReserve }
+          : { available, widths, reserve: measuredReserve, gap: measuredGap }
       ));
     };
 
@@ -175,6 +181,10 @@ export function useOverflowItems(
     return { visible: Array.from({ length: count }, (_, index) => index), overflow: [] };
   }
 
-  return fitItems(measures.widths, measures.available, { gap, pinned, reserve: reserve ?? measures.reserve });
+  return fitItems(measures.widths, measures.available, {
+    gap    : gap ?? measures.gap,
+    pinned,
+    reserve: reserve ?? measures.reserve
+  });
 
 }

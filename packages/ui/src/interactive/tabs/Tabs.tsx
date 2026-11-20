@@ -98,9 +98,6 @@ const RAIL: Readonly<Record<TabsSize, string>> = {
   sm: 'gap-1 rounded-md p-1'
 };
 
-/** The padding of the rail, which the tabs cannot use */
-const RAIL_INSET: Readonly<Record<TabsSize, number>> = { md: 8, sm: 8 };
-
 const TAB_BASE = [
   'group/tab relative inline-flex shrink-0 cursor-pointer items-center justify-center',
   'border border-transparent font-medium whitespace-nowrap select-none outline-none',
@@ -158,6 +155,19 @@ const TabsContext = React.createContext<TabsContextValue>({ value: undefined, it
  * Helpers
  * -------- */
 
+/** The padding of the rail, which the tabs cannot use, as the page lays it out */
+function railInset(row: HTMLElement): number {
+  const rail = row.querySelector<HTMLElement>('[data-slot=tabs-rail]');
+
+  if (!rail) {
+    return 0;
+  }
+
+  const style = getComputedStyle(rail);
+
+  return (Number.parseFloat(style.paddingLeft) || 0) + (Number.parseFloat(style.paddingRight) || 0);
+}
+
 function countText(count: number): string {
   return count > 999 ? '999+' : String(count);
 }
@@ -212,8 +222,10 @@ function TabContent(props: { item: TabItem; size: TabsSize }): React.ReactNode {
  * The tabs are data rather than children: the overflow measures them, reorders them and draws them
  * again as menu items, which children wrapped in fragments or components would not allow.
  *
- * Parts with a slot: `tabs`, `tabs-rail` (with `data-size`), `tabs-list`, `tabs-indicator`, `tabs-tab`,
- * `tabs-tab-content`, `tabs-tab-leading`, `tabs-tab-count`, `tabs-more`, `tabs-panel`.
+ * Parts with a slot: `tabs` (the root, where `className` lands), `tabs-row`, `tabs-rail` (with
+ * `data-size`), `tabs-list`, `tabs-indicator`, `tabs-tab`, `tabs-tab-content`, `tabs-tab-leading`,
+ * `tabs-tab-count`, `tabs-more`, `tabs-panel`, and `tabs-measure`, the hidden copy whose tabs carry
+ * `tabs-tab` too.
  */
 function TabsRoot(props: TabsProps): React.ReactNode {
 
@@ -252,11 +264,15 @@ function TabsRoot(props: TabsProps): React.ReactNode {
   const value = valueProp ?? ownValue;
   const activeIndex = items.findIndex((item) => item.value === value);
 
+  /*
+   * Gap and padding are read from the page, never written here in pixels: they are `gap-1` and `p-1`,
+   * steps of `--spacing`, and a product that rescales it or restyles the rail would otherwise get the
+   * fit computed on the default widths.
+   */
   const { overflow, visible } = useOverflowItems(rowRef, copyRef, {
     count    : items.length,
-    gap      : 4,
     pinned   : activeIndex >= 0 ? activeIndex : undefined,
-    available: (container) => container.clientWidth - RAIL_INSET[size]
+    available: (container) => container.clientWidth - railInset(container)
   });
 
 
@@ -341,9 +357,10 @@ function TabsRoot(props: TabsProps): React.ReactNode {
             select(next);
           }
         }}
+        data-slot={'tabs'}
         className={cn('flex min-w-0 flex-col gap-3', baseClasses, className)}
       >
-        <div ref={rowRef} data-slot={'tabs'} className={'relative flex w-full min-w-0'}>
+        <div ref={rowRef} data-slot={'tabs-row'} className={'relative flex w-full min-w-0'}>
           <div data-slot={'tabs-rail'} data-size={size} className={cn('inline-flex max-w-full items-center bg-card shadow-sm', RAIL[size])}>
             <TabsPrimitive.List
               activateOnFocus={false}
@@ -388,15 +405,19 @@ function TabsRoot(props: TabsProps): React.ReactNode {
             )}
           </div>
 
-          {/* A hidden copy of every tab, measured to know what fits */}
+          {/*
+            * A hidden copy of every tab, measured to know what fits. Its tabs carry the slot of the real
+            * ones, so a product's rules for `[data-slot='tabs-tab']` size the copy too.
+            */}
           <div
             ref={copyRef}
+            data-slot={'tabs-measure'}
             aria-hidden
             inert={inertValue(true)}
             className={'pointer-events-none invisible absolute start-0 top-0 flex items-center gap-1'}
           >
             {items.map((item) => (
-              <span key={item.value} className={cn(TAB_BASE, TAB_SIZES[size])}>
+              <span key={item.value} data-slot={'tabs-tab'} className={cn(TAB_BASE, TAB_SIZES[size])}>
                 <TabContent item={item} size={size} />
               </span>
             ))}
