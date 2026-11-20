@@ -320,6 +320,15 @@ export function DatePicker(props: DatePickerProps): React.ReactNode {
   };
 
   /**
+   * Both ends of a period, each time. Reporting only the end that was wrong left the other one's
+   * previous error standing at the caller: fixing the start never cleared the error the start had.
+   */
+  const reportRange = (fromValidity: DateValidity, toValidity: DateValidity): void => {
+    onValidityChange?.(fromValidity, 'from');
+    onValidityChange?.(toValidity, 'to');
+  };
+
+  /**
    * Leaving the field: read it, set the value, and say what was wrong.
    *
    * A text that is still the value as written was not typed, so nothing is committed: opening the
@@ -360,22 +369,15 @@ export function DatePicker(props: DatePickerProps): React.ReactNode {
       commitRange(next);
     }
 
-    if (from.validity) {
-      onValidityChange?.(from.validity, 'from');
-    }
-    else if (to.validity) {
-      onValidityChange?.(to.validity, 'to');
-    }
-    else if (next.from && next.to && next.to < next.from) {
-      onValidityChange?.({ code: 'order' }, 'to');
-    }
-    else if (!props.allowOpenRange && (next.from === null) !== (next.to === null)) {
-      onValidityChange?.({ code: 'open' }, next.from === null ? 'from' : 'to');
-    }
-    else {
-      onValidityChange?.(null, 'to');
-    }
+    const halfOpen = !props.allowOpenRange && (next.from === null) !== (next.to === null);
+    const reversed = next.from !== null && next.to !== null && next.to < next.from;
+
+    reportRange(
+      from.validity ?? (halfOpen && next.from === null ? { code: 'open' } : null),
+      to.validity ?? (reversed ? { code: 'order' } : null) ?? (halfOpen && next.to === null ? { code: 'open' } : null)
+    );
   };
+
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const raw = event.currentTarget.value;
@@ -430,7 +432,12 @@ export function DatePicker(props: DatePickerProps): React.ReactNode {
       commitDate(null);
     }
 
-    onValidityChange?.(null, isRange ? 'from' : 'date');
+    if (isRange) {
+      reportRange(null, null);
+    }
+    else {
+      onValidityChange?.(null, 'date');
+    }
   };
 
   const handleOpenChange = (next: boolean, details?: PopoverPrimitive.Root.ChangeEventDetails): void => {
@@ -520,7 +527,7 @@ export function DatePicker(props: DatePickerProps): React.ReactNode {
 
     setText(writeRange(next, dateOrder));
     commitRange(next);
-    onValidityChange?.(null, 'to');
+    reportRange(null, null);
     handleOpenChange(false);
   };
 
