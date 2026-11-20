@@ -33,6 +33,9 @@ export interface StrictStackProps extends BaseProps {
   /** Draw a hairline between children, following the active axis */
   divided?: boolean;
 
+  /** Sits in a line of text like a word: `inline-flex`, or `inline-grid` with `columns` */
+  inline?: boolean;
+
   /** Space between children, in Tailwind spacing steps */
   gap?: Responsive<SpacingValue>;
 
@@ -76,6 +79,7 @@ export function Stack<E extends React.ElementType = 'div'>(props: StackProps<E>)
     direction = 'vertical',
     divided = false,
     gap,
+    inline = false,
     justify,
     wrap = false,
     ...others
@@ -91,8 +95,8 @@ export function Stack<E extends React.ElementType = 'div'>(props: StackProps<E>)
 
   const classes = [
     ...(isGrid
-      ? [ 'grid', ...columnsClasses(columns) ]
-      : [ 'flex', ...directionClasses(direction), wrap && 'flex-wrap' ]),
+      ? [ inline ? 'inline-grid' : 'grid', ...columnsClasses(columns) ]
+      : [ inline ? 'inline-flex' : 'flex', ...directionClasses(direction), wrap && 'flex-wrap' ]),
 
     ...gapClasses(gap),
 
@@ -112,6 +116,7 @@ export function Stack<E extends React.ElementType = 'div'>(props: StackProps<E>)
       data-slot={'stack'}
       data-mode={isGrid ? 'grid' : 'flex'}
       data-divided={divided || undefined}
+      data-inline={inline || undefined}
       data-wrap={wrap || undefined}
       className={cn(classes, baseClasses, className)}
       {...rest}

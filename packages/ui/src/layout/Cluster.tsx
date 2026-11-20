@@ -24,6 +24,9 @@ export interface StrictClusterProps extends BaseProps {
   /** Main-axis distribution */
   justify?: Responsive<Justify>;
 
+  /** Sits in a line of text like a word: `inline-flex` */
+  inline?: boolean;
+
 }
 
 
@@ -51,6 +54,7 @@ export function Cluster<E extends React.ElementType = 'div'>(props: ClusterProps
     as: Component = 'div',
     className,
     gap = 2,
+    inline = false,
     justify = 'start',
     ...others
   } = props as ClusterProps<'div'>;
@@ -64,7 +68,8 @@ export function Cluster<E extends React.ElementType = 'div'>(props: ClusterProps
   return (
     <Component
       data-slot={'cluster'}
-      className={cn('flex flex-wrap', gapClasses(gap), alignClasses(align), justifyClasses(justify), baseClasses, className)}
+      data-inline={inline || undefined}
+      className={cn(inline ? 'inline-flex' : 'flex', 'flex-wrap', gapClasses(gap), alignClasses(align), justifyClasses(justify), baseClasses, className)}
       {...rest}
     />
   );
