@@ -400,7 +400,18 @@ function DetailItem(props: DetailItemProps): React.ReactNode {
   const handleCopy = (): void => {
     const text = textRef.current?.innerText ?? '';
 
-    navigator.clipboard.writeText(text)
+    /*
+     * The clipboard exists only in a secure context: on a plain http intranet `navigator.clipboard`
+     * is undefined, and calling it threw before the `catch` below could say the copy had failed.
+     */
+    const clipboard = navigator.clipboard as Clipboard | undefined;
+
+    if (!clipboard) {
+      announce(labels.copyFailed);
+      return;
+    }
+
+    clipboard.writeText(text)
       .then(() => {
         setCopied(true);
         announce(labels.copied);
