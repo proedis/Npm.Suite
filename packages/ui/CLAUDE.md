@@ -99,7 +99,8 @@ a server, the press on the frame, the "Retry" item), `calendar` (the month grid 
 text rules, used by DatePicker and by the date filter of FiltersBar), `menu/menuPanel` and
 `menu/SharedMenu` (the panel of Menu, and one menu for many triggers, used by the rows of Table),
 `table/tableCells` and `table/tableParts` (the renderers of the column kinds, the classes of rows,
-cells and header, the placeholders, the scroll shades and the one tooltip of the truncated cells,
+cells and header, the column widths, the placeholder rows of a first load, the scroll shades and the
+one tooltip of the truncated cells,
 shared by Table and ModalSelector), `tone-glyphs` (the four marks of a tone: circle with
 an i, check, triangle, exclamation mark), `roving` (the arrows of a group of buttons, written by hand because
 Base UI's ToggleGroup skips an `aria-disabled` item), `anchor` (closing a floating layer when its

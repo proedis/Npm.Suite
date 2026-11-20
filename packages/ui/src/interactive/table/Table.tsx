@@ -20,7 +20,6 @@ import {
 import { useAnnouncer, useDelayedBusy } from '@proedis/react';
 
 import { LoadingBar } from '../../components/LoadingBar';
-import { Skeleton } from '../../components/Skeleton';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
@@ -36,7 +35,6 @@ import {
   ACTIONS_COLUMN_STEPS,
   ALIGN_CLASS,
   COLUMN_STEPS,
-  COLUMN_WIDTH,
   CellContent,
   SELECT_COLUMN_STEPS,
   cellText,
@@ -64,7 +62,7 @@ import {
 import { TableColumnsButton } from './TableColumnsButton';
 import { TablePagination } from './TablePagination';
 import { TableSelectionBar, selectionMenuItems } from './TableSelectionBar';
-import { CELL, HEAD, PIN_START, ROW, SKELETON_WIDTH, TruncationTooltip, markScroll } from './tableParts';
+import { CELL, ColumnGroup, HEAD, PIN_START, ROW, SkeletonRows, TruncationTooltip, markScroll } from './tableParts';
 import { useTableGrid } from './useTableGrid';
 
 import type { BaseProps } from '../../core/base';
@@ -906,17 +904,9 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
     );
   };
 
-  const renderSkeleton = (): React.ReactNode => Array.from({ length: SKELETON_ROWS }, (_, index) => (
-    <tr key={index} aria-hidden data-slot={'table-skeleton-row'}>
-      {selectable && <td className={cn(CELL, 'ps-3 pe-0')}><Skeleton className={'size-4'} /></td>}
-      {visibleColumns.map((column) => (
-        <td key={column.id} className={CELL}>
-          <Skeleton className={SKELETON_WIDTH[column.kind] ?? 'w-3/4'} />
-        </td>
-      ))}
-      {hasActions && <td className={CELL} />}
-    </tr>
-  ));
+  const renderSkeleton = (): React.ReactNode => (
+    <SkeletonRows rows={SKELETON_ROWS} columns={visibleColumns} leading={selectable} trailing={hasActions} slot={'table-skeleton-row'} />
+  );
 
 
   // ----
@@ -985,13 +975,7 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
           >
             <caption className={'sr-only'}>{caption}</caption>
 
-            <colgroup>
-              {selectable && <col className={'w-10'} />}
-              {visibleColumns.map((column) => (
-                <col key={column.id} className={column.width === 'fill' ? undefined : COLUMN_WIDTH[column.width ?? 'md']} />
-              ))}
-              {hasActions && <col className={'w-28'} />}
-            </colgroup>
+            <ColumnGroup columns={visibleColumns} leading={selectable} trailing={hasActions} />
 
             <thead data-slot={'table-head'}>
               <tr aria-rowindex={1}>

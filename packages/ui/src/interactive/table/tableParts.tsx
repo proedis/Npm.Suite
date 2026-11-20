@@ -6,7 +6,11 @@ import { Tooltip as TooltipPrimitive } from '@base-ui/react/tooltip';
 
 import { cn } from '../../core/cn';
 
-import type { TableColumn } from './tableTypes';
+import { Skeleton } from '../../components/Skeleton';
+
+import { COLUMN_WIDTH } from './tableCells';
+
+import type { TableColumn, TableColumnWidth } from './tableTypes';
 
 
 /*
@@ -134,4 +138,66 @@ export function TruncationTooltip(props: { handle: TruncationTooltipHandle }): R
       )}
     </TooltipPrimitive.Root>
   );
+}
+
+
+/** What the placeholders and the widths read of a column: Table's and ModalSelector's both fit it */
+interface LayoutColumn {
+  readonly id: string;
+  readonly kind: TableColumn<object>['kind'];
+  readonly width?: TableColumnWidth;
+}
+
+interface ColumnGroupProps {
+  columns: readonly LayoutColumn[];
+
+  /** The column of the boxes, before the others */
+  leading: boolean;
+
+  /** The column of the row actions, after the others */
+  trailing: boolean;
+}
+
+/** The widths of the columns: a `fill` column takes what the others leave */
+export function ColumnGroup(props: ColumnGroupProps): React.ReactNode {
+  const { columns, leading, trailing } = props;
+
+  return (
+    <colgroup>
+      {leading && <col className={'w-10'} />}
+      {columns.map((column) => (
+        <col key={column.id} className={column.width === 'fill' ? undefined : COLUMN_WIDTH[column.width ?? 'md']} />
+      ))}
+      {trailing && <col className={'w-28'} />}
+    </colgroup>
+  );
+}
+
+
+interface SkeletonRowsProps extends ColumnGroupProps {
+  rows: number;
+
+  /** The slot of each row, when the component names it */
+  slot?: string;
+}
+
+/**
+ * The rows of a first load: a bar per cell, as wide as the kind of the column reads, a box where the
+ * boxes go and an empty cell under the actions. Hidden from assistive technology, which hears
+ * `aria-busy` on the table instead
+ */
+export function SkeletonRows(props: SkeletonRowsProps): React.ReactNode {
+  const { columns, leading, rows, slot, trailing } = props;
+
+  return Array.from({ length: rows }, (_, index) => (
+    <tr key={index} aria-hidden={'true'} data-slot={slot}>
+      {leading && <td className={cn(CELL, 'ps-3 pe-0')}><Skeleton className={'size-4'} /></td>}
+      {columns.map((column) => (
+        <td key={column.id} className={CELL}>
+          <Skeleton className={SKELETON_WIDTH[column.kind] ?? 'w-3/4'} />
+        </td>
+      ))}
+      {trailing && <td className={CELL} />}
+    </tr>
+  ));
 }

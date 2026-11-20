@@ -7,7 +7,6 @@ import { Tooltip as TooltipPrimitive } from '@base-ui/react/tooltip';
 import { useDelayedBusy } from '@proedis/react';
 
 import { LoadingBar } from '../../components/LoadingBar';
-import { Skeleton } from '../../components/Skeleton';
 import { cn } from '../../core/cn';
 
 import { Button } from '../button/Button';
@@ -18,10 +17,10 @@ import { EmptyState } from '../empty-state/EmptyState';
 import { FiltersBar } from '../filters-bar/FiltersBar';
 import { matchesSearch } from '../list-panel/listPanel';
 import { SearchInput } from '../search-input/SearchInput';
-import { ALIGN_CLASS, COLUMN_STEPS, COLUMN_WIDTH, CellContent, SELECT_COLUMN_STEPS, cellText, columnAlign, readCellValue } from '../table/tableCells';
+import { ALIGN_CLASS, COLUMN_STEPS, CellContent, SELECT_COLUMN_STEPS, cellText, columnAlign, readCellValue } from '../table/tableCells';
 import { useTableFormats } from '../table/tableFormats';
 import { TableGlyph } from '../table/tableGlyphs';
-import { CELL, HEAD, PIN_START, ROW, SKELETON_WIDTH, TruncationTooltip, markScroll } from '../table/tableParts';
+import { CELL, ColumnGroup, HEAD, PIN_START, ROW, SkeletonRows, TruncationTooltip, markScroll } from '../table/tableParts';
 import { EMPTY_SELECTION, isRowSelected, selectionCount, setRowsSelected } from '../table/tableState';
 import { ClearGlyph } from '../text-input/glyphs';
 import { Tooltip } from '../tooltip/Tooltip';
@@ -730,12 +729,7 @@ export function ModalSelector<TData>(props: ModalSelectorProps<TData>): React.Re
               style={{ minWidth: `calc(var(--spacing) * ${minSteps})` }}
               className={'w-full table-fixed border-separate border-spacing-0 text-sm tabular-nums'}
             >
-              <colgroup>
-                {multiple && <col className={'w-10'} />}
-                {columns.map((column) => (
-                  <col key={column.id} className={column.width === 'fill' ? undefined : COLUMN_WIDTH[column.width ?? 'md']} />
-                ))}
-              </colgroup>
+              <ColumnGroup columns={columns} leading={multiple} trailing={false} />
 
               <thead aria-hidden={'true'}>
                 <tr>
@@ -753,14 +747,7 @@ export function ModalSelector<TData>(props: ModalSelectorProps<TData>): React.Re
 
               <tbody role={'presentation'} className={cn(status === 'fetching' && showBusy && 'pointer-events-none opacity-60')}>
                 {firstLoad
-                  ? Array.from({ length: SKELETON_ROWS }, (_, index) => (
-                    <tr key={index} aria-hidden={'true'}>
-                      {multiple && <td className={cn(CELL, 'ps-3 pe-0')}><Skeleton className={'size-4'} /></td>}
-                      {columns.map((column) => (
-                        <td key={column.id} className={CELL}><Skeleton className={SKELETON_WIDTH[column.kind] ?? 'w-3/4'} /></td>
-                      ))}
-                    </tr>
-                  ))
+                  ? <SkeletonRows rows={SKELETON_ROWS} columns={columns} leading={multiple} trailing={false} />
                   : !failed && rows.map(renderRow)}
               </tbody>
             </table>
