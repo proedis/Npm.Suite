@@ -7,6 +7,8 @@ import { Switch as SwitchPrimitive } from '@base-ui/react/switch';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 import { CHOICE_ALIGN, CHOICE_FOCUS, CHOICE_ROW, ChoiceText } from '../choice/choice';
 import { isPresent } from '../../internal/presence';
 
@@ -53,8 +55,9 @@ export type SwitchProps = StrictSwitchProps & Omit<React.ComponentProps<'span'>,
  * Constants Definition
  * -------- */
 
+/** The track carries its thumb as an inline Stack, given through `render` */
 const TRACK = [
-  'relative inline-flex h-4 w-7 items-center rounded-full border border-transparent bg-switch-off p-px',
+  'relative h-4 w-7 rounded-full border border-transparent bg-switch-off p-px',
   'transition-colors duration-100 motion-reduce:transition-none',
   CHOICE_ALIGN,
   CHOICE_FOCUS,
@@ -133,10 +136,14 @@ export const Switch = React.forwardRef<HTMLSpanElement, SwitchProps>((props, ref
   const hasDescription = isPresent(description);
 
   return (
-    <label
+    <Stack
+      as={'label'}
       data-slot={'switch'}
       data-disabled={disabled || undefined}
       data-readonly={readOnly || undefined}
+      direction={'horizontal'}
+      align={'start'}
+      gap={2}
       className={cn(CHOICE_ROW, baseClasses, className)}
     >
       <SwitchPrimitive.Root
@@ -159,13 +166,14 @@ export const Switch = React.forwardRef<HTMLSpanElement, SwitchProps>((props, ref
         aria-describedby={[ ariaDescribedBy, hasDescription ? descriptionId : undefined ].filter(Boolean).join(' ') || undefined}
         aria-busy={pending || undefined}
         data-slot={'switch-track'}
+        render={<Stack as={'span'} inline direction={'horizontal'} align={'center'} />}
         className={TRACK}
       >
         <SwitchPrimitive.Thumb data-slot={'switch-thumb'} className={THUMB} />
       </SwitchPrimitive.Root>
 
       <ChoiceText slot={'switch'} label={children} description={description} descriptionId={descriptionId} />
-    </label>
+    </Stack>
   );
 
 });

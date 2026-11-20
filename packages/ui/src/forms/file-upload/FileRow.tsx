@@ -4,6 +4,8 @@ import * as React from 'react';
 
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 import { Tooltip } from '../../actions/tooltip/Tooltip';
 
 
@@ -109,13 +111,17 @@ export function FileThumbnail(props: FileThumbnailProps): React.ReactNode {
   const source = url ?? objectUrl;
 
   return (
-    <span
+    <Stack
+      as={'span'}
       data-slot={'file-thumbnail'}
       aria-hidden={'true'}
-      className={'flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-muted text-muted-foreground'}
+      direction={'horizontal'}
+      align={'center'}
+      justify={'center'}
+      className={'size-8 shrink-0 overflow-hidden rounded-sm bg-muted text-muted-foreground'}
     >
       {source ? <img src={source} alt={''} className={'size-full object-cover'} /> : <FileGlyph />}
-    </span>
+    </Stack>
   );
 
 }
@@ -146,15 +152,19 @@ export function FileRow(props: FileRowProps): React.ReactNode {
   // Component Render
   // ----
   return (
-    <li
+    <Stack
+      as={'li'}
       data-slot={slot}
       data-status={status}
       data-rejected={rejected || undefined}
-      className={'flex min-h-12 items-center gap-3 border-b border-border px-2 py-1.5 last:border-b-0'}
+      direction={'horizontal'}
+      align={'center'}
+      gap={3}
+      className={'min-h-12 border-b border-border px-2 py-1.5 last:border-b-0'}
     >
       {thumbnail}
 
-      <span className={'flex min-w-0 flex-1 flex-col'}>
+      <Stack as={'span'} data-slot={`${slot}-text`} className={'min-w-0 flex-1'}>
         <Tooltip content={nameText} truncatedOnly align={'start'}>
           <span data-slot={`${slot}-label`} data-truncate={''} className={'min-w-0 truncate text-sm'}>{name}</span>
         </Tooltip>
@@ -172,10 +182,14 @@ export function FileRow(props: FileRowProps): React.ReactNode {
             {detail}
           </span>
         )}
-      </span>
+      </Stack>
 
-      {actions && <span data-slot={`${slot}-actions`} className={'flex shrink-0 items-center gap-1'}>{actions}</span>}
-    </li>
+      {actions && (
+        <Stack as={'span'} data-slot={`${slot}-actions`} direction={'horizontal'} align={'center'} gap={1} className={'shrink-0'}>
+          {actions}
+        </Stack>
+      )}
+    </Stack>
   );
 
 }

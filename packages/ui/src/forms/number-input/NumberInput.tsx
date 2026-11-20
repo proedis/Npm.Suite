@@ -9,11 +9,13 @@ import { useForkRef } from '@proedis/react';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 import { Spinner } from '../../primitives/Spinner';
 
 import { useFieldControl } from '../field/fieldContext';
 import { isPresent } from '../../internal/presence';
-import { TEXT_CONTROL_FRAME, TEXT_CONTROL_SIZES, TEXT_CONTROL_TEXT, textControlState } from '../text-control/textControl';
+import { TEXT_CONTROL_FRAME, TEXT_CONTROL_GAP, TEXT_CONTROL_SIZES, TEXT_CONTROL_TEXT, textControlState } from '../text-control/textControl';
 
 import { acceptsTyping, cleanPaste, separatorsOf, widthClass } from './numberText';
 
@@ -88,17 +90,6 @@ export type NumberInputProps = StrictNumberInputProps & NumberInputLoadingProps 
   React.ComponentProps<'input'>,
   keyof StrictNumberInputProps | 'size' | 'type' | 'children' | 'ref' | 'onChange' | 'min' | 'max' | 'step'
 >;
-
-
-/* --------
- * Constants Definition
- * -------- */
-
-const SUFFIX_GAP: Readonly<Record<TextControlSize, string>> = {
-  sm: 'gap-1',
-  md: 'gap-1.5',
-  lg: 'gap-1.5'
-};
 
 
 /* --------
@@ -299,7 +290,7 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
       allowWheelScrub={false}
       disabled={isDisabled}
       readOnly={readOnly}
-      render={<div />}
+      render={<Stack direction={'horizontal'} align={'center'} gap={TEXT_CONTROL_GAP[size]} />}
       data-slot={'number-input'}
       data-size={size}
       data-loading={loading || undefined}
@@ -307,8 +298,7 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
       className={cn(
         TEXT_CONTROL_FRAME,
         TEXT_CONTROL_SIZES[size],
-        SUFFIX_GAP[size],
-        'flex cursor-text items-center',
+        'cursor-text',
         widthClass(max, decimals, locale, typeof unitText === 'string' && unitText.length > 2),
         baseClasses,
         className

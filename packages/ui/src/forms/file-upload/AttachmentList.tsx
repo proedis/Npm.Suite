@@ -116,8 +116,8 @@ function DownloadGlyph(): React.ReactNode {
  * "Retry". Empty, error and loading states, "Show all (N)" past ten and the section around it belong
  * to the screen.
  *
- * Slots: `attachment-list`, `attachment-row` (with `data-status`), `attachment-row-label`, `attachment-name`,
- * `attachment-row-detail`, `attachment-row-actions`, `file-thumbnail`.
+ * Slots: `attachment-list`, `attachment-row` (with `data-status`), `attachment-row-text`, `attachment-row-label`,
+ * `attachment-name`, `attachment-row-detail`, `attachment-row-actions`, `file-thumbnail`.
  */
 export const AttachmentList = React.forwardRef<HTMLUListElement, AttachmentListProps>((props, ref) => {
 

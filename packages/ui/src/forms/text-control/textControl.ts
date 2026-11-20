@@ -1,3 +1,6 @@
+import type { SpacingValue } from '../../core/responsive';
+
+
 /*
  * The look of every bordered text control, written once: TextInput, Textarea, NumberInput, the
  * trigger of Select and MultiSelect, the field of Combobox and DatePicker, and `FieldShell`, the same
@@ -60,12 +63,26 @@ export const TEXT_CONTROL_SELF = [
 ].join(' ');
 
 
-/** Height, padding, gap and icon size of the three sizes, shared so that two controls of a row line up */
+/**
+ * Height, padding, gap and icon size of the three sizes, shared so that two controls of a row line up.
+ * The gap is also in `TEXT_CONTROL_GAP`, which the frames of this section hand to their Stack: it stays
+ * here while data spreads these classes on a frame of its own, and leaves when data moves.
+ */
+/* eslint-disable no-restricted-syntax -- shared class constant consumed by data, migrated with it */
 export const TEXT_CONTROL_SIZES = {
   sm: 'h-control-sm gap-1 px-2 [&_svg]:size-3.5',
   md: 'h-control-md gap-1.5 px-2.5 [&_svg]:size-4',
   lg: 'h-control-lg gap-1.5 px-3 [&_svg]:size-4'
 } as const;
+/* eslint-enable no-restricted-syntax */
+
+
+/** The room between the parts of a frame, per size: the frame itself is a Stack */
+export const TEXT_CONTROL_GAP: Readonly<Record<keyof typeof TEXT_CONTROL_SIZES, SpacingValue>> = {
+  sm: 1,
+  md: 1.5,
+  lg: 1.5
+};
 
 
 /** What the text inside any of them does: placeholder, read only and disabled, autofill */

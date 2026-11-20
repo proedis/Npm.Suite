@@ -7,6 +7,8 @@ import dayjs from 'dayjs';
 import type { Dayjs } from 'dayjs';
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 import { Button } from '../../actions/button/Button';
 import { IconButton } from '../../actions/button/IconButton';
 
@@ -79,8 +81,9 @@ const GRID_DAYS = 42;
 
 const HEAD_BUTTON = 'size-7 rounded-sm [&_svg]:size-4';
 
+/** A day: a button centring its number, as a Stack (`as={'button'}`) */
 const CELL_BUTTON = [
-  'relative flex h-8 w-full items-center justify-center rounded-sm text-sm tabular-nums outline-none',
+  'relative h-8 w-full rounded-sm text-sm tabular-nums outline-none',
   'hover:bg-accent hover:text-accent-foreground',
   'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring',
   'data-weekend:text-muted-foreground data-muted:text-muted-foreground data-outside:text-placeholder',
@@ -91,8 +94,9 @@ const CELL_BUTTON = [
   'data-unavailable:cursor-not-allowed data-unavailable:line-through data-unavailable:opacity-50'
 ].join(' ');
 
+/** A month or a year: a button centring its name, as a Stack (`as={'button'}`) */
 const PICK_BUTTON = [
-  'flex h-11 items-center justify-center rounded-sm text-sm outline-none hover:bg-accent',
+  'h-11 rounded-sm text-sm outline-none hover:bg-accent',
   'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring',
   'data-selected:bg-primary data-selected:font-semibold data-selected:text-primary-foreground'
 ].join(' ');
@@ -135,7 +139,7 @@ interface CalendarHeaderProps {
 /** The arrows and the title: the title opens the level above (months, then years) */
 function CalendarHeader(props: CalendarHeaderProps): React.ReactNode {
   return (
-    <div data-slot={'calendar-header'} className={'flex items-center justify-between gap-1 pb-1'}>
+    <Stack data-slot={'calendar-header'} direction={'horizontal'} align={'center'} justify={'between'} gap={1} className={'pb-1'}>
       <IconButton
         data-slot={'calendar-previous'}
         label={props.previousLabel}
@@ -166,7 +170,7 @@ function CalendarHeader(props: CalendarHeaderProps): React.ReactNode {
         className={HEAD_BUTTON}
         onClick={props.onNext}
       />
-    </div>
+    </Stack>
   );
 }
 
@@ -363,22 +367,26 @@ export function Calendar(props: CalendarProps): React.ReactNode {
           />
 
           <div ref={gridRef} role={'grid'} aria-label={capitalize(monthYear.format(month.toDate()))} data-slot={'calendar-grid'} onKeyDown={handleGridKeyDown}>
-            <div role={'row'} data-slot={'calendar-weekdays'} className={'grid grid-cols-7'}>
+            <Stack role={'row'} data-slot={'calendar-weekdays'} columns={7}>
               {weekdays.map((day) => (
-                <span
+                <Stack
+                  as={'span'}
                   key={day.day()}
                   role={'columnheader'}
                   data-slot={'calendar-weekday'}
                   aria-label={longWeekday.format(day.toDate())}
-                  className={'flex h-8 items-center justify-center text-xs font-semibold text-muted-foreground'}
+                  direction={'horizontal'}
+                  align={'center'}
+                  justify={'center'}
+                  className={'h-8 text-xs font-semibold text-muted-foreground'}
                 >
                   {shortWeekday.format(day.toDate()).slice(0, 2)}
-                </span>
+                </Stack>
               ))}
-            </div>
+            </Stack>
 
             {rows.map((row) => (
-              <div key={row[0].format(ISO)} role={'row'} data-slot={'calendar-week'} className={'grid grid-cols-7'}>
+              <Stack key={row[0].format(ISO)} role={'row'} data-slot={'calendar-week'} columns={7}>
                 {row.map((day, column) => {
                   const iso = day.format(ISO);
                   const meta = dayMeta?.(iso);
@@ -390,7 +398,8 @@ export function Calendar(props: CalendarProps): React.ReactNode {
                   const outside = !day.isSame(month, 'month');
 
                   const cell = (
-                    <button
+                    <Stack
+                      as={'button'}
                       type={'button'}
                       tabIndex={day.isSame(focused, 'day') ? 0 : -1}
                       aria-label={meta?.hint ? `${longDay.format(day.toDate())}, ${meta.hint}` : longDay.format(day.toDate())}
@@ -406,6 +415,9 @@ export function Calendar(props: CalendarProps): React.ReactNode {
                       data-muted={meta?.muted || undefined}
                       data-unavailable={unavailable || undefined}
                       title={meta?.hint}
+                      direction={'horizontal'}
+                      align={'center'}
+                      justify={'center'}
                       className={cn(CELL_BUTTON, inBand && column === 0 && 'rounded-s-sm', inBand && column === 6 && 'rounded-e-sm')}
                       onClick={() => {
                         setFocused(day);
@@ -415,7 +427,7 @@ export function Calendar(props: CalendarProps): React.ReactNode {
                       onMouseLeave={() => onHoverDay?.(null)}
                     >
                       {day.date()}
-                    </button>
+                    </Stack>
                   );
 
                   return (
@@ -424,7 +436,7 @@ export function Calendar(props: CalendarProps): React.ReactNode {
                     </div>
                   );
                 })}
-              </div>
+              </Stack>
             ))}
           </div>
         </React.Fragment>
@@ -441,13 +453,17 @@ export function Calendar(props: CalendarProps): React.ReactNode {
             previousLabel={labels.previousYears}
             nextLabel={labels.nextYears}
           />
-          <div data-slot={'calendar-months'} className={'grid grid-cols-3 gap-1'}>
+          <Stack data-slot={'calendar-months'} columns={3} gap={1}>
             {Array.from({ length: 12 }, (_, index) => month.month(index)).map((item) => (
-              <button
+              <Stack
+                as={'button'}
                 key={item.month()}
                 type={'button'}
                 data-slot={'calendar-month'}
                 data-selected={item.isSame(month, 'month') || undefined}
+                direction={'horizontal'}
+                align={'center'}
+                justify={'center'}
                 className={PICK_BUTTON}
                 onClick={() => {
                   setMonth(item.startOf('month'));
@@ -455,9 +471,9 @@ export function Calendar(props: CalendarProps): React.ReactNode {
                 }}
               >
                 {capitalize(monthName.format(item.toDate()))}
-              </button>
+              </Stack>
             ))}
-          </div>
+          </Stack>
         </React.Fragment>
       )}
 
@@ -472,13 +488,17 @@ export function Calendar(props: CalendarProps): React.ReactNode {
             previousLabel={labels.previousYears}
             nextLabel={labels.nextYears}
           />
-          <div data-slot={'calendar-years'} className={'grid grid-cols-3 gap-1'}>
+          <Stack data-slot={'calendar-years'} columns={3} gap={1}>
             {Array.from({ length: 12 }, (_, index) => yearBlockStart + index).map((year) => (
-              <button
+              <Stack
+                as={'button'}
                 key={year}
                 type={'button'}
                 data-slot={'calendar-year'}
                 data-selected={year === month.year() || undefined}
+                direction={'horizontal'}
+                align={'center'}
+                justify={'center'}
                 className={PICK_BUTTON}
                 onClick={() => {
                   setMonth(month.year(year));
@@ -486,9 +506,9 @@ export function Calendar(props: CalendarProps): React.ReactNode {
                 }}
               >
                 {year}
-              </button>
+              </Stack>
             ))}
-          </div>
+          </Stack>
         </React.Fragment>
       )}
     </div>

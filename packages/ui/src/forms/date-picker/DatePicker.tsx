@@ -11,13 +11,15 @@ import { useForkRef } from '@proedis/react';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 import { Button } from '../../actions/button/Button';
 import { IconButton } from '../../actions/button/IconButton';
 import { Calendar } from '../calendar/Calendar';
 import { dateOrderOf, maskDate, maskRange, RANGE_SEPARATOR, readDate, readPastedDates, readRange, writeDate, writeRange } from '../calendar/dateText';
 import { useFieldControl, useNonNativeFieldLabel } from '../field/fieldContext';
 import { LIST_POSITIONER, LIST_SIDE_OFFSET } from '../../actions/list-panel/listPanel';
-import { TEXT_CONTROL_FRAME, TEXT_CONTROL_SIZES, TEXT_CONTROL_TEXT, textControlState } from '../text-control/textControl';
+import { TEXT_CONTROL_FRAME, TEXT_CONTROL_GAP, TEXT_CONTROL_SIZES, TEXT_CONTROL_TEXT, textControlState } from '../text-control/textControl';
 import { ClearGlyph } from '../../internal/glyphs';
 
 import type { BaseProps } from '../../core/base';
@@ -193,12 +195,12 @@ function CalendarGlyph(): React.ReactNode {
  *
  * Needs `dayjs`, an optional peer of this package, with the locale loaded by the application.
  *
- * Slots: `date-picker`, `date-picker-field`, `date-picker-input`,
+ * Slots: `date-picker`, `date-picker-field`, `date-picker-input`, `date-picker-actions`,
  * `date-picker-calendar-button`, `date-picker-clear`, `date-picker-panel`, `date-picker-footer`, and
  * the `calendar-*` slots of the grid (`calendar-previous`, `calendar-next`, `calendar-weekdays`,
  * `calendar-weekday`, `calendar-week`, `calendar-cell`, `calendar-day`, `calendar-month`,
- * `calendar-year`). The footer holds `date-picker-footer-text`, `date-picker-today` and
- * `date-picker-footer-clear`.
+ * `calendar-year`). The footer holds `date-picker-footer-text` and `date-picker-footer-actions`, the row of
+ * `date-picker-today` and `date-picker-footer-clear`.
  */
 export const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>((props, forwardedRef) => {
 
@@ -568,13 +570,23 @@ export const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>((p
 
   return (
     <PopoverPrimitive.Root open={open} onOpenChange={handleOpenChange} modal={false}>
-      <div data-slot={'date-picker'} data-mode={isRange ? 'range' : 'date'} className={cn('flex items-center', baseClasses, className)}>
-        <div
+      <Stack
+        data-slot={'date-picker'}
+        direction={'horizontal'}
+        align={'center'}
+        className={cn(baseClasses, className)}
+        /* After the layout props: the mode of the picker, which wins over the stack's own `data-mode` */
+        data-mode={isRange ? 'range' : 'date'}
+      >
+        <Stack
           ref={anchorRef}
           data-slot={'date-picker-field'}
           data-size={size}
           {...textControlState({ invalid: isInvalid, readOnly, disabled: isDisabled })}
-          className={cn(TEXT_CONTROL_FRAME, TEXT_CONTROL_SIZES[size], 'group/list-field flex items-center')}
+          direction={'horizontal'}
+          align={'center'}
+          gap={TEXT_CONTROL_GAP[size]}
+          className={cn(TEXT_CONTROL_FRAME, TEXT_CONTROL_SIZES[size], 'group/list-field')}
         >
           <Input
             {...rest}
@@ -621,7 +633,7 @@ export const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>((p
           />
 
           {!readOnly && (
-            <span className={'-me-1 flex shrink-0 items-center gap-0.5'}>
+            <Stack as={'span'} data-slot={'date-picker-actions'} direction={'horizontal'} align={'center'} gap={0.5} className={'-me-1 shrink-0'}>
               {/* Its place is kept while it is hidden, so the field does not change width */}
               {!isRequired && (
                 <IconButton
@@ -652,9 +664,9 @@ export const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>((p
                   />
                 )}
               />
-            </span>
+            </Stack>
           )}
-        </div>
+        </Stack>
 
         {isRange && name && (
           <React.Fragment>
@@ -662,7 +674,7 @@ export const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>((p
             <input type={'hidden'} name={`${name}.to`} value={range.to ?? ''} />
           </React.Fragment>
         )}
-      </div>
+      </Stack>
 
       <PopoverPrimitive.Portal>
         <PopoverPrimitive.Positioner anchor={anchorRef} side={'bottom'} align={'start'} sideOffset={LIST_SIDE_OFFSET} className={LIST_POSITIONER}>
@@ -689,9 +701,9 @@ export const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>((p
               onHoverDay={setPreview}
             />
 
-            <div data-slot={'date-picker-footer'} className={'mt-1 flex flex-col gap-1 border-t border-border pt-1'}>
+            <Stack data-slot={'date-picker-footer'} gap={1} className={'mt-1 border-t border-border pt-1'}>
               {footerText && <span data-slot={'date-picker-footer-text'} className={'px-1 text-xs text-muted-foreground'}>{footerText}</span>}
-              <div className={'flex items-center justify-between'}>
+              <Stack data-slot={'date-picker-footer-actions'} direction={'horizontal'} align={'center'} justify={'between'}>
                 {!isRange && (
                   <Button data-slot={'date-picker-today'} size={'sm'} fill={'plain'} tone={'primary'} disabled={isDateUnavailable?.(today) || outOfLimits(today)} onClick={() => handleSelect(today)}>
                     {labels.today}
@@ -712,8 +724,8 @@ export const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>((p
                     {labels.clear}
                   </Button>
                 )}
-              </div>
-            </div>
+              </Stack>
+            </Stack>
           </PopoverPrimitive.Popup>
         </PopoverPrimitive.Positioner>
       </PopoverPrimitive.Portal>

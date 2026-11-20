@@ -7,6 +7,8 @@ import { optionalContextBuilder, useForkRef } from '@proedis/react';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 import { Button } from '../../actions/button/Button';
 import { FormErrorRegistryContext, FormSectionContext, useFormHostContext } from '../field/fieldContext';
 import { isPresent } from '../../internal/presence';
@@ -97,6 +99,13 @@ const HEADING_ELEMENT = {
 /** From this many errors the focus goes to the summary instead of the first field */
 const SUMMARY_THRESHOLD = 2;
 
+/**
+ * A section: six columns, a column gap apart from the row gap, and the container a field measures to
+ * collapse its span (`@max-lg`). The fields become subgrids of its rows.
+ */
+// eslint-disable-next-line no-restricted-syntax -- gap-x apart from gap-y, and the container the spans of the fields query
+const SECTION_GRID = '@container grid grid-cols-6 gap-x-6 gap-y-5 border-border';
+
 
 /* --------
  * Context Definition
@@ -161,7 +170,7 @@ function FormHeader(props: FormHeaderProps): React.ReactNode {
   const Title = HEADING_ELEMENT[headingLevel];
 
   return (
-    <div {...rest} data-slot={'form-header'} className={cn('flex flex-col gap-1', baseClasses, className)}>
+    <Stack {...rest} data-slot={'form-header'} gap={1} className={cn(baseClasses, className)}>
       {isPresent(title) && (
         <Title data-slot={'form-header-title'} className={'text-base font-semibold text-foreground'}>{title}</Title>
       )}
@@ -171,7 +180,7 @@ function FormHeader(props: FormHeaderProps): React.ReactNode {
       )}
 
       {children}
-    </div>
+    </Stack>
   );
 
 }
@@ -214,15 +223,16 @@ function FormErrorSummary(props: FormErrorSummaryProps): React.ReactNode {
   const { errors } = state;
 
   return (
-    <div
+    <Stack
       {...rest}
       ref={handleRef}
       tabIndex={-1}
       role={'group'}
       aria-labelledby={titleId}
       data-slot={'form-error-summary'}
+      gap={1}
       className={cn(
-        'flex flex-col gap-1 rounded-md bg-destructive-soft p-3 text-sm text-destructive-soft-foreground',
+        'rounded-md bg-destructive-soft p-3 text-sm text-destructive-soft-foreground',
         'outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
         baseClasses,
         className
@@ -232,7 +242,7 @@ function FormErrorSummary(props: FormErrorSummaryProps): React.ReactNode {
         {title(errors.length)}
       </p>
 
-      <ul data-slot={'form-error-summary-list'} className={'flex flex-col gap-0.5'}>
+      <Stack as={'ul'} data-slot={'form-error-summary-list'} gap={0.5}>
         {errors.map((error) => (
           <li key={error.fieldId} data-slot={'form-error-summary-item'}>
             <a
@@ -248,8 +258,8 @@ function FormErrorSummary(props: FormErrorSummaryProps): React.ReactNode {
             </a>
           </li>
         ))}
-      </ul>
-    </div>
+      </Stack>
+    </Stack>
   );
 
 }
@@ -321,14 +331,14 @@ function FormSection(props: FormSectionProps): React.ReactNode {
       aria-labelledby={hasTitle ? titleId : undefined}
       aria-describedby={hasDescription ? descriptionId : undefined}
       className={cn(
-        '@container grid grid-cols-6 gap-x-6 gap-y-5 border-border',
+        SECTION_GRID,
         '[[data-slot=form-section]+&]:mt-6 [[data-slot=form-section]+&]:border-t [[data-slot=form-section]+&]:pt-6',
         baseClasses,
         className
       )}
     >
       {hasTitle && (
-        <div data-slot={'form-section-header'} className={'col-span-6 flex flex-col gap-0.5'}>
+        <Stack data-slot={'form-section-header'} gap={0.5} className={'col-span-6'}>
           <Title id={titleId} data-slot={'form-section-title'} className={'text-sm font-semibold text-foreground'}>
             {title}
           </Title>
@@ -338,7 +348,7 @@ function FormSection(props: FormSectionProps): React.ReactNode {
               {description}
             </p>
           )}
-        </div>
+        </Stack>
       )}
 
       <FormSectionContext.Provider value={true}>
@@ -372,10 +382,15 @@ function FormFooter(props: FormFooterProps): React.ReactNode {
   // Component Render
   // ----
   return (
-    <div
+    <Stack
       {...rest}
       data-slot={'form-footer'}
-      className={cn('flex flex-wrap items-center justify-end gap-2', baseClasses, className)}
+      direction={'horizontal'}
+      wrap
+      align={'center'}
+      justify={'end'}
+      gap={2}
+      className={cn(baseClasses, className)}
     />
   );
 
@@ -523,13 +538,15 @@ const FormRoot = React.forwardRef<HTMLFormElement, FormProps>((props, ref) => {
   // Component Render
   // ----
   return (
-    <form
+    <Stack
+      as={'form'}
       {...rest}
       ref={ref}
       id={rest.id ?? host?.formId}
       noValidate
       data-slot={'form'}
-      className={cn('flex flex-col gap-6', baseClasses, className)}
+      gap={6}
+      className={cn(baseClasses, className)}
       onSubmit={handleSubmit}
       onInput={handleInput}
     >
@@ -538,7 +555,7 @@ const FormRoot = React.forwardRef<HTMLFormElement, FormProps>((props, ref) => {
           {rest.children}
         </FormErrorStateContext.Provider>
       </FormErrorRegistryContext.Provider>
-    </form>
+    </Stack>
   );
 
 });

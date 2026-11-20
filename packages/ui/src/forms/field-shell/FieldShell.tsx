@@ -5,9 +5,11 @@ import * as React from 'react';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 import { useFieldControl } from '../field/fieldContext';
 import { isPresent } from '../../internal/presence';
-import { TEXT_CONTROL_FRAME, TEXT_CONTROL_SIZES, textControlState } from '../text-control/textControl';
+import { TEXT_CONTROL_FRAME, TEXT_CONTROL_GAP, TEXT_CONTROL_SIZES, textControlState } from '../text-control/textControl';
 
 import type { BaseProps } from '../../core/base';
 
@@ -136,16 +138,19 @@ export const FieldShell = React.forwardRef<HTMLDivElement, FieldShellProps>((pro
   // Component Render
   // ----
   return (
-    <div
+    <Stack
       {...rest}
       ref={ref}
       data-slot={'field-shell'}
       data-size={size}
       {...textControlState({ invalid: isInvalid, readOnly, disabled: isDisabled })}
+      direction={'horizontal'}
+      align={'center'}
+      gap={TEXT_CONTROL_GAP[size]}
       className={cn(
         TEXT_CONTROL_FRAME,
         TEXT_CONTROL_SIZES[size],
-        'flex w-full min-w-0 items-center',
+        'w-full min-w-0',
         '[&_svg]:shrink-0 [&_svg]:text-muted-foreground',
         baseClasses,
         className
@@ -153,15 +158,15 @@ export const FieldShell = React.forwardRef<HTMLDivElement, FieldShellProps>((pro
       onMouseDown={handleMouseDown}
     >
       {isPresent(leading) && (
-        <span data-slot={'field-shell-leading'} className={'flex shrink-0 items-center'}>{leading}</span>
+        <Stack as={'span'} data-slot={'field-shell-leading'} direction={'horizontal'} align={'center'} className={'shrink-0'}>{leading}</Stack>
       )}
 
-      <div data-slot={'field-shell-content'} className={'flex h-full min-w-0 flex-1 items-center'}>{children}</div>
+      <Stack data-slot={'field-shell-content'} direction={'horizontal'} align={'center'} className={'h-full min-w-0 flex-1'}>{children}</Stack>
 
       {isPresent(trailing) && (
-        <span data-slot={'field-shell-trailing'} className={'flex shrink-0 items-center'}>{trailing}</span>
+        <Stack as={'span'} data-slot={'field-shell-trailing'} direction={'horizontal'} align={'center'} className={'shrink-0'}>{trailing}</Stack>
       )}
-    </div>
+    </Stack>
   );
 
 });

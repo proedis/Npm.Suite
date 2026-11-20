@@ -10,6 +10,8 @@ import { useForkRef } from '@proedis/react';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 import { Spinner } from '../../primitives/Spinner';
 import { VisuallyHidden } from '../../primitives/VisuallyHidden';
 
@@ -29,8 +31,8 @@ import {
   ListFieldEnd,
   matchesSearch
 } from '../../actions/list-panel/listPanel';
-import { ListChips, toggleFromFrame } from '../list-field/listField';
-import { TEXT_CONTROL_FRAME, TEXT_CONTROL_SIZES, textControlState } from '../text-control/textControl';
+import { LIST_ITEM_LAYOUT, LIST_PANEL_LAYOUT, ListChips, toggleFromFrame } from '../list-field/listField';
+import { TEXT_CONTROL_FRAME, TEXT_CONTROL_GAP, TEXT_CONTROL_SIZES, textControlState } from '../text-control/textControl';
 import { CheckGlyph, SearchGlyph } from '../../internal/glyphs';
 
 import type { BaseProps } from '../../core/base';
@@ -278,12 +280,15 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
   const frameClasses = cn(
     TEXT_CONTROL_FRAME,
     TEXT_CONTROL_SIZES[size],
-    'group/list-field relative flex w-full min-w-60 items-center',
+    'group/list-field relative w-full min-w-60',
     readOnly && 'h-auto min-h-control-md',
     '[&_svg]:shrink-0 [&_svg]:text-muted-foreground',
     baseClasses,
     className
   );
+
+  /** The frame is a row: the chips, then the arrow, over a trigger as large as the frame */
+  const frameLayout = { direction: 'horizontal', align: 'center', gap: TEXT_CONTROL_GAP[size] } as const;
 
   const frameAttributes = {
     'data-slot': 'multi-select',
@@ -312,7 +317,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
 
   if (readOnly) {
     return (
-      <div {...frameAttributes} className={frameClasses}>
+      <Stack {...frameAttributes} {...frameLayout} className={frameClasses}>
         <input
           id={rest.id}
           aria-label={rest['aria-label']}
@@ -324,26 +329,37 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
         />
         {chips}
         {name && current.map((item) => <input key={item} type={'hidden'} name={name} value={item} />)}
-      </div>
+      </Stack>
     );
   }
 
   const optionContent = (option: SelectOption): React.ReactNode => (
     <React.Fragment>
-      <span data-slot={'multi-select-item-box'} className={LIST_OPTION_BOX} aria-hidden={'true'}><CheckGlyph /></span>
+      <Stack
+        as={'span'}
+        data-slot={'multi-select-item-box'}
+        inline
+        direction={'horizontal'}
+        align={'center'}
+        justify={'center'}
+        className={LIST_OPTION_BOX}
+        aria-hidden={'true'}
+      >
+        <CheckGlyph />
+      </Stack>
       <span data-slot={'multi-select-item-label'} className={'min-w-0 flex-1'}>{option.label}</span>
     </React.Fragment>
   );
 
   const footer = (
-    <div data-slot={'multi-select-footer'} className={LIST_FOOTER}>
+    <Stack data-slot={'multi-select-footer'} direction={'horizontal'} align={'center'} justify={'between'} gap={1} className={LIST_FOOTER}>
       <Button data-slot={'multi-select-select-all'} size={'sm'} fill={'plain'} tone={'primary'} disabled={allChecked} onClick={selectAll}>
         {labels.selectAll}
       </Button>
       <Button data-slot={'multi-select-clear-all'} size={'sm'} fill={'plain'} tone={'primary'} disabled={noneChecked} onClick={clearAll}>
         {labels.clear}
       </Button>
-    </div>
+    </Stack>
   );
 
   if (!searchable) {
@@ -359,11 +375,11 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
         disabled={isDisabled}
         name={name}
       >
-        <div ref={frameRef} {...frameAttributes} className={frameClasses} onMouseDown={handleFrameMouseDown}>
+        <Stack ref={frameRef} {...frameAttributes} {...frameLayout} className={frameClasses} onMouseDown={handleFrameMouseDown}>
           <SelectPrimitive.Trigger {...triggerProps}>{summary}</SelectPrimitive.Trigger>
           {chips}
           <ListFieldEnd loading={loading} spinner={spinner} className={'pointer-events-none relative z-10'} />
-        </div>
+        </Stack>
 
         <SelectPrimitive.Portal>
           <SelectPrimitive.Positioner
@@ -372,7 +388,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
             sideOffset={LIST_SIDE_OFFSET}
             className={LIST_POSITIONER}
           >
-            <SelectPrimitive.Popup data-slot={'multi-select-panel'} className={LIST_PANEL}>
+            <SelectPrimitive.Popup data-slot={'multi-select-panel'} render={LIST_PANEL_LAYOUT} className={LIST_PANEL}>
               <SelectPrimitive.List className={LIST_ITEMS}>
                 {options.map((option) => (
                   <SelectPrimitive.Item
@@ -381,6 +397,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
                     label={option.label}
                     disabled={option.disabled}
                     data-slot={'multi-select-item'}
+                    render={LIST_ITEM_LAYOUT}
                     className={cn(LIST_ITEM, 'group/option')}
                   >
                     {optionContent(option)}
@@ -414,19 +431,19 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
       disabled={isDisabled}
       name={name}
     >
-      <div ref={frameRef} {...frameAttributes} className={frameClasses} onMouseDown={handleFrameMouseDown}>
+      <Stack ref={frameRef} {...frameAttributes} {...frameLayout} className={frameClasses} onMouseDown={handleFrameMouseDown}>
         <ComboboxPrimitive.Trigger {...triggerProps}>{summary}</ComboboxPrimitive.Trigger>
         {chips}
         <ListFieldEnd loading={loading} spinner={spinner} className={'pointer-events-none relative z-10'} />
-      </div>
+      </Stack>
 
       <ComboboxPrimitive.Portal>
         <ComboboxPrimitive.Positioner anchor={frameRef} sideOffset={LIST_SIDE_OFFSET} className={LIST_POSITIONER}>
-          <ComboboxPrimitive.Popup data-slot={'multi-select-panel'} className={LIST_PANEL}>
-            <div data-slot={'multi-select-search'} className={LIST_SEARCH}>
+          <ComboboxPrimitive.Popup data-slot={'multi-select-panel'} render={LIST_PANEL_LAYOUT} className={LIST_PANEL}>
+            <Stack data-slot={'multi-select-search'} direction={'horizontal'} align={'center'} gap={2} className={LIST_SEARCH}>
               <SearchGlyph />
               <ComboboxPrimitive.Input data-slot={'multi-select-search-input'} placeholder={labels.search} className={LIST_SEARCH_INPUT} />
-            </div>
+            </Stack>
 
             <ComboboxPrimitive.Empty data-slot={'multi-select-empty'} className={cn(LIST_MESSAGE, 'empty:hidden')}>
               {labels.noResults}
@@ -439,6 +456,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
                   value={option}
                   disabled={option.disabled}
                   data-slot={'multi-select-item'}
+                  render={LIST_ITEM_LAYOUT}
                   className={cn(LIST_ITEM, 'group/option')}
                 >
                   {optionContent(option)}

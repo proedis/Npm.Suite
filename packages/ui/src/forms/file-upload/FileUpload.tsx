@@ -7,6 +7,8 @@ import { useAnnouncer } from '@proedis/react';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 import { Button } from '../../actions/button/Button';
 import { IconButton } from '../../actions/button/IconButton';
 import { useFieldControl, useNonNativeFieldLabel } from '../field/fieldContext';
@@ -160,9 +162,9 @@ function readDrop(event: React.DragEvent): { files: File[]; folders: Set<File> }
  * "Replace". Read only, the box is gone and the files stay.
  *
  * Slots: `file-upload` (with `data-disabled`, `data-readonly`, `data-invalid`, `data-single`),
- * `file-upload-box` (with `data-drag`, `data-full`, `data-invalid`), `file-upload-choose`,
- * `file-upload-list`, `file-upload-row` (with `data-rejected`), `file-upload-row-label`,
- * `file-upload-row-detail`, `file-upload-row-actions`, `file-thumbnail`.
+ * `file-upload-box` (with `data-drag`, `data-full`, `data-invalid`), `file-upload-box-text`,
+ * `file-upload-choose`, `file-upload-list`, `file-upload-row` (with `data-rejected`), `file-upload-row-text`,
+ * `file-upload-row-label`, `file-upload-row-detail`, `file-upload-row-actions`, `file-thumbnail`.
  */
 export const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>((props, ref) => {
 
@@ -348,7 +350,7 @@ export const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>((pro
   }
 
   return (
-    <div
+    <Stack
       {...rest}
       ref={ref}
       data-slot={'file-upload'}
@@ -356,7 +358,8 @@ export const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>((pro
       data-readonly={readOnly || undefined}
       data-invalid={(invalid || field.invalid) || undefined}
       data-single={single || undefined}
-      className={cn('flex flex-col gap-2', isDisabled && 'opacity-50', baseClasses, className)}
+      gap={2}
+      className={cn(isDisabled && 'opacity-50', baseClasses, className)}
     >
       <input
         ref={inputRef}
@@ -372,13 +375,16 @@ export const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>((pro
 
       {showBox && (
         // The box forwards the click to its button, which is the control; it takes no focus itself
-        <div
+        <Stack
           data-slot={'file-upload-box'}
           data-drag={drag.kind === 'idle' ? undefined : drag.kind}
           data-full={isFull || undefined}
           data-invalid={invalid || field.invalid || undefined}
+          direction={'horizontal'}
+          align={'center'}
+          gap={3}
           className={cn(
-            'flex min-h-20 cursor-pointer items-center gap-3 rounded-md border border-dashed border-input bg-card px-4 py-3 text-sm',
+            'min-h-20 cursor-pointer rounded-md border border-dashed border-input bg-card px-4 py-3 text-sm',
             'transition-colors duration-100 motion-reduce:transition-none',
             'hover:border-input-hover hover:bg-background',
             'has-[[data-slot=file-upload-choose]:focus-visible]:border-ring',
@@ -399,8 +405,8 @@ export const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>((pro
           onDrop={handleDrop}
         >
           <UploadGlyph />
-          <span className={'flex flex-col gap-0.5'}>{boxText}</span>
-        </div>
+          <Stack as={'span'} data-slot={'file-upload-box-text'} gap={0.5}>{boxText}</Stack>
+        </Stack>
       )}
 
       {files.length > 0 && (
@@ -437,7 +443,7 @@ export const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>((pro
       )}
 
       <span role={'status'} className={'sr-only'}>{announcement}</span>
-    </div>
+    </Stack>
   );
 
 });

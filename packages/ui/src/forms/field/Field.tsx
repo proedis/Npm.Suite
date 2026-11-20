@@ -12,6 +12,8 @@ import { responsiveClasses, toResponsiveMap } from '../../core/responsive';
 import { isPresent } from '../../internal/presence';
 import { ErrorGlyph } from '../../internal/glyphs';
 
+import { Stack } from '../../layout/Stack';
+
 import {
   FieldControlContext,
   FieldLabelNativeContext,
@@ -158,6 +160,7 @@ function spanClasses(span: Responsive<FieldSpan>): string[] {
  * of every part. `vertical` is the layout of `PART_PLACEMENT`, written again for a map that comes back
  * to it. Each class, with every breakpoint prefix, is declared in `theme.css`.
  */
+/* eslint-disable no-restricted-syntax -- grid placement of the parts: named tracks, gap-x apart, declared in theme.css */
 const ORIENTATION_LAYOUT: Readonly<Record<Direction, string>> = {
   horizontal: [
     'grid-cols-field-horizontal gap-x-4',
@@ -178,6 +181,7 @@ const ORIENTATION_LAYOUT: Readonly<Record<Direction, string>> = {
     '*:data-[slot=field-counter]:col-start-2 *:data-[slot=field-counter]:row-start-auto'
   ].join(' ')
 };
+/* eslint-enable no-restricted-syntax */
 
 /** The orientation out of a section: nothing for the vertical of `base`, which is the default layout */
 function orientationClasses(orientation: Responsive<Direction>): string[] {
@@ -200,6 +204,13 @@ function breakClasses(breakBefore: Responsive<boolean>): string[] {
     value ? 'in-data-[slot=form-section]:col-start-1' : 'in-data-[slot=form-section]:col-start-auto'
   ));
 }
+
+/**
+ * The field itself: a grid of named tracks (`grid-cols-field`), with a column gap apart from the row
+ * gap, which a form section turns into a subgrid of its rows. None of it is a Stack.
+ */
+// eslint-disable-next-line no-restricted-syntax -- named tracks and a subgrid, gap-x apart from gap-y
+const FIELD_GRID = 'grid min-w-0 grid-cols-field content-start gap-x-2 gap-y-1';
 
 /**
  * Where each part goes, by its slot and not by the order it was written in.
@@ -438,7 +449,8 @@ function FieldError(props: FieldErrorProps): React.ReactNode {
       {...rest}
       match={true}
       data-slot={'field-error'}
-      className={cn('flex items-start gap-1 self-start text-sm text-destructive', baseClasses, className)}
+      render={<Stack direction={'horizontal'} align={'start'} gap={1} />}
+      className={cn('self-start text-sm text-destructive', baseClasses, className)}
     >
       <ErrorGlyph />
       <span data-slot={'field-error-message'} className={'min-w-0'}>{children}</span>
@@ -596,7 +608,7 @@ const FieldRoot = React.forwardRef<HTMLDivElement, FieldProps>((props, ref) => {
       invalid={invalid}
       disabled={disabled}
       className={cn(
-        'grid min-w-0 grid-cols-field content-start gap-x-2 gap-y-1',
+        FIELD_GRID,
         PART_PLACEMENT,
         spanClasses(span),
         breakClasses(breakBefore),

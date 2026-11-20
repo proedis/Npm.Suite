@@ -3,6 +3,8 @@ import * as React from 'react';
 import { responsiveClasses } from '../../core/responsive';
 import { isPresent } from '../../internal/presence';
 
+import { Stack } from '../../layout/Stack';
+
 import type { Direction, Responsive } from '../../core/responsive';
 
 
@@ -18,10 +20,11 @@ import type { Direction, Responsive } from '../../core/responsive';
 
 /**
  * The row is a `<label>`: the whole of it, box, text and description, presses the control. The states
- * are written on it as `data-*` by the control, so the text can follow them.
+ * are written on it as `data-*` by the control, so the text can follow them. The row itself is a Stack
+ * (horizontal, aligned at the start, gap 2), which each control renders.
  */
 export const CHOICE_ROW = [
-  'group/choice relative flex items-start gap-2 text-sm text-foreground',
+  'group/choice relative text-sm text-foreground',
   'cursor-pointer data-disabled:cursor-not-allowed data-readonly:cursor-default'
 ].join(' ');
 
@@ -37,10 +40,11 @@ export const CHOICE_ALIGN = 'mt-0.5 shrink-0';
 /**
  * The box of a checkbox: its states written on it by Base UI as `data-*`. Shared by `Checkbox`, which
  * adds the alignment on the first line and the focus of a control, and by `CheckboxGrid`, whose cell
- * carries the focus instead. The hover reads `group/choice`, on the row or on the cell.
+ * carries the focus instead. The hover reads `group/choice`, on the row or on the cell. The box centres
+ * its mark as an inline Stack, which both readers give it through `render`.
  */
 export const CHECKBOX_BOX = [
-  'relative inline-flex size-4 items-center justify-center rounded-sm border border-input bg-card text-primary-foreground',
+  'relative size-4 rounded-sm border border-input bg-card text-primary-foreground',
   'transition-colors duration-100 motion-reduce:transition-none',
 
   /* Checked and partial weigh the same: only the mark changes. The transparent border lets a layer reach the edge */
@@ -69,18 +73,21 @@ export const CHECKBOX_BOX = [
 /**
  * The layout of a group per orientation. Each one says everything the other one sets (wrap, both gaps,
  * the growth of a card), so a group that turns from a column into a row at a breakpoint keeps nothing
- * of the column. Each class, with every breakpoint prefix, is declared in `theme.css`.
+ * of the column. Each class, with every breakpoint prefix, is declared in `theme.css`. The direction
+ * itself is the `direction` of the Stack each group renders, which takes the same responsive value.
  */
+/* eslint-disable no-restricted-syntax -- the row of a list group has gap-x and gap-y apart, and wrap switches per breakpoint */
 const GROUP_LAYOUT: Readonly<Record<'list' | 'card', Readonly<Record<Direction, string>>>> = {
   list: {
-    vertical  : 'flex-col flex-nowrap gap-2',
-    horizontal: 'flex-row flex-wrap gap-x-4 gap-y-2'
+    vertical  : 'flex-nowrap gap-2',
+    horizontal: 'flex-wrap gap-x-4 gap-y-2'
   },
   card: {
-    vertical  : 'flex-col flex-nowrap gap-2 *:flex-initial',
-    horizontal: 'flex-row flex-wrap gap-2 *:flex-1'
+    vertical  : 'flex-nowrap gap-2 *:flex-initial',
+    horizontal: 'flex-wrap gap-2 *:flex-1'
   }
 };
+/* eslint-enable no-restricted-syntax */
 
 
 /* --------
@@ -154,7 +161,7 @@ export function ChoiceText(props: ChoiceTextProps): React.ReactNode {
   }
 
   return (
-    <span data-slot={`${slot}-text`} className={'flex min-w-0 flex-col gap-0.5'}>
+    <Stack as={'span'} data-slot={`${slot}-text`} gap={0.5} className={'min-w-0'}>
       {isPresent(label) && (
         <span data-slot={`${slot}-label`} className={'group-data-disabled/choice:opacity-50'}>
           {label}
@@ -169,7 +176,7 @@ export function ChoiceText(props: ChoiceTextProps): React.ReactNode {
           {description}
         </span>
       )}
-    </span>
+    </Stack>
   );
 
 }

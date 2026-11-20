@@ -11,6 +11,8 @@ import { optionalContextBuilder, useEnhancedEffect } from '@proedis/react';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 import { CHECKBOX_BOX, CHOICE_ALIGN, CHOICE_FOCUS, CHOICE_ROW, ChoiceText, GROUP_FOCUS_PROPS, baseOrientation, choiceGroupClasses } from '../choice/choice';
 import { isPresent } from '../../internal/presence';
 import { CheckGlyph, DashGlyph } from '../../internal/glyphs';
@@ -251,8 +253,8 @@ export const CheckboxGroup = React.forwardRef<HTMLDivElement, CheckboxGroupProps
       data-readonly={readOnly || undefined}
       data-invalid={field.invalid || undefined}
       data-field-control={''}
+      render={<Stack direction={orientation} />}
       className={cn(
-        'flex',
         choiceGroupClasses(orientation),
         'has-[>[data-parent]]:*:not-data-parent:ms-6',
         baseClasses,
@@ -426,21 +428,29 @@ export const Checkbox = React.forwardRef<HTMLSpanElement, CheckboxProps>((props,
       data-invalid={isInvalid || undefined}
       data-slot={'checkbox-box'}
       data-field-control={group ? undefined : ''}
+      render={<Stack as={'span'} inline direction={'horizontal'} align={'center'} justify={'center'} />}
       className={BOX}
     >
-      <CheckboxPrimitive.Indicator data-slot={'checkbox-indicator'} className={'flex items-center justify-center'}>
+      <CheckboxPrimitive.Indicator
+        data-slot={'checkbox-indicator'}
+        render={<Stack as={'span'} direction={'horizontal'} align={'center'} justify={'center'} />}
+      >
         {isIndeterminate ? <DashGlyph /> : <CheckGlyph />}
       </CheckboxPrimitive.Indicator>
     </CheckboxPrimitive.Root>
   );
 
   const row = (
-    <label
+    <Stack
+      as={'label'}
       data-slot={'checkbox'}
       data-disabled={isDisabled || undefined}
       data-readonly={isReadOnly || undefined}
       data-invalid={isInvalid || undefined}
       data-parent={parent || undefined}
+      direction={'horizontal'}
+      align={'start'}
+      gap={2}
       className={cn(CHOICE_ROW, baseClasses, className)}
     >
       {box}
@@ -451,7 +461,7 @@ export const Checkbox = React.forwardRef<HTMLSpanElement, CheckboxProps>((props,
         descriptionId={descriptionId}
         required={showRequired}
       />
-    </label>
+    </Stack>
   );
 
   /*

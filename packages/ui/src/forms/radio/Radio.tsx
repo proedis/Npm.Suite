@@ -11,6 +11,8 @@ import { optionalContextBuilder } from '@proedis/react';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 import { CHOICE_ALIGN, CHOICE_FOCUS, CHOICE_ROW, ChoiceText, GROUP_FOCUS_PROPS, baseOrientation, choiceGroupClasses } from '../choice/choice';
 import { useFieldControl, useFieldRegistryContext, useNonNativeFieldLabel } from '../field/fieldContext';
 import { isPresent } from '../../internal/presence';
@@ -100,8 +102,9 @@ const [ RadioGroupContext, useRadioGroupContext ] = optionalContextBuilder<Radio
  * Constants Definition
  * -------- */
 
+/** The circle centres its dot as an inline Stack, given through `render` */
 const CIRCLE = [
-  'relative inline-flex size-4 items-center justify-center rounded-full border border-input bg-card',
+  'relative size-4 rounded-full border border-input bg-card',
   'transition-colors duration-100 motion-reduce:transition-none',
   CHOICE_ALIGN,
   CHOICE_FOCUS,
@@ -228,8 +231,8 @@ export const RadioGroup = React.forwardRef<HTMLDivElement, RadioGroupProps>((pro
       data-readonly={readOnly || undefined}
       data-invalid={isInvalid || undefined}
       data-field-control={''}
+      render={<Stack direction={orientation} />}
       className={cn(
-        'flex',
         choiceGroupClasses(orientation, variant === 'card' ? 'card' : 'list'),
         baseClasses,
         className
@@ -282,12 +285,16 @@ export const Radio = React.forwardRef<HTMLSpanElement, RadioProps>((props, ref) 
   const hasDescription = isPresent(description);
 
   const row = (
-    <label
+    <Stack
+      as={'label'}
       data-slot={'radio'}
       data-variant={group.variant}
       data-disabled={isDisabled || undefined}
       data-readonly={group.readOnly || undefined}
       data-invalid={group.invalid || undefined}
+      direction={'horizontal'}
+      align={'start'}
+      gap={2}
       className={cn(CHOICE_ROW, group.variant === 'card' && CARD, baseClasses, className)}
     >
       <RadioPrimitive.Root
@@ -298,13 +305,14 @@ export const Radio = React.forwardRef<HTMLSpanElement, RadioProps>((props, ref) 
         aria-describedby={[ ariaDescribedBy, hasDescription ? descriptionId : undefined ].filter(Boolean).join(' ') || undefined}
         data-invalid={group.invalid || undefined}
         data-slot={'radio-circle'}
+        render={<Stack as={'span'} inline direction={'horizontal'} align={'center'} justify={'center'} />}
         className={CIRCLE}
       >
         <RadioPrimitive.Indicator data-slot={'radio-dot'} className={DOT} />
       </RadioPrimitive.Root>
 
       <ChoiceText slot={'radio'} label={children} description={description} descriptionId={descriptionId} />
-    </label>
+    </Stack>
   );
 
   /*

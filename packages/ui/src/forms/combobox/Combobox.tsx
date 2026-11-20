@@ -10,6 +10,8 @@ import { useDelayedBusy, useForkRef } from '@proedis/react';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 import { Spinner } from '../../primitives/Spinner';
 
 
@@ -24,8 +26,8 @@ import {
   LIST_POSITIONER,
   LIST_SIDE_OFFSET
 } from '../../actions/list-panel/listPanel';
-import { LIST_RETRY, remoteListMessages } from '../list-field/listField';
-import { TEXT_CONTROL_FRAME, TEXT_CONTROL_SIZES, TEXT_CONTROL_TEXT, textControlState } from '../text-control/textControl';
+import { LIST_ITEM_LAYOUT, LIST_PANEL_LAYOUT, LIST_RETRY, remoteListMessages } from '../list-field/listField';
+import { TEXT_CONTROL_FRAME, TEXT_CONTROL_GAP, TEXT_CONTROL_SIZES, TEXT_CONTROL_TEXT, textControlState } from '../text-control/textControl';
 
 import { MultipleCombobox } from './MultipleCombobox';
 import { CheckGlyph, ClearGlyph, SearchGlyph } from '../../internal/glyphs';
@@ -103,7 +105,7 @@ function sameText(a: string, b: string): boolean {
  * - after an error the only item is "Retry", already active.
  *
  * Slots: `combobox` (the frame, with `data-size` and the states), `combobox-input`, `combobox-code`,
- * `combobox-end`, `combobox-clear`, `combobox-chevron`, `combobox-panel`, `combobox-item`,
+ * `combobox-end`, `combobox-clear`, `combobox-chevron`, `combobox-panel`, `combobox-item`, `combobox-item-text`,
  * `combobox-message`, `combobox-current`, `combobox-too-many`, `combobox-status`. With `multiple`, also
  * `combobox-trigger`, `combobox-chips`, `combobox-chip`, `combobox-chip-remove`, `combobox-more`,
  * `combobox-search`, `combobox-item-box`, `combobox-item-text`, `combobox-item-label`, `combobox-retry`
@@ -317,6 +319,9 @@ const SingleCombobox = React.forwardRef<HTMLInputElement, SingleComboboxProps>((
     }, labels)
     : { message: selected ? null : labels.minChars, status: '' };
 
+  /** The frame is a row: the glass, the text, the code, then the end */
+  const frameLayout = { direction: 'horizontal', align: 'center', gap: TEXT_CONTROL_GAP[size] } as const;
+
   const frameAttributes = {
     'data-slot': 'combobox',
     'data-size': size,
@@ -326,7 +331,7 @@ const SingleCombobox = React.forwardRef<HTMLInputElement, SingleComboboxProps>((
   const frameClasses = cn(
     TEXT_CONTROL_FRAME,
     TEXT_CONTROL_SIZES[size],
-    'group/list-field flex w-full min-w-0 cursor-text items-center',
+    'group/list-field w-full min-w-0 cursor-text',
     '[&_svg]:shrink-0 [&_svg]:text-muted-foreground',
     baseClasses,
     className
@@ -334,7 +339,7 @@ const SingleCombobox = React.forwardRef<HTMLInputElement, SingleComboboxProps>((
 
   if (readOnly) {
     return (
-      <div {...frameAttributes} className={frameClasses}>
+      <Stack {...frameAttributes} {...frameLayout} className={frameClasses}>
         <Input
           {...rest}
           readOnly
@@ -345,7 +350,7 @@ const SingleCombobox = React.forwardRef<HTMLInputElement, SingleComboboxProps>((
         />
         {selected?.code && <span data-slot={'combobox-code'} className={CODE}>{selected.code}</span>}
         {name && <input type={'hidden'} name={name} value={selected?.value ?? ''} />}
-      </div>
+      </Stack>
     );
   }
 
@@ -406,7 +411,7 @@ const SingleCombobox = React.forwardRef<HTMLInputElement, SingleComboboxProps>((
       disabled={isDisabled}
       name={name}
     >
-      <div ref={frameRef} {...frameAttributes} className={frameClasses}>
+      <Stack ref={frameRef} {...frameAttributes} {...frameLayout} className={frameClasses}>
         <SearchGlyph />
 
         <ComboboxPrimitive.Input
@@ -434,7 +439,7 @@ const SingleCombobox = React.forwardRef<HTMLInputElement, SingleComboboxProps>((
 
         {!focused && selected?.code && <span data-slot={'combobox-code'} className={CODE}>{selected.code}</span>}
 
-        <span data-slot={'combobox-end'} className={'flex shrink-0 items-center gap-1'}>
+        <Stack as={'span'} data-slot={'combobox-end'} direction={'horizontal'} align={'center'} gap={1} className={'shrink-0'}>
           {clearKind && (
             <IconButton
               label={clearKind === 'search' ? labels.clearSearch : labels.clear}
@@ -451,18 +456,24 @@ const SingleCombobox = React.forwardRef<HTMLInputElement, SingleComboboxProps>((
           {showBusy
             ? <Spinner size={'sm'} className={size === 'sm' ? 'size-3.5' : undefined} />
             : (
-              <ComboboxPrimitive.Trigger data-slot={'combobox-chevron'} tabIndex={-1} aria-hidden={'true'} className={'flex items-center outline-none'}>
+              <ComboboxPrimitive.Trigger
+                data-slot={'combobox-chevron'}
+                tabIndex={-1}
+                aria-hidden={'true'}
+                render={<Stack as={'button'} direction={'horizontal'} align={'center'} />}
+                className={'outline-none'}
+              >
                 <ChevronGlyph />
               </ComboboxPrimitive.Trigger>
             )}
-        </span>
-      </div>
+        </Stack>
+      </Stack>
 
       <ComboboxPrimitive.Status data-slot={'combobox-status'} className={'sr-only'}>{status}</ComboboxPrimitive.Status>
 
       <ComboboxPrimitive.Portal>
         <ComboboxPrimitive.Positioner anchor={frameRef} sideOffset={LIST_SIDE_OFFSET} className={LIST_POSITIONER}>
-          <ComboboxPrimitive.Popup data-slot={'combobox-panel'} className={cn(LIST_PANEL, 'min-w-80')}>
+          <ComboboxPrimitive.Popup data-slot={'combobox-panel'} render={LIST_PANEL_LAYOUT} className={cn(LIST_PANEL, 'min-w-80')}>
             {editing && selected && (
               <div data-slot={'combobox-current'} className={cn(LIST_MESSAGE, 'text-xs')}>{labels.current(focusText(selected))}</div>
             )}
@@ -476,12 +487,13 @@ const SingleCombobox = React.forwardRef<HTMLInputElement, SingleComboboxProps>((
                   value={item}
                   disabled={item.disabled}
                   data-slot={'combobox-item'}
+                  render={LIST_ITEM_LAYOUT}
                   className={cn(LIST_ITEM, 'data-selected:font-medium', item.code || item.description ? 'min-h-12' : '')}
                 >
                   {item === LIST_RETRY
                     ? <span className={'min-w-0 flex-1'}>{labels.retry}</span>
                     : (
-                      <span className={'flex min-w-0 flex-1 flex-col'}>
+                      <Stack as={'span'} data-slot={'combobox-item-text'} className={'min-w-0 flex-1'}>
                         <span>{item.label}</span>
                         {(item.code || item.description) && (
                           <span className={'text-xs text-muted-foreground'}>
@@ -495,7 +507,7 @@ const SingleCombobox = React.forwardRef<HTMLInputElement, SingleComboboxProps>((
                             {item.description}
                           </span>
                         )}
-                      </span>
+                      </Stack>
                     )}
                   <ComboboxPrimitive.ItemIndicator className={'ms-auto mt-0.5 shrink-0 [&_svg]:size-4 [&_svg]:text-primary'}>
                     <CheckGlyph />

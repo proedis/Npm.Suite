@@ -2,6 +2,8 @@ import * as React from 'react';
 
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 import { VisuallyHidden } from '../../primitives/VisuallyHidden';
 
 import { IconButton } from '../../actions/button/IconButton';
@@ -103,6 +105,19 @@ export const LIST_RETRY: ComboboxItem = { value: '\u0000retry', label: '' };
 
 
 /* --------
+ * Layout
+ * -------- */
+
+/**
+ * The layout of the classes of the list panel, given through `render` to the Base UI parts that carry
+ * them: the panel a column (`LIST_PANEL`), an option a row aligned at the top (`LIST_ITEM`)
+ */
+export const LIST_PANEL_LAYOUT = <Stack />;
+
+export const LIST_ITEM_LAYOUT = <Stack direction={'horizontal'} align={'start'} gap={2} />;
+
+
+/* --------
  * Helpers
  * -------- */
 
@@ -135,10 +150,10 @@ export function toggleFromFrame(
 /** The error line of a list, with its mark */
 export function ListError(props: { children: React.ReactNode }): React.ReactNode {
   return (
-    <span className={'flex items-start gap-1 text-destructive'}>
+    <Stack as={'span'} data-slot={'list-error'} direction={'horizontal'} align={'start'} gap={1} className={'text-destructive'}>
       <ErrorGlyph />
       {props.children}
-    </span>
+    </Stack>
   );
 }
 
@@ -155,11 +170,16 @@ export function ListChips(props: ListChipsProps): React.ReactNode {
   const hidden = readOnly ? [] : items.slice(maxChips);
 
   return (
-    <span
+    <Stack
+      as={'span'}
       data-slot={`${slot}-chips`}
+      direction={'horizontal'}
+      wrap={readOnly}
+      align={'center'}
+      gap={1.5}
       className={cn(
-        'pointer-events-none relative z-10 flex min-w-0 flex-1 items-center gap-1.5 *:pointer-events-auto',
-        readOnly ? 'flex-wrap py-1' : 'overflow-hidden'
+        'pointer-events-none relative z-10 min-w-0 flex-1 *:pointer-events-auto',
+        readOnly ? 'py-1' : 'overflow-hidden'
       )}
     >
       {items.length === 0 && placeholder && <span className={'truncate text-placeholder'}>{placeholder}</span>}
@@ -168,9 +188,14 @@ export function ListChips(props: ListChipsProps): React.ReactNode {
         const locked = isLocked?.(item) ?? false;
 
         return (
-          <span
+          <Stack
+            as={'span'}
             key={item.value}
             data-slot={`${slot}-chip`}
+            inline
+            direction={'horizontal'}
+            align={'center'}
+            gap={0.5}
             className={cn(LIST_CHIP, (inert || locked) && 'pe-1.5', readOnly && 'border border-border bg-card')}
           >
             <Tooltip content={item.label} truncatedOnly align={'start'}>
@@ -189,19 +214,19 @@ export function ListChips(props: ListChipsProps): React.ReactNode {
                 onClick={() => onRemove(item)}
               />
             )}
-          </span>
+          </Stack>
         );
       })}
 
       {hidden.length > 0 && (
         <Tooltip content={<OverflowTooltipList values={hidden.map((item) => item.label)} rest={labels.moreRest} />}>
-          <span data-slot={`${slot}-more`} className={cn(LIST_CHIP, 'pe-1.5')}>
+          <Stack as={'span'} data-slot={`${slot}-more`} inline direction={'horizontal'} align={'center'} gap={0.5} className={cn(LIST_CHIP, 'pe-1.5')}>
             <span aria-hidden={'true'}>{`+${hidden.length}`}</span>
             <VisuallyHidden>{labels.more(hidden.length)}</VisuallyHidden>
-          </span>
+          </Stack>
         </Tooltip>
       )}
-    </span>
+    </Stack>
   );
 }
 

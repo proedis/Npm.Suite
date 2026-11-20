@@ -9,6 +9,8 @@ import { useAnnouncer } from '@proedis/react';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 import { CHECKBOX_BOX } from '../choice/choice';
 import { CollapsibleSection } from '../../actions/collapsible/CollapsibleSection';
 import { Tooltip } from '../../actions/tooltip/Tooltip';
@@ -186,6 +188,17 @@ const COLUMN_WIDTH = '6rem';
 /** In read only, the width of the column with the checked columns as text */
 const TEXT_WIDTH = '24rem';
 
+/*
+ * A row and the header of the columns are grids whose tracks come from the data, as an inline
+ * `grid-template-columns` (`template`): there is no column count for Stack to state, and Grid would
+ * impose an auto-fill template and a gap of its own.
+ */
+// eslint-disable-next-line no-restricted-syntax -- tracks from the data, an inline template: no column count to give
+const ROW_TRACKS = 'grid min-h-8';
+
+// eslint-disable-next-line no-restricted-syntax -- tracks from the data, an inline template: no column count to give
+const HEADER_TRACKS = 'sticky top-0 z-2 grid h-8 items-center border-y border-border bg-card text-xs font-semibold text-muted-foreground';
+
 const CELL_FOCUS = 'has-focus-visible:outline-2 has-focus-visible:-outline-offset-2 has-focus-visible:outline-ring';
 
 /** The header of an open group stays put under the header of the columns */
@@ -298,7 +311,7 @@ function withColumn(value: CheckboxGridValue, itemIds: readonly string[], column
  * `checkbox-grid-column-header`, each group a `collapsible-section` (with `data-modified`),
  * `checkbox-grid-modified`, `checkbox-grid-body`, `checkbox-grid-all`, `checkbox-grid-item`,
  * `checkbox-grid-item-name`, `checkbox-grid-cell` (with `data-parent`, `data-locked`, `data-changed`),
- * `checkbox-grid-box`, `checkbox-grid-changed`, `checkbox-grid-text`, `checkbox-grid-status`.
+ * `checkbox-grid-box`, `checkbox-grid-indicator`, `checkbox-grid-changed`, `checkbox-grid-text`, `checkbox-grid-status`.
  */
 export function CheckboxGrid(props: CheckboxGridProps): React.ReactNode {
 
@@ -549,9 +562,13 @@ export function CheckboxGrid(props: CheckboxGridProps): React.ReactNode {
       aria-labelledby={options.labelledBy}
       aria-describedby={options.describedBy}
       data-slot={'checkbox-grid-box'}
+      render={<Stack as={'span'} inline direction={'horizontal'} align={'center'} justify={'center'} />}
       className={cn(CHECKBOX_BOX, 'outline-none')}
     >
-      <CheckboxPrimitive.Indicator className={'flex items-center justify-center'}>
+      <CheckboxPrimitive.Indicator
+        data-slot={'checkbox-grid-indicator'}
+        render={<Stack as={'span'} direction={'horizontal'} align={'center'} justify={'center'} />}
+      >
         {options.mixed ? <DashGlyph /> : <CheckGlyph />}
       </CheckboxPrimitive.Indicator>
     </CheckboxPrimitive.Root>
@@ -564,14 +581,14 @@ export function CheckboxGrid(props: CheckboxGridProps): React.ReactNode {
           key={item.id}
           data-slot={'checkbox-grid-item'}
           style={template}
-          className={'grid min-h-8 border-t border-border'}
+          className={cn(ROW_TRACKS, 'border-t border-border')}
         >
-          <span data-slot={'checkbox-grid-item-name'} className={'flex min-w-0 items-center py-1.5 ps-12 pe-2'}>
+          <Stack as={'span'} data-slot={'checkbox-grid-item-name'} direction={'horizontal'} align={'center'} className={'min-w-0 py-1.5 ps-12 pe-2'}>
             {item.label}
-          </span>
-          <span data-slot={'checkbox-grid-text'} className={'flex items-center py-1.5 pe-6'}>
+          </Stack>
+          <Stack as={'span'} data-slot={'checkbox-grid-text'} direction={'horizontal'} align={'center'} className={'py-1.5 pe-6'}>
             {labels.readOnlyValue?.(item, columns.filter((column) => isChecked(currentValue, item.id, column.id)))}
-          </span>
+          </Stack>
         </li>
       ))}
     </ul>
@@ -597,20 +614,23 @@ export function CheckboxGrid(props: CheckboxGridProps): React.ReactNode {
           data-slot={item ? 'checkbox-grid-item' : 'checkbox-grid-all'}
           style={template}
           className={cn(
-            'grid min-h-8',
+            ROW_TRACKS,
             item
               ? 'border-t border-border hover:bg-accent focus-within:bg-accent [[data-slot=checkbox-grid-all]+&]:border-t-0'
               : 'border-b border-input font-medium text-muted-foreground'
           )}
         >
-          <span
+          <Stack
+            as={'span'}
             role={'rowheader'}
             id={rowName}
             data-slot={'checkbox-grid-item-name'}
-            className={'flex min-w-0 items-center py-1.5 ps-12 pe-2'}
+            direction={'horizontal'}
+            align={'center'}
+            className={'min-w-0 py-1.5 ps-12 pe-2'}
           >
             {item ? item.label : labels.allItems}
-          </span>
+          </Stack>
 
           {columns.map((column, columnIndex) => {
             const cell = cellKey(group.id, row.key, columnIndex);
@@ -635,17 +655,21 @@ export function CheckboxGrid(props: CheckboxGridProps): React.ReactNode {
               const tip = mixedText ?? (state.locked ? labels.locked : null);
 
               return (
-                <span
+                <Stack
+                  as={'span'}
                   key={column.id}
                   role={'gridcell'}
                   data-slot={'checkbox-grid-cell'}
                   data-parent={''}
                   data-locked={state.locked || undefined}
-                  className={cn('group/choice relative flex items-center justify-center', CELL_FOCUS)}
+                  direction={'horizontal'}
+                  align={'center'}
+                  justify={'center'}
+                  className={cn('group/choice relative', CELL_FOCUS)}
                 >
                   {tip ? <Tooltip content={tip}>{box}</Tooltip> : box}
                   {mixedText && <span id={mixedId} hidden>{mixedText}</span>}
-                </span>
+                </Stack>
               );
             }
 
@@ -663,13 +687,17 @@ export function CheckboxGrid(props: CheckboxGridProps): React.ReactNode {
             });
 
             return (
-              <span
+              <Stack
+                as={'span'}
                 key={column.id}
                 role={'gridcell'}
                 data-slot={'checkbox-grid-cell'}
                 data-locked={locked || undefined}
                 data-changed={isChanged || undefined}
-                className={cn('group/choice relative flex items-center justify-center', CELL_FOCUS)}
+                direction={'horizontal'}
+                align={'center'}
+                justify={'center'}
+                className={cn('group/choice relative', CELL_FOCUS)}
               >
                 {locked ? <Tooltip content={labels.locked}>{box}</Tooltip> : box}
                 {isChanged && (
@@ -679,7 +707,7 @@ export function CheckboxGrid(props: CheckboxGridProps): React.ReactNode {
                     className={'absolute top-1.5 start-1/2 ms-2 size-1.5 rounded-full bg-primary'}
                   />
                 )}
-              </span>
+              </Stack>
             );
           })}
         </div>
@@ -710,20 +738,20 @@ export function CheckboxGrid(props: CheckboxGridProps): React.ReactNode {
   // Component Render
   // ----
   return (
-    <div
+    <Stack
       {...rest}
       ref={rootRef}
       data-slot={'checkbox-grid'}
       data-read-only={readOnly || undefined}
       data-searching={searching || undefined}
-      className={cn('relative flex flex-col text-sm text-foreground', baseClasses, className)}
+      className={cn('relative text-sm text-foreground', baseClasses, className)}
     >
       {hasHeader && (
         <div
           aria-hidden={'true'}
           data-slot={'checkbox-grid-header'}
           style={template}
-          className={'sticky top-0 z-2 grid h-8 items-center border-y border-border bg-card text-xs font-semibold text-muted-foreground'}
+          className={HEADER_TRACKS}
         >
           <span data-slot={'checkbox-grid-column-header'} className={'ps-12'}>{labels.itemsHeader}</span>
           {columns.map((column) => (
@@ -746,10 +774,10 @@ export function CheckboxGrid(props: CheckboxGridProps): React.ReactNode {
             onOpenChange={(next) => setGroupOpen(group.id, next)}
             title={group.label}
             status={isModified && (
-              <span data-slot={'checkbox-grid-modified'} className={'flex items-center gap-1.5'}>
+              <Stack as={'span'} data-slot={'checkbox-grid-modified'} direction={'horizontal'} align={'center'} gap={1.5}>
                 <span aria-hidden={'true'} className={'size-1.5 rounded-full bg-primary'} />
                 {labels.modified}
-              </span>
+              </Stack>
             )}
             meta={labels.groupMeta({ group, selected: selectedCount(group, columns, currentValue), total: group.items.length })}
             data-modified={isModified || undefined}
@@ -767,7 +795,7 @@ export function CheckboxGrid(props: CheckboxGridProps): React.ReactNode {
       <span id={lockedId} hidden>{labels.locked}</span>
       {labels.changed && <span id={changedId} hidden>{labels.changed}</span>}
       <span data-slot={'checkbox-grid-status'} role={'status'} className={'sr-only'}>{announcement}</span>
-    </div>
+    </Stack>
   );
 
 }

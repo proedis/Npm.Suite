@@ -9,6 +9,8 @@ import { useDelayedBusy, useForkRef } from '@proedis/react';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 import { Spinner } from '../../primitives/Spinner';
 
 import { VisuallyHidden } from '../../primitives/VisuallyHidden';
@@ -28,8 +30,8 @@ import {
   LIST_SIDE_OFFSET,
   ListFieldEnd
 } from '../../actions/list-panel/listPanel';
-import { LIST_RETRY, ListChips, remoteListMessages, toggleFromFrame } from '../list-field/listField';
-import { TEXT_CONTROL_FRAME, TEXT_CONTROL_SIZES, textControlState } from '../text-control/textControl';
+import { LIST_ITEM_LAYOUT, LIST_PANEL_LAYOUT, LIST_RETRY, ListChips, remoteListMessages, toggleFromFrame } from '../list-field/listField';
+import { TEXT_CONTROL_FRAME, TEXT_CONTROL_GAP, TEXT_CONTROL_SIZES, textControlState } from '../text-control/textControl';
 import { CheckGlyph, SearchGlyph } from '../../internal/glyphs';
 
 import type { ComboboxItem, MultipleComboboxProps } from './comboboxTypes';
@@ -175,6 +177,9 @@ export const MultipleCombobox = React.forwardRef<HTMLButtonElement, MultipleComb
     />
   );
 
+  /** The frame is a row: the chips, then the arrow, over a trigger as large as the frame */
+  const frameLayout = { direction: 'horizontal', align: 'center', gap: TEXT_CONTROL_GAP[size] } as const;
+
   const frameAttributes = {
     'data-slot': 'combobox',
     'data-size': size,
@@ -185,7 +190,7 @@ export const MultipleCombobox = React.forwardRef<HTMLButtonElement, MultipleComb
   const frameClasses = cn(
     TEXT_CONTROL_FRAME,
     TEXT_CONTROL_SIZES[size],
-    'group/list-field relative flex w-full min-w-60 items-center',
+    'group/list-field relative w-full min-w-60',
     readOnly && 'h-auto min-h-control-md',
     '[&_svg]:shrink-0 [&_svg]:text-muted-foreground',
     baseClasses,
@@ -196,7 +201,7 @@ export const MultipleCombobox = React.forwardRef<HTMLButtonElement, MultipleComb
 
   if (readOnly) {
     return (
-      <div {...frameAttributes} className={frameClasses}>
+      <Stack {...frameAttributes} {...frameLayout} className={frameClasses}>
         <input
           id={rest.id}
           aria-label={rest['aria-label']}
@@ -208,7 +213,7 @@ export const MultipleCombobox = React.forwardRef<HTMLButtonElement, MultipleComb
         />
         {chips}
         {name && chosen.map((item) => <input key={item.value} type={'hidden'} name={name} value={item.value} />)}
-      </div>
+      </Stack>
     );
   }
 
@@ -246,7 +251,7 @@ export const MultipleCombobox = React.forwardRef<HTMLButtonElement, MultipleComb
       disabled={isDisabled}
       name={name}
     >
-      <div ref={frameRef} {...frameAttributes} className={frameClasses} onMouseDown={handleFrameMouseDown}>
+      <Stack ref={frameRef} {...frameAttributes} {...frameLayout} className={frameClasses} onMouseDown={handleFrameMouseDown}>
         <ComboboxPrimitive.Trigger
           {...rest}
           ref={handleTriggerRef}
@@ -265,14 +270,14 @@ export const MultipleCombobox = React.forwardRef<HTMLButtonElement, MultipleComb
           spinner={null}
           className={'pointer-events-none relative z-10'}
         />
-      </div>
+      </Stack>
 
       <ComboboxPrimitive.Status className={'sr-only'}>{status}</ComboboxPrimitive.Status>
 
       <ComboboxPrimitive.Portal>
         <ComboboxPrimitive.Positioner anchor={frameRef} sideOffset={LIST_SIDE_OFFSET} className={LIST_POSITIONER}>
-          <ComboboxPrimitive.Popup data-slot={'combobox-panel'} className={cn(LIST_PANEL, 'min-w-80')}>
-            <div data-slot={'combobox-search'} className={LIST_SEARCH}>
+          <ComboboxPrimitive.Popup data-slot={'combobox-panel'} render={LIST_PANEL_LAYOUT} className={cn(LIST_PANEL, 'min-w-80')}>
+            <Stack data-slot={'combobox-search'} direction={'horizontal'} align={'center'} gap={2} className={LIST_SEARCH}>
               <SearchGlyph />
               <ComboboxPrimitive.Input
                 placeholder={labels.placeholder}
@@ -285,7 +290,7 @@ export const MultipleCombobox = React.forwardRef<HTMLButtonElement, MultipleComb
                 }}
               />
               {showBusy && <Spinner size={'sm'} className={'size-3.5'} />}
-            </div>
+            </Stack>
 
             {message && <div data-slot={'combobox-message'} className={cn(LIST_MESSAGE, 'text-xs')}>{message}</div>}
 
@@ -296,21 +301,33 @@ export const MultipleCombobox = React.forwardRef<HTMLButtonElement, MultipleComb
                   value={item}
                   disabled={item.disabled}
                   data-slot={'combobox-item'}
+                  render={LIST_ITEM_LAYOUT}
                   className={cn(LIST_ITEM, 'group/option', item.code || item.description ? 'min-h-12' : '')}
                 >
                   {item === LIST_RETRY
                     ? <span data-slot={'combobox-retry'} className={'min-w-0 flex-1'}>{labels.retry}</span>
                     : (
                       <React.Fragment>
-                        <span data-slot={'combobox-item-box'} className={LIST_OPTION_BOX} aria-hidden={'true'}><CheckGlyph /></span>
-                        <span data-slot={'combobox-item-text'} className={'flex min-w-0 flex-1 flex-col'}>
+                        <Stack
+                          as={'span'}
+                          data-slot={'combobox-item-box'}
+                          inline
+                          direction={'horizontal'}
+                          align={'center'}
+                          justify={'center'}
+                          className={LIST_OPTION_BOX}
+                          aria-hidden={'true'}
+                        >
+                          <CheckGlyph />
+                        </Stack>
+                        <Stack as={'span'} data-slot={'combobox-item-text'} className={'min-w-0 flex-1'}>
                           <span data-slot={'combobox-item-label'}>{item.label}</span>
                           {(item.code || item.description) && (
                             <span className={'text-xs text-muted-foreground'}>
                               {[ item.code, item.description ].filter(Boolean).join(' · ')}
                             </span>
                           )}
-                        </span>
+                        </Stack>
                       </React.Fragment>
                     )}
                 </ComboboxPrimitive.Item>
@@ -321,12 +338,12 @@ export const MultipleCombobox = React.forwardRef<HTMLButtonElement, MultipleComb
               <div data-slot={'combobox-too-many'} className={cn(LIST_MESSAGE, 'text-xs')}>{labels.tooMany(items.length)}</div>
             )}
 
-            <div data-slot={'combobox-footer'} className={LIST_FOOTER}>
+            <Stack data-slot={'combobox-footer'} direction={'horizontal'} align={'center'} justify={'between'} gap={1} className={LIST_FOOTER}>
               <span />
               <Button size={'sm'} fill={'plain'} tone={'primary'} disabled={chosen.length === 0} onClick={() => change([])}>
                 {labels.clearAll}
               </Button>
-            </div>
+            </Stack>
           </ComboboxPrimitive.Popup>
         </ComboboxPrimitive.Positioner>
       </ComboboxPrimitive.Portal>

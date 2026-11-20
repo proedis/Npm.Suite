@@ -11,6 +11,8 @@ import { useForkRef } from '@proedis/react';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
+import { Stack } from '../../layout/Stack';
+
 import { Spinner } from '../../primitives/Spinner';
 
 import { IconButton } from '../../actions/button/IconButton';
@@ -28,8 +30,8 @@ import {
   matchesSearch,
   normalizeForSearch
 } from '../../actions/list-panel/listPanel';
-import { toggleFromFrame } from '../list-field/listField';
-import { TEXT_CONTROL_FRAME, TEXT_CONTROL_SIZES, TEXT_CONTROL_TEXT, textControlState } from '../text-control/textControl';
+import { LIST_ITEM_LAYOUT, LIST_PANEL_LAYOUT, toggleFromFrame } from '../list-field/listField';
+import { TEXT_CONTROL_FRAME, TEXT_CONTROL_GAP, TEXT_CONTROL_SIZES, TEXT_CONTROL_TEXT, textControlState } from '../text-control/textControl';
 import { CheckGlyph, ClearGlyph, SearchGlyph } from '../../internal/glyphs';
 
 import type { BaseProps } from '../../core/base';
@@ -119,7 +121,10 @@ export type SelectProps = StrictSelectProps & SelectLoadingProps & Omit<
 
 const DEFAULT_THRESHOLD = 8;
 
-const TRIGGER = 'flex h-full min-w-0 flex-1 cursor-default items-center bg-transparent text-start outline-none';
+/** The button that opens the list, a row through `render` (`TRIGGER_LAYOUT`) */
+const TRIGGER = 'h-full min-w-0 flex-1 cursor-default bg-transparent text-start outline-none';
+
+const TRIGGER_LAYOUT = <Stack as={'button'} direction={'horizontal'} align={'center'} />;
 
 const VALUE = 'min-w-0 flex-1 truncate data-placeholder:text-placeholder';
 
@@ -321,11 +326,14 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>((props, f
   const frameClasses = cn(
     TEXT_CONTROL_FRAME,
     TEXT_CONTROL_SIZES[size],
-    'group/list-field flex w-full min-w-0 items-center',
+    'group/list-field w-full min-w-0',
     '[&_svg]:shrink-0 [&_svg]:text-muted-foreground',
     baseClasses,
     className
   );
+
+  /** The frame is a row: its parts are the trigger, the clear button and the arrow */
+  const frameLayout = { direction: 'horizontal', align: 'center', gap: TEXT_CONTROL_GAP[size] } as const;
 
   const frameAttributes = {
     'data-slot': 'select',
@@ -365,7 +373,7 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>((props, f
   /* Read only: the text is selectable and the value is submitted, and nothing opens */
   if (readOnly) {
     return (
-      <div {...frameAttributes} className={frameClasses}>
+      <Stack {...frameAttributes} {...frameLayout} className={frameClasses}>
         <Input
           id={rest.id}
           aria-label={rest['aria-label']}
@@ -378,7 +386,7 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>((props, f
           className={cn('h-full min-w-0 flex-1 truncate bg-transparent outline-none', TEXT_CONTROL_TEXT)}
         />
         {name && <input type={'hidden'} name={name} value={current ?? ''} />}
-      </div>
+      </Stack>
     );
   }
 
@@ -404,10 +412,11 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>((props, f
         disabled={isDisabled}
         name={name}
       >
-        <div ref={frameRef} {...frameAttributes} className={frameClasses} onMouseDown={handleFrameMouseDown}>
+        <Stack ref={frameRef} {...frameAttributes} {...frameLayout} className={frameClasses} onMouseDown={handleFrameMouseDown}>
           <SelectPrimitive.Trigger
             ref={handleTriggerRef}
             {...triggerAttributes}
+            render={TRIGGER_LAYOUT}
             className={TRIGGER}
             onKeyDown={handleTriggerKeyDown}
           >
@@ -415,7 +424,7 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>((props, f
           </SelectPrimitive.Trigger>
 
           <ListFieldEnd loading={loading} spinner={spinner}>{clearButton}</ListFieldEnd>
-        </div>
+        </Stack>
 
         <SelectPrimitive.Portal>
           <SelectPrimitive.Positioner
@@ -424,7 +433,7 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>((props, f
             sideOffset={LIST_SIDE_OFFSET}
             className={LIST_POSITIONER}
           >
-            <SelectPrimitive.Popup ref={popupRef} data-slot={'select-panel'} className={LIST_PANEL}>
+            <SelectPrimitive.Popup ref={popupRef} data-slot={'select-panel'} render={LIST_PANEL_LAYOUT} className={LIST_PANEL}>
               <SelectPrimitive.List className={LIST_ITEMS}>
                 {options.map((option) => (
                   <SelectPrimitive.Item
@@ -434,6 +443,7 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>((props, f
                     disabled={option.disabled}
                     data-slot={'select-item'}
                     data-option-value={option.value}
+                    render={LIST_ITEM_LAYOUT}
                     className={cn(LIST_ITEM, 'data-selected:font-medium')}
                   >
                     {item(
@@ -468,10 +478,11 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>((props, f
       disabled={isDisabled}
       name={name}
     >
-      <div ref={frameRef} {...frameAttributes} className={frameClasses} onMouseDown={handleFrameMouseDown}>
+      <Stack ref={frameRef} {...frameAttributes} {...frameLayout} className={frameClasses} onMouseDown={handleFrameMouseDown}>
         <ComboboxPrimitive.Trigger
           ref={handleTriggerRef}
           {...triggerAttributes}
+          render={TRIGGER_LAYOUT}
           className={TRIGGER}
           onKeyDown={handleTriggerKeyDown}
         >
@@ -485,15 +496,15 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>((props, f
         </ComboboxPrimitive.Trigger>
 
         <ListFieldEnd loading={loading} spinner={spinner}>{clearButton}</ListFieldEnd>
-      </div>
+      </Stack>
 
       <ComboboxPrimitive.Portal>
         <ComboboxPrimitive.Positioner anchor={frameRef} sideOffset={LIST_SIDE_OFFSET} className={LIST_POSITIONER}>
-          <ComboboxPrimitive.Popup ref={popupRef} data-slot={'select-panel'} className={LIST_PANEL}>
-            <div data-slot={'select-search'} className={LIST_SEARCH}>
+          <ComboboxPrimitive.Popup ref={popupRef} data-slot={'select-panel'} render={LIST_PANEL_LAYOUT} className={LIST_PANEL}>
+            <Stack data-slot={'select-search'} direction={'horizontal'} align={'center'} gap={2} className={LIST_SEARCH}>
               <SearchGlyph />
               <ComboboxPrimitive.Input data-slot={'select-search-input'} placeholder={labels.search} className={LIST_SEARCH_INPUT} />
-            </div>
+            </Stack>
 
             <ComboboxPrimitive.Empty data-slot={'select-empty'} className={cn(LIST_MESSAGE, 'empty:hidden')}>
               {labels.noResults}
@@ -507,6 +518,7 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>((props, f
                   disabled={option.disabled}
                   data-slot={'select-item'}
                   data-option-value={option.value}
+                  render={LIST_ITEM_LAYOUT}
                   className={cn(LIST_ITEM, 'data-selected:font-medium')}
                 >
                   {item(option, option.label, ComboboxPrimitive.ItemIndicator)}
