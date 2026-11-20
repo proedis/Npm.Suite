@@ -157,13 +157,34 @@ function SingleCombobox(props: SingleComboboxProps): React.ReactNode {
   // ----
   // Internal State
   // ----
-  const selected = value === undefined
-    ? selectedItem
-    : value === null ? null : selectedItem?.value === value ? selectedItem : { value, label: value };
+  /** Neither `value` nor `selectedItem`: the field keeps its own choice, or leaving it would forget it */
+  const uncontrolled = value === undefined && props.selectedItem === undefined;
+  const [ ownItem, setOwnItem ] = React.useState<ComboboxItem | null>(null);
+
+  const selected = uncontrolled
+    ? ownItem
+    : value === undefined
+      ? selectedItem
+      : value === null ? null : selectedItem?.value === value ? selectedItem : { value, label: value };
 
   const [ text, setText ] = React.useState(restText(selected));
   const [ open, setOpen ] = React.useState(false);
   const [ focused, setFocused ] = React.useState(false);
+
+  /**
+   * The texts the field last showed for its value. When the value changes from outside (a reset, the
+   * record of the value arriving after it) and the field still shows one of them, it shows the new
+   * one, adjusted while rendering. Text being typed is left alone.
+   */
+  const [ shownFor, setShownFor ] = React.useState({ rest: restText(selected), focus: focusText(selected) });
+
+  if (shownFor.rest !== restText(selected) || shownFor.focus !== focusText(selected)) {
+    setShownFor({ rest: restText(selected), focus: focusText(selected) });
+
+    if (sameText(text, shownFor.rest) || sameText(text, shownFor.focus)) {
+      setText(focused ? focusText(selected) : restText(selected));
+    }
+  }
 
   const editing = !sameText(text, restText(selected)) && !sameText(text, focusText(selected));
   const term = editing ? text.trim() : '';
@@ -174,6 +195,10 @@ function SingleCombobox(props: SingleComboboxProps): React.ReactNode {
   // Handlers
   // ----
   const choose = (item: ComboboxItem | null): void => {
+    if (uncontrolled) {
+      setOwnItem(item);
+    }
+
     onValueChange?.(item?.value ?? null, item);
     setText(focused ? focusText(item) : restText(item));
     onInputValueChange?.('');
