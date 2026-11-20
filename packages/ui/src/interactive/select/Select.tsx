@@ -217,7 +217,17 @@ export function Select(props: SelectProps): React.ReactNode {
   const isInvalid = invalid || field.invalid;
   const isRequired = required || field.required;
   const canClear = !isRequired && !readOnly && !isDisabled && !loading && current !== null;
-  const searchable = options.length > searchThreshold;
+
+  /**
+   * The engine is chosen while the list is closed and kept while it is open, adjusted while
+   * rendering. Options that cross the threshold under an open list (an async load, a filter upstream)
+   * would otherwise unmount one engine and mount the other with the list still open.
+   */
+  const [ searchable, setSearchable ] = React.useState(options.length > searchThreshold);
+
+  if (!open && searchable !== options.length > searchThreshold) {
+    setSearchable(options.length > searchThreshold);
+  }
 
 
   // ----

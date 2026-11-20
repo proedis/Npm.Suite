@@ -161,7 +161,11 @@ export function FilterList(props: FilterListProps): React.ReactNode {
   const [ query, setQuery ] = React.useState('');
   const [ activeKey, setActiveKey ] = React.useState<string | null>(value[0] ?? null);
 
-  const searchable = remote !== undefined || options.length > searchThreshold;
+  /**
+   * Decided once: the list lives only while its panel is open, and options that cross the threshold
+   * under it would mount or unmount the search, moving the focus target, while it is in use.
+   */
+  const [ searchable ] = React.useState(remote !== undefined || options.length > searchThreshold);
   const term = query.trim();
   const minChars = remote?.minChars ?? 2;
   const underMin = remote !== undefined && term.length < minChars;

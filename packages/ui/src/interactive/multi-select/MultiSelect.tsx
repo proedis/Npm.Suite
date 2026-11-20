@@ -198,6 +198,13 @@ export function MultiSelect(props: MultiSelectProps): React.ReactNode {
   const [ open, setOpen ] = React.useState(false);
   const [ query, setQuery ] = React.useState('');
 
+  /** The engine is chosen while the list is closed and kept while it is open: see `Select` */
+  const [ searchable, setSearchable ] = React.useState(options.length > searchThreshold);
+
+  if (!open && searchable !== options.length > searchThreshold) {
+    setSearchable(options.length > searchThreshold);
+  }
+
   const current = value ?? ownValue;
   const chosen = options.filter((option) => current.includes(option.value));
 
@@ -247,7 +254,6 @@ export function MultiSelect(props: MultiSelectProps): React.ReactNode {
   // ----
   const isDisabled = disabled || field.disabled;
   const isInvalid = invalid || field.invalid;
-  const searchable = options.length > searchThreshold;
   const inert = readOnly || isDisabled || loading;
 
   /* The footer acts on the options that can change: the ones found, while searching */
