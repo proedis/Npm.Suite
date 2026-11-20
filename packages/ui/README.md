@@ -803,7 +803,9 @@ What is worth knowing before using them:
   formatters, says how dates, numbers and enum labels read. The package knows no formatter.
 - **A detail lines up with its form.** `Detail.Grid` has the six columns of `Form.Section`, and a
   `Detail.Item` takes the columns of the field of its `type` (`DETAIL_SPAN`, built on `FIELD_SPAN`):
-  in edit the fields take the place of the values and nothing moves. A value that is not there reads
+  in edit the fields take the place of the values and nothing moves. `span` and `breakBefore` follow
+  the contract of the `Field` ones, a value per breakpoint included, so an override holds in both
+  modes; a map without `base` starts from the type's columns. A value that is not there reads
   "—" with `labels.empty` as its name; `copyable` adds a button that copies the text of the value and
   announces it. A section that arrives from a call of its own takes `loading`, or `error` and
   `onRetry`, and the rest of the detail stays.

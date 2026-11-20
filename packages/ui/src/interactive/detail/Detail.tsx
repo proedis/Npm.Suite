@@ -6,6 +6,7 @@ import { optionalContextBuilder } from '@proedis/react';
 
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
+import { responsiveClasses, toResponsiveMap } from '../../core/responsive';
 
 import { Button } from '../button/Button';
 import { EmptyState } from '../empty-state/EmptyState';
@@ -13,6 +14,7 @@ import { FIELD_SPAN } from '../field/Field';
 import { Tooltip } from '../tooltip/Tooltip';
 
 import type { BaseProps } from '../../core/base';
+import type { Responsive } from '../../core/responsive';
 
 import type { FieldSpan } from '../field/Field';
 
@@ -89,11 +91,16 @@ export interface DetailItemProps extends BaseProps, Omit<React.ComponentProps<'d
   /** Gives the columns, from `DETAIL_SPAN`. Defaults to `text` */
   type?: DetailValueType;
 
-  /** The columns, overriding the type's: only for a reason said in review */
-  span?: FieldSpan;
+  /**
+   * The columns, overriding the type's: only for a reason said in review. The same contract as the
+   * `span` of a `Field`, so the value and its field keep the same place: one value lets the grid decide
+   * below 32rem of its own width, a map per breakpoint of the window is the caller's decision at every
+   * width, `{ base: 6, md: 3, xl: 2 }`. A map without `base` starts from the type's columns
+   */
+  span?: Responsive<FieldSpan>;
 
-  /** Starts a new row: the first of two related values, or a row that does not close */
-  breakBefore?: boolean;
+  /** Starts a new row: the first of two related values, or a row that does not close. Per breakpoint too */
+  breakBefore?: Responsive<boolean>;
 
   /**
    * The label is read and not shown: the only value of a section that is a collection, named by the
@@ -156,6 +163,27 @@ const SPAN_CLASSES: Readonly<Record<FieldSpan, string>> = {
   4: 'col-span-4 @max-lg:col-span-6',
   6: 'col-span-6'
 };
+
+/**
+ * The span of a map, one class per breakpoint and no fallback: the caller decided every width. Each
+ * one is declared in `theme.css`, since the scanner cannot read a class built here.
+ */
+function spanClasses(span: Responsive<FieldSpan>, typeSpan: FieldSpan): string[] {
+  if (typeof span !== 'object') {
+    return [ SPAN_CLASSES[span] ];
+  }
+
+  return responsiveClasses({ base: typeSpan, ...span }, (value) => `col-span-${value}`);
+}
+
+/** The new row, with `col-start-auto` undoing it at a breakpoint that does not want it */
+function breakClasses(breakBefore: Responsive<boolean>): string[] {
+  if (typeof breakBefore !== 'object') {
+    return breakBefore ? [ 'col-start-1' ] : [];
+  }
+
+  return responsiveClasses(breakBefore, (value) => (value ? 'col-start-1' : 'col-start-auto'));
+}
 
 /** How long the check stays after a copy: a constant, not a prop */
 const COPIED_FOR = 1500;
@@ -423,7 +451,9 @@ function DetailItem(props: DetailItemProps): React.ReactNode {
   // ----
   // Component Render
   // ----
-  const resolvedSpan: FieldSpan = hideLabel ? 6 : (span ?? DETAIL_SPAN[type]);
+  const resolvedSpan: Responsive<FieldSpan> = hideLabel ? 6 : (span ?? DETAIL_SPAN[type]);
+  const baseSpan = typeof resolvedSpan === 'object' ? (toResponsiveMap(resolvedSpan).base ?? DETAIL_SPAN[type]) : resolvedSpan;
+  const baseBreak = typeof breakBefore === 'object' ? toResponsiveMap(breakBefore).base : breakBefore;
   const value = typeof children === 'boolean' ? (children ? labels.yes : labels.no) : children;
   const empty = !isPresent(value);
 
@@ -484,15 +514,15 @@ function DetailItem(props: DetailItemProps): React.ReactNode {
       {...rest}
       data-slot={'detail-item'}
       data-type={type}
-      data-span={resolvedSpan}
-      data-break-before={breakBefore || undefined}
+      data-span={baseSpan}
+      data-break-before={baseBreak || undefined}
       data-empty={(!loading && empty) || undefined}
       data-label-hidden={hideLabel || undefined}
       data-copyable={copyable || undefined}
       className={cn(
         'group/detail-item row-span-3 grid min-w-0 grid-rows-subgrid gap-y-1',
-        SPAN_CLASSES[resolvedSpan],
-        breakBefore && 'col-start-1',
+        spanClasses(resolvedSpan, DETAIL_SPAN[type]),
+        breakClasses(breakBefore),
         baseClasses,
         className
       )}

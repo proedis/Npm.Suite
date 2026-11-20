@@ -19,6 +19,7 @@ import { AlertDialog } from './src/interactive/alert-dialog';
 import { Button, IconButton } from './src/interactive/button';
 import { Drawer } from './src/interactive/drawer';
 import { Checkbox, CheckboxGroup } from './src/interactive/checkbox';
+import { Detail } from './src/interactive/detail';
 import { Field } from './src/interactive/field';
 import { FiltersBar } from './src/interactive/filters-bar';
 import { FieldShell } from './src/interactive/field-shell';
@@ -294,6 +295,14 @@ const singleSpan = <Field span={4} breakBefore>ok</Field>;
 /** @ts-expect-error 5 is not a span of a six-column section */
 const wrongSpan = <Field span={{ base: 6, md: 5 }}>no</Field>;
 
+/* A value and its field share the span contract, so they keep the same place */
+const detailResponsiveSpan = (
+  <Detail.Item label={'Code'} span={{ base: 6, md: 3, xl: 2 }} breakBefore={{ base: false, md: true }}>X1</Detail.Item>
+);
+
+// @ts-expect-error a detail spans the same columns as a field: 5 is not one of them
+const detailWrongSpan = <Detail.Item label={'Code'} span={{ md: 5 }}>X1</Detail.Item>;
+
 const responsiveGroups = (
   <React.Fragment>
     <CheckboxGroup orientation={{ base: 'vertical', md: 'horizontal' }} />
@@ -435,7 +444,8 @@ export const CHECKED = [
   scaleRespected, outsideTheScale, outsideTheColumns, outsideTheScaleResponsive,
   baseIsNotABreakpoint, unknownBreakpoint, asAWrapper, labelDefault, quietLabel, spanWithHtmlFor,
   skipLink, contradictoryProps, throughAComponent, missingComponentProp,
-  responsiveSpan, singleSpan, wrongSpan, responsiveGroups, wrongOrientation, responsiveBlock, wrongHide,
+  responsiveSpan, singleSpan, wrongSpan, detailResponsiveSpan, detailWrongSpan,
+  responsiveGroups, wrongOrientation, responsiveBlock, wrongHide,
   besideOnDesktop, wrongFieldOrientation, ownControl, wrongShellSize,
   namedToggle, namelessToggle, namedGroup, namelessGroup, chosenView, emptyView, namelessItem,
   formLibraryBox, namedRadioGroup, switchWithTitle, namedTabs, namelessTabs, closedTabs,

@@ -38,12 +38,14 @@
 
 /*
  * The classes the interactive components build from a value per breakpoint, which no scanner can
- * find in the source: the span and the new row of a `Field` in a form section, the layout of a group
- * of checkboxes or radios, the width of a `block` button. Each list is the whole set a prop can
- * produce: change the prop's type, change its line here.
+ * find in the source: the span and the new row of a `Field` in a form section and of a `Detail.Item`
+ * in its grid, the layout of a group of checkboxes or radios, the width of a `block` button. Each list
+ * is the whole set a prop can produce: change the prop's type, change its line here.
  */
 @source inline("{sm:,md:,lg:,xl:,2xl:,}in-data-[slot=form-section]:col-span-{1,2,3,4,6}");
 @source inline("{sm:,md:,lg:,xl:,2xl:,}in-data-[slot=form-section]:col-start-{1,auto}");
+@source inline("{sm:,md:,lg:,xl:,2xl:,}col-span-{1,2,3,4,6}");
+@source inline("{sm:,md:,lg:,xl:,2xl:,}col-start-{1,auto}");
 @source inline("{sm:,md:,lg:,xl:,2xl:,}flex-{wrap,nowrap}");
 @source inline("{sm:,md:,lg:,xl:,2xl:,}gap-x-{2,4}");
 @source inline("{sm:,md:,lg:,xl:,2xl:,}gap-y-2");
