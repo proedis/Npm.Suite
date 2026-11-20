@@ -1,6 +1,9 @@
 import * as React from 'react';
 
 import { cn } from '../../core/cn';
+import { responsiveClasses } from '../../core/responsive';
+
+import type { Direction, Responsive } from '../../core/responsive';
 
 
 /*
@@ -31,10 +34,68 @@ export const CHOICE_FOCUS = [
 /** Box, circle and track sit on the first line of the label: 16 on a line of 20 */
 export const CHOICE_ALIGN = 'mt-0.5 shrink-0';
 
+/**
+ * The box of a checkbox: its states written on it by Base UI as `data-*`. Shared by `Checkbox`, which
+ * adds the alignment on the first line and the focus of a control, and by `CheckboxGrid`, whose cell
+ * carries the focus instead. The hover reads `group/choice`, on the row or on the cell.
+ */
+export const CHECKBOX_BOX = [
+  'relative inline-flex size-4 items-center justify-center rounded-sm border border-input bg-card text-primary-foreground',
+  'transition-colors duration-100 motion-reduce:transition-none',
+
+  /* Checked and partial weigh the same: only the mark changes. The transparent border lets a layer reach the edge */
+  'data-checked:border-transparent data-checked:bg-primary data-indeterminate:border-transparent data-indeterminate:bg-primary',
+
+  /* Under the pointer: a stronger border when empty, the state veil when filled */
+  'not-data-disabled:not-data-readonly:group-hover/choice:border-input-hover',
+  'not-data-disabled:not-data-readonly:group-hover/choice:data-checked:bg-linear-to-b',
+  'not-data-disabled:not-data-readonly:group-hover/choice:data-checked:from-state-hover',
+  'not-data-disabled:not-data-readonly:group-hover/choice:data-checked:to-state-hover',
+  'not-data-disabled:not-data-readonly:group-hover/choice:data-indeterminate:bg-linear-to-b',
+  'not-data-disabled:not-data-readonly:group-hover/choice:data-indeterminate:from-state-hover',
+  'not-data-disabled:not-data-readonly:group-hover/choice:data-indeterminate:to-state-hover',
+
+  /* Error: the border drawn inward when empty, the fill red when ticked */
+  'data-invalid:border-destructive data-invalid:inset-ring data-invalid:inset-ring-destructive',
+  'data-invalid:data-checked:bg-destructive data-invalid:data-checked:inset-ring-0',
+  'data-invalid:data-indeterminate:bg-destructive data-invalid:data-indeterminate:inset-ring-0',
+
+  /* Read only is grey at full opacity, disabled is half: two different states */
+  'data-readonly:bg-muted data-readonly:data-checked:bg-muted-foreground data-readonly:data-checked:text-card',
+  'data-readonly:data-indeterminate:bg-muted-foreground data-readonly:data-indeterminate:text-card',
+  'data-disabled:opacity-50'
+].join(' ');
+
+/**
+ * The layout of a group per orientation. Each one says everything the other one sets (wrap, both gaps,
+ * the growth of a card), so a group that turns from a column into a row at a breakpoint keeps nothing
+ * of the column. Each class, with every breakpoint prefix, is declared in `theme.css`.
+ */
+const GROUP_LAYOUT: Readonly<Record<'list' | 'card', Readonly<Record<Direction, string>>>> = {
+  list: {
+    vertical  : 'flex-col flex-nowrap gap-2',
+    horizontal: 'flex-row flex-wrap gap-x-4 gap-y-2'
+  },
+  card: {
+    vertical  : 'flex-col flex-nowrap gap-2 *:flex-initial',
+    horizontal: 'flex-row flex-wrap gap-2 *:flex-1'
+  }
+};
+
 
 /* --------
  * Helpers
  * -------- */
+
+/** The classes of a group of options, from its orientation: one value, or one per breakpoint */
+export function choiceGroupClasses(orientation: Responsive<Direction>, shape: 'list' | 'card' = 'list'): string[] {
+  return responsiveClasses(orientation, (value) => GROUP_LAYOUT[shape][value]);
+}
+
+/** The orientation at the narrowest width, for `data-orientation` */
+export function baseOrientation(orientation: Responsive<Direction>): Direction {
+  return typeof orientation === 'object' ? (orientation.base ?? 'vertical') : orientation;
+}
 
 export function isPresent(node: React.ReactNode): boolean {
   return node !== null && node !== undefined && node !== false && node !== '';
@@ -81,7 +142,7 @@ export function ChoiceText(props: ChoiceTextProps): React.ReactNode {
         <span data-slot={`${slot}-label`} className={'group-data-disabled/choice:opacity-50'}>
           {label}
           {required && (
-            <span data-slot={'field-required'} aria-hidden={'true'} className={'ms-0.5 text-destructive-soft-foreground'}>*</span>
+            <span data-slot={'field-required'} aria-hidden={'true'} className={'ms-0.5 text-destructive'}>*</span>
           )}
         </span>
       )}

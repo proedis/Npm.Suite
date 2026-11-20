@@ -4,16 +4,19 @@ import * as React from 'react';
 
 import { Switch as SwitchPrimitive } from '@base-ui/react/switch';
 
+import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
 import { CHOICE_ALIGN, CHOICE_FOCUS, CHOICE_ROW, ChoiceText } from '../choice/choice';
+
+import type { BaseProps } from '../../core/base';
 
 
 /* --------
  * Types Definition
  * -------- */
 
-export interface SwitchProps {
+export interface SwitchProps extends BaseProps {
   /** What is on, as content. It does not change between on and off */
   children?: React.ReactNode;
 
@@ -108,6 +111,8 @@ export function Switch(props: SwitchProps): React.ReactNode {
     readOnly = false
   } = props;
 
+  const { baseClasses } = splitBaseProps(props);
+
 
   // ----
   // Internal Hooks
@@ -125,7 +130,7 @@ export function Switch(props: SwitchProps): React.ReactNode {
       data-slot={'switch'}
       data-disabled={disabled || undefined}
       data-readonly={readOnly || undefined}
-      className={cn(CHOICE_ROW, className)}
+      className={cn(CHOICE_ROW, baseClasses, className)}
     >
       <SwitchPrimitive.Root
         id={id}

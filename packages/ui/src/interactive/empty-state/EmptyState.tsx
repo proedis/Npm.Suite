@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 
+import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
 import { IconBox } from '../../components/IconBox';
@@ -10,6 +11,7 @@ import { Button } from '../button/Button';
 import { ClearGlyph } from '../text-input/glyphs';
 import { ToneGlyph } from '../tone-glyphs/toneGlyphs';
 
+import type { BaseProps } from '../../core/base';
 import type { LinkTarget } from '../../core/link';
 
 import type { ButtonProps } from '../button/Button';
@@ -40,7 +42,7 @@ export interface EmptyStateAction {
   target?: LinkTarget;
 }
 
-interface CommonEmptyStateProps {
+interface CommonEmptyStateProps extends BaseProps {
   kind: EmptyStateKind;
 
   /** The fact, with the entity: "No contract for «rossy»". In `inline` it is the only text */
@@ -152,7 +154,7 @@ function actionLook(role: EmptyStateActionRole, size: 'page' | 'panel'): Pick<Bu
  * The case gives the tone (`first-use` primary, `error` destructive, the others muted) and the
  * actions their fill: create `solid primary` on a page and `soft` in a panel, clear `plain
  * destructive` with its icon, retry and back `solid secondary`. A `target` renders a real link.
- * `inline` is a line of text, in `destructive` with the octagon for an error.
+ * `inline` is a line of text, in `destructive` with the error circle for an error.
  *
  * It has no role: the container announces it, once. The ref goes to the title, which takes the focus
  * (`tabIndex={-1}`): a dialog gives it the focus on an error or a missing item.
@@ -176,6 +178,8 @@ export const EmptyState = React.forwardRef<HTMLElement, EmptyStateProps>((props,
     title
   } = props;
 
+  const { baseClasses } = splitBaseProps(props);
+
 
   // ----
   // Component Render
@@ -188,7 +192,7 @@ export const EmptyState = React.forwardRef<HTMLElement, EmptyStateProps>((props,
         data-slot={'empty-state'}
         data-size={size}
         data-kind={kind}
-        className={cn('flex items-start gap-1.5 text-xs wrap-anywhere', isError ? 'text-destructive' : 'text-muted-foreground', className)}
+        className={cn('flex items-start gap-1.5 text-xs wrap-anywhere', isError ? 'text-destructive' : 'text-muted-foreground', baseClasses, className)}
       >
         {isError && <ToneGlyph tone={'destructive'} className={'mt-px size-3.5 shrink-0'} />}
         <span ref={ref as React.Ref<HTMLSpanElement>} tabIndex={-1} data-slot={'empty-state-title'} className={'outline-none'}>
@@ -207,7 +211,7 @@ export const EmptyState = React.forwardRef<HTMLElement, EmptyStateProps>((props,
       data-slot={'empty-state'}
       data-size={size}
       data-kind={kind}
-      className={cn('flex flex-col wrap-anywhere', layout.root, className)}
+      className={cn('flex flex-col wrap-anywhere', layout.root, baseClasses, className)}
     >
       <IconBox data-slot={'empty-state-icon'} size={size === 'page' ? 'md' : 'sm'} fill={'soft'} tone={BOX_TONE[kind]} className={layout.box}>
         {icon}

@@ -352,7 +352,7 @@ export function FilterList(props: FilterListProps): React.ReactNode {
   }
   else if (failed) {
     message = (
-      <span className={'flex items-start gap-1 text-destructive-soft-foreground'}>
+      <span className={'flex items-start gap-1 text-destructive'}>
         <ErrorGlyph />
         {labels.remote.error}
       </span>

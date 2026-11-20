@@ -47,6 +47,10 @@ export type ToneFill = 'solid' | 'soft' | 'plain';
  * the tone as ink), so a product that has no soft palette sees no change; one that has it declares
  * fourteen variables and every badge, icon box and button follows.
  *
+ * The one exception in the plain row is `destructive`, which writes with the tone itself: an error,
+ * a destructive action and the border of an invalid field are one red, and the soft ink of the
+ * destructive pair is darker, made to sit on its tinted fill, not on a white surface.
+ *
  * ⚠️ Two of the seven tones are **surfaces**, not accents. `muted` and `secondary` are already the
  * quiet register, so the default of their `soft` is their own surface at half strength: a tenth of a
  * near-white is invisible. That exception lives in the token defaults now, not in this table.
@@ -78,7 +82,7 @@ export const TONE_CLASSES: Readonly<Record<ToneFill, Readonly<Record<Tone, strin
     primary    : 'text-primary-soft-foreground',
     success    : 'text-success-soft-foreground',
     warning    : 'text-warning-soft-foreground',
-    destructive: 'text-destructive-soft-foreground',
+    destructive: 'text-destructive',
     info       : 'text-info-soft-foreground'
   }
 };

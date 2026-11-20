@@ -5,6 +5,7 @@ import * as React from 'react';
 import { Toggle as TogglePrimitive } from '@base-ui/react/toggle';
 import { ToggleGroup as ToggleGroupPrimitive } from '@base-ui/react/toggle-group';
 
+import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
 import { handleRovingKeyDown } from '../roving/roving';
@@ -19,6 +20,8 @@ import {
   PRESSABLE_ON_LAYERS
 } from './toggleStyles';
 
+import type { BaseProps } from '../../core/base';
+
 
 /* --------
  * Types Definition
@@ -26,7 +29,7 @@ import {
 
 export type ToggleSize = 'sm' | 'md';
 
-export interface ToggleProps {
+export interface ToggleProps extends BaseProps {
   /** The visible label, optional with `leading`. It does not change with the state: the state is `aria-pressed` */
   children?: React.ReactNode;
 
@@ -61,7 +64,7 @@ export interface ToggleProps {
   className?: string;
 }
 
-export interface ToggleGroupProps {
+export interface ToggleGroupProps extends BaseProps {
   /** The items on */
   value?: string[];
   defaultValue?: string[];
@@ -157,6 +160,8 @@ export const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>((props, r
     value
   } = props;
 
+  const { baseClasses } = splitBaseProps(props);
+
 
   // ----
   // Internal Hooks
@@ -214,6 +219,7 @@ export const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>((props, r
         iconOnly && 'aspect-square px-0 has-[[data-slot=toggle-leading]]:ps-0',
         group ? FOCUS_IN_GROUP : FOCUS_ALONE,
         isPending && 'cursor-default',
+        baseClasses,
         className
       )}
     >
@@ -276,6 +282,8 @@ export function ToggleGroup(props: ToggleGroupProps): React.ReactNode {
     value
   } = props;
 
+  const { baseClasses } = splitBaseProps(props);
+
 
   // ----
   // Memoized Data
@@ -317,7 +325,7 @@ export function ToggleGroup(props: ToggleGroupProps): React.ReactNode {
         data-slot={'toggle-group'}
         data-size={size}
         data-disabled={disabled ? '' : undefined}
-        className={cn('inline-flex shrink-0 items-center gap-1', className)}
+        className={cn('inline-flex shrink-0 items-center gap-1', baseClasses, className)}
       >
         {children}
       </ToggleGroupPrimitive>

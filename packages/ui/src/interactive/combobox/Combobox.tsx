@@ -285,7 +285,7 @@ function SingleCombobox(props: SingleComboboxProps): React.ReactNode {
   }
   else if (editing && searchError && !searching) {
     message = (
-      <span className={'flex items-start gap-1 text-destructive-soft-foreground'}>
+      <span className={'flex items-start gap-1 text-destructive'}>
         <ErrorGlyph />
         {labels.error}
       </span>

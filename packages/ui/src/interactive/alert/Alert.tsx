@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import { cva } from 'class-variance-authority';
 
+import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
 import { IconBox } from '../../components/IconBox';
@@ -12,6 +13,8 @@ import { VisuallyHidden } from '../../components/VisuallyHidden';
 import { IconButton } from '../button/IconButton';
 import { ClearGlyph } from '../text-input/glyphs';
 import { ToneGlyph } from '../tone-glyphs/toneGlyphs';
+
+import type { BaseProps } from '../../core/base';
 
 
 /* --------
@@ -64,7 +67,7 @@ type SevereAlertProps = CommonAlertProps & {
   dismissLabel?: never;
 };
 
-export type AlertProps = MildAlertProps | SevereAlertProps;
+export type AlertProps = (MildAlertProps | SevereAlertProps) & BaseProps;
 
 export type AlertTone = AlertProps['tone'];
 
@@ -186,6 +189,8 @@ export function Alert(props: AlertProps): React.ReactNode {
     toneLabel
   } = props;
 
+  const { baseClasses } = splitBaseProps(props);
+
 
   // ----
   // Internal Hooks
@@ -242,7 +247,7 @@ export function Alert(props: AlertProps): React.ReactNode {
       data-slot={'alert'}
       data-tone={tone}
       data-size={size}
-      className={cn(alertVariants({ size, tone }), className)}
+      className={cn(alertVariants({ size, tone }), baseClasses, className)}
     >
       {filled && (
         <React.Fragment>

@@ -36,6 +36,27 @@
 
 @import './ui.css';
 
+/*
+ * The classes the interactive components build from a value per breakpoint, which no scanner can
+ * find in the source: the span and the new row of a `Field` in a form section, the layout of a group
+ * of checkboxes or radios, the width of a `block` button. Each list is the whole set a prop can
+ * produce: change the prop's type, change its line here.
+ */
+@source inline("{sm:,md:,lg:,xl:,2xl:,}in-data-[slot=form-section]:col-span-{1,2,3,4,6}");
+@source inline("{sm:,md:,lg:,xl:,2xl:,}in-data-[slot=form-section]:col-start-{1,auto}");
+@source inline("{sm:,md:,lg:,xl:,2xl:,}flex-{wrap,nowrap}");
+@source inline("{sm:,md:,lg:,xl:,2xl:,}gap-x-{2,4}");
+@source inline("{sm:,md:,lg:,xl:,2xl:,}gap-y-2");
+@source inline("{sm:,md:,lg:,xl:,2xl:,}*:flex-{1,initial}");
+@source inline("{sm:,md:,lg:,xl:,2xl:,}w-{full,auto}");
+
+/* The two orientations of a `Field`, each part placed again (`ORIENTATION_LAYOUT` in `Field.tsx`) */
+@source inline("{sm:,md:,lg:,xl:,2xl:,}grid-cols-{field,field-horizontal}");
+@source inline("{sm:,md:,lg:,xl:,2xl:,}*:{col-start-2,col-start-auto,col-span-2,row-start-1,row-start-auto}");
+@source inline("{sm:,md:,lg:,xl:,2xl:,}*:data-[slot=field-label]:{col-start-1,col-start-auto,col-span-1,col-span-2,row-start-1,row-start-auto,flex,block,min-h-control-md,min-h-0,items-center,self-start,self-end}");
+@source inline("{sm:,md:,lg:,xl:,2xl:,}*:data-[slot=field-{description,error}]:{col-start-1,col-start-2,row-start-2,row-start-auto}");
+@source inline("{sm:,md:,lg:,xl:,2xl:,}*:data-[slot=field-counter]:{col-start-2,col-start-3,row-start-2,row-start-auto}");
+
 /* ============================================================
  * The contract
  * ============================================================ */
@@ -195,6 +216,13 @@
   --grid-template-columns-field: minmax(0, 1fr) auto;
 
   /*
+   * A `Field` with the label beside: the label, the control with its messages, the counter. The label
+   * takes a third of the field, not a fraction of what the counter leaves: two fields one under the
+   * other, one with a counter, keep their controls on the same line.
+   */
+  --grid-template-columns-field-horizontal: minmax(0, calc(100% / 3)) minmax(0, 1fr) auto;
+
+  /*
    * The segment of `LoadingBar`, a third of the track running left to right. Declared here so the
    * bar moves on a named animation and not on an arbitrary value.
    */
@@ -226,6 +254,27 @@
 
     to {
       transform: translateX(334%);
+    }
+  }
+}
+
+/*
+ * Under a finger the controls grow one step, 4px each: 36, 40 and 44px. The size of a control is
+ * a decision about the pointer, not about the width of the window, so it is decided here once and
+ * not with a size per breakpoint at every call site. A phone held sideways is as wide as a small
+ * laptop and still a finger.
+ *
+ * In the `theme` layer, where Tailwind declares the three steps: an application that redeclares them
+ * in its own `:root` wins on every device, and redeclares them in its own
+ * `@media (pointer: coarse)` to keep a different step for touch.
+ */
+@layer theme {
+  @media (pointer: coarse) {
+    :root,
+    :host {
+      --spacing-control-sm: 2.25rem;
+      --spacing-control-md: 2.5rem;
+      --spacing-control-lg: 2.75rem;
     }
   }
 }

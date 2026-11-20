@@ -182,7 +182,7 @@ export function MultipleCombobox(props: MultipleComboboxProps): React.ReactNode 
   }
   else if (searchError && !searching) {
     message = (
-      <span className={'flex items-start gap-1 text-destructive-soft-foreground'}>
+      <span className={'flex items-start gap-1 text-destructive'}>
         <ErrorGlyph />
         {labels.error}
       </span>

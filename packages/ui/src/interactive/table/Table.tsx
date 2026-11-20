@@ -19,6 +19,7 @@ import {
 
 import { LoadingBar } from '../../components/LoadingBar';
 import { Skeleton } from '../../components/Skeleton';
+import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 import { useDelayedBusy } from '../../hooks/useDelayedBusy';
 
@@ -65,6 +66,8 @@ import { TableSelectionBar, selectionMenuItems } from './TableSelectionBar';
 import { CELL, HEAD, PIN_START, ROW, SKELETON_WIDTH, TruncationTooltip, markScroll } from './tableParts';
 import { useTableGrid } from './useTableGrid';
 
+import type { BaseProps } from '../../core/base';
+
 import type { MenuAnchor } from '../menu/menuPanel';
 import type {
   TableColumn,
@@ -84,7 +87,7 @@ import type {
  * Types Definition
  * -------- */
 
-export interface TableProps<TData extends object> {
+export interface TableProps<TData extends object> extends BaseProps {
   /** The name of the list for screen readers. Required */
   caption: string;
 
@@ -283,6 +286,8 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
     status = 'ready',
     toolbar
   } = props;
+
+  const { baseClasses } = splitBaseProps(props);
 
 
   // ----
@@ -881,7 +886,7 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
   // Component Render
   // ----
   return (
-    <div data-slot={'table'} className={cn('flex min-h-0 flex-col', className)}>
+    <div data-slot={'table'} className={cn('flex min-h-0 flex-col', baseClasses, className)}>
       <div data-slot={'table-toolbar'} className={'mb-3 flex h-7 min-w-0 shrink-0 items-center gap-2'}>
         {chosen
           ? (

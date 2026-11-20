@@ -79,6 +79,14 @@ export const FieldRegistryContext = React.createContext<FieldRegistry | null>(nu
 
 FieldRegistryContext.displayName = 'FieldRegistryContext';
 
+/**
+ * Whether a field stands in a `Form.Section`, whose grid places its parts: there the field ignores
+ * its own `orientation`. Provided by `Form`, like the error registry
+ */
+export const FormSectionContext = React.createContext(false);
+
+FormSectionContext.displayName = 'FormSectionContext';
+
 /** Whether `Field.Label` renders a native `<label>`. Private: written by the controls through the registry */
 export const FieldLabelNativeContext = React.createContext(true);
 

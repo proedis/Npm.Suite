@@ -6,12 +6,14 @@ import { Avatar as AvatarPrimitive } from '@base-ui/react/avatar';
 import { Popover as PopoverPrimitive } from '@base-ui/react/popover';
 import { PreviewCard as PreviewCardPrimitive } from '@base-ui/react/preview-card';
 
+import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 import { inertValue } from '../../core/inert';
 import { linkProps } from '../../core/link';
 
 import { Tooltip } from '../tooltip/Tooltip';
 
+import type { BaseProps } from '../../core/base';
 import type { LinkTarget } from '../../core/link';
 
 
@@ -45,7 +47,7 @@ export type AvatarIdentity =
   /** The reference is there but the person cannot be read: deleted, of another tenant, not visible */
   | { kind: 'unknown'; name: string };
 
-export type AvatarProps = AvatarIdentity & {
+export type AvatarProps = AvatarIdentity & BaseProps & {
   /** Defaults to 24 */
   size?: AvatarSize;
 
@@ -58,7 +60,7 @@ export type AvatarProps = AvatarIdentity & {
   className?: string;
 };
 
-export interface PersonProps {
+export interface PersonProps extends BaseProps {
   /** The circle; decorative here */
   avatar: AvatarIdentity;
 
@@ -93,7 +95,7 @@ export interface AvatarGroupItem {
   readonly description?: React.ReactNode;
 }
 
-export interface AvatarGroupProps {
+export interface AvatarGroupProps extends BaseProps {
   items: readonly AvatarGroupItem[];
 
   /** Circles shown at most. The count appears from two hidden up. Defaults to 3 */
@@ -179,7 +181,8 @@ export const Avatar = React.forwardRef<HTMLSpanElement, AvatarProps>((props, ref
   // ----
   // Props Deconstruct
   // ----
-  const { className, decorative = false, size = 24, stateLabel, ...identity } = props;
+  const { className, decorative = false, hideBelow, hideFrom, size = 24, stateLabel, ...identity } = props;
+  const { baseClasses } = splitBaseProps({ hideBelow, hideFrom });
 
 
   // ----
@@ -225,6 +228,7 @@ export const Avatar = React.forwardRef<HTMLSpanElement, AvatarProps>((props, ref
         'outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
         SIZES[size],
         tone,
+        baseClasses,
         className
       )}
     >
@@ -271,6 +275,7 @@ export function Person(props: PersonProps): React.ReactNode {
   // Props Deconstruct
   // ----
   const { avatar, children, className, layout = 'inline', name, preview, suffix, target } = props;
+  const { baseClasses } = splitBaseProps(props);
 
 
   // ----
@@ -338,7 +343,7 @@ export function Person(props: PersonProps): React.ReactNode {
   );
 
   return (
-    <span data-slot={'person'} data-layout={layout} className={cn('inline-flex max-w-full min-w-0 items-start gap-2 text-sm', className)}>
+    <span data-slot={'person'} data-layout={layout} className={cn('inline-flex max-w-full min-w-0 items-start gap-2 text-sm', baseClasses, className)}>
       <Avatar {...avatar} size={24} decorative className={stacked ? undefined : '-my-0.5'} />
       {stacked
         ? (
@@ -378,6 +383,7 @@ export function AvatarGroup(props: AvatarGroupProps): React.ReactNode {
   // Props Deconstruct
   // ----
   const { className, items, label, max = 3, size = 24, title } = props;
+  const { baseClasses } = splitBaseProps(props);
 
 
   // ----
@@ -399,6 +405,7 @@ export function AvatarGroup(props: AvatarGroupProps): React.ReactNode {
           'inline-flex shrink-0 cursor-default items-center rounded-full outline-none',
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
           OVERLAP[size],
+          baseClasses,
           className
         )}
       >

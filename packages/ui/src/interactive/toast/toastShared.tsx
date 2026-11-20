@@ -40,7 +40,7 @@ export function StatusMark(props: { status: JobStatus; className?: string }): Re
     case 'warning':
       return <ToneGlyph tone={'warning'} className={cn('size-4 shrink-0 text-warning-soft-foreground', className)} />;
     case 'failed':
-      return <ToneGlyph tone={'destructive'} className={cn('size-4 shrink-0 text-destructive-soft-foreground', className)} />;
+      return <ToneGlyph tone={'destructive'} className={cn('size-4 shrink-0 text-destructive', className)} />;
     default:
       return <ToneGlyph tone={'info'} className={cn('size-4 shrink-0 text-muted-foreground', className)} />;
   }

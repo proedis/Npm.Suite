@@ -592,7 +592,7 @@ export function OverlayBody(props: OverlayBodyProps): React.ReactNode {
                 >
                   <span className={'min-w-0 flex-1'}>{section.label}</span>
                   {errors > 0 && (
-                    <span className={'inline-flex items-center gap-1 text-xs text-destructive-soft-foreground'}>
+                    <span className={'inline-flex items-center gap-1 text-xs text-destructive'}>
                       <ToneGlyph tone={'destructive'} className={'size-3.5'} />
                       {errors}
                     </span>

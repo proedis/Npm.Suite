@@ -6,18 +6,21 @@ import { Field as FieldPrimitive } from '@base-ui/react/field';
 
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
+import { responsiveClasses, toResponsiveMap } from '../../core/responsive';
 
 import {
   FieldControlContext,
   FieldLabelNativeContext,
   FieldRegistryContext,
   FormErrorRegistryContext,
+  FormSectionContext,
   useFieldControl,
   useIsomorphicLayoutEffect
 } from './fieldContext';
 import { ErrorGlyph } from './glyphs';
 
 import type { BaseProps } from '../../core/base';
+import type { Direction, Responsive } from '../../core/responsive';
 
 import type { FieldControlState, FieldRegistry } from './fieldContext';
 
@@ -30,11 +33,24 @@ import type { FieldControlState, FieldRegistry } from './fieldContext';
 export type FieldSpan = 1 | 2 | 3 | 4 | 6;
 
 export interface StrictFieldProps extends BaseProps {
-  /** Columns taken inside a `Form.Section`. Defaults to 3. Ignored anywhere else */
-  span?: FieldSpan;
+  /**
+   * Columns taken inside a `Form.Section`. Defaults to 3. Ignored anywhere else.
+   *
+   * One value lets the section decide below 32rem of its own width: the short fields take half a row,
+   * the others a whole one. A map per breakpoint of the window is the caller's decision at every width,
+   * and the section no longer steps in: `{ base: 6, md: 3, xl: 2 }`.
+   */
+  span?: Responsive<FieldSpan>;
 
-  /** Inside a `Form.Section`, starts a new row: the first of a group of related fields */
-  breakBefore?: boolean;
+  /** Inside a `Form.Section`, starts a new row: the first of a group of related fields. Per breakpoint too */
+  breakBefore?: Responsive<boolean>;
+
+  /**
+   * `horizontal` puts the label beside the control, a third of the width, and the messages under the
+   * control: `{ base: 'vertical', md: 'horizontal' }` keeps it above on a phone. Defaults to `vertical`.
+   * Ignored in a `Form.Section`, whose grid aligns the labels of a row
+   */
+  orientation?: Responsive<Direction>;
 
   /** Disables the control inside */
   disabled?: boolean;
@@ -54,6 +70,12 @@ export type FieldProps = StrictFieldProps & Omit<
 export interface FieldLabelProps extends Omit<React.ComponentProps<'label'>, 'color'> {
   /** Shows the asterisk and makes the control `aria-required`. Validation stays with the caller */
   required?: boolean;
+
+  /**
+   * The word after the name of a field that may stay empty, in the language of the page: "optional".
+   * The convention of a form where almost everything is required. Not shown with `required`
+   */
+  optional?: React.ReactNode;
 }
 
 export type FieldDescriptionProps = React.ComponentProps<'p'>;
@@ -104,6 +126,68 @@ const SPAN_CLASSES: Readonly<Record<FieldSpan, string>> = {
   4: 'in-data-[slot=form-section]:col-span-4 @max-lg:in-data-[slot=form-section]:col-span-6',
   6: 'in-data-[slot=form-section]:col-span-6'
 };
+
+/**
+ * The span of a map, one class per breakpoint and no fallback. Without a prefix of its own on the
+ * section selector, so the breakpoint prefix goes first: `md:in-data-[slot=form-section]:col-span-3`.
+ * Each one is declared in `theme.css`, since the scanner cannot read a class built here.
+ */
+function spanClasses(span: Responsive<FieldSpan>): string[] {
+  if (typeof span !== 'object') {
+    return [ SPAN_CLASSES[span] ];
+  }
+
+  return responsiveClasses({ base: DEFAULT_SPAN, ...span }, (value) => `in-data-[slot=form-section]:col-span-${value}`);
+}
+
+/**
+ * Where the parts go per orientation. Each set says everything the other one sets, so a field that
+ * turns at a breakpoint keeps nothing of the other layout: the columns, the gap, the cell and the row
+ * of every part. `vertical` is the layout of `PART_PLACEMENT`, written again for a map that comes back
+ * to it. Each class, with every breakpoint prefix, is declared in `theme.css`.
+ */
+const ORIENTATION_LAYOUT: Readonly<Record<Direction, string>> = {
+  horizontal: [
+    'grid-cols-field-horizontal gap-x-4',
+    '*:col-start-2 *:col-span-2 *:row-start-1',
+    '*:data-[slot=field-label]:col-start-1 *:data-[slot=field-label]:col-span-1 *:data-[slot=field-label]:row-start-1',
+    '*:data-[slot=field-label]:flex *:data-[slot=field-label]:min-h-control-md *:data-[slot=field-label]:items-center *:data-[slot=field-label]:self-start',
+    '*:data-[slot=field-description]:col-start-2 *:data-[slot=field-description]:row-start-2',
+    '*:data-[slot=field-error]:col-start-2 *:data-[slot=field-error]:row-start-2',
+    '*:data-[slot=field-counter]:col-start-3 *:data-[slot=field-counter]:row-start-2'
+  ].join(' '),
+  vertical: [
+    'grid-cols-field gap-x-2',
+    '*:col-start-auto *:col-span-2 *:row-start-auto',
+    '*:data-[slot=field-label]:col-start-auto *:data-[slot=field-label]:col-span-2 *:data-[slot=field-label]:row-start-auto',
+    '*:data-[slot=field-label]:block *:data-[slot=field-label]:min-h-0 *:data-[slot=field-label]:self-end',
+    '*:data-[slot=field-description]:col-start-1 *:data-[slot=field-description]:row-start-auto',
+    '*:data-[slot=field-error]:col-start-1 *:data-[slot=field-error]:row-start-auto',
+    '*:data-[slot=field-counter]:col-start-2 *:data-[slot=field-counter]:row-start-auto'
+  ].join(' ')
+};
+
+/** The orientation out of a section: nothing for the vertical of `base`, which is the default layout */
+function orientationClasses(orientation: Responsive<Direction>): string[] {
+  const map = { ...toResponsiveMap(orientation) };
+
+  if (map.base === 'vertical') {
+    delete map.base;
+  }
+
+  return responsiveClasses(map, (value) => ORIENTATION_LAYOUT[value]);
+}
+
+/** The new row, with `col-start-auto` undoing it at a breakpoint that does not want it */
+function breakClasses(breakBefore: Responsive<boolean>): string[] {
+  if (typeof breakBefore !== 'object') {
+    return breakBefore ? [ 'in-data-[slot=form-section]:col-start-1' ] : [];
+  }
+
+  return responsiveClasses(breakBefore, (value) => (
+    value ? 'in-data-[slot=form-section]:col-start-1' : 'in-data-[slot=form-section]:col-start-auto'
+  ));
+}
 
 /**
  * Where each part goes, by its slot and not by the order it was written in.
@@ -171,7 +255,7 @@ function FieldLabel(props: FieldLabelProps): React.ReactNode {
   // ----
   // Props Deconstruct
   // ----
-  const { children, className, id, required = false, ...rest } = props;
+  const { children, className, id, optional, required = false, ...rest } = props;
 
 
   // ----
@@ -218,12 +302,16 @@ function FieldLabel(props: FieldLabelProps): React.ReactNode {
       render={native ? undefined : <div />}
       data-slot={'field-label'}
       data-required={required || undefined}
+      data-optional={(!required && isPresent(optional)) || undefined}
       /* The line height after the size: a size carries its own, and tailwind-merge keeps the last */
       className={cn('self-end text-sm leading-snug font-medium text-foreground', className)}
     >
       {children}
       {required && (
-        <span data-slot={'field-required'} aria-hidden={'true'} className={'ms-0.5 text-destructive-soft-foreground'}>*</span>
+        <span data-slot={'field-required'} aria-hidden={'true'} className={'ms-0.5 text-destructive'}>*</span>
+      )}
+      {!required && isPresent(optional) && (
+        <span data-slot={'field-optional'} className={'ms-1.5 text-xs font-normal text-muted-foreground'}>{optional}</span>
       )}
     </FieldPrimitive.Label>
   );
@@ -341,7 +429,7 @@ function FieldError(props: FieldErrorProps): React.ReactNode {
       {...rest}
       match={true}
       data-slot={'field-error'}
-      className={cn('flex items-start gap-1 self-start text-sm text-destructive-soft-foreground', className)}
+      className={cn('flex items-start gap-1 self-start text-sm text-destructive', className)}
     >
       <ErrorGlyph />
       <span className={'min-w-0'}>{children}</span>
@@ -378,7 +466,7 @@ function FieldCounter(props: FieldCounterProps): React.ReactNode {
       data-exceeded={exceeded || undefined}
       className={cn(
         'self-start justify-self-end text-sm text-muted-foreground tabular-nums',
-        exceeded && 'text-destructive-soft-foreground',
+        exceeded && 'text-destructive',
         className
       )}
     />
@@ -414,7 +502,8 @@ FieldCounter.displayName = 'Field.Counter';
  * the caller's, and the browser's bubble would be a second, untranslated message.
  *
  * Slots: `field` (with `data-span`, `data-break-before`, `data-required`), `field-label`,
- * `field-required`, `field-description`, `field-error`, `field-error-icon`, `field-counter`.
+ * `field-required`, `field-optional`, `field-description`, `field-error`, `field-error-icon-box`,
+ * `field-error-icon`, `field-counter`. The root also has `data-orientation`, the one at `base`.
  */
 export function Field(props: FieldProps): React.ReactNode {
 
@@ -427,6 +516,7 @@ export function Field(props: FieldProps): React.ReactNode {
     className,
     disabled = false,
     id,
+    orientation = 'vertical',
     span = DEFAULT_SPAN,
     ...others
   } = props;
@@ -439,6 +529,7 @@ export function Field(props: FieldProps): React.ReactNode {
   // ----
   const generatedId = React.useId();
   const fieldId = id ?? generatedId;
+  const inSection = React.useContext(FormSectionContext);
 
 
   // ----
@@ -485,16 +576,18 @@ export function Field(props: FieldProps): React.ReactNode {
       ref={rootRef}
       id={fieldId}
       data-slot={'field'}
-      data-span={span}
-      data-break-before={breakBefore || undefined}
+      data-span={typeof span === 'object' ? (toResponsiveMap(span).base ?? DEFAULT_SPAN) : span}
+      data-break-before={(typeof breakBefore === 'object' ? toResponsiveMap(breakBefore).base : breakBefore) || undefined}
       data-required={required || undefined}
+      data-orientation={inSection ? 'vertical' : (typeof orientation === 'object' ? (orientation.base ?? 'vertical') : orientation)}
       invalid={invalid}
       disabled={disabled}
       className={cn(
         'grid min-w-0 grid-cols-field content-start gap-x-2 gap-y-1',
         PART_PLACEMENT,
-        SPAN_CLASSES[span],
-        breakBefore && 'in-data-[slot=form-section]:col-start-1',
+        spanClasses(span),
+        breakClasses(breakBefore),
+        !inSection && orientationClasses(orientation),
         baseClasses,
         className
       )}

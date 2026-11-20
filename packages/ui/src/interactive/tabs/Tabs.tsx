@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import { Tabs as TabsPrimitive } from '@base-ui/react/tabs';
 
+import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 import { inertValue } from '../../core/inert';
 
@@ -15,6 +16,8 @@ import { Button } from '../button/Button';
 import { ChevronGlyph } from '../list-panel/listPanel';
 import { Menu } from '../menu/Menu';
 import { Tooltip } from '../tooltip/Tooltip';
+
+import type { BaseProps } from '../../core/base';
 
 
 /* --------
@@ -48,7 +51,7 @@ export interface TabsLabels {
   readonly overflow: string;
 }
 
-export interface TabsProps {
+export interface TabsProps extends BaseProps {
   /** The tabs, in their fixed order: the first is the most read */
   items: readonly TabItem[];
 
@@ -101,7 +104,7 @@ const RAIL_INSET: Readonly<Record<TabsSize, number>> = { md: 8, sm: 8 };
 const TAB_BASE = [
   'group/tab relative inline-flex shrink-0 cursor-pointer items-center justify-center',
   'border border-transparent font-medium whitespace-nowrap select-none outline-none',
-  'transition-colors duration-100 motion-reduce:transition-none [&_svg]:pointer-events-none [&_svg]:shrink-0',
+  'transition-colors duration-200 motion-reduce:transition-none [&_svg]:pointer-events-none [&_svg]:shrink-0',
   'after:absolute',
 
   /* Closed: a muted ink that darkens under the pointer, a layer of its own ink at 8% and 16% */
@@ -110,8 +113,11 @@ const TAB_BASE = [
   'not-data-active:not-data-disabled:hover:bg-linear-to-b not-data-active:not-data-disabled:hover:from-current/8 not-data-active:not-data-disabled:hover:to-current/8',
   'not-data-active:not-data-disabled:active:bg-linear-to-b not-data-active:not-data-disabled:active:from-current/16 not-data-active:not-data-disabled:active:to-current/16',
 
-  /* Open: filled with `primary`, no change under the pointer */
-  'data-active:cursor-default data-active:bg-primary data-active:text-primary-foreground forced-colors:data-active:forced-highlight',
+  /*
+   * Open: the ink of `primary`, no change under the pointer. The fill is not the tab's: it is the
+   * indicator below it, which slides from the tab that was open, so the two never fade at once
+   */
+  'data-active:cursor-default data-active:text-primary-foreground forced-colors:data-active:forced-highlight',
 
   /* The focus inside a closed tab, outside the open one */
   'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring data-active:focus-visible:outline-offset-1',
@@ -125,6 +131,19 @@ const TAB_SIZES: Readonly<Record<TabsSize, string>> = {
 };
 
 const CONTENT_GAP: Readonly<Record<TabsSize, string>> = { md: 'gap-1.5', sm: 'gap-1' };
+
+/**
+ * The fill of the open tab, one element for the whole list: Base UI measures the open tab into the
+ * `--active-tab-*` variables, and the fill slides there. Before it, the open tab painted its own fill
+ * and the closed one faded its own out, and for a moment both were half there. Under forced colours
+ * the tab is Highlight itself, so the indicator steps aside
+ */
+const INDICATOR = [
+  'pointer-events-none absolute top-(--active-tab-top) left-(--active-tab-left) h-(--active-tab-height) w-(--active-tab-width)',
+  'bg-primary transition-all duration-200 ease-out motion-reduce:transition-none forced-colors:hidden'
+].join(' ');
+
+const INDICATOR_RADIUS: Readonly<Record<TabsSize, string>> = { md: 'rounded-md', sm: 'rounded-sm' };
 
 const PILL = [
   'inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-xs leading-none font-semibold tabular-nums',
@@ -193,7 +212,7 @@ function TabContent(props: { item: TabItem; size: TabsSize }): React.ReactNode {
  * The tabs are data rather than children: the overflow measures them, reorders them and draws them
  * again as menu items, which children wrapped in fragments or components would not allow.
  *
- * Parts with a slot: `tabs`, `tabs-rail` (with `data-size`), `tabs-list`, `tabs-tab`,
+ * Parts with a slot: `tabs`, `tabs-rail` (with `data-size`), `tabs-list`, `tabs-indicator`, `tabs-tab`,
  * `tabs-tab-content`, `tabs-tab-leading`, `tabs-tab-count`, `tabs-more`, `tabs-panel`.
  */
 function TabsRoot(props: TabsProps): React.ReactNode {
@@ -213,6 +232,8 @@ function TabsRoot(props: TabsProps): React.ReactNode {
     size = 'md',
     value: valueProp
   } = props;
+
+  const { baseClasses } = splitBaseProps(props);
 
 
   // ----
@@ -320,7 +341,7 @@ function TabsRoot(props: TabsProps): React.ReactNode {
             select(next);
           }
         }}
-        className={cn('flex min-w-0 flex-col gap-3', className)}
+        className={cn('flex min-w-0 flex-col gap-3', baseClasses, className)}
       >
         <div ref={rowRef} data-slot={'tabs'} className={'relative flex w-full min-w-0'}>
           <div data-slot={'tabs-rail'} data-size={size} className={cn('inline-flex max-w-full items-center bg-card shadow-sm', RAIL[size])}>
@@ -330,10 +351,12 @@ function TabsRoot(props: TabsProps): React.ReactNode {
               aria-label={ariaLabel}
               aria-labelledby={ariaLabelledBy}
               data-slot={'tabs-list'}
-              className={'flex items-center gap-1'}
+              className={'relative flex items-center gap-1'}
               onFocus={() => setFocusInside(true)}
               onBlur={handleBlur}
             >
+              {/* First, so every tab paints over it */}
+              <TabsPrimitive.Indicator data-slot={'tabs-indicator'} className={cn(INDICATOR, INDICATOR_RADIUS[size])} />
               {visible.map((index) => renderTab(items[index]))}
             </TabsPrimitive.List>
 

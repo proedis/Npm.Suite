@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 
+import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
 import { Button } from '../button/Button';
@@ -13,6 +14,8 @@ import { filtersBarGlyph } from './filtersBarGlyphs';
 import { fitFilters, isFilterActive, sameFit } from './filtersBarState';
 import { MoreFilters, moreFiltersButtonProps } from './MoreFilters';
 
+import type { BaseProps } from '../../core/base';
+
 import type { FilterFit, FilterMeasure } from './filtersBarState';
 import type { FiltersBarFilter, FiltersBarLabels, FiltersBarSearch } from './filtersBarTypes';
 
@@ -21,7 +24,7 @@ import type { FiltersBarFilter, FiltersBarLabels, FiltersBarSearch } from './fil
  * Types Definition
  * -------- */
 
-export interface FiltersBarProps {
+export interface FiltersBarProps extends BaseProps {
   /** The filters, in the order they appear. The bar holds no value: the page does, usually in its address */
   filters: readonly FiltersBarFilter[];
 
@@ -126,6 +129,7 @@ export function FiltersBar(props: FiltersBarProps): React.ReactNode {
   // Props Deconstruct
   // ----
   const { className, filters, labels, onClear, search, searchThreshold = DEFAULT_THRESHOLD } = props;
+  const { baseClasses } = splitBaseProps(props);
 
 
   // ----
@@ -251,7 +255,7 @@ export function FiltersBar(props: FiltersBarProps): React.ReactNode {
     <div
       ref={barRef}
       data-slot={'filters-bar'}
-      className={cn('relative flex h-7 min-w-0 flex-1 items-center gap-2', className)}
+      className={cn('relative flex h-7 min-w-0 flex-1 items-center gap-2', baseClasses, className)}
     >
       {search && (
         <Tooltip content={search.label} disabled={quietSearch}>

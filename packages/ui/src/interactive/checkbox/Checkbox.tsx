@@ -8,13 +8,15 @@ import { Field as FieldPrimitive } from '@base-ui/react/field';
 
 import { cn } from '../../core/cn';
 
-import { CHOICE_ALIGN, CHOICE_FOCUS, CHOICE_ROW, CheckGlyph, ChoiceText, DashGlyph } from '../choice/choice';
+import { CHECKBOX_BOX, CHOICE_ALIGN, CHOICE_FOCUS, CHOICE_ROW, CheckGlyph, ChoiceText, DashGlyph, baseOrientation, choiceGroupClasses } from '../choice/choice';
 import {
   FieldRegistryContext,
   useFieldControl,
   useIsomorphicLayoutEffect,
   useNonNativeFieldLabel
 } from '../field/fieldContext';
+
+import type { Direction, Responsive } from '../../core/responsive';
 
 
 /* --------
@@ -67,8 +69,11 @@ export interface CheckboxGroupProps {
   defaultValue?: string[];
   onValueChange?: (value: string[]) => void;
 
-  /** Defaults to `vertical`. In a row, at most three short options */
-  orientation?: 'vertical' | 'horizontal';
+  /**
+   * Defaults to `vertical`. In a row, at most three short options. Per breakpoint too:
+   * `{ base: 'vertical', md: 'horizontal' }`
+   */
+  orientation?: Responsive<Direction>;
 
   /** Every option of the group */
   disabled?: boolean;
@@ -107,34 +112,7 @@ CheckboxGroupContext.displayName = 'CheckboxGroupContext';
  * Constants Definition
  * -------- */
 
-const BOX = [
-  'relative inline-flex size-4 items-center justify-center rounded-sm border border-input bg-card text-primary-foreground',
-  'transition-colors duration-100 motion-reduce:transition-none',
-  CHOICE_ALIGN,
-  CHOICE_FOCUS,
-
-  /* Checked and partial weigh the same: only the mark changes. The transparent border lets a layer reach the edge */
-  'data-checked:border-transparent data-checked:bg-primary data-indeterminate:border-transparent data-indeterminate:bg-primary',
-
-  /* Under the pointer: a stronger border when empty, the state veil when filled */
-  'not-data-disabled:not-data-readonly:group-hover/choice:border-input-hover',
-  'not-data-disabled:not-data-readonly:group-hover/choice:data-checked:bg-linear-to-b',
-  'not-data-disabled:not-data-readonly:group-hover/choice:data-checked:from-state-hover',
-  'not-data-disabled:not-data-readonly:group-hover/choice:data-checked:to-state-hover',
-  'not-data-disabled:not-data-readonly:group-hover/choice:data-indeterminate:bg-linear-to-b',
-  'not-data-disabled:not-data-readonly:group-hover/choice:data-indeterminate:from-state-hover',
-  'not-data-disabled:not-data-readonly:group-hover/choice:data-indeterminate:to-state-hover',
-
-  /* Error: the border drawn inward when empty, the fill red when ticked */
-  'data-invalid:border-destructive data-invalid:inset-ring data-invalid:inset-ring-destructive',
-  'data-invalid:data-checked:bg-destructive data-invalid:data-checked:inset-ring-0',
-  'data-invalid:data-indeterminate:bg-destructive data-invalid:data-indeterminate:inset-ring-0',
-
-  /* Read only is grey at full opacity, disabled is half: two different states */
-  'data-readonly:bg-muted data-readonly:data-checked:bg-muted-foreground data-readonly:data-checked:text-card',
-  'data-readonly:data-indeterminate:bg-muted-foreground data-readonly:data-indeterminate:text-card',
-  'data-disabled:opacity-50'
-].join(' ');
+const BOX = [ CHECKBOX_BOX, CHOICE_ALIGN, CHOICE_FOCUS ].join(' ');
 
 
 /* --------
@@ -241,11 +219,11 @@ export function CheckboxGroup(props: CheckboxGroupProps): React.ReactNode {
       aria-required={field.required || undefined}
       aria-readonly={readOnly || undefined}
       data-slot={'checkbox-group'}
-      data-orientation={orientation}
+      data-orientation={baseOrientation(orientation)}
       data-field-control={''}
       className={cn(
         'flex',
-        orientation === 'vertical' ? 'flex-col gap-2' : 'flex-row flex-wrap gap-x-4 gap-y-2',
+        choiceGroupClasses(orientation),
         'has-[>[data-parent]]:*:not-data-parent:ms-6',
         className
       )}
