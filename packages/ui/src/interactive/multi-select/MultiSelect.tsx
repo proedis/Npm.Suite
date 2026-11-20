@@ -14,7 +14,6 @@ import { Spinner } from '../../components/Spinner';
 import { VisuallyHidden } from '../../components/VisuallyHidden';
 
 import { Button } from '../button/Button';
-import { IconButton } from '../button/IconButton';
 import { CheckGlyph } from '../choice/choice';
 import { useFieldControl, useNonNativeFieldLabel } from '../field/fieldContext';
 import {
@@ -22,17 +21,19 @@ import {
   LIST_ITEM,
   LIST_ITEMS,
   LIST_MESSAGE,
+  LIST_OPTION_BOX,
   LIST_PANEL,
   LIST_POSITIONER,
   LIST_SEARCH,
   LIST_SEARCH_INPUT,
   LIST_SIDE_OFFSET,
+  ListChips,
   ListFieldEnd,
-  matchesSearch
+  matchesSearch,
+  toggleFromFrame
 } from '../list-panel/listPanel';
 import { TEXT_CONTROL_FRAME, TEXT_CONTROL_SIZES, textControlState } from '../text-control/textControl';
-import { ClearGlyph, SearchGlyph } from '../text-input/glyphs';
-import { Tooltip } from '../tooltip/Tooltip';
+import { SearchGlyph } from '../text-input/glyphs';
 
 import type { BaseProps } from '../../core/base';
 
@@ -117,16 +118,6 @@ export type MultiSelectProps = StrictMultiSelectProps & MultiSelectLoadingProps 
  * -------- */
 
 const DEFAULT_THRESHOLD = 8;
-
-const TOOLTIP_LIST_LIMIT = 10;
-
-const CHIP = 'inline-flex h-5 max-w-full shrink-0 items-center gap-0.5 rounded-sm bg-secondary ps-1.5 text-xs font-medium text-secondary-foreground';
-
-/** The box of an option: the Checkbox's drawing, with no focus of its own; the option is the control */
-const OPTION_BOX = [
-  'mt-0.5 inline-flex size-4 shrink-0 items-center justify-center rounded-sm border border-input bg-card text-primary-foreground',
-  'group-data-selected/option:border-transparent group-data-selected/option:bg-primary'
-].join(' ');
 
 
 /* --------
@@ -253,15 +244,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
   };
 
   const handleFrameMouseDown = (event: React.MouseEvent<HTMLDivElement>): void => {
-    const target = event.target as Element;
-
-    if (target.closest('[data-slot=multi-select-trigger], [data-slot=multi-select-chip-remove]') !== null) {
-      return;
-    }
-
-    event.preventDefault();
-    triggerRef.current?.focus();
-    handleOpenChange(!open);
+    toggleFromFrame(event, '[data-slot=multi-select-trigger], [data-slot=multi-select-chip-remove]', triggerRef.current, open, handleOpenChange);
   };
 
 
@@ -280,65 +263,18 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
   const selectAll = (): void => change([ ...current, ...reachable.map((option) => option.value) ]);
   const clearAll = (): void => change(current.filter((item) => !reachable.some((option) => option.value === item)));
 
-  const shown = readOnly ? chosen : chosen.slice(0, maxChips);
-  const hidden = readOnly ? [] : chosen.slice(maxChips);
-
-  const moreTooltip = (
-    <span className={'flex flex-col'}>
-      {hidden.slice(0, TOOLTIP_LIST_LIMIT).map((option) => <span key={option.value}>{option.label}</span>)}
-      {hidden.length > TOOLTIP_LIST_LIMIT && (
-        <span className={'text-tooltip-muted-foreground'}>{labels.moreRest(hidden.length - TOOLTIP_LIST_LIMIT)}</span>
-      )}
-    </span>
-  );
-
   const chips = (
-    <span
-      data-slot={'multi-select-chips'}
-      className={cn(
-        'relative z-10 flex min-w-0 flex-1 items-center gap-1.5',
-        readOnly ? 'flex-wrap py-1' : 'overflow-hidden',
-        'pointer-events-none *:pointer-events-auto'
-      )}
-    >
-      {chosen.length === 0 && placeholder && (
-        <span className={'truncate text-placeholder'}>{placeholder}</span>
-      )}
-
-      {shown.map((option) => (
-        <span
-          key={option.value}
-          data-slot={'multi-select-chip'}
-          className={cn(CHIP, (inert || option.disabled) && 'pe-1.5', readOnly && 'border border-border bg-card')}
-        >
-          <Tooltip content={option.label} truncatedOnly align={'start'}>
-            <span data-truncate={''} className={cn('min-w-0 truncate', shown.length > 1 && 'max-w-30')}>{option.label}</span>
-          </Tooltip>
-
-          {!inert && !option.disabled && (
-            <IconButton
-              label={labels.remove(option.label)}
-              icon={<ClearGlyph />}
-              tabIndex={-1}
-              size={'sm'}
-              data-slot={'multi-select-chip-remove'}
-              className={'size-5 rounded-sm [&_svg]:size-3.5'}
-              onMouseDown={(event) => event.preventDefault()}
-              onClick={() => change(current.filter((item) => item !== option.value))}
-            />
-          )}
-        </span>
-      ))}
-
-      {hidden.length > 0 && (
-        <Tooltip content={moreTooltip}>
-          <span data-slot={'multi-select-more'} className={cn(CHIP, 'pe-1.5')}>
-            <span aria-hidden={'true'}>{`+${hidden.length}`}</span>
-            <VisuallyHidden>{labels.more(hidden.length)}</VisuallyHidden>
-          </span>
-        </Tooltip>
-      )}
-    </span>
+    <ListChips
+      slot={'multi-select'}
+      items={chosen}
+      maxChips={maxChips}
+      readOnly={readOnly}
+      inert={inert}
+      isLocked={(option) => option.disabled === true}
+      placeholder={placeholder}
+      labels={labels}
+      onRemove={(option) => change(current.filter((item) => item !== option.value))}
+    />
   );
 
   const frameClasses = cn(
@@ -396,7 +332,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
 
   const optionContent = (option: SelectOption): React.ReactNode => (
     <React.Fragment>
-      <span data-slot={'multi-select-item-box'} className={OPTION_BOX} aria-hidden={'true'}><CheckGlyph /></span>
+      <span data-slot={'multi-select-item-box'} className={LIST_OPTION_BOX} aria-hidden={'true'}><CheckGlyph /></span>
       <span data-slot={'multi-select-item-label'} className={'min-w-0 flex-1'}>{option.label}</span>
     </React.Fragment>
   );

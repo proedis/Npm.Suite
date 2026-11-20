@@ -8,6 +8,7 @@ import { cn } from '../../core/cn';
 
 import { IconButton } from '../button/IconButton';
 import { useFieldControl, useNonNativeFieldLabel } from '../field/fieldContext';
+import { OverflowTooltipList } from '../list-panel/listPanel';
 import { TEXT_CONTROL_FRAME, TEXT_CONTROL_SIZES, textControlState } from '../text-control/textControl';
 import { ClearGlyph } from '../text-input/glyphs';
 import { Tooltip } from '../tooltip/Tooltip';
@@ -216,7 +217,7 @@ export function ModalSelectorField<TData>(props: ModalSelectorFieldProps<TData>)
       <span className={'flex min-w-0 items-center gap-1.5 overflow-hidden'}>
         {named.slice(0, MAX_CHIPS).map((item, index) => <span key={`${item.label}-${index}`} data-slot={'modal-selector-field-chip'} className={CHIP}>{item.label}</span>)}
         {hidden.length > 0 && (
-          <Tooltip content={<span className={'flex flex-col'}>{hidden.slice(0, 10).map((item, index) => <span key={`${item.label}-${index}`}>{item.label}</span>)}</span>}>
+          <Tooltip content={<OverflowTooltipList values={hidden.map((item) => item.label)} />}>
             <span data-slot={'modal-selector-field-more'} className={cn(CHIP, 'pointer-events-auto')}>
               <span aria-hidden={labels.more ? 'true' : undefined}>{`+${hidden.length}`}</span>
               {labels.more && <VisuallyHidden>{labels.more(hidden.length)}</VisuallyHidden>}

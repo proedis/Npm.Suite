@@ -1048,6 +1048,8 @@ another package. A recessed surface is `--muted`.
 | 1.x | 2.0 |
 | --- | --- |
 | `react` `>=18.0.0 <20.0.0` | `>=19.0.0 <20.0.0`: the compiled code imports `react/compiler-runtime`, and `ref` is passed as a prop |
+| `combobox-footer` on the "too many results" line of the single `Combobox` | `combobox-too-many`, as on the multiple one; `combobox-footer` is now only the footer of actions of the multiple field |
+| `resultsFor`, `onFlush` on a multiple `Combobox` | single field only: they never did anything on the multiple one |
 | `useMediaQuery`, `usePrefersReducedMotion` from `@proedis/ui/hooks` | from `@proedis/react`, same signatures; `@proedis/ui/hooks` keeps `useBreakpoint` and `useIsMobile` |
 | `tailwindcss` `^4.0.0` | `^4.1.5`, see Compatibility |
 | a `Badge` with text renders the text as its child | the text is wrapped in `badge-label` and truncates with an ellipsis when the badge is too narrow |

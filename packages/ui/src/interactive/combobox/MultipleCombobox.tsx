@@ -14,43 +14,29 @@ import { Spinner } from '../../components/Spinner';
 import { VisuallyHidden } from '../../components/VisuallyHidden';
 
 import { Button } from '../button/Button';
-import { IconButton } from '../button/IconButton';
 import { CheckGlyph } from '../choice/choice';
 import { useFieldControl, useNonNativeFieldLabel } from '../field/fieldContext';
-import { ErrorGlyph } from '../field/glyphs';
 import {
   LIST_FOOTER,
   LIST_ITEM,
   LIST_ITEMS,
   LIST_MESSAGE,
+  LIST_OPTION_BOX,
   LIST_PANEL,
   LIST_POSITIONER,
+  LIST_RETRY,
   LIST_SEARCH,
   LIST_SEARCH_INPUT,
   LIST_SIDE_OFFSET,
-  ListFieldEnd
+  ListChips,
+  ListFieldEnd,
+  remoteListMessages,
+  toggleFromFrame
 } from '../list-panel/listPanel';
 import { TEXT_CONTROL_FRAME, TEXT_CONTROL_SIZES, textControlState } from '../text-control/textControl';
-import { ClearGlyph, SearchGlyph } from '../text-input/glyphs';
-import { Tooltip } from '../tooltip/Tooltip';
+import { SearchGlyph } from '../text-input/glyphs';
 
 import type { ComboboxItem, MultipleComboboxProps } from './comboboxTypes';
-
-
-/* --------
- * Constants Definition
- * -------- */
-
-const RETRY: ComboboxItem = { value: '\u0000retry', label: '' };
-
-const TOOLTIP_LIST_LIMIT = 10;
-
-const CHIP = 'inline-flex h-5 max-w-full shrink-0 items-center gap-0.5 rounded-sm bg-secondary ps-1.5 text-xs font-medium text-secondary-foreground';
-
-const OPTION_BOX = [
-  'mt-0.5 inline-flex size-4 shrink-0 items-center justify-center rounded-sm border border-input bg-card text-primary-foreground',
-  'group-data-selected/option:border-transparent group-data-selected/option:bg-primary'
-].join(' ');
 
 
 /* --------
@@ -147,15 +133,7 @@ export const MultipleCombobox = React.forwardRef<HTMLButtonElement, MultipleComb
   };
 
   const handleFrameMouseDown = (event: React.MouseEvent<HTMLDivElement>): void => {
-    const target = event.target as Element;
-
-    if (target.closest('[data-slot=combobox-trigger], [data-slot=combobox-chip-remove]') !== null) {
-      return;
-    }
-
-    event.preventDefault();
-    triggerRef.current?.focus();
-    handleOpenChange(!open);
+    toggleFromFrame(event, '[data-slot=combobox-trigger], [data-slot=combobox-chip-remove]', triggerRef.current, open, handleOpenChange);
   };
 
 
@@ -173,96 +151,32 @@ export const MultipleCombobox = React.forwardRef<HTMLButtonElement, MultipleComb
 
   if (!underMin) {
     listItems = searchError && !searching
-      ? [ RETRY ]
+      ? [ LIST_RETRY ]
       : [ ...chosen, ...items.filter((item) => !chosen.some((picked) => picked.value === item.value)) ];
   }
 
-  let message: React.ReactNode = null;
-
-  if (underMin) {
-    message = labels.minChars;
-  }
-  else if (searchError && !searching) {
-    message = (
-      <span className={'flex items-start gap-1 text-destructive'}>
-        <ErrorGlyph />
-        {labels.error}
-      </span>
-    );
-  }
-  else if (showBusy) {
-    message = labels.searching;
-  }
-  else if (!searching && items.length === 0) {
-    message = labels.noResults(term);
-  }
-
-  let status = '';
-
-  if (!underMin && !searching) {
-    if (searchError) {
-      status = labels.error;
-    }
-    else if (items.length === 0) {
-      status = labels.noResults(term);
-    }
-    else {
-      status = hasMore ? labels.tooMany(items.length) : labels.results(items.length);
-    }
-  }
-
-  const shown = readOnly ? chosen : chosen.slice(0, maxChips);
-  const hidden = readOnly ? [] : chosen.slice(maxChips);
+  const { message, status } = remoteListMessages({
+    term,
+    underMin,
+    searching,
+    busyVisible: showBusy,
+    failed     : searchError && !searching,
+    count      : items.length,
+    empty      : items.length === 0,
+    hasMore
+  }, labels);
 
   const chips = (
-    <span
-      data-slot={'combobox-chips'}
-      className={cn(
-        'pointer-events-none relative z-10 flex min-w-0 flex-1 items-center gap-1.5 *:pointer-events-auto',
-        readOnly ? 'flex-wrap py-1' : 'overflow-hidden'
-      )}
-    >
-      {chosen.length === 0 && labels.placeholder && <span className={'truncate text-placeholder'}>{labels.placeholder}</span>}
-
-      {shown.map((item) => (
-        <span key={item.value} data-slot={'combobox-chip'} className={cn(CHIP, inert && 'pe-1.5', readOnly && 'border border-border bg-card')}>
-          <Tooltip content={item.label} truncatedOnly align={'start'}>
-            <span data-truncate={''} className={cn('min-w-0 truncate', shown.length > 1 && 'max-w-30')}>{item.label}</span>
-          </Tooltip>
-
-          {!inert && (
-            <IconButton
-              label={labels.remove(item.label)}
-              icon={<ClearGlyph />}
-              tabIndex={-1}
-              size={'sm'}
-              data-slot={'combobox-chip-remove'}
-              className={'size-5 rounded-sm [&_svg]:size-3.5'}
-              onMouseDown={(event) => event.preventDefault()}
-              onClick={() => change(chosen.filter((picked) => picked.value !== item.value))}
-            />
-          )}
-        </span>
-      ))}
-
-      {hidden.length > 0 && (
-        <Tooltip
-          content={(
-            <span className={'flex flex-col'}>
-              {hidden.slice(0, TOOLTIP_LIST_LIMIT).map((item) => <span key={item.value}>{item.label}</span>)}
-              {hidden.length > TOOLTIP_LIST_LIMIT && (
-                <span className={'text-tooltip-muted-foreground'}>{labels.moreRest(hidden.length - TOOLTIP_LIST_LIMIT)}</span>
-              )}
-            </span>
-          )}
-        >
-          <span data-slot={'combobox-more'} className={cn(CHIP, 'pe-1.5')}>
-            <span aria-hidden={'true'}>{`+${hidden.length}`}</span>
-            <VisuallyHidden>{labels.more(hidden.length)}</VisuallyHidden>
-          </span>
-        </Tooltip>
-      )}
-    </span>
+    <ListChips
+      slot={'combobox'}
+      items={chosen}
+      maxChips={maxChips}
+      readOnly={readOnly}
+      inert={inert}
+      placeholder={labels.placeholder}
+      labels={labels}
+      onRemove={(item) => change(chosen.filter((picked) => picked.value !== item.value))}
+    />
   );
 
   const frameAttributes = {
@@ -311,7 +225,7 @@ export const MultipleCombobox = React.forwardRef<HTMLButtonElement, MultipleComb
       onValueChange={(next, details) => {
         const picked = next as ComboboxItem[];
 
-        if (picked.includes(RETRY)) {
+        if (picked.includes(LIST_RETRY)) {
           details.cancel();
           onRetry?.();
           return;
@@ -388,11 +302,11 @@ export const MultipleCombobox = React.forwardRef<HTMLButtonElement, MultipleComb
                   data-slot={'combobox-item'}
                   className={cn(LIST_ITEM, 'group/option', item.code || item.description ? 'min-h-12' : '')}
                 >
-                  {item === RETRY
+                  {item === LIST_RETRY
                     ? <span data-slot={'combobox-retry'} className={'min-w-0 flex-1'}>{labels.retry}</span>
                     : (
                       <React.Fragment>
-                        <span data-slot={'combobox-item-box'} className={OPTION_BOX} aria-hidden={'true'}><CheckGlyph /></span>
+                        <span data-slot={'combobox-item-box'} className={LIST_OPTION_BOX} aria-hidden={'true'}><CheckGlyph /></span>
                         <span data-slot={'combobox-item-text'} className={'flex min-w-0 flex-1 flex-col'}>
                           <span data-slot={'combobox-item-label'}>{item.label}</span>
                           {(item.code || item.description) && (

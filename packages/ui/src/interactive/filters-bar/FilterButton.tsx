@@ -10,7 +10,7 @@ import { Spinner } from '../../components/Spinner';
 
 import { Button } from '../button/Button';
 import { IconButton } from '../button/IconButton';
-import { LIST_POSITIONER, LIST_SIDE_OFFSET, ListFieldEnd } from '../list-panel/listPanel';
+import { LIST_POSITIONER, LIST_SIDE_OFFSET, ListFieldEnd, OverflowTooltipList } from '../list-panel/listPanel';
 import { ClearGlyph } from '../text-input/glyphs';
 import { Tooltip } from '../tooltip/Tooltip';
 
@@ -56,9 +56,6 @@ interface FilterFaceProps {
 
 /** Values shown before "+N" */
 const SHOWN_VALUES = 2;
-
-/** Values listed in the tooltip before its closing line */
-const TOOLTIP_LIST_LIMIT = 10;
 
 /** Inside an active filter the focus is a 2px outline within the button: a halo would cover the other half */
 const INNER_FOCUS = 'focus-visible:-outline-offset-2 focus-visible:ring-0';
@@ -209,14 +206,7 @@ export function FilterButton(props: FilterButtonProps): React.ReactNode {
     tooltip = filter.disabledReason;
   }
   else if (face.active) {
-    tooltip = (
-      <span className={'flex flex-col'}>
-        {face.values.slice(0, TOOLTIP_LIST_LIMIT).map((value) => <span key={value}>{value}</span>)}
-        {face.values.length > TOOLTIP_LIST_LIMIT && (
-          <span className={'text-tooltip-muted-foreground'}>{labels.restValues(face.values.length - TOOLTIP_LIST_LIMIT)}</span>
-        )}
-      </span>
-    );
+    tooltip = <OverflowTooltipList values={face.values} rest={labels.restValues} />;
     truncatedOnly = face.values.length <= SHOWN_VALUES;
   }
 

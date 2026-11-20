@@ -93,7 +93,9 @@ dependency goes one way.
 The private modules of the tier, shared by relative import and never exported by a barrel:
 `text-control` (the frame and the states of every bordered text control), `choice` (the row, the
 marks and the description of Checkbox, Radio and Switch), `list-panel` (the look of the list under
-Select, MultiSelect, Combobox and the filters of FiltersBar), `calendar` (the month grid and the date
+Select, MultiSelect, Combobox and the filters of FiltersBar, and what those controls share: the chips
+and their "+N", the tooltip listing hidden values, the messages and the `status` text of a list fed by
+a server, the press on the frame, the "Retry" item), `calendar` (the month grid and the date
 text rules, used by DatePicker and by the date filter of FiltersBar), `menu/menuPanel` and
 `menu/SharedMenu` (the panel of Menu, and one menu for many triggers, used by the rows of Table),
 `table/tableCells` and `table/tableParts` (the renderers of the column kinds, the classes of rows,

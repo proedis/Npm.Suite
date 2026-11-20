@@ -27,7 +27,8 @@ import {
   LIST_SIDE_OFFSET,
   ListFieldEnd,
   matchesSearch,
-  normalizeForSearch
+  normalizeForSearch,
+  toggleFromFrame
 } from '../list-panel/listPanel';
 import { TEXT_CONTROL_FRAME, TEXT_CONTROL_SIZES, TEXT_CONTROL_TEXT, textControlState } from '../text-control/textControl';
 import { ClearGlyph, SearchGlyph } from '../text-input/glyphs';
@@ -258,15 +259,7 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>((props, f
 
   /** Arrow, padding, the space around the value: the whole frame opens the list, but the clear button */
   const handleFrameMouseDown = (event: React.MouseEvent<HTMLDivElement>): void => {
-    const target = event.target as Element;
-
-    if (target.closest('[data-slot=select-trigger], [data-slot=select-clear]') !== null) {
-      return;
-    }
-
-    event.preventDefault();
-    triggerRef.current?.focus();
-    handleOpenChange(!open);
+    toggleFromFrame(event, '[data-slot=select-trigger], [data-slot=select-clear]', triggerRef.current, open, handleOpenChange);
   };
 
   const handleTriggerKeyDown = (event: React.KeyboardEvent<HTMLButtonElement> & { preventBaseUIHandler?: () => void }): void => {

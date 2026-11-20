@@ -16,7 +16,6 @@ import { Spinner } from '../../components/Spinner';
 import { IconButton } from '../button/IconButton';
 import { CheckGlyph } from '../choice/choice';
 import { useFieldControl } from '../field/fieldContext';
-import { ErrorGlyph } from '../field/glyphs';
 import {
   ChevronGlyph,
   LIST_ITEM,
@@ -24,7 +23,9 @@ import {
   LIST_MESSAGE,
   LIST_PANEL,
   LIST_POSITIONER,
-  LIST_SIDE_OFFSET
+  LIST_RETRY,
+  LIST_SIDE_OFFSET,
+  remoteListMessages
 } from '../list-panel/listPanel';
 import { TEXT_CONTROL_FRAME, TEXT_CONTROL_SIZES, TEXT_CONTROL_TEXT, textControlState } from '../text-control/textControl';
 import { ClearGlyph, SearchGlyph } from '../text-input/glyphs';
@@ -37,9 +38,6 @@ import type { ComboboxItem, ComboboxProps, SingleComboboxProps } from './combobo
 /* --------
  * Constants Definition
  * -------- */
-
-/** The one item offered after an error. Choosing it asks again and never becomes the value */
-const RETRY: ComboboxItem = { value: '\u0000retry', label: '' };
 
 const CODE = 'shrink-0 text-muted-foreground tabular-nums';
 
@@ -108,9 +106,10 @@ function sameText(a: string, b: string): boolean {
  *
  * Slots: `combobox` (the frame, with `data-size` and the states), `combobox-input`, `combobox-code`,
  * `combobox-end`, `combobox-clear`, `combobox-chevron`, `combobox-panel`, `combobox-item`,
- * `combobox-message`, `combobox-current`, `combobox-footer`, `combobox-status`. With `multiple`, also
- * `combobox-trigger`, `combobox-chips`, `combobox-more`, `combobox-search`, `combobox-item-box`,
- * `combobox-item-text`, `combobox-item-label`, `combobox-retry`, `combobox-too-many`.
+ * `combobox-message`, `combobox-current`, `combobox-too-many`, `combobox-status`. With `multiple`, also
+ * `combobox-trigger`, `combobox-chips`, `combobox-chip`, `combobox-chip-remove`, `combobox-more`,
+ * `combobox-search`, `combobox-item-box`, `combobox-item-text`, `combobox-item-label`, `combobox-retry`
+ * and `combobox-footer`, the footer of actions.
  */
 const SingleCombobox = React.forwardRef<HTMLInputElement, SingleComboboxProps>((props, forwardedRef) => {
 
@@ -300,45 +299,25 @@ const SingleCombobox = React.forwardRef<HTMLInputElement, SingleComboboxProps>((
   let listItems: readonly ComboboxItem[] = [];
 
   if (editing && !underMin) {
-    listItems = searchError && !searching ? [ RETRY ] : items.filter((item) => item.value !== selected?.value);
+    listItems = searchError && !searching ? [ LIST_RETRY ] : items.filter((item) => item.value !== selected?.value);
   }
   else if (!editing && selected) {
     listItems = [ selected ];
   }
 
-  let message: React.ReactNode = null;
-
-  if ((editing && underMin) || (!editing && !selected)) {
-    message = labels.minChars;
-  }
-  else if (editing && searchError && !searching) {
-    message = (
-      <span className={'flex items-start gap-1 text-destructive'}>
-        <ErrorGlyph />
-        {labels.error}
-      </span>
-    );
-  }
-  else if (editing && showBusy) {
-    message = labels.searching;
-  }
-  else if (editing && !searching && listItems.length === 0) {
-    message = labels.noResults(term);
-  }
-
-  let status = '';
-
-  if (editing && !underMin && !searching) {
-    if (searchError) {
-      status = labels.error;
-    }
-    else if (items.length === 0) {
-      status = labels.noResults(term);
-    }
-    else {
-      status = hasMore ? labels.tooMany(items.length) : labels.results(items.length);
-    }
-  }
+  /* Opened without typing, the list holds the value or nothing: no answer to speak of */
+  const { message, status } = editing
+    ? remoteListMessages({
+      term,
+      underMin,
+      searching,
+      busyVisible: showBusy,
+      failed     : searchError && !searching,
+      count      : items.length,
+      empty      : listItems.length === 0,
+      hasMore
+    }, labels)
+    : { message: selected ? null : labels.minChars, status: '' };
 
   const frameAttributes = {
     'data-slot': 'combobox',
@@ -405,7 +384,7 @@ const SingleCombobox = React.forwardRef<HTMLInputElement, SingleComboboxProps>((
           return;
         }
 
-        if (next === RETRY) {
+        if (next === LIST_RETRY) {
           details.cancel();
           onRetry?.();
           return;
@@ -501,7 +480,7 @@ const SingleCombobox = React.forwardRef<HTMLInputElement, SingleComboboxProps>((
                   data-slot={'combobox-item'}
                   className={cn(LIST_ITEM, 'data-selected:font-medium', item.code || item.description ? 'min-h-12' : '')}
                 >
-                  {item === RETRY
+                  {item === LIST_RETRY
                     ? <span className={'min-w-0 flex-1'}>{labels.retry}</span>
                     : (
                       <span className={'flex min-w-0 flex-1 flex-col'}>
@@ -528,7 +507,7 @@ const SingleCombobox = React.forwardRef<HTMLInputElement, SingleComboboxProps>((
             </ComboboxPrimitive.List>
 
             {editing && hasMore && !searching && !searchError && (
-              <div data-slot={'combobox-footer'} className={cn(LIST_MESSAGE, 'mt-1 border-t border-border text-xs')}>
+              <div data-slot={'combobox-too-many'} className={cn(LIST_MESSAGE, 'mt-1 border-t border-border text-xs')}>
                 {labels.tooMany(items.length)}
               </div>
             )}

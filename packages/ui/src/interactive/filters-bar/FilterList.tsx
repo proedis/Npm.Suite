@@ -11,16 +11,18 @@ import { Spinner } from '../../components/Spinner';
 
 import { Button } from '../button/Button';
 import { CheckGlyph } from '../choice/choice';
-import { ErrorGlyph } from '../field/glyphs';
 import {
   LIST_FOOTER,
   LIST_ITEM,
   LIST_ITEMS,
   LIST_MESSAGE,
+  LIST_OPTION_BOX,
+  LIST_RETRY,
   LIST_SEARCH,
   LIST_SEARCH_INPUT,
   matchesSearch,
-  normalizeForSearch
+  normalizeForSearch,
+  remoteListMessages
 } from '../list-panel/listPanel';
 import { SearchGlyph } from '../text-input/glyphs';
 
@@ -70,14 +72,6 @@ export interface FilterListProps {
 /* --------
  * Constants Definition
  * -------- */
-
-/** The one item offered after an error. Choosing it asks again and never becomes a value */
-const RETRY: FilterOption = { value: '\u0000retry', label: '' };
-
-const OPTION_BOX = [
-  'mt-0.5 inline-flex size-4 shrink-0 items-center justify-center rounded-sm border border-input bg-card text-primary-foreground',
-  'group-data-selected/option:border-transparent group-data-selected/option:bg-primary'
-].join(' ');
 
 const OPTION_TICK = 'mt-0.5 inline-flex size-4 shrink-0 text-primary opacity-0 group-data-selected/option:opacity-100';
 
@@ -174,7 +168,7 @@ export function FilterList(props: FilterListProps): React.ReactNode {
       items = chosen;
     }
     else {
-      items = failed ? [ RETRY ] : [ ...chosen, ...remote.items.filter((item) => !value.includes(item.value)) ];
+      items = failed ? [ LIST_RETRY ] : [ ...chosen, ...remote.items.filter((item) => !value.includes(item.value)) ];
     }
   }
   else {
@@ -204,7 +198,7 @@ export function FilterList(props: FilterListProps): React.ReactNode {
       return;
     }
 
-    if (item === RETRY) {
+    if (item === LIST_RETRY) {
       remote?.onRetry?.();
       return;
     }
@@ -336,45 +330,21 @@ export function FilterList(props: FilterListProps): React.ReactNode {
   // ----
   // Component Render
   // ----
-  let message: React.ReactNode = null;
-
-  if (underMin) {
-    message = labels.remote.minChars;
-  }
-  else if (failed) {
-    message = (
-      <span className={'flex items-start gap-1 text-destructive'}>
-        <ErrorGlyph />
-        {labels.remote.error}
-      </span>
-    );
-  }
-  else if (remote && showBusy) {
-    message = labels.remote.searching;
-  }
-  else if (remote && !searching && remote.items.length === 0) {
-    message = labels.remote.noResults(term);
-  }
-  else if (!remote && items.length === 0) {
-    message = labels.noResults;
-  }
-
-  let status = '';
-
-  if (remote && !underMin && !searching) {
-    if (failed) {
-      status = labels.remote.error;
-    }
-    else if (remote.items.length === 0) {
-      status = labels.remote.noResults(term);
-    }
-    else {
-      status = remote.hasMore ? labels.remote.tooMany(remote.items.length) : labels.remote.results(remote.items.length);
-    }
-  }
+  const { message, status } = remote
+    ? remoteListMessages({
+      term,
+      underMin,
+      searching,
+      busyVisible: showBusy,
+      failed,
+      count      : remote.items.length,
+      empty      : remote.items.length === 0,
+      hasMore    : remote.hasMore ?? false
+    }, labels.remote)
+    : { message: items.length === 0 ? labels.noResults : null, status: '' };
 
   /* The footer acts on the values that can change: the ones found, while searching */
-  const reachable = items.filter((item) => !item.disabled && item !== RETRY);
+  const reachable = items.filter((item) => !item.disabled && item !== LIST_RETRY);
   const allChecked = reachable.length > 0 && reachable.every((item) => value.includes(item.value));
   const noneChecked = reachable.every((item) => !value.includes(item.value));
 
@@ -438,7 +408,7 @@ export function FilterList(props: FilterListProps): React.ReactNode {
             key={item.value}
             id={`${baseId}-${index}`}
             role={'option'}
-            aria-selected={item === RETRY ? false : value.includes(item.value)}
+            aria-selected={item === LIST_RETRY ? false : value.includes(item.value)}
             aria-disabled={item.disabled || undefined}
             data-slot={'filter-list-item'}
             data-highlighted={index === activeIndex ? '' : undefined}
@@ -453,11 +423,11 @@ export function FilterList(props: FilterListProps): React.ReactNode {
             onMouseDown={(event) => event.preventDefault()}
             onClick={() => pick(item)}
           >
-            {item === RETRY
+            {item === LIST_RETRY
               ? <span data-slot={'filter-list-retry'} className={'min-w-0 flex-1'}>{labels.remote.retry}</span>
               : (
                 <React.Fragment>
-                  {multiple && <span data-slot={'filter-list-box'} className={OPTION_BOX} aria-hidden={'true'}><CheckGlyph /></span>}
+                  {multiple && <span data-slot={'filter-list-box'} className={LIST_OPTION_BOX} aria-hidden={'true'}><CheckGlyph /></span>}
                   <span data-slot={'filter-list-item-text'} className={'flex min-w-0 flex-1 flex-col'}>
                     <span data-slot={'filter-list-item-label'}>{item.label}</span>
                     {(item.code || item.description) && (
