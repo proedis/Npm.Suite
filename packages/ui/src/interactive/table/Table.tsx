@@ -351,9 +351,14 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
     [ asked, lastPage, settled ]
   );
 
-  /* "Every row" taken back down to none is no selection */
+  /*
+   * "Every row" taken back down to none is no selection. Only once the rows are settled: while they
+   * load the count is 0, and a page that keeps "every row" in its address lost it on every load.
+   */
   const keptSelection = selectionProp ?? ownSelection;
-  const selection = keptSelection.all && selectionCount(keptSelection, rowCount) === 0 ? EMPTY_SELECTION : keptSelection;
+  const selection = settled && keptSelection.all && selectionCount(keptSelection, rowCount) === 0
+    ? EMPTY_SELECTION
+    : keptSelection;
 
 
   // ----
