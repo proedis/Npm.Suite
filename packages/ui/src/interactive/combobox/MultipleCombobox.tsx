@@ -79,6 +79,7 @@ export const MultipleCombobox = React.forwardRef<HTMLButtonElement, MultipleComb
     labels,
     maxChips = 3,
     minChars = 2,
+    multiple: _multiple,
     name,
     onInputValueChange,
     onRetry,

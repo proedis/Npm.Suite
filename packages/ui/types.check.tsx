@@ -19,6 +19,7 @@ import { AlertDialog } from './src/interactive/alert-dialog';
 import { Button, IconButton } from './src/interactive/button';
 import { Drawer } from './src/interactive/drawer';
 import { Checkbox, CheckboxGroup } from './src/interactive/checkbox';
+import { Combobox } from './src/interactive/combobox';
 import { Detail } from './src/interactive/detail';
 import { Field } from './src/interactive/field';
 import { FiltersBar } from './src/interactive/filters-bar';
@@ -442,6 +443,21 @@ const filtersBarChildren = (
 
 
 /* --------
+ * Combobox: the pending Enter belongs to the single field only
+ * -------- */
+const comboboxLabels = {} as React.ComponentProps<typeof Combobox>['labels'] & { clear: string; clearSearch: string };
+
+const singlePendingEnter = (
+  <Combobox items={[]} labels={comboboxLabels} resultsFor={'abc'} onFlush={() => undefined} />
+);
+
+const multiplePendingEnter = (
+  // @ts-expect-error the multiple field has no pending Enter: resultsFor would reach the DOM
+  <Combobox multiple items={[]} selectedItems={[]} labels={{} as never} resultsFor={'abc'} />
+);
+
+
+/* --------
  * Keep the compiler from pruning the assertions
  * -------- */
 export const CHECKED = [
@@ -461,5 +477,5 @@ export const CHECKED = [
   namedToggle, namelessToggle, namedGroup, namelessGroup, chosenView, emptyView, namelessItem,
   formLibraryBox, namedRadioGroup, switchWithTitle, namedTabs, namelessTabs, closedTabs,
   silentIconButton, silentPassword, namelessArrows, namelessConfirm,
-  filtersBarRoot, filtersBarChildren
+  filtersBarRoot, filtersBarChildren, singlePendingEnter, multiplePendingEnter
 ];

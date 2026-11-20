@@ -292,8 +292,9 @@ What every search typed into a field needs, and gets wrong one at a time:
 | A scanner's Enter | `settledTerm` says which term the items answer; `flush()` ends the debounce now |
 
 It pairs with `Combobox` of `@proedis/ui/interactive/combobox`, which takes `items`, `searching`,
-`resultsFor`, `onFlush`, `searchError`, `onRetry` and `hasMore` from it. When to show a spinner is the
-component's decision, not the hook's.
+`searchError`, `onRetry` and `hasMore` from it, plus `resultsFor` and `onFlush` on the single field,
+the only one with a scanner's Enter. When to show a spinner is the component's decision, not the
+hook's.
 
 ## ⚠️ Requirements
 

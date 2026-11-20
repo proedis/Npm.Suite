@@ -71,12 +71,6 @@ export interface ComboboxSearchProps extends BaseProps {
   /** A search is on its way: debouncing or travelling */
   searching?: boolean;
 
-  /** The term `items` answer. Enter during a search waits until it matches the text, then picks an exact code */
-  resultsFor?: string;
-
-  /** Ends the debounce at once, so Enter from a scanner does not wait the delay */
-  onFlush?: () => void;
-
   /** The search failed after its retry: the list offers "Retry" */
   searchError?: boolean;
   onRetry?: () => void;
@@ -106,6 +100,15 @@ export interface ComboboxSearchProps extends BaseProps {
 
 export interface StrictSingleComboboxProps extends ComboboxSearchProps {
   multiple?: false;
+
+  /**
+   * The term `items` answer. Enter during a search waits until it matches the text, then picks an
+   * exact code. Single only: the multiple field has no pending Enter, so it does not take these two
+   */
+  resultsFor?: string;
+
+  /** Ends the debounce at once, so Enter from a scanner does not wait the delay */
+  onFlush?: () => void;
 
   /** The key of the chosen record, or `null` */
   value?: string | null;

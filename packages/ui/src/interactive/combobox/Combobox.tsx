@@ -125,6 +125,7 @@ const SingleCombobox = React.forwardRef<HTMLInputElement, SingleComboboxProps>((
     items,
     labels,
     minChars = 2,
+    multiple: _multiple,
     name,
     onFlush,
     onInputValueChange,
