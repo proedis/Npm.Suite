@@ -55,8 +55,8 @@ export interface JobsButtonProps {
  * Helpers
  * -------- */
 
-function HistoryRow(props: { entry: HistoryEntry; labels: JobsButtonLabels; now: number }): React.ReactNode {
-  const { entry, labels, now } = props;
+function HistoryRow(props: { entry: HistoryEntry; labels: JobsButtonLabels; now: number; unseen: boolean }): React.ReactNode {
+  const { entry, labels, now, unseen } = props;
   const undoOpen = entry.undo && (!entry.undo.until || entry.undo.until.getTime() > now);
 
   const title = entry.target
@@ -64,13 +64,13 @@ function HistoryRow(props: { entry: HistoryEntry; labels: JobsButtonLabels; now:
     : entry.title;
 
   return (
-    <li data-slot={'jobs-history-row'} data-unseen={!entry.seen || undefined} className={'flex items-start gap-2 rounded-sm px-3 py-2'}>
+    <li data-slot={'jobs-history-row'} data-unseen={unseen || undefined} className={'flex items-start gap-2 rounded-sm px-3 py-2'}>
       <StatusMark status={entry.status} className={'mt-0.5'} />
       <div className={'min-w-0 flex-1'}>
-        <div className={cn(!entry.seen ? 'font-semibold' : 'font-normal')}>{title}</div>
+        <div className={cn(unseen ? 'font-semibold' : 'font-normal')}>{title}</div>
         {entry.detail !== null && entry.detail !== undefined && <div className={'text-xs text-muted-foreground'}>{entry.detail}</div>}
         <div className={'flex items-center gap-1.5 text-xs text-muted-foreground'}>
-          {!entry.seen && <span aria-hidden className={'size-2 rounded-full bg-info'} />}
+          {unseen && <span aria-hidden className={'size-2 rounded-full bg-info'} />}
           {labels.time(entry.time)}
           {undoOpen && entry.undo?.until && <span>{`· ${labels.undoUntil(entry.undo.until)}`}</span>}
         </div>
@@ -123,6 +123,12 @@ export function JobsButton(props: JobsButtonProps): React.ReactNode {
   const [ open, setOpen ] = React.useState(false);
   const [ now, setNow ] = React.useState(() => Date.now());
 
+  /**
+   * What was unseen when the history opened. Opening marks every entry as seen in the store, and does
+   * so before the panel renders, so the rows read from the store would never show what was new.
+   */
+  const [ unseenAtOpen, setUnseenAtOpen ] = React.useState<ReadonlySet<string>>(() => new Set());
+
   if (!context) {
     return null;
   }
@@ -138,6 +144,7 @@ export function JobsButton(props: JobsButtonProps): React.ReactNode {
   const handleOpenChange = (next: boolean): void => {
     if (next) {
       setNow(Date.now());
+      setUnseenAtOpen(new Set(notifications.store.getState().history.filter((entry) => !entry.seen).map((entry) => entry.id)));
       notifications.store.markSeen();
     }
 
@@ -179,7 +186,9 @@ export function JobsButton(props: JobsButtonProps): React.ReactNode {
               ? <p className={'px-3 py-2 text-muted-foreground'}>{labels.empty}</p>
               : (
                 <ul className={'max-h-96 overflow-y-auto overscroll-contain'}>
-                  {state.history.map((entry) => <HistoryRow key={entry.id} entry={entry} labels={labels} now={now} />)}
+                  {state.history.map((entry) => (
+                    <HistoryRow key={entry.id} entry={entry} labels={labels} now={now} unseen={unseenAtOpen.has(entry.id)} />
+                  ))}
                 </ul>
               )}
           </PopoverPrimitive.Popup>
