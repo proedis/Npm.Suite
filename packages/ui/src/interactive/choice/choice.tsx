@@ -101,6 +101,26 @@ export function isPresent(node: React.ReactNode): boolean {
   return node !== null && node !== undefined && node !== false && node !== '';
 }
 
+/** The option of a group that holds the group's tab stop: the chosen radio, or the first box */
+const GROUP_TAB_STOP = '[tabindex="0"]';
+
+/**
+ * What lets a group take its field's focus.
+ *
+ * A group marks its root with `data-field-control`, since that root is what a field, an error summary
+ * and a dialog look for when they move the focus to the control. The root of Base UI's groups is a
+ * plain `div`, though, and focusing it did nothing. These props make it focusable by script only
+ * (`tabIndex -1`, never a Tab stop) and hand the focus straight on to the option holding the tab stop.
+ */
+export const GROUP_FOCUS_PROPS = {
+  tabIndex: -1,
+  onFocus : (event: React.FocusEvent<HTMLElement>): void => {
+    if (event.target === event.currentTarget) {
+      event.currentTarget.querySelector<HTMLElement>(GROUP_TAB_STOP)?.focus();
+    }
+  }
+};
+
 
 /* --------
  * Parts

@@ -8,7 +8,7 @@ import { RadioGroup as RadioGroupPrimitive } from '@base-ui/react/radio-group';
 
 import { cn } from '../../core/cn';
 
-import { CHOICE_ALIGN, CHOICE_FOCUS, CHOICE_ROW, ChoiceText, baseOrientation, choiceGroupClasses } from '../choice/choice';
+import { CHOICE_ALIGN, CHOICE_FOCUS, CHOICE_ROW, ChoiceText, GROUP_FOCUS_PROPS, baseOrientation, choiceGroupClasses } from '../choice/choice';
 import { useFieldControl, useNonNativeFieldLabel } from '../field/fieldContext';
 
 import type { Direction, Responsive } from '../../core/responsive';
@@ -198,6 +198,7 @@ export function RadioGroup(props: RadioGroupProps): React.ReactNode {
       name={name}
       aria-invalid={isInvalid || undefined}
       aria-required={field.required || undefined}
+      {...GROUP_FOCUS_PROPS}
       data-slot={'radio-group'}
       data-variant={variant}
       data-orientation={baseOrientation(orientation)}

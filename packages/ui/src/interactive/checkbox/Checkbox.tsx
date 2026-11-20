@@ -8,7 +8,7 @@ import { Field as FieldPrimitive } from '@base-ui/react/field';
 
 import { cn } from '../../core/cn';
 
-import { CHECKBOX_BOX, CHOICE_ALIGN, CHOICE_FOCUS, CHOICE_ROW, CheckGlyph, ChoiceText, DashGlyph, baseOrientation, choiceGroupClasses } from '../choice/choice';
+import { CHECKBOX_BOX, CHOICE_ALIGN, CHOICE_FOCUS, CHOICE_ROW, CheckGlyph, ChoiceText, DashGlyph, GROUP_FOCUS_PROPS, baseOrientation, choiceGroupClasses } from '../choice/choice';
 import {
   FieldRegistryContext,
   useFieldControl,
@@ -218,6 +218,7 @@ export function CheckboxGroup(props: CheckboxGroupProps): React.ReactNode {
       aria-invalid={field.invalid || undefined}
       aria-required={field.required || undefined}
       aria-readonly={readOnly || undefined}
+      {...GROUP_FOCUS_PROPS}
       data-slot={'checkbox-group'}
       data-orientation={baseOrientation(orientation)}
       data-field-control={''}
