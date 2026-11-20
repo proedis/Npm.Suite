@@ -126,6 +126,9 @@ export interface NotificationsStore {
   stop: (id: string) => void;
   retry: (id: string) => void;
   markSeen: (ids?: readonly string[]) => void;
+
+  /** Run the undo of a history entry, once: it leaves the entry and closes its confirmation */
+  undo: (id: string) => void;
   readonly confirmations: ReturnType<typeof ToastPrimitive.createToastManager>;
 }
 
@@ -176,6 +179,9 @@ export function createNotifications(): Notifications {
   const listeners = new Set<() => void>();
   const confirmations = ToastPrimitive.createToastManager();
   let lastConfirmation: string | null = null;
+
+  /** The confirmation that carries the undo of each history entry, to close it when the undo runs elsewhere */
+  const undoToasts = new Map<string, string>();
   let sequence = 0;
 
   const nextId = (): string => {
@@ -279,6 +285,38 @@ export function createNotifications(): Notifications {
       set({ history: state.history.map((entry) => (!ids || ids.includes(entry.id) ? { ...entry, seen: true } : entry)) });
     },
 
+    /*
+     * An undo runs once, from whichever place offers it. It used to stay on its history row after
+     * running, from the row or from the confirmation, so the same operation could be undone twice.
+     */
+    undo: (id) => {
+      const entry = state.history.find((item) => item.id === id);
+      const toastId = undoToasts.get(id);
+
+      if (!entry?.undo) {
+        return;
+      }
+
+      undoToasts.delete(id);
+      set({
+        history: state.history.map((item) => {
+          if (item.id !== id) {
+            return item;
+          }
+
+          const { undo: _undo, ...rest } = item;
+
+          return rest;
+        })
+      });
+
+      if (toastId) {
+        confirmations.close(toastId);
+      }
+
+      entry.undo.onClick();
+    },
+
     confirmations
   };
 
@@ -291,16 +329,23 @@ export function createNotifications(): Notifications {
           confirmations.close(lastConfirmation);
         }
 
+        sequence += 1;
+
+        const id = `confirmation-${sequence}`;
+
         lastConfirmation = confirmations.add({
           title,
           timeout: confirmationTimeout(title, Boolean(undo)),
-          data   : { undo }
+          data   : { undo, historyId: id }
         });
 
-        sequence += 1;
+        if (undo) {
+          undoToasts.set(id, lastConfirmation);
+        }
+
         set({
           history: record({
-            id    : `confirmation-${sequence}`,
+            id,
             kind  : 'confirmation',
             status: 'done',
             title,

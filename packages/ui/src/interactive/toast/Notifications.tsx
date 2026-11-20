@@ -102,9 +102,9 @@ function CollapseGlyph(): React.ReactNode {
 }
 
 
-function ConfirmationRows(props: { labels: NotificationsLabels }): React.ReactNode {
-  const { labels } = props;
-  const { close, toasts } = ToastPrimitive.useToastManager<{ undo?: UndoOptions }>();
+function ConfirmationRows(props: { labels: NotificationsLabels; store: Notifications['store'] }): React.ReactNode {
+  const { labels, store } = props;
+  const { close, toasts } = ToastPrimitive.useToastManager<{ undo?: UndoOptions; historyId?: string }>();
 
   return toasts.map((toast) => (
     <ToastPrimitive.Root
@@ -126,7 +126,10 @@ function ConfirmationRows(props: { labels: NotificationsLabels }): React.ReactNo
           fill={'plain'}
           tone={'primary'}
           onClick={() => {
-            toast.data?.undo?.onClick();
+            if (toast.data?.historyId) {
+              store.undo(toast.data.historyId);
+            }
+
             close(toast.id);
           }}
         >
@@ -486,7 +489,7 @@ export function NotificationsProvider(props: NotificationsProviderProps): React.
             aria-label={labels.confirmRegion}
             className={'pointer-events-none fixed bottom-4 z-toast flex toast-span justify-center px-4 outline-none'}
           >
-            <ConfirmationRows labels={labels} />
+            <ConfirmationRows labels={labels} store={notifications.store} />
           </ToastPrimitive.Viewport>
         </ToastPrimitive.Portal>
       </ToastPrimitive.Provider>

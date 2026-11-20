@@ -55,8 +55,14 @@ export interface JobsButtonProps {
  * Helpers
  * -------- */
 
-function HistoryRow(props: { entry: HistoryEntry; labels: JobsButtonLabels; now: number; unseen: boolean }): React.ReactNode {
-  const { entry, labels, now, unseen } = props;
+function HistoryRow(props: {
+  entry: HistoryEntry;
+  labels: JobsButtonLabels;
+  now: number;
+  unseen: boolean;
+  onUndo: (id: string) => void;
+}): React.ReactNode {
+  const { entry, labels, now, onUndo, unseen } = props;
   const undoOpen = entry.undo && (!entry.undo.until || entry.undo.until.getTime() > now);
 
   const title = entry.target
@@ -76,7 +82,7 @@ function HistoryRow(props: { entry: HistoryEntry; labels: JobsButtonLabels; now:
         </div>
       </div>
       {undoOpen && entry.undo && (
-        <Button size={'sm'} fill={'plain'} tone={'primary'} onClick={entry.undo.onClick}>{labels.undo}</Button>
+        <Button size={'sm'} fill={'plain'} tone={'primary'} onClick={() => onUndo(entry.id)}>{labels.undo}</Button>
       )}
     </li>
   );
@@ -187,7 +193,14 @@ export function JobsButton(props: JobsButtonProps): React.ReactNode {
               : (
                 <ul className={'max-h-96 overflow-y-auto overscroll-contain'}>
                   {state.history.map((entry) => (
-                    <HistoryRow key={entry.id} entry={entry} labels={labels} now={now} unseen={unseenAtOpen.has(entry.id)} />
+                    <HistoryRow
+                      key={entry.id}
+                      entry={entry}
+                      labels={labels}
+                      now={now}
+                      unseen={unseenAtOpen.has(entry.id)}
+                      onUndo={notifications.store.undo}
+                    />
                   ))}
                 </ul>
               )}
