@@ -201,7 +201,10 @@ export function ModalSelectorField<TData>(props: ModalSelectorFieldProps<TData>)
         {named.slice(0, MAX_CHIPS).map((item, index) => <span key={`${item.label}-${index}`} className={CHIP}>{item.label}</span>)}
         {hidden.length > 0 && (
           <Tooltip content={<span className={'flex flex-col'}>{hidden.slice(0, 10).map((item, index) => <span key={`${item.label}-${index}`}>{item.label}</span>)}</span>}>
-            <span aria-label={labels.more?.(hidden.length)} className={cn(CHIP, 'pointer-events-auto')}>{`+${hidden.length}`}</span>
+            <span className={cn(CHIP, 'pointer-events-auto')}>
+              <span aria-hidden={labels.more ? 'true' : undefined}>{`+${hidden.length}`}</span>
+              {labels.more && <VisuallyHidden>{labels.more(hidden.length)}</VisuallyHidden>}
+            </span>
           </Tooltip>
         )}
       </span>

@@ -255,7 +255,10 @@ export function MultipleCombobox(props: MultipleComboboxProps): React.ReactNode 
             </span>
           )}
         >
-          <span data-slot={'combobox-more'} aria-label={labels.more(hidden.length)} className={cn(CHIP, 'pe-1.5')}>{`+${hidden.length}`}</span>
+          <span data-slot={'combobox-more'} className={cn(CHIP, 'pe-1.5')}>
+            <span aria-hidden={'true'}>{`+${hidden.length}`}</span>
+            <VisuallyHidden>{labels.more(hidden.length)}</VisuallyHidden>
+          </span>
         </Tooltip>
       )}
     </span>

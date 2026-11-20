@@ -325,8 +325,9 @@ export function MultiSelect(props: MultiSelectProps): React.ReactNode {
 
       {hidden.length > 0 && (
         <Tooltip content={moreTooltip}>
-          <span data-slot={'multi-select-more'} aria-label={labels.more(hidden.length)} className={cn(CHIP, 'pe-1.5')}>
-            {`+${hidden.length}`}
+          <span data-slot={'multi-select-more'} className={cn(CHIP, 'pe-1.5')}>
+            <span aria-hidden={'true'}>{`+${hidden.length}`}</span>
+            <VisuallyHidden>{labels.more(hidden.length)}</VisuallyHidden>
           </span>
         </Tooltip>
       )}
