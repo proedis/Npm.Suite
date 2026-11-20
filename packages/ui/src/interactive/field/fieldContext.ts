@@ -2,6 +2,8 @@
 
 import * as React from 'react';
 
+import { useEnhancedEffect } from '@proedis/react';
+
 
 /* --------
  * Types Definition
@@ -118,14 +120,11 @@ FormHostContext.displayName = 'FormHostContext';
  * Hooks
  * -------- */
 
-/**
- * A layout effect in the browser, nothing on the server.
- *
- * A part registers itself before paint, so a required field never shows one frame without its
- * `aria-required` and an invalid one never one frame with its description.
+/*
+ * The parts of a field register with `useEnhancedEffect` from `@proedis/react`, a layout effect in
+ * the browser and a plain one on the server: a part registers before paint, so a required field never
+ * shows one frame without its `aria-required` and an invalid one never one frame with its description.
  */
-export const useIsomorphicLayoutEffect = typeof window === 'undefined' ? React.useEffect : React.useLayoutEffect;
-
 
 /**
  * The state of the field around a control: `required`, `invalid`, `disabled`.
@@ -160,7 +159,7 @@ export function useNonNativeFieldLabel(): void {
   // ----
   // Lifecycle Events
   // ----
-  useIsomorphicLayoutEffect(() => {
+  useEnhancedEffect(() => {
     if (!registry) {
       return undefined;
     }

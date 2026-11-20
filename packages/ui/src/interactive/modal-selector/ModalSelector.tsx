@@ -4,10 +4,11 @@ import * as React from 'react';
 
 import { Tooltip as TooltipPrimitive } from '@base-ui/react/tooltip';
 
+import { useDelayedBusy } from '@proedis/react';
+
 import { LoadingBar } from '../../components/LoadingBar';
 import { Skeleton } from '../../components/Skeleton';
 import { cn } from '../../core/cn';
-import { useDelayedBusy } from '../../hooks/useDelayedBusy';
 
 import { Button } from '../button/Button';
 import { IconButton } from '../button/IconButton';

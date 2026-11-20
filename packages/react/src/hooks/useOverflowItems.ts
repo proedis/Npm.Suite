@@ -111,8 +111,8 @@ export function fitItems(
  * It measures again when the row or the copy changes size, so a count that arrives late is taken in.
  */
 export function useOverflowItems(
-  containerRef: React.RefObject<HTMLElement | null>,
-  measureRef: React.RefObject<HTMLElement | null>,
+  containerRef: { readonly current: HTMLElement | null },
+  measureRef: { readonly current: HTMLElement | null },
   options: OverflowItemsOptions
 ): OverflowItems {
 

@@ -5,10 +5,11 @@ import * as React from 'react';
 import { Toggle as TogglePrimitive } from '@base-ui/react/toggle';
 import { ToggleGroup as ToggleGroupPrimitive } from '@base-ui/react/toggle-group';
 
+import { useEnhancedEffect } from '@proedis/react';
+
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
-import { useIsomorphicLayoutEffect } from '../field/fieldContext';
 
 import { handleRovingKeyDown } from '../roving/roving';
 import { FOCUS_INSIDE, PRESSABLE_BASE, PRESSABLE_CONTENT, PRESSABLE_OFF } from '../toggle/toggleStyles';
@@ -284,7 +285,7 @@ function SegmentedControlRoot(props: SegmentedControlProps): React.ReactNode {
   // Lifecycle Events
   // ----
   /* Where the chosen item is, measured again when the choice changes and when anything resizes */
-  useIsomorphicLayoutEffect(() => {
+  useEnhancedEffect(() => {
     const rail = railRef.current;
 
     if (!rail) {

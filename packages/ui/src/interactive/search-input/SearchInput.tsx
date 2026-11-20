@@ -2,6 +2,8 @@
 
 import * as React from 'react';
 
+import { useForkRef } from '@proedis/react';
+
 import { ClearGlyph, SearchGlyph } from '../text-input/glyphs';
 import { TextInput } from '../text-input/TextInput';
 
@@ -89,18 +91,7 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
     onValueChange?.(next);
   };
 
-  const setRefs = (element: HTMLInputElement | null): void => {
-    inputRef.current = element;
-
-    if (typeof ref === 'function') {
-      ref(element);
-      return;
-    }
-
-    if (ref) {
-      ref.current = element;
-    }
-  };
+  const setRefs = useForkRef(inputRef, ref);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>): void => {
     onKeyDown?.(event);

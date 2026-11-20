@@ -4,10 +4,12 @@ import * as React from 'react';
 
 import { Field as FieldPrimitive } from '@base-ui/react/field';
 
+import { useEnhancedEffect, useForkRef } from '@proedis/react';
+
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
-import { useFieldControl, useIsomorphicLayoutEffect } from '../field/fieldContext';
+import { useFieldControl } from '../field/fieldContext';
 import { TEXT_CONTROL_SELF, TEXT_CONTROL_TEXT, textControlState } from '../text-control/textControl';
 
 import type { BaseProps } from '../../core/base';
@@ -107,7 +109,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>((pr
   // ----
   // Lifecycle Events
   // ----
-  useIsomorphicLayoutEffect(() => {
+  useEnhancedEffect(() => {
     const element = innerRef.current;
 
     if (!readOnly || !element) {
@@ -132,18 +134,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>((pr
   // ----
   // Handlers
   // ----
-  const setRefs = (element: HTMLTextAreaElement | null): void => {
-    innerRef.current = element;
-
-    if (typeof ref === 'function') {
-      ref(element);
-      return;
-    }
-
-    if (ref) {
-      ref.current = element;
-    }
-  };
+  const setRefs = useForkRef(innerRef, ref);
 
 
   // ----

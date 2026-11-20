@@ -165,6 +165,10 @@ providers at the root of an app into a single element.
 | `useClickOutside(target, callback)` | the outside-click primitive behind every dropdown |
 | `useWindowSize(options?)` | viewport size, debounced |
 | `useElementType(props, default)` | resolve the `as` prop into the element to render |
+| `useMediaQuery(query, serverSnapshot?)` | whether a media query matches, through `useSyncExternalStore`; `false` on the server and on the first client render unless told otherwise |
+| `usePrefersReducedMotion()` | whether the user asked for less motion; ⚠️ `true` on the server and on the first client render, because guessing "animate" is the worse mistake |
+| `useDelayedBusy(busy, options?)` | `{ busy, visible }`: the block at once, the look of a wait after 300ms and held at least 400, so a fast answer flashes nothing |
+| `useOverflowItems(containerRef, measureRef, options)` | which items of a row fit and which go into a "More" menu, measured on a hidden copy of the row; `fitItems` is the pure half |
 | `useAutoSizer(options?)` | the room an element has, in pixels, kept up to date — see below |
 
 💡 Several of these are built on `useSyncedRef`, and that is the pattern worth internalising: keep the
@@ -174,6 +178,15 @@ changes.
 ⚠️ Read a `useSyncedRef` container from an effect, a handler or a cleanup — **not while rendering**. The
 value is written during render, which is what makes it current for the commit it belongs to, and a
 render that gets discarded leaves the container holding something that was never committed.
+
+### 🧩 `inertValue(value)`
+
+The value of the `inert` attribute for the React that is running: `true` on 19, `''` on 18, which drops
+a boolean with a warning and leaves the element live. `undefined` when `value` is false.
+
+```tsx
+<div inert={inertValue(isBusy)}>…</div>
+```
 
 ### 📐 `useAutoSizer(options?)`
 

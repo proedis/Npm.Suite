@@ -4,12 +4,13 @@ import * as React from 'react';
 
 import { Combobox as ComboboxPrimitive } from '@base-ui/react/combobox';
 
+import { useDelayedBusy } from '@proedis/react';
+
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
 import { Spinner } from '../../components/Spinner';
 
-import { useDelayedBusy } from '../../hooks/useDelayedBusy';
 import { VisuallyHidden } from '../../components/VisuallyHidden';
 
 import { Button } from '../button/Button';

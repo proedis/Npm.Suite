@@ -48,6 +48,14 @@ tones are the token vocabulary; a `PinCard` is out because it is a product.
   peer, and nowhere else: that line moved by decision when the interactive components of the Proedis
   design systems came here, with their logic shared and their look left to each product's skin.
 - Inline styles for anything a class can express. See the invariant below.
+- **A hook or a helper that knows nothing of this package.** It goes to `@proedis/react`, which this
+  package depends on: `useMediaQuery`, `usePrefersReducedMotion`, `useDelayedBusy`,
+  `useOverflowItems` and `inertValue` moved there, and the tier uses its `useForkRef`, `useSyncedRef`
+  and `useEnhancedEffect` instead of writing its own. The test is whether the code would mean the same
+  in a product that does not use this package. `useBreakpoint` and `useIsMobile` stay, because they
+  speak the vocabulary of the Tailwind breakpoints this package declares. ⚠️ Only `hooks/` and
+  `interactive/` import `@proedis/react`: the root barrel keeps the budget above, which is why
+  `inertValue` left `core`.
 
 ## Structure
 
@@ -59,7 +67,7 @@ src/
   core/              # cn, the shared props, the polymorphic props, the responsive machinery
   layout/            # the twelve primitives that answer *where*
   components/        # the ones that answer *what it looks like*
-  hooks/             # client-only: useMediaQuery and the three built on it
+  hooks/             # client-only: useBreakpoint and useIsMobile, on @proedis/react's useMediaQuery
   interactive/       # one folder per published subpath, each a component with behaviour, on Base UI
 types.check.tsx      # the type level test, outside src so nothing publishes it
 ```
@@ -552,11 +560,10 @@ narrower stylesheet is the one you have to ask for.
   descendant class on the parent (`[&>[data-slot=heading-title]]:text-lg`) has more specificity than
   the child's own utility, so the parent would silently beat an explicit `size` on the child. Two
   explicit props beat one knob that cannot be overridden.
-- **`useMediaQuery` is the primitive; the other three are vocabulary on top of it.** The subscription
-  used to be duplicated inside `useBreakpoint`, which is how a generic query stayed unreachable.
-  ⚠️ `usePrefersReducedMotion` passes a server snapshot of **`true`**, alone among these hooks: the
-  two possible mistakes are not equivalent, and guessing "animate" plays the animation the preference
-  exists to prevent to the person who asked for it not to.
+- **`useMediaQuery` is the primitive; the breakpoint pair is vocabulary on top of it.** The
+  subscription used to be duplicated inside `useBreakpoint`, which is how a generic query stayed
+  unreachable. The primitive now lives in `@proedis/react`, with `usePrefersReducedMotion`, whose
+  server snapshot of **`true`** is documented there.
 
 ## Writing a new component
 

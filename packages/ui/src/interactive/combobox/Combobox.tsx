@@ -5,12 +5,13 @@ import * as React from 'react';
 import { Combobox as ComboboxPrimitive } from '@base-ui/react/combobox';
 import { Input } from '@base-ui/react/input';
 
+import { useDelayedBusy } from '@proedis/react';
+
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
 import { Spinner } from '../../components/Spinner';
 
-import { useDelayedBusy } from '../../hooks/useDelayedBusy';
 
 import { IconButton } from '../button/IconButton';
 import { CheckGlyph } from '../choice/choice';

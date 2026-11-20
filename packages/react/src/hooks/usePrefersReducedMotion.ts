@@ -25,8 +25,8 @@ const QUERY = '(prefers-reduced-motion: reduce)';
  * <motion.div animate={still ? {} : { y: 0 }} />
  * ```
  *
- * ⚠️ It answers **`true`** with no `window` and on the first client render, unlike every other hook
- * here, and the asymmetry is on purpose: the two possible mistakes are not equivalent. Guessing
+ * ⚠️ It answers **`true`** with no `window` and on the first client render, unlike the other media
+ * query hooks, and the asymmetry is on purpose: the two possible mistakes are not equivalent. Guessing
  * "reduce" and correcting to "animate" costs one frame of stillness; guessing the other way plays
  * the animation this preference exists to prevent, to the person who asked for it not to.
  */

@@ -1766,6 +1766,7 @@ __metadata:
   resolution: "@proedis/ui@workspace:packages/ui"
   dependencies:
     "@base-ui/react": "npm:1.7.0"
+    "@proedis/react": "npm:^2.1.1"
     "@proedis/tsconfig": "npm:^2.0.1"
     "@tanstack/react-table": "npm:9.3.1"
     class-variance-authority: "npm:^0.7.1"

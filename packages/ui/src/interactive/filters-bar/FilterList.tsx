@@ -2,11 +2,12 @@
 
 import * as React from 'react';
 
+import { useDelayedBusy, useForkRef } from '@proedis/react';
+
 import { cn } from '../../core/cn';
 
 import { Spinner } from '../../components/Spinner';
 
-import { useDelayedBusy } from '../../hooks/useDelayedBusy';
 
 import { Button } from '../button/Button';
 import { CheckGlyph } from '../choice/choice';
@@ -87,17 +88,6 @@ const TYPEAHEAD_MS = 500;
 /* --------
  * Helpers
  * -------- */
-
-function assignRef<T>(ref: React.Ref<T> | undefined, value: T | null): void {
-  if (typeof ref === 'function') {
-    ref(value);
-    return;
-  }
-
-  if (ref) {
-    (ref as React.RefObject<T | null>).current = value;
-  }
-}
 
 function nextEnabled(items: readonly FilterOption[], from: number, step: 1 | -1): number {
   for (let index = from; index >= 0 && index < items.length; index += step) {
@@ -200,10 +190,7 @@ export function FilterList(props: FilterListProps): React.ReactNode {
   // ----
   // Handlers
   // ----
-  const setTarget = (element: HTMLElement | null): void => {
-    targetRef.current = element;
-    assignRef(focusRef, element);
-  };
+  const setTarget = useForkRef(targetRef, focusRef);
 
   const change = (next: readonly FilterOption[]): void => {
     /* A local list keeps its own order, whatever the order of the clicks */

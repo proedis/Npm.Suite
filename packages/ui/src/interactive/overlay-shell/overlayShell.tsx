@@ -4,14 +4,14 @@ import * as React from 'react';
 
 import { Dialog as DialogPrimitive } from '@base-ui/react/dialog';
 
+import { inertValue, useDelayedBusy, useSyncedRef } from '@proedis/react';
+
 import { cn } from '../../core/cn';
-import { inertValue } from '../../core/inert';
 
 import { BusyVeil } from '../../components/BusyVeil';
 import { IconBox } from '../../components/IconBox';
 import { VisuallyHidden } from '../../components/VisuallyHidden';
 
-import { useDelayedBusy } from '../../hooks/useDelayedBusy';
 
 import { ToneGlyph } from '../tone-glyphs/toneGlyphs';
 
@@ -168,7 +168,7 @@ export function useOverlayBusy(busy: OverlayBusy | 'action', timeoutMs: number, 
   // ----
   // Internal Refs
   // ----
-  const onTimeoutRef = React.useRef(onTimeout);
+  const onTimeoutRef = useSyncedRef(onTimeout);
 
 
   // ----
@@ -186,10 +186,6 @@ export function useOverlayBusy(busy: OverlayBusy | 'action', timeoutMs: number, 
   // Lifecycle Events
   // ----
   React.useEffect(() => {
-    onTimeoutRef.current = onTimeout;
-  });
-
-  React.useEffect(() => {
     if (!saving) {
       return undefined;
     }
@@ -200,7 +196,7 @@ export function useOverlayBusy(busy: OverlayBusy | 'action', timeoutMs: number, 
     }, timeoutMs);
 
     return () => window.clearTimeout(timer);
-  }, [ saving, busy, timeoutMs ]);
+  }, [ saving, busy, timeoutMs, onTimeoutRef ]);
 
 
   // ----

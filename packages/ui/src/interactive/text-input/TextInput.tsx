@@ -5,6 +5,8 @@ import * as React from 'react';
 import { Input } from '@base-ui/react/input';
 import { cva } from 'class-variance-authority';
 
+import { useForkRef } from '@proedis/react';
+
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
@@ -145,17 +147,6 @@ function isPresent(node: React.ReactNode): boolean {
 
 
 /** One ref for two owners: the caller's and the frame's own, which moves the focus on a click */
-function assignRef<T>(ref: React.Ref<T> | undefined, value: T | null): void {
-  if (typeof ref === 'function') {
-    ref(value);
-    return;
-  }
-
-  if (ref) {
-    (ref as React.RefObject<T | null>).current = value;
-  }
-}
-
 
 /* --------
  * Parts
@@ -266,10 +257,7 @@ const TextInputBase = React.forwardRef<HTMLInputElement, TextInputProps>((props,
   // ----
   // Handlers
   // ----
-  const setRefs = (element: HTMLInputElement | null): void => {
-    inputRef.current = element;
-    assignRef(ref, element);
-  };
+  const setRefs = useForkRef(inputRef, ref);
 
   /** A click on any part that is not the text or an action lands in the text */
   const handleFrameMouseDown = (event: React.MouseEvent<HTMLDivElement>): void => {

@@ -4,6 +4,8 @@ import * as React from 'react';
 
 import { Field as FieldPrimitive } from '@base-ui/react/field';
 
+import { useEnhancedEffect } from '@proedis/react';
+
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 import { responsiveClasses, toResponsiveMap } from '../../core/responsive';
@@ -14,8 +16,7 @@ import {
   FieldRegistryContext,
   FormErrorRegistryContext,
   FormSectionContext,
-  useFieldControl,
-  useIsomorphicLayoutEffect
+  useFieldControl
 } from './fieldContext';
 import { ErrorGlyph } from './glyphs';
 
@@ -270,7 +271,7 @@ function FieldLabel(props: FieldLabelProps): React.ReactNode {
   // ----
   // Lifecycle Events
   // ----
-  useIsomorphicLayoutEffect(() => {
+  useEnhancedEffect(() => {
     if (!registry || !required) {
       return undefined;
     }
@@ -280,7 +281,7 @@ function FieldLabel(props: FieldLabelProps): React.ReactNode {
     return () => registry.setRequired(false);
   }, [ registry, required ]);
 
-  useIsomorphicLayoutEffect(() => {
+  useEnhancedEffect(() => {
     if (!registry) {
       return undefined;
     }
@@ -389,7 +390,7 @@ function FieldError(props: FieldErrorProps): React.ReactNode {
   const present = isPresent(children);
   const summaryText = isPresent(summary) ? summary : children;
 
-  useIsomorphicLayoutEffect(() => {
+  useEnhancedEffect(() => {
     if (!registry || !present) {
       return undefined;
     }
@@ -399,7 +400,7 @@ function FieldError(props: FieldErrorProps): React.ReactNode {
     return () => registry.setInvalid(false);
   }, [ registry, present ]);
 
-  useIsomorphicLayoutEffect(() => {
+  useEnhancedEffect(() => {
     if (!formErrors || !registry || !present) {
       return undefined;
     }

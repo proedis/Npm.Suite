@@ -4,13 +4,13 @@ import * as React from 'react';
 
 import { Tabs as TabsPrimitive } from '@base-ui/react/tabs';
 
+import { inertValue, useOverflowItems } from '@proedis/react';
+
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
-import { inertValue } from '../../core/inert';
 
 import { VisuallyHidden } from '../../components/VisuallyHidden';
 
-import { useOverflowItems } from '../../hooks/useOverflowItems';
 
 import { Button } from '../button/Button';
 import { ChevronGlyph } from '../list-panel/listPanel';

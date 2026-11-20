@@ -10,10 +10,11 @@ import * as React from 'react';
 /**
  * Whether a media query matches, kept in sync with the browser.
  *
- * The primitive the other two hooks are built on, and exported because a named breakpoint is not the
- * only question worth asking: `(prefers-reduced-motion: reduce)`, `(prefers-contrast: more)`,
- * `print`, `(orientation: landscape)`, `(hover: hover)` and a width outside the theme's scale all
- * end here. Before this it was reachable only by going through a breakpoint name.
+ * The primitive `usePrefersReducedMotion` is built on, here, and `useBreakpoint` / `useIsMobile` in
+ * `@proedis/ui`, which add the vocabulary of the Tailwind breakpoints on top. Exported because a named
+ * breakpoint is not the only question worth asking: `(prefers-reduced-motion: reduce)`,
+ * `(prefers-contrast: more)`, `print`, `(orientation: landscape)`, `(hover: hover)` and a width outside
+ * the theme's scale all end here.
  *
  * ```tsx
  * const isLandscape = useMediaQuery('(orientation: landscape)');

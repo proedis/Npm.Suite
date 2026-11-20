@@ -6,9 +6,10 @@ import { Avatar as AvatarPrimitive } from '@base-ui/react/avatar';
 import { Popover as PopoverPrimitive } from '@base-ui/react/popover';
 import { PreviewCard as PreviewCardPrimitive } from '@base-ui/react/preview-card';
 
+import { inertValue } from '@proedis/react';
+
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
-import { inertValue } from '../../core/inert';
 import { linkProps } from '../../core/link';
 
 import { Tooltip } from '../tooltip/Tooltip';

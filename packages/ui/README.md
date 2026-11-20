@@ -39,7 +39,7 @@ things are*, `components` answers *what they look like*, and `hooks` is the clie
 | **Responsive** | `Responsive<T>`, the typed scales, and the class builders behind every prop |
 | **Utilities** | `cn` — class composition where the last conflicting utility wins |
 | **Types** | `PolymorphicProps` — `as` typed by the element it renders, not by `div` |
-| **Hooks** | `useMediaQuery`, `useBreakpoint`, `useIsMobile`, `usePrefersReducedMotion`, `useDelayedBusy`, `useOverflowItems` |
+| **Hooks** | `useBreakpoint`, `useIsMobile`; the generic ones (`useMediaQuery`, `usePrefersReducedMotion`, `useDelayedBusy`, `useOverflowItems`) are in `@proedis/react` |
 | **Interactive** | `Tooltip` · `Button` · `IconButton` · `Form` · `Field` · `TextInput` · `PasswordInput` · `SearchInput` · `Textarea` · `NumberInput` · `Checkbox` · `RadioGroup` · `Switch` · `Select` · `MultiSelect` · `Combobox` · `DatePicker` · `FileUpload` · `AttachmentList` · `Toggle` · `ToggleGroup` · `SegmentedControl` · `Popover` · `Menu` · `Dialog` · `AlertDialog` · `Drawer` · `Alert` · `EmptyState` · `Tabs` · `Avatar` · `AvatarGroup` · `Person` · notifications (`NotificationsProvider`, `JobsButton`), on Base UI |
 | **Tokens** | a five token contract, or the **full vocabulary** through `theme.css` |
 
@@ -628,32 +628,21 @@ nothing beyond it, which is also why the value types are unions rather than `num
 ### Hooks — `@proedis/ui/hooks`
 
 ```tsx
-import { useBreakpoint, useIsMobile, useMediaQuery, usePrefersReducedMotion } from '@proedis/ui/hooks';
+import { useBreakpoint, useIsMobile } from '@proedis/ui/hooks';
 
 const isDesktop = useBreakpoint('lg');            // at or above lg
 const isMobile = useIsMobile();                   // below md
-const canHover = useMediaQuery('(hover: hover)'); // any query at all
-const still = usePrefersReducedMotion();          // for animation driven from JavaScript
 ```
 
-`useMediaQuery` is the primitive the other three are built on, and it is exported because a named
-breakpoint is not the only question worth asking: `print`, `(orientation: landscape)`,
-`(prefers-contrast: more)` and a width outside the theme's scale all end there.
+Two hooks, the ones that speak the vocabulary of the Tailwind breakpoints. They are built on
+`useMediaQuery` from `@proedis/react`, which answers any other query (`print`, `(hover: hover)`, a
+width outside the theme's scale), next to `usePrefersReducedMotion`, `useDelayedBusy` and
+`useOverflowItems`: hooks that know nothing of this package live there.
 
 The breakpoint pair reads the widths from the `--breakpoint-*` theme variables first, so a project
 that moved the scale is followed instead of drifting from it, and falls back to Tailwind's defaults.
 Both answer `false` on the server and on the first client render: the layout settles after hydration
 rather than mismatching it.
-
-⚠️ `usePrefersReducedMotion` answers **`true`** there instead, and the asymmetry is deliberate: the
-two possible mistakes are not equivalent. Guessing "reduce" and correcting costs one frame of
-stillness; guessing the other way plays the animation this preference exists to prevent, to the
-person who asked for it not to.
-
-`useDelayedBusy(busy)` is the timing every wait shares: `{ busy, visible }`, the block at once and the
-look after 300ms, held at least 400 once shown, so a fast answer flashes nothing. `useOverflowItems`
-says which items of a row fit and which go into a "More" menu, from a hidden copy of the row; Tabs use
-it, and a header with tabs can.
 
 They live behind their own entry point on purpose — everything exported from the package root is
 renderable from a React Server Component, and a barrel re-exporting a hook would take that away.
@@ -1051,6 +1040,14 @@ package did not invent. Which is also the reason two things are **not** in here:
 agree: there it was being used as a fill by the one component that read it, which is not what the
 name means. Here it is the border colour of a form control, read by a form layer that lives in
 another package. A recessed surface is `--muted`.
+
+## 🔀 Migrating to 2.0
+
+| 1.x | 2.0 |
+| --- | --- |
+| `useMediaQuery`, `usePrefersReducedMotion` from `@proedis/ui/hooks` | from `@proedis/react`, same signatures; `@proedis/ui/hooks` keeps `useBreakpoint` and `useIsMobile` |
+| `tailwindcss` `^4.0.0` | `^4.1.5`, see Compatibility |
+| a `Badge` with text renders the text as its child | the text is wrapped in `badge-label` and truncates with an ellipsis when the badge is too narrow |
 
 ## 🤝 Compatibility
 

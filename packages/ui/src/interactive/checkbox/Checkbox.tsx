@@ -6,13 +6,14 @@ import { Checkbox as CheckboxPrimitive } from '@base-ui/react/checkbox';
 import { CheckboxGroup as CheckboxGroupPrimitive } from '@base-ui/react/checkbox-group';
 import { Field as FieldPrimitive } from '@base-ui/react/field';
 
+import { useEnhancedEffect } from '@proedis/react';
+
 import { cn } from '../../core/cn';
 
 import { CHECKBOX_BOX, CHOICE_ALIGN, CHOICE_FOCUS, CHOICE_ROW, CheckGlyph, ChoiceText, DashGlyph, GROUP_FOCUS_PROPS, baseOrientation, choiceGroupClasses } from '../choice/choice';
 import {
   FieldRegistryContext,
   useFieldControl,
-  useIsomorphicLayoutEffect,
   useNonNativeFieldLabel
 } from '../field/fieldContext';
 
@@ -310,7 +311,7 @@ export function Checkbox(props: CheckboxProps): React.ReactNode {
   const groupRegister = group?.register;
 
   /* A single checkbox is the whole field: its `required` is the field's */
-  useIsomorphicLayoutEffect(() => {
+  useEnhancedEffect(() => {
     if (group || !registry || !required) {
       return undefined;
     }
@@ -320,7 +321,7 @@ export function Checkbox(props: CheckboxProps): React.ReactNode {
     return () => registry.setRequired(false);
   }, [ group, registry, required ]);
 
-  useIsomorphicLayoutEffect(() => {
+  useEnhancedEffect(() => {
     if (!groupRegister || parent || value === undefined) {
       return undefined;
     }

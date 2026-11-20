@@ -2,9 +2,9 @@
 
 import * as React from 'react';
 
-import { BREAKPOINT_WIDTHS, mediaQuery } from '../core/responsive';
+import { useMediaQuery } from '@proedis/react';
 
-import { useMediaQuery } from './useMediaQuery';
+import { BREAKPOINT_WIDTHS, mediaQuery } from '../core/responsive';
 
 import type { MediaBreakpoint } from '../core/responsive';
 

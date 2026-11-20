@@ -17,11 +17,12 @@ import {
   useTable
 } from '@tanstack/react-table';
 
+import { useDelayedBusy } from '@proedis/react';
+
 import { LoadingBar } from '../../components/LoadingBar';
 import { Skeleton } from '../../components/Skeleton';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
-import { useDelayedBusy } from '../../hooks/useDelayedBusy';
 
 import { Button } from '../button/Button';
 import { IconButton } from '../button/IconButton';

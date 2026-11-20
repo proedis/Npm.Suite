@@ -4,6 +4,8 @@ import * as React from 'react';
 
 import { NumberField as NumberFieldPrimitive } from '@base-ui/react/number-field';
 
+import { useForkRef } from '@proedis/react';
+
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
@@ -198,18 +200,7 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
   // ----
   // Handlers
   // ----
-  const setRefs = (element: HTMLInputElement | null): void => {
-    inputRef.current = element;
-
-    if (typeof ref === 'function') {
-      ref(element);
-      return;
-    }
-
-    if (ref) {
-      ref.current = element;
-    }
-  };
+  const setRefs = useForkRef(inputRef, ref);
 
   const handleBeforeInput = (event: React.FormEvent<HTMLInputElement> & { data?: string | null }): void => {
     const inserted = event.data;
