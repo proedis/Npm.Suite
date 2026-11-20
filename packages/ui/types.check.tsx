@@ -300,6 +300,17 @@ const detailResponsiveSpan = (
   <Detail.Item label={'Code'} span={{ base: 6, md: 3, xl: 2 }} breakBefore={{ base: false, md: true }}>X1</Detail.Item>
 );
 
+/* Every part of a detail forwards its ref to the element it renders */
+const detailRefs = (
+  <Detail ref={React.createRef<HTMLDivElement>()} labels={{} as never}>
+    <Detail.Section ref={React.createRef<HTMLDivElement>()}>
+      <Detail.Grid ref={React.createRef<HTMLDListElement>()}>
+        <Detail.Item ref={React.createRef<HTMLDivElement>()} label={'Code'}>X1</Detail.Item>
+      </Detail.Grid>
+    </Detail.Section>
+  </Detail>
+);
+
 // @ts-expect-error a detail spans the same columns as a field: 5 is not one of them
 const detailWrongSpan = <Detail.Item label={'Code'} span={{ md: 5 }}>X1</Detail.Item>;
 
@@ -444,7 +455,7 @@ export const CHECKED = [
   scaleRespected, outsideTheScale, outsideTheColumns, outsideTheScaleResponsive,
   baseIsNotABreakpoint, unknownBreakpoint, asAWrapper, labelDefault, quietLabel, spanWithHtmlFor,
   skipLink, contradictoryProps, throughAComponent, missingComponentProp,
-  responsiveSpan, singleSpan, wrongSpan, detailResponsiveSpan, detailWrongSpan,
+  responsiveSpan, singleSpan, wrongSpan, detailResponsiveSpan, detailWrongSpan, detailRefs,
   responsiveGroups, wrongOrientation, responsiveBlock, wrongHide,
   besideOnDesktop, wrongFieldOrientation, ownControl, wrongShellSize,
   namedToggle, namelessToggle, namedGroup, namelessGroup, chosenView, emptyView, namelessItem,

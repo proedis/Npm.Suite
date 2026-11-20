@@ -60,12 +60,12 @@ export interface DetailLabels {
   retry: string;
 }
 
-export interface DetailProps extends BaseProps, React.ComponentProps<'div'> {
+export interface DetailProps extends BaseProps, Omit<React.ComponentProps<'div'>, 'ref'> {
   /** The texts of service, once for the whole detail */
   labels: DetailLabels;
 }
 
-export interface DetailSectionProps extends BaseProps, Omit<React.ComponentProps<'div'>, 'title'> {
+export interface DetailSectionProps extends BaseProps, Omit<React.ComponentProps<'div'>, 'title' | 'ref'> {
   /** Without it the section is the only one of its detail, named by its container */
   title?: React.ReactNode;
 
@@ -82,9 +82,9 @@ export interface DetailSectionProps extends BaseProps, Omit<React.ComponentProps
   onRetry?: () => void;
 }
 
-export type DetailGridProps = BaseProps & React.ComponentProps<'dl'>;
+export type DetailGridProps = BaseProps & Omit<React.ComponentProps<'dl'>, 'ref'>;
 
-export interface DetailItemProps extends BaseProps, Omit<React.ComponentProps<'div'>, 'children'> {
+export interface DetailItemProps extends BaseProps, Omit<React.ComponentProps<'div'>, 'children' | 'ref'> {
   /** The label above the value. Always given: with `hideLabel` it is still the accessible name */
   label: React.ReactNode;
 
@@ -255,7 +255,7 @@ function CopiedGlyph(): React.ReactNode {
  * Slots: `detail-section` (with `data-heading-level`, `data-loading`, `data-error`), `detail-section-title`,
  * `detail-section-error`.
  */
-function DetailSection(props: DetailSectionProps): React.ReactNode {
+const DetailSection = React.forwardRef<HTMLDivElement, DetailSectionProps>((props, ref) => {
 
   // ----
   // Props Deconstruct
@@ -291,6 +291,7 @@ function DetailSection(props: DetailSectionProps): React.ReactNode {
   return (
     <div
       {...rest}
+      ref={ref}
       data-slot={'detail-section'}
       data-heading-level={headingLevel}
       data-loading={loading || undefined}
@@ -326,7 +327,7 @@ function DetailSection(props: DetailSectionProps): React.ReactNode {
     </div>
   );
 
-}
+});
 
 DetailSection.displayName = 'Detail.Section';
 
@@ -339,7 +340,7 @@ DetailSection.displayName = 'Detail.Section';
  *
  * Slots: `detail-grid`.
  */
-function DetailGrid(props: DetailGridProps): React.ReactNode {
+const DetailGrid = React.forwardRef<HTMLDListElement, DetailGridProps>((props, ref) => {
 
   // ----
   // Props Deconstruct
@@ -355,12 +356,13 @@ function DetailGrid(props: DetailGridProps): React.ReactNode {
   return (
     <dl
       {...rest}
+      ref={ref}
       data-slot={'detail-grid'}
       className={cn('@container grid grid-cols-6 gap-x-6 gap-y-5', baseClasses, className)}
     />
   );
 
-}
+});
 
 DetailGrid.displayName = 'Detail.Grid';
 
@@ -374,7 +376,7 @@ DetailGrid.displayName = 'Detail.Grid';
  * `data-label-hidden`, `data-copyable`), `detail-label`, `detail-value`, `detail-value-text`, `detail-empty`,
  * `detail-copy`, `detail-skeleton`.
  */
-function DetailItem(props: DetailItemProps): React.ReactNode {
+const DetailItem = React.forwardRef<HTMLDivElement, DetailItemProps>((props, ref) => {
 
   // ----
   // Props Deconstruct
@@ -512,6 +514,7 @@ function DetailItem(props: DetailItemProps): React.ReactNode {
   return (
     <div
       {...rest}
+      ref={ref}
       data-slot={'detail-item'}
       data-type={type}
       data-span={baseSpan}
@@ -546,7 +549,7 @@ function DetailItem(props: DetailItemProps): React.ReactNode {
     </div>
   );
 
-}
+});
 
 DetailItem.displayName = 'Detail.Item';
 
@@ -577,7 +580,7 @@ DetailItem.displayName = 'Detail.Item';
  *
  * Slots: `detail`, `detail-status`.
  */
-export function Detail(props: DetailProps): React.ReactNode {
+const DetailRoot = React.forwardRef<HTMLDivElement, DetailProps>((props, ref) => {
 
   // ----
   // Props Deconstruct
@@ -610,7 +613,7 @@ export function Detail(props: DetailProps): React.ReactNode {
   // Component Render
   // ----
   return (
-    <div {...rest} data-slot={'detail'} className={cn('flex flex-col', baseClasses, className)}>
+    <div {...rest} ref={ref} data-slot={'detail'} className={cn('flex flex-col', baseClasses, className)}>
       <DetailContext.Provider value={state}>
         {children}
       </DetailContext.Provider>
@@ -619,10 +622,12 @@ export function Detail(props: DetailProps): React.ReactNode {
     </div>
   );
 
-}
+});
 
-Detail.displayName = 'Detail';
+DetailRoot.displayName = 'Detail';
 
-Detail.Section = DetailSection;
-Detail.Grid = DetailGrid;
-Detail.Item = DetailItem;
+export const Detail = Object.assign(DetailRoot, {
+  Section: DetailSection,
+  Grid   : DetailGrid,
+  Item   : DetailItem
+});
