@@ -340,7 +340,7 @@ export function CheckboxGrid(props: CheckboxGridProps): React.ReactNode {
 
   /* The groups closed by hand during a search: forgotten when the search changes */
   const [ searchClosed, setSearchClosed ] = React.useState<{
-    for: ReadonlySet<string> | null;
+    for: string | null;
     ids: readonly string[];
   }>({ for: null, ids: NO_GROUPS });
 
@@ -349,7 +349,13 @@ export function CheckboxGrid(props: CheckboxGridProps): React.ReactNode {
   const currentValue = value ?? uncontrolledValue;
   const currentOpen = openGroups ?? uncontrolledOpen;
   const searching = visibleItems !== null;
-  const closedInSearch = searchClosed.for === visibleItems ? searchClosed.ids : NO_GROUPS;
+  /*
+   * The search is told apart by what it finds, not by the identity of its set: a caller naturally
+   * builds the set while rendering, and compared by identity every render of the page was a new
+   * search, which reopened the groups closed by hand.
+   */
+  const searchKey = visibleItems === null ? null : [ ...visibleItems ].sort().join('\u0000');
+  const closedInSearch = searchClosed.for === searchKey ? searchClosed.ids : NO_GROUPS;
 
 
   // ----
@@ -378,7 +384,7 @@ export function CheckboxGrid(props: CheckboxGridProps): React.ReactNode {
     if (searching) {
       const ids = open ? closedInSearch.filter((id) => id !== groupId) : [ ...closedInSearch, groupId ];
 
-      setSearchClosed({ for: visibleItems, ids });
+      setSearchClosed({ for: searchKey, ids });
 
       return;
     }
