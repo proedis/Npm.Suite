@@ -13,6 +13,8 @@ import { IconBox } from '../../components/IconBox';
 import { VisuallyHidden } from '../../components/VisuallyHidden';
 
 
+import { FOCUSABLE } from '../focus/focus';
+import { isPresent } from '../presence/presence';
 import { ToneGlyph } from '../tone-glyphs/toneGlyphs';
 
 
@@ -48,14 +50,6 @@ export interface OverlaySection {
 /** 15s: a save with no answer by then becomes a send error */
 export const SUBMIT_TIMEOUT = 15_000;
 
-export const FOCUSABLE = [
-  'a[href]',
-  'button:not([disabled])',
-  'input:not([disabled]):not([type="hidden"])',
-  'select:not([disabled])',
-  'textarea:not([disabled])',
-  '[tabindex]:not([tabindex="-1"])'
-].join(', ');
 
 const FIELD = 'input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [data-field-control], [role="combobox"]';
 
@@ -376,7 +370,7 @@ export function OverlayHeader(props: OverlayHeaderProps): React.ReactNode {
   const { dataSlot, description, descriptionId, end, icon, iconTone = 'muted', inert, symmetric, title } = props;
 
   const hasIcon = icon !== null && icon !== undefined;
-  const hasDescription = description !== null && description !== undefined && description !== false && description !== '';
+  const hasDescription = isPresent(description);
 
   return (
     <div
@@ -604,8 +598,8 @@ export function OverlayBody(props: OverlayBodyProps): React.ReactNode {
   // ----
   // Component Render
   // ----
-  const hasToolbar = toolbar !== null && toolbar !== undefined && toolbar !== false;
-  const hasError = error !== null && error !== undefined && error !== false && error !== '';
+  const hasToolbar = isPresent(toolbar);
+  const hasError = isPresent(error);
   const hasSections = sections !== undefined && sections.length > 0;
   const shade = 'pointer-events-none absolute inset-x-0 z-10 h-2 from-scroll-shade to-transparent transition-opacity duration-150';
 
@@ -719,7 +713,7 @@ export function OverlayFooter(props: OverlayFooterProps): React.ReactNode {
       inert={inertValue(inert)}
       className={cn('flex flex-none flex-wrap items-center justify-end gap-2 px-6 pb-4', hasBody ? 'pt-4' : 'pt-2')}
     >
-      {start !== null && start !== undefined && start !== false && (
+      {isPresent(start) && (
         <div data-slot={`${dataSlot}-footer-start`} className={'me-auto flex min-w-0 items-center gap-2'}>{start}</div>
       )}
       <div data-slot={`${dataSlot}-footer-actions`} className={'ms-auto flex flex-wrap items-center justify-end gap-2'}>{children}</div>

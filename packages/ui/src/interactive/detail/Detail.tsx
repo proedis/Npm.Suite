@@ -11,6 +11,7 @@ import { responsiveClasses, toResponsiveMap } from '../../core/responsive';
 import { Button } from '../button/Button';
 import { EmptyState } from '../empty-state/EmptyState';
 import { FIELD_SPAN } from '../field/Field';
+import { isPresent } from '../presence/presence';
 import { Tooltip } from '../tooltip/Tooltip';
 
 import type { BaseProps } from '../../core/base';
@@ -202,11 +203,6 @@ const [ DetailSectionLoadingContext, useDetailSectionLoadingContext ] = optional
 /* --------
  * Helpers
  * -------- */
-
-function isPresent(node: React.ReactNode): boolean {
-  return node !== null && node !== undefined && node !== false && node !== '';
-}
-
 
 function useDetail(part: string): DetailState {
   const state = useDetailContext();

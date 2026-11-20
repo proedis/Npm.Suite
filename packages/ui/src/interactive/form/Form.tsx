@@ -9,6 +9,7 @@ import { cn } from '../../core/cn';
 
 import { Button } from '../button/Button';
 import { FormErrorRegistryContext, FormSectionContext, useFormHostContext } from '../field/fieldContext';
+import { isPresent } from '../presence/presence';
 
 import type { BaseProps } from '../../core/base';
 
@@ -107,11 +108,6 @@ const [ FormErrorStateContext, useFormErrorStateContext ] = optionalContextBuild
 /* --------
  * Helpers
  * -------- */
-
-function isPresent(node: React.ReactNode): boolean {
-  return node !== null && node !== undefined && node !== false && node !== '';
-}
-
 
 /** Errors in the order of their fields on screen, which is the order of the Tab */
 function byDocumentPosition(first: FormErrorEntry, second: FormErrorEntry): number {

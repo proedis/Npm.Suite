@@ -8,6 +8,7 @@ import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
 import { CHOICE_ALIGN, CHOICE_FOCUS, CHOICE_ROW, ChoiceText } from '../choice/choice';
+import { isPresent } from '../presence/presence';
 
 import type { BaseProps } from '../../core/base';
 
@@ -129,7 +130,7 @@ export const Switch = React.forwardRef<HTMLSpanElement, SwitchProps>((props, ref
   // ----
   // Component Render
   // ----
-  const hasDescription = description !== null && description !== undefined && description !== false;
+  const hasDescription = isPresent(description);
 
   return (
     <label

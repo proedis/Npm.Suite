@@ -13,6 +13,8 @@ import { IconBox } from '../../components/IconBox';
 import { VisuallyHidden } from '../../components/VisuallyHidden';
 
 import { IconButton } from '../button/IconButton';
+import { FOCUSABLE } from '../focus/focus';
+import { isPresent } from '../presence/presence';
 import { ClearGlyph } from '../text-input/glyphs';
 import { ToneGlyph } from '../tone-glyphs/toneGlyphs';
 
@@ -126,8 +128,6 @@ const TEXT_OFFSET: Readonly<Record<AlertSize, string>> = {
 /* --------
  * Helpers
  * -------- */
-
-const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 /** The first element that takes the focus after `root` in the page, or the `main` */
 function focusAfter(root: HTMLElement): void {
@@ -247,7 +247,7 @@ export const Alert = React.forwardRef<HTMLDivElement, AlertProps>((props, ref) =
   // ----
   // Component Render
   // ----
-  const hasTitle = title !== null && title !== undefined && title !== false && title !== '';
+  const hasTitle = isPresent(title);
   const role = live ? (tone === 'destructive' ? 'alert' : 'status') : undefined;
   const box = ICON_BOX[size];
 

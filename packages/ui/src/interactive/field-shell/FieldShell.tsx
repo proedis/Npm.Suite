@@ -6,6 +6,7 @@ import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
 import { useFieldControl } from '../field/fieldContext';
+import { isPresent } from '../presence/presence';
 import { TEXT_CONTROL_FRAME, TEXT_CONTROL_SIZES, textControlState } from '../text-control/textControl';
 
 import type { BaseProps } from '../../core/base';
@@ -48,10 +49,6 @@ export type FieldShellProps = StrictFieldShellProps & Omit<React.ComponentProps<
 /* --------
  * Helpers
  * -------- */
-
-function isPresent(node: React.ReactNode): boolean {
-  return node !== null && node !== undefined && node !== false && node !== '';
-}
 
 /** What a press on the frame gives the focus to: the element the control marks, never a button or a link */
 const FIELD_CONTROL = '[data-field-control]';

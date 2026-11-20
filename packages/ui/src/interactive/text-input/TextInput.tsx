@@ -14,6 +14,7 @@ import { Spinner } from '../../components/Spinner';
 
 import { IconButton } from '../button/IconButton';
 import { useFieldControl } from '../field/fieldContext';
+import { isPresent } from '../presence/presence';
 import { TEXT_CONTROL_FRAME, TEXT_CONTROL_SIZES, TEXT_CONTROL_TEXT, textControlState } from '../text-control/textControl';
 
 import type { BaseProps } from '../../core/base';
@@ -138,11 +139,6 @@ const textInputVariants = cva(
 /* --------
  * Helpers
  * -------- */
-
-function isPresent(node: React.ReactNode): boolean {
-  return node !== null && node !== undefined && node !== false;
-}
-
 
 /** One ref for two owners: the caller's and the frame's own, which moves the focus on a click */
 

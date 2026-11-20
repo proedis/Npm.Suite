@@ -12,6 +12,7 @@ import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
 import { CHECKBOX_BOX, CHOICE_ALIGN, CHOICE_FOCUS, CHOICE_ROW, CheckGlyph, ChoiceText, DashGlyph, GROUP_FOCUS_PROPS, baseOrientation, choiceGroupClasses } from '../choice/choice';
+import { isPresent } from '../presence/presence';
 import {
   useFieldControl,
   useFieldRegistryContext,
@@ -389,7 +390,7 @@ export const Checkbox = React.forwardRef<HTMLSpanElement, CheckboxProps>((props,
   // ----
   // Component Render
   // ----
-  const hasDescription = description !== null && description !== undefined && description !== false;
+  const hasDescription = isPresent(description);
   const describedBy = [ ariaDescribedBy, hasDescription ? descriptionId : undefined ].filter(Boolean).join(' ') || undefined;
   const isIndeterminate = parentState ? parentState.indeterminate : indeterminate;
   const showRequired = required && !group;

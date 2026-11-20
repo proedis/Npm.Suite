@@ -11,6 +11,7 @@ import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
 
+import { isPresent } from '../presence/presence';
 import { handleRovingKeyDown } from '../roving/roving';
 import { FOCUS_INSIDE, PRESSABLE_BASE, PRESSABLE_CONTENT, PRESSABLE_OFF } from '../toggle/toggleStyles';
 import { Tooltip } from '../tooltip/Tooltip';
@@ -207,7 +208,7 @@ function SegmentedControlItem(props: SegmentedControlItemProps, ref: React.Forwa
   const size = context?.size ?? 'md';
   const isDisabled = disabled || (context?.disabled ?? false);
   const reason = context?.disabled ? context.disabledReason ?? disabledReason : disabled ? disabledReason : undefined;
-  const iconOnly = children === null || children === undefined || children === false || children === '';
+  const iconOnly = !isPresent(children);
 
   /*
    * Coming in with Tab, the focus lands on the chosen item, wherever the arrows left it. A value that

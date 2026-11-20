@@ -13,6 +13,7 @@ import { cn } from '../../core/cn';
 
 import { CHOICE_ALIGN, CHOICE_FOCUS, CHOICE_ROW, ChoiceText, GROUP_FOCUS_PROPS, baseOrientation, choiceGroupClasses } from '../choice/choice';
 import { useFieldControl, useFieldRegistryContext, useNonNativeFieldLabel } from '../field/fieldContext';
+import { isPresent } from '../presence/presence';
 
 import type { BaseProps } from '../../core/base';
 import type { Direction, Responsive } from '../../core/responsive';
@@ -278,7 +279,7 @@ export const Radio = React.forwardRef<HTMLSpanElement, RadioProps>((props, ref) 
   // Component Render
   // ----
   const isDisabled = disabled || field.disabled;
-  const hasDescription = description !== null && description !== undefined && description !== false;
+  const hasDescription = isPresent(description);
 
   const row = (
     <label

@@ -26,6 +26,7 @@ import {
   useOrigin,
   useOverlayBusy
 } from '../overlay-shell/overlayShell';
+import { isPresent } from '../presence/presence';
 import { ClearGlyph } from '../text-input/glyphs';
 
 import type { ButtonProps } from '../button/Button';
@@ -246,7 +247,7 @@ function DrawerRoot(props: DrawerProps): React.ReactNode {
   }
 
   const shownError = wait.timedOut ? labels.timeout : error;
-  const hasFooter = footer !== null && footer !== undefined && footer !== false;
+  const hasFooter = isPresent(footer);
   const saving = busy === 'submit' && !wait.timedOut;
   const isDetail = mode === 'detail';
 
@@ -380,8 +381,7 @@ function DrawerRoot(props: DrawerProps): React.ReactNode {
   // ----
   // Component Render
   // ----
-  const hasBody = (children !== null && children !== undefined && children !== false)
-    || (shownError !== null && shownError !== undefined && shownError !== false && shownError !== '');
+  const hasBody = isPresent(children) || isPresent(shownError);
 
   const navigation = isDetail && (onPrevious || onNext)
     ? (

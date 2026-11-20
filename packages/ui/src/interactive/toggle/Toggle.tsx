@@ -10,6 +10,7 @@ import { optionalContextBuilder } from '@proedis/react';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
+import { isPresent } from '../presence/presence';
 import { handleRovingKeyDown } from '../roving/roving';
 import { Tooltip } from '../tooltip/Tooltip';
 
@@ -196,7 +197,7 @@ export const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>((props, r
   const isDisabled = disabled || (group?.disabled ?? false);
   const isPending = pending || (group?.pending ?? false);
   const reason = disabled ? disabledReason : group?.disabled ? group.disabledReason ?? disabledReason : undefined;
-  const hasText = children !== null && children !== undefined && children !== false && children !== '';
+  const hasText = isPresent(children);
   const iconOnly = !hasText;
 
 

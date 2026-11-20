@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import { cn } from '../../core/cn';
 import { responsiveClasses } from '../../core/responsive';
+import { isPresent } from '../presence/presence';
 
 import type { Direction, Responsive } from '../../core/responsive';
 
@@ -97,9 +98,6 @@ export function baseOrientation(orientation: Responsive<Direction>): Direction {
   return typeof orientation === 'object' ? (orientation.base ?? 'vertical') : orientation;
 }
 
-export function isPresent(node: React.ReactNode): boolean {
-  return node !== null && node !== undefined && node !== false && node !== '';
-}
 
 /** The option of a group that holds the group's tab stop: the chosen radio, or the first box */
 const GROUP_TAB_STOP = '[tabindex="0"]';

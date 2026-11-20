@@ -5,6 +5,7 @@ import * as React from 'react';
 import { Tooltip as TooltipPrimitive } from '@base-ui/react/tooltip';
 
 import { cn } from '../../core/cn';
+import { isPresent } from '../presence/presence';
 
 
 /* --------
@@ -272,8 +273,8 @@ export function Tooltip(props: TooltipProps): React.ReactNode {
   // ----
   // Component Render
   // ----
-  const hasContent = content !== null && content !== undefined && content !== false && content !== '';
-  const hasDescription = description !== null && description !== undefined && description !== false && description !== '';
+  const hasContent = isPresent(content);
+  const hasDescription = isPresent(description);
 
   if (!hasContent) {
     return children;

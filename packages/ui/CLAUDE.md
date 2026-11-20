@@ -107,7 +107,9 @@ Base UI's ToggleGroup skips an `aria-disabled` item), `anchor` (closing a floati
 control leaves the view), `overlay-shell` (container, veil, header, body with scroll shades, footer,
 error box, waiting veil, jolt and nesting level of Dialog, AlertDialog and Drawer), `dialog/dialogParts`
 (the discard prompt that `dirty` opens and the Cancel that goes through the overlay's gate, shared by
-Dialog and Drawer; apart from `overlay-shell` because it renders an AlertDialog, which imports the shell). A control marks the element that takes its field's focus with
+Dialog and Drawer; apart from `overlay-shell` because it renders an AlertDialog, which imports the shell),
+`presence` (`isPresent`: whether a slot renders anything, where the empty string counts as nothing, so
+no part is drawn around it), `focus` (`FOCUSABLE`, the elements that take the focus with Tab). A control marks the element that takes its field's focus with
 `data-field-control`: the frame lights from it, the error summary focuses it.
 
 Three choices of tranche 3 that look improvable and are not:

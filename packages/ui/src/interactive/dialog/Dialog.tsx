@@ -24,6 +24,7 @@ import {
   useOrigin,
   useOverlayBusy
 } from '../overlay-shell/overlayShell';
+import { isPresent } from '../presence/presence';
 import { ClearGlyph } from '../text-input/glyphs';
 
 import { DiscardPrompt, OverlayCancel } from './dialogParts';
@@ -221,7 +222,7 @@ function DialogRoot(props: DialogProps): React.ReactNode {
   const [ discarding, setDiscarding ] = React.useState(false);
 
   const shownError = wait.timedOut ? labels.timeout : error;
-  const hasFooter = footer !== null && footer !== undefined && footer !== false;
+  const hasFooter = isPresent(footer);
   const saving = busy === 'submit' && !wait.timedOut;
 
   useFocusWhenSet(shownError, errorRef);
@@ -304,8 +305,7 @@ function DialogRoot(props: DialogProps): React.ReactNode {
   // ----
   // Component Render
   // ----
-  const hasBody = (children !== null && children !== undefined && children !== false)
-    || (shownError !== null && shownError !== undefined && shownError !== false && shownError !== '');
+  const hasBody = isPresent(children) || isPresent(shownError);
 
   return (
     <DialogPrimitive.Root open={open} onOpenChange={handleOpenChange} modal disablePointerDismissal>

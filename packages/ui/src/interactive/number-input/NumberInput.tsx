@@ -12,6 +12,7 @@ import { cn } from '../../core/cn';
 import { Spinner } from '../../components/Spinner';
 
 import { useFieldControl } from '../field/fieldContext';
+import { isPresent } from '../presence/presence';
 import { TEXT_CONTROL_FRAME, TEXT_CONTROL_SIZES, TEXT_CONTROL_TEXT, textControlState } from '../text-control/textControl';
 
 import { acceptsTyping, cleanPaste, separatorsOf, widthClass } from './numberText';
@@ -278,7 +279,7 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
   // ----
   const isDisabled = disabled || field.disabled;
   const isInvalid = invalid || field.invalid;
-  const hasSuffix = suffix !== null && suffix !== undefined && suffix !== false;
+  const hasSuffix = isPresent(suffix);
 
   return (
     <NumberFieldPrimitive.Root

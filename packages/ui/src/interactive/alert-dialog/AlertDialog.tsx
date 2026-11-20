@@ -23,6 +23,7 @@ import {
   useOrigin,
   useOverlayBusy
 } from '../overlay-shell/overlayShell';
+import { isPresent } from '../presence/presence';
 import { TextInput } from '../text-input/TextInput';
 
 
@@ -281,8 +282,8 @@ export function AlertDialog(props: AlertDialogProps): React.ReactNode {
   // ----
   // Component Render
   // ----
-  const hasConsequences = consequences !== null && consequences !== undefined && consequences !== false;
-  const hasError = error !== null && error !== undefined && error !== false && error !== '';
+  const hasConsequences = isPresent(consequences);
+  const hasError = isPresent(error);
   const hasBody = !outcome && (hasConsequences || confirmText !== undefined || hasError);
 
   return (

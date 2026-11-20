@@ -9,6 +9,7 @@ import { useEnhancedEffect, useForkRef } from '@proedis/react';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 import { responsiveClasses, toResponsiveMap } from '../../core/responsive';
+import { isPresent } from '../presence/presence';
 
 import {
   FieldControlContext,
@@ -240,15 +241,6 @@ const FOCUSABLE = [
   'button:not(:disabled)',
   '[tabindex]:not([tabindex="-1"])'
 ].join(', ');
-
-
-/* --------
- * Helpers
- * -------- */
-
-function isPresent(node: React.ReactNode): boolean {
-  return node !== null && node !== undefined && node !== false && node !== '';
-}
 
 
 /* --------

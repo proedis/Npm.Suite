@@ -6,6 +6,7 @@ import { Collapsible } from '@base-ui/react/collapsible';
 
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
+import { isPresent } from '../presence/presence';
 
 import type { BaseProps } from '../../core/base';
 
@@ -66,15 +67,6 @@ const HEADING_ELEMENT = {
   5: 'h5',
   6: 'h6'
 } as const;
-
-
-/* --------
- * Helpers
- * -------- */
-
-function hasNode(node: React.ReactNode): boolean {
-  return node !== null && node !== undefined && node !== false && node !== '';
-}
 
 
 /* --------
@@ -188,8 +180,8 @@ export function CollapsibleSection(props: CollapsibleSectionProps): React.ReactN
   // Component Render
   // ----
   const Title = HEADING_ELEMENT[headingLevel];
-  const hasStatus = hasNode(status);
-  const hasMeta = hasNode(meta);
+  const hasStatus = isPresent(status);
+  const hasMeta = isPresent(meta);
   const titleId = `${uid}-title`;
   const statusId = `${uid}-status`;
   const metaId = `${uid}-meta`;
@@ -248,7 +240,7 @@ export function CollapsibleSection(props: CollapsibleSectionProps): React.ReactN
           </Collapsible.Trigger>
         </Title>
 
-        {hasNode(actions) && (
+        {isPresent(actions) && (
           <div data-slot={'collapsible-section-actions'} className={cn('flex shrink-0 items-center gap-1', inset && 'pe-6')}>
             {actions}
           </div>

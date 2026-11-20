@@ -33,11 +33,12 @@ const PATHS: Readonly<Record<ToneGlyphTone, readonly string[]>> = {
  * Component Definition
  * -------- */
 
-export function ToneGlyph(props: { tone: ToneGlyphTone; className?: string }): React.ReactNode {
-  const { className, tone } = props;
+export function ToneGlyph(props: { tone: ToneGlyphTone; className?: string; slot?: string }): React.ReactNode {
+  const { className, slot, tone } = props;
 
   return (
     <svg
+      data-slot={slot}
       viewBox={'0 0 24 24'}
       fill={'none'}
       stroke={'currentColor'}

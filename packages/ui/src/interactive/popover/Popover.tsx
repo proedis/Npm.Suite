@@ -9,7 +9,9 @@ import { cn } from '../../core/cn';
 import { CloseWhenAnchorHidden } from '../anchor/CloseWhenAnchorHidden';
 import { IconButton } from '../button/IconButton';
 import { FormHostContext } from '../field/fieldContext';
+import { FOCUSABLE } from '../focus/focus';
 import { FormSubmit } from '../form/Form';
+import { isPresent } from '../presence/presence';
 import { ClearGlyph } from '../text-input/glyphs';
 
 
@@ -62,8 +64,6 @@ export type PopoverProps = CommonPopoverProps & (
 /* --------
  * Constants Definition
  * -------- */
-
-const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 const WIDTHS = { sm: 'w-70', md: 'w-80' } as const;
 
@@ -163,9 +163,9 @@ function PopoverRoot(props: PopoverProps): React.ReactNode {
   const [ ownOpen, setOwnOpen ] = React.useState(false);
 
   const open = openProp ?? ownOpen;
-  const hasTitle = title !== null && title !== undefined && title !== false && title !== '';
-  const hasFooter = footer !== null && footer !== undefined && footer !== false;
-  const hasDescription = description !== null && description !== undefined && description !== false && description !== '';
+  const hasTitle = isPresent(title);
+  const hasFooter = isPresent(footer);
+  const hasDescription = isPresent(description);
 
 
   // ----
