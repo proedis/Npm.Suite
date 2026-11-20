@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 
+import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
 import { Spinner } from '../../components/Spinner';
@@ -10,6 +11,8 @@ import { Button } from '../button/Button';
 import { IconButton } from '../button/IconButton';
 
 import { FileRow, FileThumbnail } from './FileRow';
+
+import type { BaseProps } from '../../core/base';
 
 
 /* --------
@@ -36,14 +39,14 @@ export interface AttachmentListLabels {
   /** The action of a file that did not arrive */
   readonly retry: string;
 
-  /** The second line while uploading, and the name of the spinner */
+  /** The second line while uploading. The spinner beside it is silent: the line already says it */
   readonly uploading: string;
 
   /** The second line of a file that did not arrive: "Not uploaded" */
   readonly failed: string;
 }
 
-export interface AttachmentListProps {
+export interface StrictAttachmentListProps extends BaseProps {
   items: readonly AttachmentItem[];
 
   /**
@@ -67,6 +70,11 @@ export interface AttachmentListProps {
 
   className?: string;
 }
+
+export type AttachmentListProps = StrictAttachmentListProps & Omit<
+  React.ComponentProps<'ul'>,
+  keyof StrictAttachmentListProps | 'ref' | 'children'
+>;
 
 
 /* --------
@@ -108,9 +116,10 @@ function DownloadGlyph(): React.ReactNode {
  * "Retry". Empty, error and loading states, "Show all (N)" past ten and the section around it belong
  * to the screen.
  *
- * Slots: `attachment-list`, `attachment-row` (with `data-status`), `attachment-name`, `file-thumbnail`.
+ * Slots: `attachment-list`, `attachment-row` (with `data-status`), `attachment-row-label`, `attachment-name`,
+ * `attachment-row-detail`, `attachment-row-actions`, `file-thumbnail`.
  */
-export function AttachmentList(props: AttachmentListProps): React.ReactNode {
+export const AttachmentList = React.forwardRef<HTMLUListElement, AttachmentListProps>((props, ref) => {
 
   // ----
   // Props Deconstruct
@@ -123,15 +132,18 @@ export function AttachmentList(props: AttachmentListProps): React.ReactNode {
     onOpen,
     onRetry,
     readOnly = false,
-    renderActions
+    renderActions,
+    ...others
   } = props;
+
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
   // Component Render
   // ----
   return (
-    <ul data-slot={'attachment-list'} className={cn('rounded-md border border-border', className)}>
+    <ul {...rest} ref={ref} data-slot={'attachment-list'} className={cn('rounded-md border border-border', baseClasses, className)}>
       {items.map((item) => {
         let detail: React.ReactNode = item.meta;
 
@@ -146,6 +158,7 @@ export function AttachmentList(props: AttachmentListProps): React.ReactNode {
           <FileRow
             key={item.id}
             slot={'attachment-row'}
+            status={item.status}
             thumbnail={<FileThumbnail url={item.previewUrl} />}
             nameText={item.name}
             name={item.status === 'done'
@@ -180,6 +193,6 @@ export function AttachmentList(props: AttachmentListProps): React.ReactNode {
     </ul>
   );
 
-}
+});
 
 AttachmentList.displayName = 'AttachmentList';

@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 
+import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
 import { Button } from '../button/Button';
@@ -11,6 +12,8 @@ import { ClearGlyph } from '../text-input/glyphs';
 
 import { acceptsFile, guardDocumentDrop, validateFiles } from './fileRules';
 import { FileRow, FileThumbnail, UploadGlyph } from './FileRow';
+
+import type { BaseProps } from '../../core/base';
 
 import type { FileEntry, FileLimits, FileRejection } from './fileRules';
 
@@ -65,7 +68,7 @@ export interface FileUploadLabels {
   readonly formatSize: (bytes: number) => string;
 }
 
-export interface FileUploadProps extends FileLimits {
+export interface StrictFileUploadProps extends FileLimits, BaseProps {
   /** The files chosen so far, controlled by the form */
   files: readonly FileEntry[];
 
@@ -81,9 +84,15 @@ export interface FileUploadProps extends FileLimits {
 
   labels: FileUploadLabels;
 
+  /** The id of the button that chooses the files, which the label of a field points at */
   id?: string;
   className?: string;
 }
+
+export type FileUploadProps = StrictFileUploadProps & Omit<
+  React.ComponentProps<'div'>,
+  keyof StrictFileUploadProps | 'ref' | 'children'
+>;
 
 type DragState =
   | { readonly kind: 'idle' }
@@ -148,10 +157,12 @@ function readDrop(event: React.DragEvent): { files: File[]; folders: Set<File> }
  * `maxFiles={1}` is the field for one file: once chosen, its row takes the place of the box, with
  * "Replace". Read only, the box is gone and the files stay.
  *
- * Slots: `file-upload`, `file-upload-box` (with `data-drag`), `file-upload-choose`,
- * `file-upload-list`, `file-upload-row`, `file-thumbnail`.
+ * Slots: `file-upload` (with `data-disabled`, `data-readonly`, `data-invalid`, `data-single`),
+ * `file-upload-box` (with `data-drag`, `data-full`, `data-invalid`), `file-upload-choose`,
+ * `file-upload-list`, `file-upload-row` (with `data-rejected`), `file-upload-row-label`,
+ * `file-upload-row-detail`, `file-upload-row-actions`, `file-thumbnail`.
  */
-export function FileUpload(props: FileUploadProps): React.ReactNode {
+export const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>((props, ref) => {
 
   // ----
   // Props Deconstruct
@@ -168,8 +179,11 @@ export function FileUpload(props: FileUploadProps): React.ReactNode {
     maxSize,
     onAdd,
     onRemove,
-    readOnly = false
+    readOnly = false,
+    ...others
   } = props;
+
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -332,7 +346,16 @@ export function FileUpload(props: FileUploadProps): React.ReactNode {
   }
 
   return (
-    <div data-slot={'file-upload'} className={cn('flex flex-col gap-2', isDisabled && 'opacity-50', className)}>
+    <div
+      {...rest}
+      ref={ref}
+      data-slot={'file-upload'}
+      data-disabled={isDisabled || undefined}
+      data-readonly={readOnly || undefined}
+      data-invalid={(invalid || field.invalid) || undefined}
+      data-single={single || undefined}
+      className={cn('flex flex-col gap-2', isDisabled && 'opacity-50', baseClasses, className)}
+    >
       <input
         ref={inputRef}
         type={'file'}
@@ -415,6 +438,6 @@ export function FileUpload(props: FileUploadProps): React.ReactNode {
     </div>
   );
 
-}
+});
 
 FileUpload.displayName = 'FileUpload';

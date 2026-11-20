@@ -88,7 +88,7 @@ import type {
  * Types Definition
  * -------- */
 
-export interface TableProps<TData extends object> extends BaseProps {
+export interface StrictTableProps<TData extends object> extends BaseProps {
   /** The name of the list for screen readers. Required */
   caption: string;
 
@@ -167,6 +167,12 @@ export interface TableProps<TData extends object> extends BaseProps {
   labels: TableLabels<TData>;
   className?: string;
 }
+
+/** The native props of a `<div>` reach the root, around the toolbar, the grid and the pagination */
+export type TableProps<TData extends object> = StrictTableProps<TData> & Omit<
+  React.ComponentProps<'div'>,
+  keyof StrictTableProps<TData> | 'ref' | 'children'
+>;
 
 type MenuPayload = { scope: 'row'; id: string } | { scope: 'selection'; id: string };
 
@@ -247,9 +253,12 @@ function SortArrow(props: { direction: false | 'asc' | 'desc' }): React.ReactNod
  * sideways, with shades on the side where there is more. A right click on a row opens the menu
  * of its ⋯, Shift F10 too; on a chosen row the menu of the selection.
  *
- * Parts with a slot: `table`, `table-toolbar`, `table-count`, `table-card`, `table-scroller`,
- * `table-grid`, `table-head`, `table-row` (with `data-selected`), `table-cell` (with `data-kind`),
- * `table-row-actions`, `table-selection-bar`, `table-columns`, `table-pagination`.
+ * Parts with a slot: `table` (with `data-mode`, `data-status`), `table-toolbar`, `table-count`,
+ * `table-card`, `table-scroller`, `table-grid`, `table-head`, `table-header-cell` (with `data-kind`),
+ * `table-select-all`, `table-actions-header`, `table-body`, `table-row` (with `data-selected`),
+ * `table-select-cell`, `table-cell` (with `data-kind`), `table-row-actions` (with `data-empty` when the
+ * row has none), `table-skeleton-row`, `table-state`, `table-selection-bar`, `table-columns`,
+ * `table-pagination`.
  */
 export function Table<TData extends object>(props: TableProps<TData>): React.ReactNode {
 
@@ -285,10 +294,11 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
     selectionActions = [],
     state: stateProp,
     status = 'ready',
-    toolbar
+    toolbar,
+    ...others
   } = props;
 
-  const { baseClasses } = splitBaseProps(props);
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -711,6 +721,7 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
         render={(
           <th
             scope={'col'}
+            data-slot={'table-header-cell'}
             data-kind={column.kind}
             aria-sort={sortIndex === 0 ? (sort?.desc ? 'descending' : 'ascending') : undefined}
             className={cn(HEAD, ALIGN_CLASS[align], pinned && cn(PIN_START, pinCodeAt, 'z-30'))}
@@ -751,7 +762,7 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
     const spec = rowActions?.(row);
 
     if (!spec || spec.actions.length === 0) {
-      return <td className={cn(CELL, 'ps-3 pe-2')} />;
+      return <td data-slot={'table-row-actions'} data-empty className={cn(CELL, 'ps-3 pe-2')} />;
     }
 
     const codeId = `${baseId}-code-${rowId}`;
@@ -890,13 +901,13 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
 
     return (
       <tr>
-        <td colSpan={span} className={'border-b-0 p-0'}>{state}</td>
+        <td colSpan={span} data-slot={'table-state'} className={'border-b-0 p-0'}>{state}</td>
       </tr>
     );
   };
 
   const renderSkeleton = (): React.ReactNode => Array.from({ length: SKELETON_ROWS }, (_, index) => (
-    <tr key={index} aria-hidden>
+    <tr key={index} aria-hidden data-slot={'table-skeleton-row'}>
       {selectable && <td className={cn(CELL, 'ps-3 pe-0')}><Skeleton className={'size-4'} /></td>}
       {visibleColumns.map((column) => (
         <td key={column.id} className={CELL}>
@@ -912,7 +923,13 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
   // Component Render
   // ----
   return (
-    <div data-slot={'table'} className={cn('flex min-h-0 flex-col', baseClasses, className)}>
+    <div
+      {...rest}
+      data-slot={'table'}
+      data-mode={mode}
+      data-status={status}
+      className={cn('flex min-h-0 flex-col', baseClasses, className)}
+    >
       <div data-slot={'table-toolbar'} className={'mb-3 flex h-7 min-w-0 shrink-0 items-center gap-2'}>
         {chosen
           ? (
@@ -979,7 +996,7 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
             <thead data-slot={'table-head'}>
               <tr aria-rowindex={1}>
                 {selectable && (
-                  <th scope={'col'} className={cn(HEAD, PIN_START, 'start-0 z-30 ps-3 pe-0')}>
+                  <th scope={'col'} data-slot={'table-select-all'} className={cn(HEAD, PIN_START, 'start-0 z-30 ps-3 pe-0')}>
                     <Checkbox
                       aria-label={labels.selectPage}
                       checked={pageState === 'all'}
@@ -991,7 +1008,7 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
                 )}
                 {visibleColumns.map(renderHeader)}
                 {hasActions && (
-                  <th scope={'col'} className={HEAD}>
+                  <th scope={'col'} data-slot={'table-actions-header'} className={HEAD}>
                     <span className={'sr-only'}>{labels.actionsHeader}</span>
                   </th>
                 )}
@@ -999,6 +1016,7 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
             </thead>
 
             <tbody
+              data-slot={'table-body'}
               onContextMenu={handleContextMenu}
               className={cn(fetching && 'pointer-events-none opacity-70')}
             >
@@ -1025,6 +1043,7 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
                   >
                     {selectable && (
                       <td
+                        data-slot={'table-select-cell'}
                         className={cn(
                           CELL,
                           PIN_START,

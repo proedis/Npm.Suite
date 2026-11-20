@@ -116,7 +116,9 @@ function sameIds(a: readonly string[], b: readonly string[]): boolean {
  * every row of the filter, and changing the search or the filters undoes it.
  *
  * Slots: `modal-selector-toolbar`, `modal-selector-count`, `modal-selector-frame`, `modal-selector-list`,
- * `modal-selector-row` (with `data-selected`, `data-active`, `data-disabled`), `modal-selector-footer`.
+ * `modal-selector-row` (with `data-selected`, `data-active`, `data-disabled`). The frame reports
+ * `data-mode`, `data-multiple` and `data-status`. The footer is the dialog's, `dialog-footer`: the selector
+ * is a `Dialog`, and the slots of its shell are the dialog's.
  */
 export function ModalSelector<TData>(props: ModalSelectorProps<TData>): React.ReactNode {
 
@@ -704,7 +706,13 @@ export function ModalSelector<TData>(props: ModalSelectorProps<TData>): React.Re
       labels={{ close: labels.close, busySubmit: labels.busySubmit }}
     >
       <div className={'flex h-88 min-h-56 flex-col pb-2'}>
-        <div data-slot={'modal-selector-frame'} className={'relative flex max-h-full min-h-0 flex-col overflow-hidden rounded-md border border-border'}>
+        <div
+          data-slot={'modal-selector-frame'}
+          data-mode={mode}
+          data-multiple={multiple || undefined}
+          data-status={status}
+          className={'relative flex max-h-full min-h-0 flex-col overflow-hidden rounded-md border border-border'}
+        >
           {showBusy && <LoadingBar className={'absolute inset-x-0 top-8 z-30 -mt-0.5'} />}
 
           <div

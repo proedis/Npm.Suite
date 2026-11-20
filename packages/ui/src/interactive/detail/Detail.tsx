@@ -224,7 +224,7 @@ function CopiedGlyph(): React.ReactNode {
  *
  * A `div` with `role="group"` named by its title, not a `section`: a named section is a landmark.
  *
- * Slots: `detail-section` (with `data-loading`, `data-error`), `detail-section-title`,
+ * Slots: `detail-section` (with `data-heading-level`, `data-loading`, `data-error`), `detail-section-title`,
  * `detail-section-error`.
  */
 function DetailSection(props: DetailSectionProps): React.ReactNode {
@@ -264,6 +264,7 @@ function DetailSection(props: DetailSectionProps): React.ReactNode {
     <div
       {...rest}
       data-slot={'detail-section'}
+      data-heading-level={headingLevel}
       data-loading={loading || undefined}
       data-error={hasError || undefined}
       role={hasTitle ? 'group' : undefined}
@@ -342,7 +343,7 @@ DetailGrid.displayName = 'Detail.Grid';
  * a label wraps.
  *
  * Slots: `detail-item` (with `data-type`, `data-span`, `data-break-before`, `data-empty`,
- * `data-label-hidden`), `detail-label`, `detail-value`, `detail-value-text`, `detail-empty`,
+ * `data-label-hidden`, `data-copyable`), `detail-label`, `detail-value`, `detail-value-text`, `detail-empty`,
  * `detail-copy`, `detail-skeleton`.
  */
 function DetailItem(props: DetailItemProps): React.ReactNode {
@@ -487,6 +488,7 @@ function DetailItem(props: DetailItemProps): React.ReactNode {
       data-break-before={breakBefore || undefined}
       data-empty={(!loading && empty) || undefined}
       data-label-hidden={hideLabel || undefined}
+      data-copyable={copyable || undefined}
       className={cn(
         'group/detail-item row-span-3 grid min-w-0 grid-rows-subgrid gap-y-1',
         SPAN_CLASSES[resolvedSpan],

@@ -3,6 +3,7 @@
 import * as React from 'react';
 
 import { VisuallyHidden } from '../../components/VisuallyHidden';
+import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
 import { IconButton } from '../button/IconButton';
@@ -11,6 +12,7 @@ import { TEXT_CONTROL_FRAME, TEXT_CONTROL_SIZES, textControlState } from '../tex
 import { ClearGlyph } from '../text-input/glyphs';
 import { Tooltip } from '../tooltip/Tooltip';
 
+import type { BaseProps } from '../../core/base';
 import type { TextControlSize } from '../text-control/textControl';
 
 import type { ModalSelectorRowLabel } from './modalSelectorTypes';
@@ -31,7 +33,7 @@ export interface ModalSelectorFieldLabels {
   readonly more?: (count: number) => string;
 }
 
-export interface ModalSelectorFieldProps<TData> {
+export interface StrictModalSelectorFieldProps<TData> extends BaseProps {
   /** The row of the value, or the rows with several values */
   value: TData | null | readonly TData[];
 
@@ -59,10 +61,18 @@ export interface ModalSelectorFieldProps<TData> {
 
   labels: ModalSelectorFieldLabels;
 
-  id?: string;
+  /** Classes for the frame, last so they win */
   className?: string;
-  'aria-label'?: string;
 }
+
+/**
+ * The frame takes `className` and the shared props; the native props reach the button that opens the
+ * selector, the element that takes the focus: `id`, `aria-*`, `onBlur` for a form library.
+ */
+export type ModalSelectorFieldProps<TData> = StrictModalSelectorFieldProps<TData> & Omit<
+  React.ComponentProps<'button'>,
+  keyof StrictModalSelectorFieldProps<TData> | 'ref' | 'children' | 'type' | 'value'
+>;
 
 
 /* --------
@@ -114,7 +124,8 @@ function ListGlyph(): React.ReactNode {
  * The x of an optional field is not a Tab stop.
  *
  * Slots: `modal-selector-field` (the frame, with `data-size` and the states), `modal-selector-field-button`,
- * `modal-selector-field-value`, `modal-selector-field-code`, `modal-selector-field-clear`.
+ * `modal-selector-field-placeholder`, `modal-selector-field-value`, `modal-selector-field-code`,
+ * `modal-selector-field-chip`, `modal-selector-field-more`, `modal-selector-field-clear`.
  */
 export function ModalSelectorField<TData>(props: ModalSelectorFieldProps<TData>): React.ReactNode {
 
@@ -123,11 +134,11 @@ export function ModalSelectorField<TData>(props: ModalSelectorFieldProps<TData>)
   // ----
   const {
     'aria-label': ariaLabel,
+    'aria-describedby': ariaDescribedBy,
     buttonRef,
     className,
     disabled = false,
     getRowLabel,
-    id,
     invalid = false,
     labels,
     onClear,
@@ -135,8 +146,11 @@ export function ModalSelectorField<TData>(props: ModalSelectorFieldProps<TData>)
     readOnly = false,
     required = false,
     size = 'md',
-    value
+    value,
+    ...others
   } = props;
+
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -185,7 +199,9 @@ export function ModalSelectorField<TData>(props: ModalSelectorFieldProps<TData>)
   let content: React.ReactNode;
 
   if (named.length === 0) {
-    content = labels.placeholder ? <span className={'truncate text-placeholder'}>{labels.placeholder}</span> : null;
+    content = labels.placeholder
+      ? <span data-slot={'modal-selector-field-placeholder'} className={'truncate text-placeholder'}>{labels.placeholder}</span>
+      : null;
   }
   else if (!multiple) {
     content = (
@@ -198,10 +214,10 @@ export function ModalSelectorField<TData>(props: ModalSelectorFieldProps<TData>)
   else {
     content = (
       <span className={'flex min-w-0 items-center gap-1.5 overflow-hidden'}>
-        {named.slice(0, MAX_CHIPS).map((item, index) => <span key={`${item.label}-${index}`} className={CHIP}>{item.label}</span>)}
+        {named.slice(0, MAX_CHIPS).map((item, index) => <span key={`${item.label}-${index}`} data-slot={'modal-selector-field-chip'} className={CHIP}>{item.label}</span>)}
         {hidden.length > 0 && (
           <Tooltip content={<span className={'flex flex-col'}>{hidden.slice(0, 10).map((item, index) => <span key={`${item.label}-${index}`}>{item.label}</span>)}</span>}>
-            <span className={cn(CHIP, 'pointer-events-auto')}>
+            <span data-slot={'modal-selector-field-more'} className={cn(CHIP, 'pointer-events-auto')}>
               <span aria-hidden={labels.more ? 'true' : undefined}>{`+${hidden.length}`}</span>
               {labels.more && <VisuallyHidden>{labels.more(hidden.length)}</VisuallyHidden>}
             </span>
@@ -224,30 +240,36 @@ export function ModalSelectorField<TData>(props: ModalSelectorFieldProps<TData>)
         TEXT_CONTROL_SIZES[size],
         'relative flex w-full min-w-60 items-center',
         '[&_svg]:shrink-0 [&_svg]:text-muted-foreground',
+        baseClasses,
         className
       )}
     >
       <button
+        {...rest}
         ref={buttonRef}
-        id={id}
         type={'button'}
         disabled={isDisabled}
         aria-haspopup={'dialog'}
         aria-label={ariaLabel}
         aria-labelledby={ariaLabel ? undefined : field.labelId}
-        aria-describedby={summaryId}
+        aria-describedby={[ summaryId, ariaDescribedBy ].filter(Boolean).join(' ')}
         aria-required={isRequired || undefined}
         aria-invalid={invalid || field.invalid || undefined}
         aria-readonly={readOnly || undefined}
         data-slot={'modal-selector-field-button'}
         data-field-control={''}
         className={'absolute inset-0 cursor-default rounded-md outline-none disabled:cursor-not-allowed'}
-        onClick={() => {
-          if (!inert) {
+        onClick={(event) => {
+          rest.onClick?.(event);
+
+          if (!inert && !event.defaultPrevented) {
             onOpen('');
           }
         }}
-        onKeyDown={handleKeyDown}
+        onKeyDown={(event) => {
+          rest.onKeyDown?.(event);
+          handleKeyDown(event);
+        }}
       >
         <VisuallyHidden id={summaryId}>{summary}</VisuallyHidden>
       </button>

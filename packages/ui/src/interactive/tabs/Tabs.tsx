@@ -51,21 +51,14 @@ export interface TabsLabels {
   readonly overflow: string;
 }
 
-export interface TabsProps extends BaseProps {
+export interface StrictTabsProps extends BaseProps {
   /** The tabs, in their fixed order: the first is the most read */
   items: readonly TabItem[];
 
-  /** The open tab. One of this and `defaultValue` is required */
-  value?: string;
-  defaultValue?: string;
   onValueChange?: (value: string) => void;
 
   /** `sm` in a drawer or a card, `md` in a page. Defaults to `md` */
   size?: TabsSize;
-
-  /** One of the two is required: normally the id of the page's or the drawer's title */
-  'aria-label'?: string;
-  'aria-labelledby'?: string;
 
   labels: TabsLabels;
 
@@ -75,11 +68,29 @@ export interface TabsProps extends BaseProps {
   className?: string;
 }
 
-export interface TabsPanelProps {
+/** The open tab: one of `value` and `defaultValue` */
+export type TabsValueProps =
+  | { value: string; defaultValue?: undefined }
+  | { value?: undefined; defaultValue: string };
+
+/** The name of the list, normally the id of the page's or the drawer's title: one of the two */
+export type TabsNameProps =
+  | { 'aria-label': string; 'aria-labelledby'?: string }
+  | { 'aria-label'?: string; 'aria-labelledby': string };
+
+/** The native props reach the root, around the list and the panels; the name goes to the list */
+export type TabsProps = StrictTabsProps & TabsValueProps & TabsNameProps & Omit<
+  React.ComponentProps<'div'>,
+  keyof StrictTabsProps | 'value' | 'defaultValue' | 'aria-label' | 'aria-labelledby' | 'ref' | 'onChange'
+>;
+
+export interface StrictTabsPanelProps extends BaseProps {
   value: string;
   children?: React.ReactNode;
   className?: string;
 }
+
+export type TabsPanelProps = StrictTabsPanelProps & Omit<React.ComponentProps<'div'>, keyof StrictTabsPanelProps | 'ref'>;
 
 interface TabsContextValue {
   value: string | undefined;
@@ -227,7 +238,7 @@ function TabContent(props: { item: TabItem; size: TabsSize }): React.ReactNode {
  * `tabs-tab-count`, `tabs-more`, `tabs-panel`, and `tabs-measure`, the hidden copy whose tabs carry
  * `tabs-tab` too.
  */
-function TabsRoot(props: TabsProps): React.ReactNode {
+const TabsRoot = React.forwardRef<HTMLDivElement, TabsProps>((props, ref) => {
 
   // ----
   // Props Deconstruct
@@ -242,10 +253,11 @@ function TabsRoot(props: TabsProps): React.ReactNode {
     labels,
     onValueChange,
     size = 'md',
-    value: valueProp
+    value: valueProp,
+    ...others
   } = props;
 
-  const { baseClasses } = splitBaseProps(props);
+  const { baseClasses, rest } = splitBaseProps(others);
 
 
   // ----
@@ -350,6 +362,8 @@ function TabsRoot(props: TabsProps): React.ReactNode {
   return (
     <TabsContext.Provider value={context}>
       <TabsPrimitive.Root
+        {...rest}
+        ref={ref}
         value={value}
         onValueChange={(next: string, details: TabsPrimitive.Root.ChangeEventDetails) => {
           /* Only a choice of the user: never a tab picked by Base UI because another went away */
@@ -436,14 +450,15 @@ function TabsRoot(props: TabsProps): React.ReactNode {
     </TabsContext.Provider>
   );
 
-}
+});
 
 TabsRoot.displayName = 'Tabs';
 
 
 /** A panel: mounted the first time its tab opens, then kept */
-function TabsPanel(props: TabsPanelProps): React.ReactNode {
-  const { children, className, value } = props;
+const TabsPanel = React.forwardRef<HTMLDivElement, TabsPanelProps>((props, ref) => {
+  const { children, className, value, ...others } = props;
+  const { baseClasses, rest } = splitBaseProps(others);
   const { hidden, items, value: active } = useTabsContext();
 
   const isActive = active === value;
@@ -458,16 +473,19 @@ function TabsPanel(props: TabsPanelProps): React.ReactNode {
 
   return (
     <TabsPrimitive.Panel
+      {...rest}
+      ref={ref}
       value={value}
       keepMounted={visited}
       aria-label={typeof label === 'string' ? label : undefined}
       data-slot={'tabs-panel'}
-      className={cn('outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring', className)}
+      data-visited={visited || undefined}
+      className={cn('outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring', baseClasses, className)}
     >
       {visited ? children : null}
     </TabsPrimitive.Panel>
   );
-}
+});
 
 TabsPanel.displayName = 'Tabs.Panel';
 

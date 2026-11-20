@@ -22,6 +22,7 @@ import { FieldShell } from './src/interactive/field-shell';
 import { Radio, RadioGroup } from './src/interactive/radio';
 import { SegmentedControl } from './src/interactive/segmented-control';
 import { Switch } from './src/interactive/switch';
+import { Tabs } from './src/interactive/tabs';
 import { Toggle, ToggleGroup } from './src/interactive/toggle';
 
 import type { StackProps } from './src';
@@ -352,6 +353,15 @@ const namedRadioGroup = <RadioGroup aria-labelledby={'title'} hideFrom={'lg'}><R
 const switchWithTitle = <Switch title={'Saved at once'} onBlur={() => undefined}>Notify</Switch>;
 
 
+const namedTabs = <Tabs aria-label={'Sections'} defaultValue={'a'} labels={{ overflow: 'More' }} items={[ { value: 'a', label: 'A' } ]} />;
+
+/** @ts-expect-error a tab list always has a name */
+const namelessTabs = <Tabs defaultValue={'a'} labels={{ overflow: 'More' }} items={[ { value: 'a', label: 'A' } ]} />;
+
+/** @ts-expect-error one tab is always open: `value` or `defaultValue` */
+const closedTabs = <Tabs aria-label={'Sections'} labels={{ overflow: 'More' }} items={[ { value: 'a', label: 'A' } ]} />;
+
+
 /* --------
  * Keep the compiler from pruning the assertions
  * -------- */
@@ -369,5 +379,5 @@ export const CHECKED = [
   responsiveSpan, singleSpan, wrongSpan, responsiveGroups, wrongOrientation, responsiveBlock, wrongHide,
   besideOnDesktop, wrongFieldOrientation, ownControl, wrongShellSize,
   namedToggle, namelessToggle, namedGroup, namelessGroup, chosenView, emptyView, namelessItem,
-  formLibraryBox, namedRadioGroup, switchWithTitle
+  formLibraryBox, namedRadioGroup, switchWithTitle, namedTabs, namelessTabs, closedTabs
 ];

@@ -129,7 +129,7 @@ function ChevronGlyph(): React.ReactNode {
  * On Base UI's `Collapsible`, which owns `aria-expanded`, `aria-controls` and the hidden body.
  * Several sections open together need no group, so not its `Accordion`.
  *
- * Slots: `collapsible-section` (with `data-open`, `data-inset`), `collapsible-section-header`,
+ * Slots: `collapsible-section` (with `data-heading-level`, `data-open`, `data-inset`), `collapsible-section-header`,
  * `collapsible-section-trigger`, `collapsible-section-chevron`, `collapsible-section-title`,
  * `collapsible-section-status`, `collapsible-section-meta`, `collapsible-section-actions`,
  * `collapsible-section-panel`.
@@ -167,7 +167,10 @@ export function CollapsibleSection(props: CollapsibleSectionProps): React.ReactN
   // ----
   // Internal State
   // ----
-  /* Mirrored only to report `data-open` on the root: Base UI owns the state */
+  /*
+   * The state of record when `open` is not given, and what Base UI is always told: Base UI is
+   * controlled from here in both cases, so `data-open` on the root can be written from it.
+   */
   const [ uncontrolledOpen, setUncontrolledOpen ] = React.useState(defaultOpen);
   const isOpen = open ?? uncontrolledOpen;
 
@@ -200,6 +203,7 @@ export function CollapsibleSection(props: CollapsibleSectionProps): React.ReactN
         <div
           {...rest}
           data-slot={'collapsible-section'}
+          data-heading-level={headingLevel}
           data-open={isOpen || undefined}
           data-inset={inset || undefined}
           className={cn('border-t border-border last:border-b', baseClasses, className)}
@@ -244,7 +248,7 @@ export function CollapsibleSection(props: CollapsibleSectionProps): React.ReactN
           </Collapsible.Trigger>
         </Title>
 
-        {actions && (
+        {hasNode(actions) && (
           <div data-slot={'collapsible-section-actions'} className={cn('flex shrink-0 items-center gap-1', inset && 'pe-6')}>
             {actions}
           </div>

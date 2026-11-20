@@ -128,6 +128,9 @@ interface FileRowProps {
   nameText: string;
   detail?: React.ReactNode;
   rejected?: boolean;
+
+  /** Reported as `data-status`: the state of an attachment, for a skin to follow */
+  status?: string;
   actions?: React.ReactNode;
 }
 
@@ -136,7 +139,7 @@ export function FileRow(props: FileRowProps): React.ReactNode {
   // ----
   // Props Deconstruct
   // ----
-  const { actions, detail, name, nameText, rejected = false, slot, thumbnail } = props;
+  const { actions, detail, name, nameText, rejected = false, slot, status, thumbnail } = props;
 
 
   // ----
@@ -145,6 +148,7 @@ export function FileRow(props: FileRowProps): React.ReactNode {
   return (
     <li
       data-slot={slot}
+      data-status={status}
       data-rejected={rejected || undefined}
       className={'flex min-h-12 items-center gap-3 border-b border-border px-2 py-1.5 last:border-b-0'}
     >
@@ -152,11 +156,12 @@ export function FileRow(props: FileRowProps): React.ReactNode {
 
       <span className={'flex min-w-0 flex-1 flex-col'}>
         <Tooltip content={nameText} truncatedOnly align={'start'}>
-          <span data-truncate={''} className={'min-w-0 truncate text-sm'}>{name}</span>
+          <span data-slot={`${slot}-label`} data-truncate={''} className={'min-w-0 truncate text-sm'}>{name}</span>
         </Tooltip>
 
         {detail && (
           <span
+            data-slot={`${slot}-detail`}
             className={cn(
               'text-xs',
               rejected
@@ -169,7 +174,7 @@ export function FileRow(props: FileRowProps): React.ReactNode {
         )}
       </span>
 
-      {actions && <span className={'flex shrink-0 items-center gap-1'}>{actions}</span>}
+      {actions && <span data-slot={`${slot}-actions`} className={'flex shrink-0 items-center gap-1'}>{actions}</span>}
     </li>
   );
 
