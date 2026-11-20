@@ -105,7 +105,11 @@ function readDrop(event: React.DragEvent): { files: File[]; folders: Set<File> }
   const files = Array.from(event.dataTransfer.files);
   const folders = new Set<File>();
 
-  Array.from(event.dataTransfer.items).forEach((item, index) => {
+  /*
+   * `files` holds the file items only, in order, while `items` also holds the strings a drag from a
+   * browser carries (a link, its text): matched on the raw index, a folder was put on the wrong file.
+   */
+  Array.from(event.dataTransfer.items).filter((item) => item.kind === 'file').forEach((item, index) => {
     const entry = item.webkitGetAsEntry?.();
 
     if (entry?.isDirectory && files[index]) {
