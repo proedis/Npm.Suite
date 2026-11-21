@@ -618,7 +618,13 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
       focusedRowRef.current = focusRowId;
 
       const row = gridRef.current?.querySelector<HTMLElement>(`tr[data-row-id="${CSS.escape(focusRowId)}"]`);
-      const target = row?.querySelector<HTMLElement>('[data-kind="code"] [data-grid-target], [data-kind="code"]');
+      /*
+       * The link inside the code cell first, the cell after: one selector for both returned the cell,
+       * which comes first in the document, and a cell holding a link has no tab index, so the focus
+       * went nowhere. The grid makes the same choice (a link in a cell takes its focus).
+       */
+      const codeCell = row?.querySelector<HTMLElement>('[data-kind="code"]');
+      const target = codeCell?.querySelector<HTMLElement>('[data-grid-target]') ?? codeCell;
 
       target?.scrollIntoView({ block: 'center' });
       target?.focus({ preventScroll: true });
