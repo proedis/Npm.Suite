@@ -15,7 +15,10 @@ import { Stack } from '../../layout/Stack';
 
 import { Spinner } from '../../primitives/Spinner';
 
+import { CONTROL_HEIGHT } from '../../internal/control';
+
 import type { BaseProps } from '../../core/base';
+import type { ControlSize } from '../../core/control';
 import type { LinkTarget } from '../../core/link';
 import type { Responsive, SpacingValue } from '../../core/responsive';
 import type { Tone, ToneFill } from '../../core/tone';
@@ -25,7 +28,7 @@ import type { Tone, ToneFill } from '../../core/tone';
  * Types Definition
  * -------- */
 
-export type ButtonSize = 'sm' | 'md' | 'lg';
+export type ButtonSize = ControlSize;
 
 export interface StrictButtonProps extends BaseProps {
   /**
@@ -161,15 +164,18 @@ const buttonVariants = cva(
     variants: {
       size: {
         sm: [
-          'h-control-sm px-2.5 text-xs [&_svg]:size-3.5',
+          CONTROL_HEIGHT.sm,
+          'px-2.5 text-xs [&_svg]:size-3.5',
           'has-[[data-slot=button-leading]]:ps-2 has-[[data-slot=button-trailing]]:pe-2'
         ],
         md: [
-          'h-control-md min-w-16 px-3 text-sm [&_svg]:size-4',
+          CONTROL_HEIGHT.md,
+          'min-w-16 px-3 text-sm [&_svg]:size-4',
           'has-[[data-slot=button-leading]]:ps-2.5 has-[[data-slot=button-trailing]]:pe-2.5'
         ],
         lg: [
-          'h-control-lg min-w-16 px-4 text-sm [&_svg]:size-4',
+          CONTROL_HEIGHT.lg,
+          'min-w-16 px-4 text-sm [&_svg]:size-4',
           'has-[[data-slot=button-leading]]:ps-3 has-[[data-slot=button-trailing]]:pe-3'
         ]
       },

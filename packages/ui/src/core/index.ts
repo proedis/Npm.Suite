@@ -2,6 +2,8 @@ export * from './base';
 
 export * from './cn';
 
+export * from './control';
+
 export * from './link';
 
 export * from './polymorphic';

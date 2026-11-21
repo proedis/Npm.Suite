@@ -11,6 +11,7 @@ import { Stack } from '../../layout/Stack';
 
 import { VisuallyHidden } from '../../primitives/VisuallyHidden';
 
+import { CONTROL_HEIGHT } from '../../internal/control';
 import { ClearGlyph, ToneGlyph } from '../../internal/glyphs';
 
 import { Button } from '../../actions/button/Button';
@@ -160,7 +161,10 @@ function JobRow(props: { job: Job; labels: NotificationsLabels; store: Notificat
         inline
         direction={'horizontal'}
         align={'center'}
-        className={'h-control-sm shrink-0 rounded-md px-2.5 text-xs font-medium text-primary hover:underline focus-visible:outline-2 focus-visible:outline-ring'}
+        className={cn(
+          CONTROL_HEIGHT.sm,
+          'shrink-0 rounded-md px-2.5 text-xs font-medium text-primary hover:underline focus-visible:outline-2 focus-visible:outline-ring'
+        )}
       >
         {action.label}
       </Stack>

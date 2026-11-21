@@ -367,6 +367,21 @@ const wrongShellSize = <FieldShell size={'xl'}>no</FieldShell>;
  * The choice family: names the type asks for, the native props of the focused element
  * -------- */
 
+/* One size vocabulary for every control, `lg` included: a row of them at one size lines up */
+const controlsAtLarge = (
+  <Stack direction={'horizontal'}>
+    <Button size={'lg'}>ok</Button>
+    <Toggle size={'lg'} aria-label={'Bold'} leading={'B'} />
+    <SegmentedControl size={'lg'} aria-label={'View'} defaultValue={'a'}>
+      <SegmentedControl.Item value={'a'}>A</SegmentedControl.Item>
+    </SegmentedControl>
+    <FieldShell size={'lg'}>ok</FieldShell>
+  </Stack>
+);
+
+/** @ts-expect-error a control has three sizes: there is no `xl` height */
+const controlOffTheScale = <Toggle size={'xl'} aria-label={'Bold'} leading={'B'} />;
+
 const namedToggle = <Toggle aria-label={'Auto refresh'} leading={'R'} pressed={false} />;
 
 /** @ts-expect-error an icon-only toggle has no name without `aria-label` */
@@ -520,5 +535,5 @@ export const CHECKED = [
   silentIconButton, silentPassword, namelessArrows, namelessConfirm,
   dirtyWithoutPrompt, dirtyWithPrompt, neverDirty, drawerDirtyWithoutPrompt, twoActions, threeActions,
   filtersBarRoot, filtersBarChildren, singlePendingEnter, multiplePendingEnter,
-  namedSteps, unknownStep, unknownStepResponsive
+  namedSteps, unknownStep, unknownStepResponsive, controlsAtLarge, controlOffTheScale
 ];

@@ -13,6 +13,8 @@ import { Stack } from '../../layout/Stack';
 
 import { VisuallyHidden } from '../../primitives/VisuallyHidden';
 
+import { CONTROL_HEIGHT } from '../../internal/control';
+
 
 import { Button } from '../button/Button';
 import { ChevronGlyph } from '../list-panel/listPanel';
@@ -140,8 +142,8 @@ const TAB_BASE = [
 ].join(' ');
 
 const TAB_SIZES: Readonly<Record<TabsSize, string>> = {
-  md: 'h-control-md rounded-md px-4 text-sm has-[[data-slot=tabs-tab-leading]]:ps-3.5 [&_svg]:size-4 after:-inset-x-0.5 after:-inset-y-1',
-  sm: 'h-control-sm rounded-sm px-3.5 text-xs has-[[data-slot=tabs-tab-leading]]:ps-3 [&_svg]:size-3.5 after:-inset-x-0.5 after:-inset-y-1'
+  md: `${CONTROL_HEIGHT.md} rounded-md px-4 text-sm has-[[data-slot=tabs-tab-leading]]:ps-3.5 [&_svg]:size-4 after:-inset-x-0.5 after:-inset-y-1`,
+  sm: `${CONTROL_HEIGHT.sm} rounded-sm px-3.5 text-xs has-[[data-slot=tabs-tab-leading]]:ps-3 [&_svg]:size-3.5 after:-inset-x-0.5 after:-inset-y-1`
 };
 
 const CONTENT_GAP: Readonly<Record<TabsSize, SpacingValue>> = { md: 1.5, sm: 1 };
@@ -382,7 +384,7 @@ const TabsRoot = React.forwardRef<HTMLDivElement, TabsProps>((props, ref) => {
       tone={'muted'}
       trailing={<ChevronGlyph />}
       data-slot={'tabs-more'}
-      className={size === 'sm' ? undefined : 'h-control-md'}
+      className={size === 'sm' ? undefined : CONTROL_HEIGHT.md}
     >
       {labels.overflow}
     </Button>

@@ -13,6 +13,7 @@ import { Stack } from '../../layout/Stack';
 import { LoadingBar } from '../../primitives/LoadingBar';
 
 
+import { CONTROL_HEIGHT } from '../../internal/control';
 import { CheckGlyph, ClearGlyph } from '../../internal/glyphs';
 
 import { Button } from '../../actions/button/Button';
@@ -664,7 +665,7 @@ export function ModalSelector<TData>(props: ModalSelectorProps<TData>): React.Re
               inline
               direction={'horizontal'}
               align={'center'}
-              className={'h-control-sm rounded-s-md bg-primary-soft ps-2.5 pe-1.5 text-xs font-medium text-primary-soft-foreground'}
+              className={cn(CONTROL_HEIGHT.sm, 'rounded-s-md bg-primary-soft ps-2.5 pe-1.5 text-xs font-medium text-primary-soft-foreground')}
             >
               {labels.onlySelected}
             </Stack>

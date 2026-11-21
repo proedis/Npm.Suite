@@ -12,6 +12,7 @@ import { cn } from '../../core/cn';
 
 import { Stack } from '../../layout/Stack';
 
+import { CONTROL_HEIGHT } from '../../internal/control';
 import { isPresent } from '../../internal/presence';
 
 import { handleRovingKeyDown } from '../roving/roving';
@@ -27,6 +28,7 @@ import {
 } from './toggleStyles';
 
 import type { BaseProps } from '../../core/base';
+import type { ControlSize } from '../../core/control';
 import type { SpacingValue } from '../../core/responsive';
 
 
@@ -34,7 +36,7 @@ import type { SpacingValue } from '../../core/responsive';
  * Types Definition
  * -------- */
 
-export type ToggleSize = 'sm' | 'md';
+export type ToggleSize = ControlSize;
 
 export interface StrictToggleProps extends BaseProps {
   /** The icon, as a node */
@@ -50,7 +52,7 @@ export interface StrictToggleProps extends BaseProps {
   /** Inside a group, the item's value, required */
   value?: string;
 
-  /** `sm` in a 28px bar, `md` in an action bar. Defaults to `md`, or to the group's */
+  /** `sm` in a bar, `md` in an action bar, `lg` next to large fields. Defaults to `md`, or to the group's */
   size?: ToggleSize;
 
   /** Off and still reachable: the tooltip says why, through `disabledReason` */
@@ -127,13 +129,15 @@ interface ToggleGroupContextValue {
 
 /** The button's own sizes, with the side of the icon 2px closer to the edge */
 const SIZES: Readonly<Record<ToggleSize, string>> = {
-  sm: 'h-control-sm rounded-md px-2.5 text-xs has-[[data-slot=toggle-leading]]:ps-2 [&_svg]:size-3.5',
-  md: 'h-control-md rounded-md px-3 text-sm has-[[data-slot=toggle-leading]]:ps-2.5 [&_svg]:size-4'
+  sm: `${CONTROL_HEIGHT.sm} rounded-md px-2.5 text-xs has-[[data-slot=toggle-leading]]:ps-2 [&_svg]:size-3.5`,
+  md: `${CONTROL_HEIGHT.md} rounded-md px-3 text-sm has-[[data-slot=toggle-leading]]:ps-2.5 [&_svg]:size-4`,
+  lg: `${CONTROL_HEIGHT.lg} rounded-md px-4 text-sm has-[[data-slot=toggle-leading]]:ps-3 [&_svg]:size-4`
 };
 
 const CONTENT_GAP: Readonly<Record<ToggleSize, SpacingValue>> = {
   sm: 1,
-  md: 1.5
+  md: 1.5,
+  lg: 1.5
 };
 
 /** Alone: an outline 2px away and a halo, as the Button. In a group: inside, and a card line over the fill */

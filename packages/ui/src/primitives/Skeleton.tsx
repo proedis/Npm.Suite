@@ -39,6 +39,12 @@ const skeletonVariants = cva(
       shape: {
         text : 'h-2.5 w-full rounded-sm',
         pill : 'h-5 w-16 rounded-full',
+        /*
+         * The placeholder of a field, at the height of an `md` control. Written here because `primitives`
+         * comes before `internal`, where `CONTROL_HEIGHT` lives: it reads the same variable, so it moves
+         * with the controls it stands in for.
+         */
+        // eslint-disable-next-line no-restricted-syntax -- the shape of an md field, see above
         field: 'h-control-md w-full rounded-md'
       }
     },

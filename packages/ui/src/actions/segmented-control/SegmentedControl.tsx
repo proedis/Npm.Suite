@@ -12,6 +12,7 @@ import { cn } from '../../core/cn';
 
 import { Stack } from '../../layout/Stack';
 
+import { CONTROL_HEIGHT } from '../../internal/control';
 import { isPresent } from '../../internal/presence';
 
 import { handleRovingKeyDown } from '../roving/roving';
@@ -19,6 +20,7 @@ import { FOCUS_INSIDE, PRESSABLE_BASE, PRESSABLE_CONTENT, PRESSABLE_OFF } from '
 import { Tooltip } from '../tooltip/Tooltip';
 
 import type { BaseProps } from '../../core/base';
+import type { ControlSize } from '../../core/control';
 import type { SpacingValue } from '../../core/responsive';
 
 
@@ -26,12 +28,12 @@ import type { SpacingValue } from '../../core/responsive';
  * Types Definition
  * -------- */
 
-export type SegmentedControlSize = 'sm' | 'md';
+export type SegmentedControlSize = ControlSize;
 
 export interface StrictSegmentedControlProps extends BaseProps {
   onValueChange?: (value: string) => void;
 
-  /** `sm` in a card header or a 28px bar, `md` in a page header. Defaults to `md` */
+  /** `sm` in a card header or a bar, `md` in a page header, `lg` next to large fields. Defaults to `md` */
   size?: SegmentedControlSize;
 
   /** The whole control, with the reason, repeated in the tooltip of every item */
@@ -118,12 +120,13 @@ interface SegmentedContextValue {
 
 /**
  * The rail: `muted` with a 1px inner line, the items in equal columns as wide as the longest. Its
- * height is the control's, so the items are what the padding leaves: 24 in 32, 22 in 28.
+ * height is the control's, so the items are what the padding leaves: 32 in 40, 28 in 36, 26 in 32.
  */
 /* eslint-disable no-restricted-syntax -- the gap of the rail, a grid of implicit columns (see RAIL) */
 const RAIL_SIZES: Readonly<Record<SegmentedControlSize, string>> = {
-  md: 'h-control-md gap-1 p-1',
-  sm: 'h-control-sm gap-0.75 p-0.75'
+  lg: `${CONTROL_HEIGHT.lg} gap-1 p-1`,
+  md: `${CONTROL_HEIGHT.md} gap-1 p-1`,
+  sm: `${CONTROL_HEIGHT.sm} gap-0.75 p-0.75`
 };
 /* eslint-enable no-restricted-syntax */
 
@@ -136,11 +139,13 @@ const RAIL = 'relative inline-grid shrink-0 grid-flow-col auto-cols-fr items-str
 
 /** The item, and an active area reaching half the gap and the rail's edge: a click between two never misses */
 const ITEM_SIZES: Readonly<Record<SegmentedControlSize, string>> = {
+  lg: 'px-4 text-sm has-[[data-slot=segmented-control-leading]]:ps-3.5 data-icon-only:w-10 [&_svg]:size-4 after:-inset-x-0.5 after:-inset-y-1',
   md: 'px-4 text-sm has-[[data-slot=segmented-control-leading]]:ps-3.5 data-icon-only:w-9 [&_svg]:size-4 after:-inset-x-0.5 after:-inset-y-1',
   sm: 'px-3 text-xs has-[[data-slot=segmented-control-leading]]:ps-2.5 data-icon-only:w-7.5 [&_svg]:size-3.5 after:-inset-x-0.25 after:-inset-y-0.75'
 };
 
 const CONTENT_GAP: Readonly<Record<SegmentedControlSize, SpacingValue>> = {
+  lg: 1.5,
   md: 1.5,
   sm: 1
 };

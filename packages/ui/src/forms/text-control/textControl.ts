@@ -1,3 +1,6 @@
+import { CONTROL_HEIGHT } from '../../internal/control';
+
+import type { ControlSize } from '../../core/control';
 import type { SpacingValue } from '../../core/responsive';
 
 
@@ -64,18 +67,19 @@ export const TEXT_CONTROL_SELF = [
 
 
 /**
- * Height, padding and icon size of the three sizes, shared so that two controls of a row line up. The
- * gap is `TEXT_CONTROL_GAP`, which every frame hands to its Stack.
+ * Height, padding and icon size of the three sizes. The height is `CONTROL_HEIGHT`, the one every
+ * control reads, so a field lines up with a button of the same size. The gap is `TEXT_CONTROL_GAP`,
+ * which every frame hands to its Stack.
  */
-export const TEXT_CONTROL_SIZES = {
-  sm: 'h-control-sm px-2 [&_svg]:size-3.5',
-  md: 'h-control-md px-2.5 [&_svg]:size-4',
-  lg: 'h-control-lg px-3 [&_svg]:size-4'
-} as const;
+export const TEXT_CONTROL_SIZES: Readonly<Record<ControlSize, string>> = {
+  sm: `${CONTROL_HEIGHT.sm} px-2 [&_svg]:size-3.5`,
+  md: `${CONTROL_HEIGHT.md} px-2.5 [&_svg]:size-4`,
+  lg: `${CONTROL_HEIGHT.lg} px-3 [&_svg]:size-4`
+};
 
 
 /** The room between the parts of a frame, per size: the frame itself is a Stack */
-export const TEXT_CONTROL_GAP: Readonly<Record<keyof typeof TEXT_CONTROL_SIZES, SpacingValue>> = {
+export const TEXT_CONTROL_GAP: Readonly<Record<ControlSize, SpacingValue>> = {
   sm: 1,
   md: 1.5,
   lg: 1.5
@@ -95,7 +99,7 @@ export const TEXT_CONTROL_TEXT = [
  * Types Definition
  * -------- */
 
-export type TextControlSize = keyof typeof TEXT_CONTROL_SIZES;
+export type TextControlSize = ControlSize;
 
 /** The attributes that carry the states, `undefined` when false so they are absent */
 export interface TextControlStateAttributes {

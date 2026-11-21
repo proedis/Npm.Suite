@@ -28,6 +28,30 @@ const LAYOUT_MESSAGE = 'Layout written by hand. Use Stack, Cluster or Grid from 
   + 'gap, align, justify, wrap, inline, columns). An exception needs an eslint-disable comment saying why the primitives '
   + 'cannot express it.';
 
+/** The selectors of the layout rule, shared by the block that locks the sections and by its exemption below */
+const LAYOUT_SELECTORS = [
+  { message: LAYOUT_MESSAGE, selector: `Literal[value=/${DISPLAY}/][value=/\\s/]` },
+  { message: LAYOUT_MESSAGE, selector: `JSXAttribute[name.name='className'] Literal[value=/${DISPLAY_ALONE}/]` },
+  { message: LAYOUT_MESSAGE, selector: `CallExpression[callee.name='cn'] > Literal[value=/${DISPLAY_ALONE}/]` },
+  { message: LAYOUT_MESSAGE, selector: `TemplateElement[value.raw=/${DISPLAY}/]` },
+  { message: LAYOUT_MESSAGE, selector: `Literal[value=/${GAP}/]` },
+  { message: LAYOUT_MESSAGE, selector: `TemplateElement[value.raw=/${GAP}/]` }
+];
+
+/**
+ * The height of a control, `h-control-sm|md|lg`, with or without variants. `min-h-control-*` is not it:
+ * a label lined up with a field reads the height without being a control.
+ */
+const CONTROL_HEIGHT_CLASS = String.raw`(?:^|\s)(?:[^\s:]+:)*h-control-`;
+
+const CONTROL_HEIGHT_MESSAGE = 'A control height written by hand. Compose it from CONTROL_HEIGHT in internal/control: two '
+  + 'controls of the same size must have the same height, and that map is the one place it is written.';
+
+const CONTROL_HEIGHT_SELECTORS = [
+  { message: CONTROL_HEIGHT_MESSAGE, selector: `Literal[value=/${CONTROL_HEIGHT_CLASS}/]` },
+  { message: CONTROL_HEIGHT_MESSAGE, selector: `TemplateElement[value.raw=/${CONTROL_HEIGHT_CLASS}/]` }
+];
+
 
 /**
  * The suite lints itself with the config it publishes.
@@ -132,12 +156,18 @@ export default proedis.defineConfig(
     rules: {
       'no-restricted-syntax': [
         ...proedis.configs.tailwind.rules['no-restricted-syntax'],
-        { message: LAYOUT_MESSAGE, selector: `Literal[value=/${DISPLAY}/][value=/\\s/]` },
-        { message: LAYOUT_MESSAGE, selector: `JSXAttribute[name.name='className'] Literal[value=/${DISPLAY_ALONE}/]` },
-        { message: LAYOUT_MESSAGE, selector: `CallExpression[callee.name='cn'] > Literal[value=/${DISPLAY_ALONE}/]` },
-        { message: LAYOUT_MESSAGE, selector: `TemplateElement[value.raw=/${DISPLAY}/]` },
-        { message: LAYOUT_MESSAGE, selector: `Literal[value=/${GAP}/]` },
-        { message: LAYOUT_MESSAGE, selector: `TemplateElement[value.raw=/${GAP}/]` }
+        ...LAYOUT_SELECTORS,
+        ...CONTROL_HEIGHT_SELECTORS
+      ]
+    }
+  }, {
+    /** The one module allowed to write a control height: the map every control reads it from */
+    name : 'suite/ui-control-height',
+    files: [ `${UI}/internal/control.ts` ],
+    rules: {
+      'no-restricted-syntax': [
+        ...proedis.configs.tailwind.rules['no-restricted-syntax'],
+        ...LAYOUT_SELECTORS
       ]
     }
   } ] : []),

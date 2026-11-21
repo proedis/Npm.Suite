@@ -25,6 +25,7 @@ import { useFieldControl, useNonNativeFieldLabel } from '../field/fieldContext';
 import { TEXT_CONTROL_FRAME, TEXT_CONTROL_GAP, TEXT_CONTROL_SIZES, TEXT_CONTROL_TEXT, textControlState } from '../text-control/textControl';
 
 import type { BaseProps } from '../../core/base';
+import type { ControlSize } from '../../core/control';
 
 import type { CalendarLabels, CalendarRange, DayMeta } from '../calendar/Calendar';
 import type { DatePart, DateReading } from '../calendar/dateText';
@@ -79,7 +80,7 @@ interface CommonDatePickerProps extends BaseProps {
   dayMeta?: (day: string) => DayMeta | undefined;
 
   /** `sm` in bars and tables. Defaults to `md` */
-  size?: 'sm' | 'md';
+  size?: ControlSize;
 
   /** No x and no "Clear" */
   required?: boolean;
