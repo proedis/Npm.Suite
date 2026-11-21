@@ -284,9 +284,11 @@ for when the count per breakpoint *is* the design.
 | `Spacer` | the flexible filler that pushes siblings apart. `aria-hidden`, because it carries nothing |
 | `Sticky` | pins to an edge of the nearest scroll container. ⚠️ does nothing when an ancestor clips its overflow |
 | `AspectRatio` | holds an image, a map, a video or an embed at a fixed ratio |
-| `Divider` | a standalone hairline, optionally with a centred caption |
-| `ScrollArea` | native overflow with a thin themed scrollbar. No dependency, no virtual scrollbar |
-| `Split` | the two pane frame: one pane of a fixed width, one taking the rest. `collapseBelow` stacks them |
+| `Divider` | a standalone line, optionally with a centred caption. `lineTone`, `lineWidth` (1, 2, 4px) and `lineStyle` (solid, dashed, dotted, double) shape the line; `spacing`, a responsive step of the scale, is the room across it, `0` by default so a divider in a Stack takes only the gap |
+| `ScrollArea` | native overflow with a themed scrollbar. `scrollbar`: `thin` (default), `hover` (transparent until hovered or focused) or `none`; `stableGutter` keeps the room of the bar where the system reserves one (Windows). No dependency, no virtual scrollbar. The same classes, `scrollbar-thin`, `scrollbar-hover`, `scrollbar-none`, `scrollbar-gutter-stable`, work on any element, `html` included |
+| `Split` | the two pane frame: one pane of a fixed width, one taking the rest. `collapseBelow` stacks them, `railHide` (responsive) hides the rail and gives the content the whole width, `railWidth` takes one width per breakpoint |
+| `Skeleton` | the shape of what is coming: `text` (one line of `size`, xs to 2xl, as tall as a line of that text; `lines` for a paragraph), `block` (sized by `className`), `pill`, `field`, `item` (the row of an `Item`) |
+| `LoadingBar` | the bar of a content that is updating. `lineWidth` (1 to 4px) and `lineTone` |
 | `Box` | any element with the shared props and nothing else: the bottom of the package |
 | `VisuallyHidden` | for a screen reader and not for the eye. `focusable` is the skip-link shape |
 | `Bleed` | escapes the parent's horizontal padding, so a band can reach the edge inside a padded page |
@@ -1071,6 +1073,7 @@ Three colour families and one line colour:
 | `--space-xs` … `--space-2xl` | the spacing scale by name: every `gap`, `space`, `inset` and `offset` named, and the `gap-md`, `p-md`, `-mx-md`, `top-md`, `h-md` classes |
 | `--container-8xl` | the width of `Container size='xl'`, one step past Tailwind's own scale |
 | `--text-2xs` | the step below `text-xs`: the description line of `Label`, the smallest `Heading.Eyebrow` and `Heading.Description`, a `sm` `Badge` |
+| `--font-heading` | the family of every title (`Heading.Title`, the titles of `EmptyState`, `Dialog`, `Drawer`, `AlertDialog`, `Popover`, `Alert`). Undeclared, it is `--font-sans`. The text is Tailwind's `--font-sans`, the fixed width `--font-mono`, and the package writes four weights, 400, 500, 600, 700 (`--font-weight-*`): load them all, or a variable font |
 
 The last four are a **configuration** rather than a colour a component reads: they exist to be
 turned. `--container-8xl` is there because Tailwind's container scale stops at `7xl` (80rem) and the
@@ -1175,6 +1178,8 @@ another package. A recessed surface is `--muted`.
 | `actions` of an `EmptyState`: any array, the third and later dropped | at most two, by the type (`EmptyStateActions`): an array typed `EmptyStateAction[]` becomes a tuple |
 | a `Stack` or a `Split` with no `gap`: the children touch | the gap is `md`, 1rem. Declare `gap={0}` where the children must touch |
 | `Cluster` `gap` defaults to `2`, `Grid` to `4`, `Surface.Separator` `space` to `6` | `sm`, `md` and `lg`: the same lengths, now following the theme's `--space-*` |
+| `<Skeleton className={'size-4'} />` for a box, and a line of text 10px tall | `shape={'block'}` for a box; a line of text is as tall as a line of its `size` (20px at `sm`) with the 10px bar in its middle, inside a `skeleton` element holding a `skeleton-bar` |
+| `Divider` drawn as a 1px box filled with `--border` | drawn as a border, so `lineStyle` can dash it: a rule targeting its `background-color` targets nothing now, its `border-color` is the line |
 | `data-mode`, `data-inline`, `data-wrap`, `data-divided`, `data-fill` on the parts of a component laid out by `Stack`, `Cluster`, `Center` or `Grid` | written only on a primitive that renders as itself; a rule matching them on a component part matches nothing now |
 
 ## 🤝 Compatibility
