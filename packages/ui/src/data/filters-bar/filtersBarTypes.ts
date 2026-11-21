@@ -11,6 +11,13 @@ import type { ComboboxItem } from '../../forms/combobox/comboboxTypes';
 /** A value of a list: the key, its name, and on a server list its code and second line */
 export type FilterOption = ComboboxItem;
 
+/**
+ * The period of a date filter: its `value` and what `onValueChange` receives. The same type the
+ * date picker exports as `DateRange`, named here too so a page that keeps the filter in its state does
+ * not reach for `DateFilter['value']` or import a form control it does not use.
+ */
+export type DateRange = CalendarRange;
+
 interface FilterBase {
   /** Stable: the key of the filter in the address and in the preferences */
   readonly id: string;

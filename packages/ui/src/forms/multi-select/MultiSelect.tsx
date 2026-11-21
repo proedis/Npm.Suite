@@ -47,6 +47,9 @@ import type { TextControlSize } from '../text-control/textControl';
  * Types Definition
  * -------- */
 
+/** The options are the ones of `Select`, re-exported so the subpath is enough to type them */
+export type { SelectOption };
+
 export interface MultiSelectLabels {
   /** The placeholder of the search, past the threshold */
   readonly search: string;
