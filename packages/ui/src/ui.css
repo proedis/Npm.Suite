@@ -416,3 +416,60 @@
     background: color-mix(in oklab, var(--muted-foreground) 55%, transparent);
   }
 }
+
+/*
+ * The scrollbar that is not there until it is wanted: the same thin bar, its thumb transparent until the
+ * pointer is over the area or the focus is inside it. On a system that reserves room for a scrollbar
+ * (Windows, or macOS set to always show them) the room stays, so nothing moves when the thumb appears;
+ * what goes is the grey bar drawn beside every list at rest.
+ */
+@utility scrollbar-hover {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+
+  &:hover,
+  &:focus-within {
+    scrollbar-color: color-mix(in oklab, var(--muted-foreground) 35%, transparent) transparent;
+  }
+
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 9999px;
+  }
+
+  &:hover::-webkit-scrollbar-thumb,
+  &:focus-within::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--muted-foreground) 35%, transparent);
+  }
+}
+
+/*
+ * No scrollbar at all, the area still scrolls by wheel, touch and keyboard. For a strip whose overflow
+ * is obvious from its content, a row of chips cut at the edge; never for a list nobody would know
+ * scrolls.
+ */
+@utility scrollbar-none {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/*
+ * The room of the scrollbar kept whether the content overflows or not, so the content does not shift
+ * sideways when it starts to. Only where the system reserves room for a scrollbar: an overlay
+ * scrollbar takes none.
+ */
+@utility scrollbar-gutter-stable {
+  scrollbar-gutter: stable;
+}

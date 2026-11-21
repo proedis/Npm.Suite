@@ -370,7 +370,7 @@ function JobsPanel(props: JobsPanelProps): React.ReactNode {
               )}
               <IconButton label={labels.collapse} icon={<CollapseGlyph />} size={'sm'} onClick={collapse} />
             </Stack>
-            <ul className={'max-h-80 overflow-y-auto overscroll-contain py-1'}>
+            <ul className={'max-h-80 overflow-y-auto overscroll-contain scrollbar-thin py-1'}>
               {ordered.map((job) => <JobRow key={job.id} job={job} labels={labels} store={store} />)}
             </ul>
           </Stack>

@@ -17,6 +17,7 @@ import both from '@/examples/primitives/scroll-area/both.tsx?example';
 import flexParent from '@/examples/primitives/scroll-area/flex-parent.tsx?example';
 import horizontal from '@/examples/primitives/scroll-area/horizontal.tsx?example';
 import vertical from '@/examples/primitives/scroll-area/vertical.tsx?example';
+import scrollbars from '@/examples/primitives/scroll-area/scrollbars.tsx?example';
 import { pageAt } from '@/nav';
 
 
@@ -81,6 +82,38 @@ function ScrollAreaPage(): React.ReactNode {
         </Section>
 
         <Section
+          title={'Scrollbars'}
+          lead={(
+            <React.Fragment>
+              On macOS a scrollbar is drawn over the content and only while scrolling, so it is easy never to see one.
+              On Windows, and on a Mac set to always show them, it is a bar beside the content that takes its room
+              and is grey by default. <InlineCode>scrollbar</InlineCode> decides how it looks on every system:{' '}
+              <InlineCode>thin</InlineCode>, the default, a thin bar in the muted ink; <InlineCode>hover</InlineCode>,
+              the same bar transparent until the pointer is over the area or the focus is inside it;{' '}
+              <InlineCode>none</InlineCode>, no bar at all.
+            </React.Fragment>
+          )}
+        >
+          <Example of={scrollbars} />
+          <Prose>
+            <p>
+              <InlineCode>stableGutter</InlineCode> keeps the room of the bar even while nothing overflows, so the
+              content does not shift sideways the moment it starts to; it changes nothing where the scrollbar is an
+              overlay. Every scrolling part of the package uses the thin bar already: the body of a Dialog and of a
+              Drawer, a Popover, a list, the Table, the ModalSelector, the notifications.
+            </p>
+            <p>
+              The page itself is the application’s: put <InlineCode>scrollbar-thin</InlineCode> on the{' '}
+              <InlineCode>html</InlineCode> element and the scrollbar of the window takes the same look, since the root
+              element’s scrollbar properties apply to the viewport. The classes are{' '}
+              <InlineCode>scrollbar-thin</InlineCode>, <InlineCode>scrollbar-hover</InlineCode>,{' '}
+              <InlineCode>scrollbar-none</InlineCode> and <InlineCode>scrollbar-gutter-stable</InlineCode>, for any
+              scrolling element of an application.
+            </p>
+          </Prose>
+        </Section>
+
+        <Section
           title={'In a flex parent'}
           lead={(
             <React.Fragment>
@@ -119,7 +152,7 @@ function ScrollAreaPage(): React.ReactNode {
         <Section title={'Slots and data attributes'}>
           <SlotsTable
             rows={[
-              { slot: 'scroll-area', part: 'The scrolling box', attributes: [ 'data-orientation' ] }
+              { slot: 'scroll-area', part: 'The scrolling box', attributes: [ 'data-orientation', 'data-scrollbar' ] }
             ]}
           />
           <Callout>

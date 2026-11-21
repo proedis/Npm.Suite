@@ -289,7 +289,7 @@ function PopoverRoot(props: PopoverProps): React.ReactNode {
               </Stack>
             )}
 
-            <div ref={bodyRef} data-slot={'popover-body'} className={'min-h-0 overflow-y-auto overscroll-contain px-4 py-3'}>
+            <div ref={bodyRef} data-slot={'popover-body'} className={'min-h-0 overflow-y-auto overscroll-contain scrollbar-thin px-4 py-3'}>
               {!hasTitle && closeButton}
 
               <FormHostContext.Provider value={formHost}>

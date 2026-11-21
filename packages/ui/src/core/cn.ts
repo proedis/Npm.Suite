@@ -12,7 +12,7 @@ import type { ClassValue } from 'clsx';
  * an override exactly on the steps this package introduced. Every name declared in the stylesheets
  * for a utility a component writes belongs here.
  */
-const twMerge = extendTailwindMerge({
+const twMerge = extendTailwindMerge<'scrollbar'>({
   extend: {
     theme: {
       spacing: [ 'control-sm', 'control-md', 'control-lg', 'xs', 'sm', 'md', 'lg', 'xl', '2xl' ],
@@ -22,6 +22,7 @@ const twMerge = extendTailwindMerge({
       'grid-cols': [ { 'grid-cols': [ 'field', 'field-horizontal' ] } ],
       gap        : [ { gap: [ 'stack', 'cluster', 'grid', 'split', 'item', 'heading' ] } ],
       h          : [ { h: [ 'separator' ] } ],
+      scrollbar  : [ { scrollbar: [ 'thin', 'hover', 'none' ] } ],
       animate    : [ { animate: [ 'loading-bar', 'nudge-x', 'nudge-y' ] } ],
       z          : [ { z: [ 'dialog', 'popover', 'toast', 'tooltip' ] } ]
     }

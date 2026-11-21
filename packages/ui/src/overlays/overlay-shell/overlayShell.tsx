@@ -731,7 +731,7 @@ export function OverlayBody(props: OverlayBodyProps): React.ReactNode {
             data-slot={`${dataSlot}-body`}
             tabIndex={focusable ? 0 : undefined}
             className={cn(
-              'min-h-0 flex-1 overflow-y-auto overscroll-contain scroll-py-4 px-6 pt-2 outline-none',
+              'min-h-0 flex-1 overflow-y-auto overscroll-contain scrollbar-thin scroll-py-4 px-6 pt-2 outline-none',
               hasFooter ? 'pb-2' : 'pb-6',
               indent && 'ps-17',
               'focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-ring'

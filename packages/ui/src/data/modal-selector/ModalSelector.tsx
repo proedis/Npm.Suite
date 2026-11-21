@@ -801,7 +801,7 @@ export function ModalSelector<TData>(props: ModalSelectorProps<TData>): React.Re
           <div
             ref={scrollerRef}
             onScroll={(event) => markScroll(event.currentTarget)}
-            className={'group/scroller relative isolate min-h-0 overflow-auto overscroll-contain'}
+            className={'group/scroller relative isolate min-h-0 overflow-auto overscroll-contain scrollbar-thin'}
           >
             <table
               id={`${baseId}-list`}

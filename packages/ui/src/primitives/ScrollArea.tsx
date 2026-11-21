@@ -12,12 +12,29 @@ import type { PolymorphicProps } from '../core/polymorphic';
  * -------- */
 export type ScrollOrientation = 'vertical' | 'horizontal' | 'both';
 
+/** How the scrollbar shows: always thin, only on hover or focus, or never */
+export type ScrollbarVisibility = 'thin' | 'hover' | 'none';
+
 
 export interface StrictScrollAreaProps extends BaseProps {
   /** Cap the viewport, which is what gives the content something to scroll inside */
   maxHeight?: number | string;
 
   orientation?: ScrollOrientation;
+
+  /**
+   * How the scrollbar shows. `thin`, the default, is a thin bar in the muted ink, on every system.
+   * `hover` keeps it transparent until the pointer is over the area or the focus is inside it. `none`
+   * draws none: the area still scrolls, so keep it for a strip whose overflow shows in its content.
+   */
+  scrollbar?: ScrollbarVisibility;
+
+  /**
+   * Keep the room of the scrollbar even while nothing overflows, so the content does not shift when it
+   * starts to. Matters where the system reserves room for a scrollbar (Windows); an overlay scrollbar
+   * takes none
+   */
+  stableGutter?: boolean;
 
 }
 
@@ -28,6 +45,12 @@ export type ScrollAreaProps<E extends React.ElementType = 'div'> = PolymorphicPr
 /* --------
  * Constants Definition
  * -------- */
+const SCROLLBAR: Readonly<Record<ScrollbarVisibility, string>> = {
+  thin : 'scrollbar-thin',
+  hover: 'scrollbar-hover',
+  none : 'scrollbar-none'
+};
+
 const OVERFLOW: Record<ScrollOrientation, string> = {
   both      : 'overflow-auto',
   horizontal: 'overflow-x-auto overflow-y-hidden',
@@ -59,6 +82,8 @@ export function ScrollArea<E extends React.ElementType = 'div'>(props: ScrollAre
     className,
     maxHeight,
     orientation = 'vertical',
+    scrollbar = 'thin',
+    stableGutter = false,
     style,
     ...others
   } = props as ScrollAreaProps<'div'>;
@@ -73,7 +98,15 @@ export function ScrollArea<E extends React.ElementType = 'div'>(props: ScrollAre
     <Component
       data-slot={'scroll-area'}
       data-orientation={orientation}
-      className={cn('scrollbar-thin min-h-0 min-w-0', OVERFLOW[orientation], baseClasses, className)}
+      data-scrollbar={scrollbar}
+      className={cn(
+        'min-h-0 min-w-0',
+        SCROLLBAR[scrollbar],
+        stableGutter && 'scrollbar-gutter-stable',
+        OVERFLOW[orientation],
+        baseClasses,
+        className
+      )}
       style={{ ...(maxHeight === undefined ? {} : { maxHeight }), ...style }}
       {...rest}
     />

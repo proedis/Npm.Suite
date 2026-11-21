@@ -474,7 +474,7 @@ export const AvatarGroup = React.forwardRef<HTMLButtonElement, AvatarGroupProps>
             data-slot={'avatar-group-list'}
             render={<Stack gap={0} />}
             className={cn(
-              'max-h-(--available-height) w-75 overflow-y-auto overscroll-contain rounded-md bg-popover p-3 text-sm text-popover-foreground shadow-md outline-none',
+              'max-h-(--available-height) w-75 overflow-y-auto overscroll-contain scrollbar-thin rounded-md bg-popover p-3 text-sm text-popover-foreground shadow-md outline-none',
               'transition-opacity duration-150 data-starting-style:opacity-0 data-ending-style:transition-none motion-reduce:transition-none'
             )}
           >

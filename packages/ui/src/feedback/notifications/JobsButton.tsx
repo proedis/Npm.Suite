@@ -213,7 +213,7 @@ export function JobsButton(props: JobsButtonProps): React.ReactNode {
             {state.history.length === 0
               ? <p className={'px-3 py-2 text-muted-foreground'}>{labels.empty}</p>
               : (
-                <ul className={'max-h-96 overflow-y-auto overscroll-contain'}>
+                <ul className={'max-h-96 overflow-y-auto overscroll-contain scrollbar-thin'}>
                   {state.history.map((entry) => (
                     <HistoryRow
                       key={entry.id}

@@ -995,7 +995,7 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
           ref={scrollerRef}
           data-slot={'table-scroller'}
           onScroll={handleScroll}
-          className={'group/scroller relative isolate min-h-0 overflow-auto overscroll-contain'}
+          className={'group/scroller relative isolate min-h-0 overflow-auto overscroll-contain scrollbar-thin'}
         >
           <table
             ref={gridRef}
