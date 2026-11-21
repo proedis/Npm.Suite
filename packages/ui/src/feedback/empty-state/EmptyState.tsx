@@ -114,14 +114,14 @@ const LAYOUT = {
   page: {
     root : 'px-6 py-12 text-center',
     box  : 'mb-4',
-    title: 'max-w-110 text-xl font-semibold text-foreground',
+    title: 'max-w-110 font-heading text-xl font-semibold text-foreground',
     text : 'mt-2 max-w-110 text-sm text-muted-foreground',
     acts : 'mt-6'
   },
   panel: {
     root : 'px-4 py-8 text-center',
     box  : 'mb-3',
-    title: 'max-w-90 text-sm font-semibold text-foreground',
+    title: 'max-w-90 font-heading text-sm font-semibold text-foreground',
     text : 'mt-1 max-w-90 text-xs text-muted-foreground',
     acts : 'mt-3'
   }

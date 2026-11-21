@@ -62,7 +62,7 @@ const LINE_HEIGHT_DESCRIPTION = 'leading-snug';
  * `Badge`, a count, an icon. A flex child refuses to shrink below its content without it, so the
  * sibling would be pushed out of the row instead of the title truncating.
  */
-const titleVariants = cva('min-w-0 text-foreground', {
+const titleVariants = cva('min-w-0 font-heading text-foreground', {
   variants       : {
     lines: {
       1: 'line-clamp-1',

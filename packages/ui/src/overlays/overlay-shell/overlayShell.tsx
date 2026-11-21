@@ -394,7 +394,7 @@ export function OverlayHeader(props: OverlayHeaderProps): React.ReactNode {
       )}
 
       <div data-slot={`${dataSlot}-heading`} className={cn('min-w-0 flex-1', hasIcon && 'pt-1')}>
-        <DialogPrimitive.Title data-slot={`${dataSlot}-title`} className={'text-base font-semibold text-foreground'}>
+        <DialogPrimitive.Title data-slot={`${dataSlot}-title`} className={'font-heading text-base font-semibold text-foreground'}>
           {title}
         </DialogPrimitive.Title>
         {hasDescription && (
@@ -766,7 +766,7 @@ export function OverlaySectionBlock(props: { id: string; title: React.ReactNode;
       gap={3}
       className={'not-first:border-t not-first:border-border not-first:pt-6'}
     >
-      <h3 data-overlay-section-title tabIndex={-1} className={'scroll-mt-4 text-sm font-semibold text-foreground outline-none'}>
+      <h3 data-overlay-section-title tabIndex={-1} className={'scroll-mt-4 font-heading text-sm font-semibold text-foreground outline-none'}>
         {title}
       </h3>
       {children}

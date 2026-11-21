@@ -232,6 +232,14 @@
 @theme {
   --container-8xl: 96rem;
 
+  /*
+   * The family of every title: Heading.Title, the title of an EmptyState, a Dialog, a Drawer, an
+   * AlertDialog, a Popover and an Alert. It is the body family until a product gives titles one of their
+   * own; the body is Tailwind's `--font-sans`, the fixed width one `--font-mono`. Declared here so
+   * `font-heading` exists, and overridden like every variable of the package, on `:root`.
+   */
+  --font-heading: var(--font-sans);
+
   --text-2xs: 0.6875rem;
   --text-2xs--line-height: calc(0.875 / 0.6875);
 }

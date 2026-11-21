@@ -291,7 +291,7 @@ export const Alert = React.forwardRef<HTMLDivElement, AlertProps>((props, ref) =
           <Stack data-slot={'alert-body'} gap={2} className={cn('min-w-0 flex-1', BODY_WIDE)}>
             <div className={cn('min-w-0 flex-1 max-w-prose wrap-anywhere', TEXT_OFFSET[size])}>
               {hasTitle && (
-                <div data-slot={'alert-title'} className={'font-semibold text-foreground'}>
+                <div data-slot={'alert-title'} className={'font-heading font-semibold text-foreground'}>
                   {toneLabel && <VisuallyHidden>{`${toneLabel}: `}</VisuallyHidden>}
                   {title}
                 </div>

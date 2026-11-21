@@ -282,7 +282,7 @@ function PopoverRoot(props: PopoverProps): React.ReactNode {
                 gap={2}
                 className={'flex-none border-b border-border py-2 ps-4 pe-2'}
               >
-                <PopoverPrimitive.Title data-slot={'popover-title'} className={'min-w-0 flex-1 py-1 text-sm font-semibold'}>
+                <PopoverPrimitive.Title data-slot={'popover-title'} className={'min-w-0 flex-1 py-1 font-heading text-sm font-semibold'}>
                   {title}
                 </PopoverPrimitive.Title>
                 {closeButton}

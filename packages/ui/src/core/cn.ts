@@ -15,7 +15,8 @@ import type { ClassValue } from 'clsx';
 const twMerge = extendTailwindMerge({
   extend: {
     theme: {
-      spacing: [ 'control-sm', 'control-md', 'control-lg', 'xs', 'sm', 'md', 'lg', 'xl', '2xl' ]
+      spacing: [ 'control-sm', 'control-md', 'control-lg', 'xs', 'sm', 'md', 'lg', 'xl', '2xl' ],
+      font   : [ 'heading' ]
     },
     classGroups: {
       'grid-cols': [ { 'grid-cols': [ 'field', 'field-horizontal' ] } ],
