@@ -96,7 +96,22 @@ function cvaDefault(checker: ts.TypeChecker, declaration: ts.Declaration, name: 
     return undefined;
   }
 
-  return ts.isStringLiteral(entry.initializer) ? entry.initializer.text : entry.initializer.getText();
+  /* A default written through a constant (`size: DEFAULT_TITLE_SIZE`) is that constant's value */
+  let value: ts.Expression = entry.initializer;
+
+  if (ts.isIdentifier(value)) {
+    const constant = checker.getSymbolAtLocation(value)?.valueDeclaration;
+
+    if (constant && ts.isVariableDeclaration(constant) && constant.initializer) {
+      value = constant.initializer;
+    }
+  }
+
+  while (ts.isAsExpression(value) || ts.isSatisfiesExpression(value) || ts.isParenthesizedExpression(value)) {
+    value = value.expression;
+  }
+
+  return ts.isStringLiteral(value) || ts.isNumericLiteral(value) ? value.text : value.getText();
 }
 
 
@@ -236,7 +251,11 @@ class PropsReader {
         : readable(checker.typeToString(checker.getTypeOfSymbol(property)))
     ))) ];
 
-    const spelled = written.length === 2 && written.includes('true') && written.includes('false') ? 'boolean' : written.join(' | ');
+    /* `true` and `false` from two members read as `boolean`, and a `boolean` member absorbs either */
+    const booleanish = written.includes('boolean') || (written.includes('true') && written.includes('false'));
+    const spelled = booleanish
+      ? [ 'boolean', ...written.filter((text) => ![ 'boolean', 'true', 'false' ].includes(text)) ].join(' | ')
+      : written.join(' | ');
 
     /** The literals behind it, when every member of the union is one */
     const resolved = checker.getNonNullableType(checker.getTypeOfSymbol(property));
