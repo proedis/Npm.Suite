@@ -1,0 +1,324 @@
+import * as React from 'react';
+
+import { createFileRoute } from '@tanstack/react-router';
+
+import { Callout } from '@/docs/Callout';
+import { CodeBlock } from '@/docs/CodeBlock';
+import { Example } from '@/docs/Example';
+import { Guidance, GuidanceGrid } from '@/docs/Guidance';
+import { InlineCode } from '@/docs/InlineCode';
+import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
+import { css } from '@/docs/snippet';
+import { DocTable } from '@/docs/Tables';
+import controlHeights from '@/examples/foundations/theming/control-heights.tsx?example';
+import darkScope from '@/examples/foundations/theming/dark-scope.tsx?example';
+import radius from '@/examples/foundations/theming/radius.tsx?example';
+import retune from '@/examples/foundations/theming/retune.tsx?example';
+import softPalette from '@/examples/foundations/theming/soft-palette.tsx?example';
+import tokens from '@/examples/foundations/theming/tokens.tsx?example';
+import { pageAt } from '@/nav';
+
+
+/* --------
+ * Constants Definition
+ * -------- */
+
+const PAGE = pageAt('/foundations/theming');
+
+/** The three ways to import the stylesheet. Strings, since a quote cannot be written in JSX text */
+const SHEETS: readonly (readonly [ string, string ])[] = [
+  [ "@import '@proedis/ui'", 'theme.css: every token, its defaults, the dark variant, every utility. The one to use.' ],
+  [ "@import '@proedis/ui/theme.css'", 'The same file, named explicitly.' ],
+  [ "@import '@proedis/ui/ui.css'", 'The layout tier only: background, foreground, muted, muted-foreground, border and the radius scale.' ]
+];
+
+const SOURCE_DIRECTIVE = '@source ".";';
+
+/** Every family of the contract, with what it is for */
+const FAMILIES: readonly (readonly [ string, string, string ])[] = [
+  [ 'Canvas', '--background, --foreground', 'The page and its ink. The application paints the canvas, and the package reads it in one place only, the hover of the drop zone of FileUpload: the pair is declared because an ink means nothing without what it sits on.' ],
+  [ 'Quiet register', '--muted, --muted-foreground', 'The muted tone, the hover of an interactive Item, a recessed footer, a quiet label, the scrollbar thumb.' ],
+  [ 'Line', '--border', 'Divider, the rules of a divided Stack, the frames of the controls by default.' ],
+  [ 'Surfaces', '--card, --popover, --secondary, --accent', 'A card, what floats (a menu, a dialog), the quieter action, a highlighted item. Each with its -foreground.' ],
+  [ 'Tones', '--primary, --success, --warning, --destructive, --info', 'The voice of the application and the four states. Each with its -foreground, the ink that reads on it.' ],
+  [ 'Soft register', '--{tone}-soft, --{tone}-soft-foreground', 'A tinted surface and its ink, for each of the seven tones. Optional: the fallback is a tenth of the tone.' ],
+  [ 'Controls', '--input, --input-hover, --placeholder, --switch-off, --ring', 'The border of a control and its hover, the example text, the track of a switch that is off, the focus ring.' ],
+  [ 'States', '--state-hover, --state-pressed', 'The veil over a solid fill under the pointer and pressed.' ],
+  [ 'Tooltip', '--tooltip, --tooltip-foreground, --tooltip-muted-foreground', 'The dark label over a control, and its quieter second line.' ],
+  [ 'Veils', '--busy-veil, --overlay, --overlay-nested, --scroll-shade', 'What covers a working dialog, the veil under a dialog and under one opened from it, the shade at the edge of a scroll.' ],
+  [ 'Stacking', '--z-dialog, --z-popover, --z-toast, --z-tooltip', '50, 55, 60 and 70: what opens from a dialog sits above it, a toast stays usable over it, a tooltip is above everything.' ],
+  [ 'Shape and size', '--radius-scale, --spacing-control-*, --container-8xl, --text-2xs', 'The corner language, the three heights of a control, the widest page, the step below text-xs.' ]
+];
+
+
+/* --------
+ * Page
+ * -------- */
+
+function ThemingPage(): React.ReactNode {
+  return (
+    <React.Fragment>
+      <PageHeader
+        page={PAGE}
+        lead={(
+          <React.Fragment>
+            Components read a contract of semantic tokens, never a colour. The package declares the contract and
+            gives it neutral defaults, a greyscale interface with conventional state colours, so an application works
+            before deciding anything. A product then redeclares the tokens it cares about, and every component follows.
+          </React.Fragment>
+        )}
+        imports={css`
+          @import 'tailwindcss';
+          @import '@proedis/ui';
+        `}
+      />
+
+      <PageBody>
+        <Example of={tokens} />
+
+        <Section
+          title={'Two stylesheets'}
+          lead={(
+            <React.Fragment>
+              The package publishes two stylesheets. <InlineCode>ui.css</InlineCode> is the layout tier: the five
+              tokens the primitives read, the radius scale and the utilities. <InlineCode>theme.css</InlineCode>{' '}
+              imports it and adds the whole vocabulary the components read. The package name alone resolves to the
+              second one, through the <InlineCode>style</InlineCode> condition of its exports.
+            </React.Fragment>
+          )}
+        >
+          <DocTable
+            head={[ 'Import', 'What you get' ]}
+            rows={SHEETS.map(([ line, what ]) => [ <InlineCode key={'i'}>{line}</InlineCode>, what ])}
+          />
+          <Callout tone={'warning'} title={'The narrow sheet is the one you ask for'}>
+            With <InlineCode>ui.css</InlineCode> alone, every component that reads a tone writes classes with no CSS
+            behind them: an IconBox in <InlineCode>success</InlineCode> is a box with no colour, and nothing reports
+            it. That is why the package name resolves to the full sheet, and the layout tier is the opt-out.
+          </Callout>
+          <Prose>
+            <p>
+              Either sheet also registers the package as a source for Tailwind (<InlineCode>{SOURCE_DIRECTIVE}</InlineCode>,
+              resolved against the stylesheet wherever it is installed) and declares the classes the components build
+              from props at runtime, which no scanner can find. One import is the whole setup.
+            </p>
+          </Prose>
+        </Section>
+
+        <Section
+          title={'The token contract'}
+          lead={(
+            <React.Fragment>
+              Every colour family is a pair: a surface and the ink that is legible on it, both always declared. Half a
+              pair is the token nobody can use, a <InlineCode>--warning</InlineCode> with no{' '}
+              <InlineCode>--warning-foreground</InlineCode> that leaves every caller guessing.
+            </React.Fragment>
+          )}
+        >
+          <DocTable
+            head={[ 'Family', 'Tokens', 'What it is for' ]}
+            rows={FAMILIES.map(([ family, names, purpose ]) => [
+              <span key={'f'} className={'font-medium whitespace-nowrap text-foreground'}>{family}</span>,
+              <code key={'t'} className={'font-mono text-xs text-foreground'}>{names}</code>,
+              purpose
+            ])}
+          />
+        </Section>
+
+        <Section
+          title={'Overriding the theme'}
+          lead={(
+            <React.Fragment>
+              A theme is a stylesheet that redeclares tokens after the import, on <InlineCode>:root</InlineCode> for
+              the light theme and on <InlineCode>.dark</InlineCode> for the dark one. The panel on the right redeclares
+              four of them, scoped to its container: the primary, its ink, the ring and the radius scale.
+            </React.Fragment>
+          )}
+        >
+          <Example of={retune} />
+          <CodeBlock
+            title={'app.css'}
+            snippet={css`
+              @import 'tailwindcss';
+              @import '@proedis/ui';
+
+              :root {
+                --primary: oklch(0.511 0.262 276.966);
+                --primary-foreground: oklch(0.985 0 0);
+                --ring: oklch(0.673 0.182 276.935);
+                --radius-scale: 1.75;
+              }
+
+              .dark {
+                --primary: oklch(0.673 0.182 276.935);
+                --primary-foreground: oklch(0.21 0.006 285.885);
+              }
+            `}
+          />
+          <Prose>
+            <p>
+              It works because the contract is declared with <InlineCode>@theme inline</InlineCode>: the utility{' '}
+              <InlineCode>bg-primary</InlineCode> is emitted as <InlineCode>background-color: var(--primary)</InlineCode>,
+              reading the raw variable where the element is. A later declaration wins by cascade, and a declaration on
+              a container wins for everything inside it, which is how the panel above is retuned without touching the
+              rest of the page.
+            </p>
+          </Prose>
+
+          <SubSection
+            title={'Overriding versus adding'}
+            lead={(
+              <React.Fragment>
+                The package uses two kinds of <InlineCode>@theme</InlineCode> on purpose.{' '}
+                <InlineCode>@theme inline</InlineCode> is for the tokens a component reads, so an override follows. A
+                plain <InlineCode>@theme</InlineCode> adds a step to a Tailwind scale and emits its variable, so the step
+                can be retuned by name: the three control heights, <InlineCode>max-w-8xl</InlineCode> (96rem, the width
+                of a Container <InlineCode>xl</InlineCode>) and <InlineCode>text-2xs</InlineCode>.
+              </React.Fragment>
+            )}
+          >
+            <CodeBlock
+              title={'app.css'}
+              snippet={css`
+                /* A denser product: every control one step shorter, a narrower widest page */
+                :root {
+                  --spacing-control-sm: 1.75rem;
+                  --spacing-control-md: 2rem;
+                  --spacing-control-lg: 2.25rem;
+                  --container-8xl: 88rem;
+                }
+              `}
+            />
+          </SubSection>
+        </Section>
+
+        <Section
+          title={'The radius scale'}
+          lead={(
+            <React.Fragment>
+              Every radius step is declared as Tailwind’s own value times <InlineCode>--radius-scale</InlineCode>. At{' '}
+              <InlineCode>1</InlineCode>, the default, <InlineCode>rounded-md</InlineCode> is exactly the 0.375rem the
+              Tailwind documentation states; one declaration moves the corner language of the whole interface.
+            </React.Fragment>
+          )}
+        >
+          <Example of={radius} />
+          <Prose>
+            <p>
+              <InlineCode>rounded-full</InlineCode> and <InlineCode>rounded-none</InlineCode> are outside the scale by
+              nature, which is why the badge keeps its pill at every value. ⚠️ The bare{' '}
+              <InlineCode>rounded</InlineCode> is a legacy alias of Tailwind with a fixed 0.25rem and does not follow the
+              scale: write <InlineCode>rounded-sm</InlineCode>, the same value, which does.
+            </p>
+          </Prose>
+        </Section>
+
+        <Section
+          title={'The soft palette'}
+          lead={(
+            <React.Fragment>
+              The <InlineCode>soft</InlineCode> fill of each tone reads <InlineCode>--{'{tone}'}-soft</InlineCode> and{' '}
+              <InlineCode>--{'{tone}'}-soft-foreground</InlineCode>. Declare nothing and they fall back to a tenth of the
+              tone with the tone as ink; declare the pair and the fallback steps aside.
+            </React.Fragment>
+          )}
+        >
+          <Example of={softPalette} />
+          <Prose>
+            <p>
+              The fallback lives in the mapping, not on <InlineCode>:root</InlineCode>, and that is the point: it is
+              resolved where the component is, so a subtree that redefines <InlineCode>--primary</InlineCode> gets soft
+              colours derived from its own primary rather than from the page’s.
+            </p>
+          </Prose>
+        </Section>
+
+        <Section
+          title={'Control heights'}
+          lead={(
+            <React.Fragment>
+              Three heights shared by every control, so a field, a select and a button of the same size line up in a
+              row: 2, 2.25 and 2.5rem. Under a coarse pointer they grow one step each, to 2.25, 2.5 and 2.75rem, because
+              the size of a control is a matter of the finger, not of the width of the window.
+            </React.Fragment>
+          )}
+        >
+          <Example of={controlHeights} />
+          <Prose>
+            <p>
+              The readout shows what this browser resolves. Turn on touch emulation in the developer tools and reload:
+              the three values move. The coarse step is declared in Tailwind’s <InlineCode>theme</InlineCode> layer, so
+              an application that redeclares the heights on <InlineCode>:root</InlineCode> wins on every device, and
+              redeclares them inside its own <InlineCode>@media (pointer: coarse)</InlineCode> to keep a different step
+              for touch.
+            </p>
+          </Prose>
+        </Section>
+
+        <Section
+          title={'Dark mode'}
+          lead={(
+            <React.Fragment>
+              Dark mode is a class: <InlineCode>.dark</InlineCode> on any ancestor redeclares the tokens for its subtree
+              and switches on the <InlineCode>dark:</InlineCode> variant, declared as{' '}
+              <InlineCode>@custom-variant dark (&:is(.dark *))</InlineCode>. On the root it themes the page; on a
+              wrapper it themes a part of it.
+            </React.Fragment>
+          )}
+        >
+          <Example of={darkScope} />
+          <Prose>
+            <p>
+              The dark values of the tokens are declared on the <InlineCode>.dark</InlineCode> selector, so the class is
+              the strategy. A site that follows the system sets the class from{' '}
+              <InlineCode>prefers-color-scheme</InlineCode>, before the first paint so a dark page never flashes white.
+              This site does it with a few lines in its <InlineCode>index.html</InlineCode>.
+            </p>
+          </Prose>
+        </Section>
+
+        <Section
+          title={'What the contract leaves out'}
+          lead={'The defaults are anonymous by design, and the vocabulary is closed on purpose.'}
+        >
+          <Prose>
+            <p>
+              There is no <InlineCode>--chart-*</InlineCode> ramp: a categorical palette has no neutral default, and any
+              value would be a brand. There is no <InlineCode>--sidebar-*</InlineCode>: those are the private slots of
+              one component, not a vocabulary. There is no font and no type scale beyond{' '}
+              <InlineCode>text-2xs</InlineCode>, the one step a component needed. A product declares its own tokens in its
+              own stylesheet, next to the overrides.
+            </p>
+          </Prose>
+        </Section>
+
+        <Section title={'Guidelines'}>
+          <GuidanceGrid>
+            <Guidance kind={'do'} title={'Redeclare tokens, not classes'}>
+              A product’s colour is a value of <InlineCode>--primary</InlineCode>, set once. A{' '}
+              <InlineCode>className</InlineCode> on every button is a theme nobody can change.
+            </Guidance>
+            <Guidance kind={'dont'} title={'Import ui.css when you use components'}>
+              The tones would have no CSS behind them, silently. The package name gives the full sheet.
+            </Guidance>
+            <Guidance kind={'do'} title={'Declare both halves of a pair'}>
+              A surface without its ink, or an ink without its surface, is the token every caller has to guess about.
+            </Guidance>
+            <Guidance kind={'dont'} title={'Add a token nobody reads'}>
+              A name declared for later is a promise the stylesheet cannot keep. Add it with the component that reads it.
+            </Guidance>
+          </GuidanceGrid>
+        </Section>
+      </PageBody>
+    </React.Fragment>
+  );
+}
+
+
+/* --------
+ * Route
+ * -------- */
+
+export const Route = createFileRoute('/foundations/theming')({
+  component: ThemingPage
+});

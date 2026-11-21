@@ -132,12 +132,12 @@ export const NAV: readonly NavGroup[] = [
     title      : 'Foundations',
     description: 'The rules every component follows, explained once.',
     items      : [
-      { title: 'Theming', to: '/foundations/theming', description: 'The token contract, the two stylesheets, dark mode and what a product overrides.', icon: Palette, ready: false },
-      { title: 'Tones', to: '/foundations/tones', description: 'Seven tones, three fills, one table that paints them everywhere.', icon: Contrast, ready: false },
-      { title: 'Shared props', to: '/foundations/shared-props', description: 'hideBelow and hideFrom, on every component that renders a root of its own.', icon: Brackets, ready: false },
-      { title: 'Responsive values', to: '/foundations/responsive', description: 'One value, or one per breakpoint: how a layout prop changes with the width.', icon: MonitorSmartphone, ready: false },
-      { title: 'Polymorphism', to: '/foundations/polymorphism', description: 'The as prop, typed by the element it renders.', icon: Shapes, ready: false },
-      { title: 'Slots and data attributes', to: '/foundations/slots', description: 'The data-slot and data-* surface a product skins without touching a call site.', icon: Hash, ready: false }
+      { title: 'Theming', to: '/foundations/theming', description: 'The token contract, the two stylesheets, dark mode and what a product overrides.', icon: Palette, ready: true },
+      { title: 'Tones', to: '/foundations/tones', description: 'Seven tones, three fills, one table that paints them everywhere.', icon: Contrast, ready: true },
+      { title: 'Shared props', to: '/foundations/shared-props', description: 'hideBelow and hideFrom, on every component that renders a root of its own.', icon: Brackets, ready: true },
+      { title: 'Responsive values', to: '/foundations/responsive', description: 'One value, or one per breakpoint: how a layout prop changes with the width.', icon: MonitorSmartphone, ready: true },
+      { title: 'Polymorphism', to: '/foundations/polymorphism', description: 'The as prop, typed by the element it renders.', icon: Shapes, ready: true },
+      { title: 'Slots and data attributes', to: '/foundations/slots', description: 'The data-slot and data-* surface a product skins without touching a call site.', icon: Hash, ready: true }
     ]
   },
   {

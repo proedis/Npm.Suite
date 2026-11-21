@@ -11,6 +11,12 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ActionsButtonRouteImport } from './routes/actions/button'
+import { Route as FoundationsPolymorphismRouteImport } from './routes/foundations/polymorphism'
+import { Route as FoundationsResponsiveRouteImport } from './routes/foundations/responsive'
+import { Route as FoundationsSharedPropsRouteImport } from './routes/foundations/shared-props'
+import { Route as FoundationsSlotsRouteImport } from './routes/foundations/slots'
+import { Route as FoundationsThemingRouteImport } from './routes/foundations/theming'
+import { Route as FoundationsTonesRouteImport } from './routes/foundations/tones'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +28,110 @@ const ActionsButtonRoute = ActionsButtonRouteImport.update({
   path: '/actions/button',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FoundationsPolymorphismRoute = FoundationsPolymorphismRouteImport.update({
+  id: '/foundations/polymorphism',
+  path: '/foundations/polymorphism',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FoundationsResponsiveRoute = FoundationsResponsiveRouteImport.update({
+  id: '/foundations/responsive',
+  path: '/foundations/responsive',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FoundationsSharedPropsRoute = FoundationsSharedPropsRouteImport.update({
+  id: '/foundations/shared-props',
+  path: '/foundations/shared-props',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FoundationsSlotsRoute = FoundationsSlotsRouteImport.update({
+  id: '/foundations/slots',
+  path: '/foundations/slots',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FoundationsThemingRoute = FoundationsThemingRouteImport.update({
+  id: '/foundations/theming',
+  path: '/foundations/theming',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FoundationsTonesRoute = FoundationsTonesRouteImport.update({
+  id: '/foundations/tones',
+  path: '/foundations/tones',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/actions/button': typeof ActionsButtonRoute
+  '/foundations/polymorphism': typeof FoundationsPolymorphismRoute
+  '/foundations/responsive': typeof FoundationsResponsiveRoute
+  '/foundations/shared-props': typeof FoundationsSharedPropsRoute
+  '/foundations/slots': typeof FoundationsSlotsRoute
+  '/foundations/theming': typeof FoundationsThemingRoute
+  '/foundations/tones': typeof FoundationsTonesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/actions/button': typeof ActionsButtonRoute
+  '/foundations/polymorphism': typeof FoundationsPolymorphismRoute
+  '/foundations/responsive': typeof FoundationsResponsiveRoute
+  '/foundations/shared-props': typeof FoundationsSharedPropsRoute
+  '/foundations/slots': typeof FoundationsSlotsRoute
+  '/foundations/theming': typeof FoundationsThemingRoute
+  '/foundations/tones': typeof FoundationsTonesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/actions/button': typeof ActionsButtonRoute
+  '/foundations/polymorphism': typeof FoundationsPolymorphismRoute
+  '/foundations/responsive': typeof FoundationsResponsiveRoute
+  '/foundations/shared-props': typeof FoundationsSharedPropsRoute
+  '/foundations/slots': typeof FoundationsSlotsRoute
+  '/foundations/theming': typeof FoundationsThemingRoute
+  '/foundations/tones': typeof FoundationsTonesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/actions/button'
+  fullPaths:
+    | '/'
+    | '/actions/button'
+    | '/foundations/polymorphism'
+    | '/foundations/responsive'
+    | '/foundations/shared-props'
+    | '/foundations/slots'
+    | '/foundations/theming'
+    | '/foundations/tones'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/actions/button'
-  id: '__root__' | '/' | '/actions/button'
+  to:
+    | '/'
+    | '/actions/button'
+    | '/foundations/polymorphism'
+    | '/foundations/responsive'
+    | '/foundations/shared-props'
+    | '/foundations/slots'
+    | '/foundations/theming'
+    | '/foundations/tones'
+  id:
+    | '__root__'
+    | '/'
+    | '/actions/button'
+    | '/foundations/polymorphism'
+    | '/foundations/responsive'
+    | '/foundations/shared-props'
+    | '/foundations/slots'
+    | '/foundations/theming'
+    | '/foundations/tones'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ActionsButtonRoute: typeof ActionsButtonRoute
+  FoundationsPolymorphismRoute: typeof FoundationsPolymorphismRoute
+  FoundationsResponsiveRoute: typeof FoundationsResponsiveRoute
+  FoundationsSharedPropsRoute: typeof FoundationsSharedPropsRoute
+  FoundationsSlotsRoute: typeof FoundationsSlotsRoute
+  FoundationsThemingRoute: typeof FoundationsThemingRoute
+  FoundationsTonesRoute: typeof FoundationsTonesRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +150,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ActionsButtonRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/foundations/polymorphism': {
+      id: '/foundations/polymorphism'
+      path: '/foundations/polymorphism'
+      fullPath: '/foundations/polymorphism'
+      preLoaderRoute: typeof FoundationsPolymorphismRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/foundations/responsive': {
+      id: '/foundations/responsive'
+      path: '/foundations/responsive'
+      fullPath: '/foundations/responsive'
+      preLoaderRoute: typeof FoundationsResponsiveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/foundations/shared-props': {
+      id: '/foundations/shared-props'
+      path: '/foundations/shared-props'
+      fullPath: '/foundations/shared-props'
+      preLoaderRoute: typeof FoundationsSharedPropsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/foundations/slots': {
+      id: '/foundations/slots'
+      path: '/foundations/slots'
+      fullPath: '/foundations/slots'
+      preLoaderRoute: typeof FoundationsSlotsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/foundations/theming': {
+      id: '/foundations/theming'
+      path: '/foundations/theming'
+      fullPath: '/foundations/theming'
+      preLoaderRoute: typeof FoundationsThemingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/foundations/tones': {
+      id: '/foundations/tones'
+      path: '/foundations/tones'
+      fullPath: '/foundations/tones'
+      preLoaderRoute: typeof FoundationsTonesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ActionsButtonRoute: ActionsButtonRoute,
+  FoundationsPolymorphismRoute: FoundationsPolymorphismRoute,
+  FoundationsResponsiveRoute: FoundationsResponsiveRoute,
+  FoundationsSharedPropsRoute: FoundationsSharedPropsRoute,
+  FoundationsSlotsRoute: FoundationsSlotsRoute,
+  FoundationsThemingRoute: FoundationsThemingRoute,
+  FoundationsTonesRoute: FoundationsTonesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
