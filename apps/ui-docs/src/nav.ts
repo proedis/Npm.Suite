@@ -162,14 +162,14 @@ export const NAV: readonly NavGroup[] = [
     title      : 'Primitives',
     description: 'The small pieces with a look of their own, shared by the components above them.',
     items      : [
-      { title: 'BusyVeil', to: '/primitives/busy-veil', subpath: '@proedis/ui/primitives', description: 'A veil over content that is working, with a spinner and a label.', icon: SquareDashed, ready: false },
-      { title: 'Divider', to: '/primitives/divider', subpath: '@proedis/ui/primitives', description: 'A hairline between two things, with a label when it needs one.', icon: Minus, ready: false },
-      { title: 'Label', to: '/primitives/label', subpath: '@proedis/ui/primitives', description: 'The name of a value or a control, with a description under it.', icon: Tag, ready: false },
-      { title: 'LoadingBar', to: '/primitives/loading-bar', subpath: '@proedis/ui/primitives', description: 'A thin bar at the top of a region that is loading.', icon: Loader, ready: false },
-      { title: 'ScrollArea', to: '/primitives/scroll-area', subpath: '@proedis/ui/primitives', description: 'Native overflow with a thin scrollbar, that shrinks in a flex parent.', icon: ScrollText, ready: false },
-      { title: 'Skeleton', to: '/primitives/skeleton', subpath: '@proedis/ui/primitives', description: 'The shape of content that has not arrived yet.', icon: Rows3, ready: false },
-      { title: 'Spinner', to: '/primitives/spinner', subpath: '@proedis/ui/primitives', description: 'The rotating ring, with the label a screen reader hears.', icon: LoaderCircle, ready: false },
-      { title: 'VisuallyHidden', to: '/primitives/visually-hidden', subpath: '@proedis/ui/primitives', description: 'Text for assistive technology only.', icon: Ellipsis, ready: false }
+      { title: 'BusyVeil', to: '/primitives/busy-veil', subpath: '@proedis/ui/primitives', description: 'A veil over content that is working, with a spinner and a label.', icon: SquareDashed, ready: true },
+      { title: 'Divider', to: '/primitives/divider', subpath: '@proedis/ui/primitives', description: 'A hairline between two things, with a label when it needs one.', icon: Minus, ready: true },
+      { title: 'Label', to: '/primitives/label', subpath: '@proedis/ui/primitives', description: 'The name of a value or a control, with a description under it.', icon: Tag, ready: true },
+      { title: 'LoadingBar', to: '/primitives/loading-bar', subpath: '@proedis/ui/primitives', description: 'A thin bar at the top of a region that is loading.', icon: Loader, ready: true },
+      { title: 'ScrollArea', to: '/primitives/scroll-area', subpath: '@proedis/ui/primitives', description: 'Native overflow with a thin scrollbar, that shrinks in a flex parent.', icon: ScrollText, ready: true },
+      { title: 'Skeleton', to: '/primitives/skeleton', subpath: '@proedis/ui/primitives', description: 'The shape of content that has not arrived yet.', icon: Rows3, ready: true },
+      { title: 'Spinner', to: '/primitives/spinner', subpath: '@proedis/ui/primitives', description: 'The rotating ring, with the label a screen reader hears.', icon: LoaderCircle, ready: true },
+      { title: 'VisuallyHidden', to: '/primitives/visually-hidden', subpath: '@proedis/ui/primitives', description: 'Text for assistive technology only.', icon: Ellipsis, ready: true }
     ]
   },
   {

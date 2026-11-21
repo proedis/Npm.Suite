@@ -29,6 +29,14 @@ import { Route as LayoutSpacerRouteImport } from './routes/layout/spacer'
 import { Route as LayoutSplitRouteImport } from './routes/layout/split'
 import { Route as LayoutStackRouteImport } from './routes/layout/stack'
 import { Route as LayoutStickyRouteImport } from './routes/layout/sticky'
+import { Route as PrimitivesBusyVeilRouteImport } from './routes/primitives/busy-veil'
+import { Route as PrimitivesDividerRouteImport } from './routes/primitives/divider'
+import { Route as PrimitivesLabelRouteImport } from './routes/primitives/label'
+import { Route as PrimitivesLoadingBarRouteImport } from './routes/primitives/loading-bar'
+import { Route as PrimitivesScrollAreaRouteImport } from './routes/primitives/scroll-area'
+import { Route as PrimitivesSkeletonRouteImport } from './routes/primitives/skeleton'
+import { Route as PrimitivesSpinnerRouteImport } from './routes/primitives/spinner'
+import { Route as PrimitivesVisuallyHiddenRouteImport } from './routes/primitives/visually-hidden'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -130,6 +138,47 @@ const LayoutStickyRoute = LayoutStickyRouteImport.update({
   path: '/layout/sticky',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrimitivesBusyVeilRoute = PrimitivesBusyVeilRouteImport.update({
+  id: '/primitives/busy-veil',
+  path: '/primitives/busy-veil',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrimitivesDividerRoute = PrimitivesDividerRouteImport.update({
+  id: '/primitives/divider',
+  path: '/primitives/divider',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrimitivesLabelRoute = PrimitivesLabelRouteImport.update({
+  id: '/primitives/label',
+  path: '/primitives/label',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrimitivesLoadingBarRoute = PrimitivesLoadingBarRouteImport.update({
+  id: '/primitives/loading-bar',
+  path: '/primitives/loading-bar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrimitivesScrollAreaRoute = PrimitivesScrollAreaRouteImport.update({
+  id: '/primitives/scroll-area',
+  path: '/primitives/scroll-area',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrimitivesSkeletonRoute = PrimitivesSkeletonRouteImport.update({
+  id: '/primitives/skeleton',
+  path: '/primitives/skeleton',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrimitivesSpinnerRoute = PrimitivesSpinnerRouteImport.update({
+  id: '/primitives/spinner',
+  path: '/primitives/spinner',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrimitivesVisuallyHiddenRoute =
+  PrimitivesVisuallyHiddenRouteImport.update({
+    id: '/primitives/visually-hidden',
+    path: '/primitives/visually-hidden',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -152,6 +201,14 @@ export interface FileRoutesByFullPath {
   '/layout/split': typeof LayoutSplitRoute
   '/layout/stack': typeof LayoutStackRoute
   '/layout/sticky': typeof LayoutStickyRoute
+  '/primitives/busy-veil': typeof PrimitivesBusyVeilRoute
+  '/primitives/divider': typeof PrimitivesDividerRoute
+  '/primitives/label': typeof PrimitivesLabelRoute
+  '/primitives/loading-bar': typeof PrimitivesLoadingBarRoute
+  '/primitives/scroll-area': typeof PrimitivesScrollAreaRoute
+  '/primitives/skeleton': typeof PrimitivesSkeletonRoute
+  '/primitives/spinner': typeof PrimitivesSpinnerRoute
+  '/primitives/visually-hidden': typeof PrimitivesVisuallyHiddenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -174,6 +231,14 @@ export interface FileRoutesByTo {
   '/layout/split': typeof LayoutSplitRoute
   '/layout/stack': typeof LayoutStackRoute
   '/layout/sticky': typeof LayoutStickyRoute
+  '/primitives/busy-veil': typeof PrimitivesBusyVeilRoute
+  '/primitives/divider': typeof PrimitivesDividerRoute
+  '/primitives/label': typeof PrimitivesLabelRoute
+  '/primitives/loading-bar': typeof PrimitivesLoadingBarRoute
+  '/primitives/scroll-area': typeof PrimitivesScrollAreaRoute
+  '/primitives/skeleton': typeof PrimitivesSkeletonRoute
+  '/primitives/spinner': typeof PrimitivesSpinnerRoute
+  '/primitives/visually-hidden': typeof PrimitivesVisuallyHiddenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -197,6 +262,14 @@ export interface FileRoutesById {
   '/layout/split': typeof LayoutSplitRoute
   '/layout/stack': typeof LayoutStackRoute
   '/layout/sticky': typeof LayoutStickyRoute
+  '/primitives/busy-veil': typeof PrimitivesBusyVeilRoute
+  '/primitives/divider': typeof PrimitivesDividerRoute
+  '/primitives/label': typeof PrimitivesLabelRoute
+  '/primitives/loading-bar': typeof PrimitivesLoadingBarRoute
+  '/primitives/scroll-area': typeof PrimitivesScrollAreaRoute
+  '/primitives/skeleton': typeof PrimitivesSkeletonRoute
+  '/primitives/spinner': typeof PrimitivesSpinnerRoute
+  '/primitives/visually-hidden': typeof PrimitivesVisuallyHiddenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -221,6 +294,14 @@ export interface FileRouteTypes {
     | '/layout/split'
     | '/layout/stack'
     | '/layout/sticky'
+    | '/primitives/busy-veil'
+    | '/primitives/divider'
+    | '/primitives/label'
+    | '/primitives/loading-bar'
+    | '/primitives/scroll-area'
+    | '/primitives/skeleton'
+    | '/primitives/spinner'
+    | '/primitives/visually-hidden'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -243,6 +324,14 @@ export interface FileRouteTypes {
     | '/layout/split'
     | '/layout/stack'
     | '/layout/sticky'
+    | '/primitives/busy-veil'
+    | '/primitives/divider'
+    | '/primitives/label'
+    | '/primitives/loading-bar'
+    | '/primitives/scroll-area'
+    | '/primitives/skeleton'
+    | '/primitives/spinner'
+    | '/primitives/visually-hidden'
   id:
     | '__root__'
     | '/'
@@ -265,6 +354,14 @@ export interface FileRouteTypes {
     | '/layout/split'
     | '/layout/stack'
     | '/layout/sticky'
+    | '/primitives/busy-veil'
+    | '/primitives/divider'
+    | '/primitives/label'
+    | '/primitives/loading-bar'
+    | '/primitives/scroll-area'
+    | '/primitives/skeleton'
+    | '/primitives/spinner'
+    | '/primitives/visually-hidden'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -288,6 +385,14 @@ export interface RootRouteChildren {
   LayoutSplitRoute: typeof LayoutSplitRoute
   LayoutStackRoute: typeof LayoutStackRoute
   LayoutStickyRoute: typeof LayoutStickyRoute
+  PrimitivesBusyVeilRoute: typeof PrimitivesBusyVeilRoute
+  PrimitivesDividerRoute: typeof PrimitivesDividerRoute
+  PrimitivesLabelRoute: typeof PrimitivesLabelRoute
+  PrimitivesLoadingBarRoute: typeof PrimitivesLoadingBarRoute
+  PrimitivesScrollAreaRoute: typeof PrimitivesScrollAreaRoute
+  PrimitivesSkeletonRoute: typeof PrimitivesSkeletonRoute
+  PrimitivesSpinnerRoute: typeof PrimitivesSpinnerRoute
+  PrimitivesVisuallyHiddenRoute: typeof PrimitivesVisuallyHiddenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -432,6 +537,62 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutStickyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/primitives/busy-veil': {
+      id: '/primitives/busy-veil'
+      path: '/primitives/busy-veil'
+      fullPath: '/primitives/busy-veil'
+      preLoaderRoute: typeof PrimitivesBusyVeilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/primitives/divider': {
+      id: '/primitives/divider'
+      path: '/primitives/divider'
+      fullPath: '/primitives/divider'
+      preLoaderRoute: typeof PrimitivesDividerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/primitives/label': {
+      id: '/primitives/label'
+      path: '/primitives/label'
+      fullPath: '/primitives/label'
+      preLoaderRoute: typeof PrimitivesLabelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/primitives/loading-bar': {
+      id: '/primitives/loading-bar'
+      path: '/primitives/loading-bar'
+      fullPath: '/primitives/loading-bar'
+      preLoaderRoute: typeof PrimitivesLoadingBarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/primitives/scroll-area': {
+      id: '/primitives/scroll-area'
+      path: '/primitives/scroll-area'
+      fullPath: '/primitives/scroll-area'
+      preLoaderRoute: typeof PrimitivesScrollAreaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/primitives/skeleton': {
+      id: '/primitives/skeleton'
+      path: '/primitives/skeleton'
+      fullPath: '/primitives/skeleton'
+      preLoaderRoute: typeof PrimitivesSkeletonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/primitives/spinner': {
+      id: '/primitives/spinner'
+      path: '/primitives/spinner'
+      fullPath: '/primitives/spinner'
+      preLoaderRoute: typeof PrimitivesSpinnerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/primitives/visually-hidden': {
+      id: '/primitives/visually-hidden'
+      path: '/primitives/visually-hidden'
+      fullPath: '/primitives/visually-hidden'
+      preLoaderRoute: typeof PrimitivesVisuallyHiddenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -456,6 +617,14 @@ const rootRouteChildren: RootRouteChildren = {
   LayoutSplitRoute: LayoutSplitRoute,
   LayoutStackRoute: LayoutStackRoute,
   LayoutStickyRoute: LayoutStickyRoute,
+  PrimitivesBusyVeilRoute: PrimitivesBusyVeilRoute,
+  PrimitivesDividerRoute: PrimitivesDividerRoute,
+  PrimitivesLabelRoute: PrimitivesLabelRoute,
+  PrimitivesLoadingBarRoute: PrimitivesLoadingBarRoute,
+  PrimitivesScrollAreaRoute: PrimitivesScrollAreaRoute,
+  PrimitivesSkeletonRoute: PrimitivesSkeletonRoute,
+  PrimitivesSpinnerRoute: PrimitivesSpinnerRoute,
+  PrimitivesVisuallyHiddenRoute: PrimitivesVisuallyHiddenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
