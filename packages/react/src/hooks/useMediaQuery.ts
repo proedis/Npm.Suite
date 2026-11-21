@@ -23,11 +23,12 @@ import * as React from 'react';
  *
  * `useSyncExternalStore` rather than an effect with a `setState`: it takes a server snapshot as an
  * argument, which is what turns a hydration-safe read into one line instead of the mounted-guard
- * dance. The same snapshot is used for the **first client render**, so it has to be the answer that
- * is safe to be wrong about for one frame.
+ * dance. The same snapshot is used while **hydrating** what the server rendered, so it has to be the
+ * answer that is safe to be wrong about for one frame; a tree rendered on the client only reads the
+ * real value from its first render.
  *
  * @param query - Any CSS media query, as `window.matchMedia` accepts it.
- * @param serverSnapshot - What to answer with no `window` and on the first client render. Defaults
+ * @param serverSnapshot - What to answer with no `window` and while hydrating. Defaults
  *  to `false`, i.e. "does not match".
  */
 export function useMediaQuery(query: string, serverSnapshot: boolean = false): boolean {
