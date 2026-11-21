@@ -2,13 +2,13 @@ import * as React from 'react';
 
 import { splitBaseProps } from '../core/base';
 import { cn } from '../core/cn';
-import { breakpointPrefix, gapClasses } from '../core/responsive';
+import { BREAKPOINTS, breakpointPrefix, gapClasses, responsiveEntries, toResponsiveMap } from '../core/responsive';
 
 import { DEFAULT_GAP_CLASS } from './defaultGap';
 
 import type { BaseProps } from '../core/base';
 import type { PolymorphicProps } from '../core/polymorphic';
-import type { MediaBreakpoint, Responsive, Spacing } from '../core/responsive';
+import type { Breakpoint, MediaBreakpoint, Responsive, Spacing } from '../core/responsive';
 
 
 /* --------
@@ -30,8 +30,20 @@ export interface StrictSplitProps extends BaseProps {
   /** The fixed pane: a navigation rail, a filter column, an inspector */
   rail: React.ReactNode;
 
-  /** Width of the fixed pane. Any CSS length, or pixels as a number. Defaults to `16rem` */
-  railWidth?: number | string;
+  /**
+   * Hide the rail, per breakpoint: `{ base: true, lg: false }` is a navigation that exists from `lg` up.
+   * Where it is hidden the content takes the whole width.
+   *
+   * Declared, the rail is wrapped in an element of its own (`data-slot="split-rail"`) with
+   * `display: contents` where it shows, so the rail still lays out as the grid item it was.
+   */
+  railHide?: Responsive<boolean>;
+
+  /**
+   * Width of the fixed pane, per breakpoint if needed. Any CSS length, or pixels as a number. Defaults
+   * to `16rem`
+   */
+  railWidth?: Responsive<number | string>;
 
   /** Which side the rail sits on. Defaults to `start` */
   side?: 'start' | 'end';
@@ -44,7 +56,13 @@ export type SplitProps<E extends React.ElementType = 'div'> = PolymorphicProps<E
 
 /** The inline style of this component carries a custom property, which `CSSProperties` cannot type */
 interface SplitStyle extends React.CSSProperties {
-  '--split-rail': string;
+  '--split-rail'?: string;
+  '--split-rail-base'?: string;
+  '--split-rail-sm'?: string;
+  '--split-rail-md'?: string;
+  '--split-rail-lg'?: string;
+  '--split-rail-xl'?: string;
+  '--split-rail-2xl'?: string;
 }
 
 
@@ -68,6 +86,71 @@ const DEFAULT_RAIL_WIDTH = '16rem';
  */
 function toLength(value: number | string): string {
   return typeof value === 'number' ? `${value}px` : value;
+}
+
+/**
+ * The width of the rail, as variables. One width is `--split-rail` itself. A width per breakpoint is
+ * one variable each, `--split-rail-base` and `--split-rail-<bp>`, and a class per breakpoint
+ * (`split-rail-base`, `xl:split-rail-xl`) that copies its own into `--split-rail`: a media query cannot
+ * live in an inline style, and an inline `--split-rail` would beat every class, so in that case the
+ * inline style carries only the lengths and the classes do the switching.
+ */
+function railWidthOf(railWidth: Responsive<number | string>): { style: SplitStyle; classes: string[] } {
+  const entries = responsiveEntries(railWidth);
+
+  if (entries.every(([ breakpoint ]) => breakpoint === 'base')) {
+    return { style: { '--split-rail': toLength(entries[0]?.[1] ?? DEFAULT_RAIL_WIDTH) }, classes: [] };
+  }
+
+  const style: Record<string, string> = { '--split-rail-base': DEFAULT_RAIL_WIDTH };
+  const classes: string[] = [ 'split-rail-base' ];
+
+  for (const [ breakpoint, width ] of entries) {
+    style[`--split-rail-${breakpoint}`] = toLength(width);
+
+    if (breakpoint !== 'base') {
+      classes.push(`${breakpointPrefix(breakpoint)}split-rail-${breakpoint}`);
+    }
+  }
+
+  return { style: style as SplitStyle, classes };
+}
+
+/**
+ * The columns of the frame and the display of the rail at every breakpoint where either changes: one
+ * column while collapsed or while the rail is hidden, the two pane template otherwise.
+ */
+function layoutOf(
+  template: string,
+  collapseBelow: MediaBreakpoint | undefined,
+  railHide: Responsive<boolean> | undefined
+): { frame: string[]; rail: string[] } {
+  const hideMap = toResponsiveMap(railHide);
+  const collapseIndex = collapseBelow === undefined ? -1 : BREAKPOINTS.indexOf(collapseBelow);
+  const frame: string[] = [];
+  const rail: string[] = [];
+  let hidden = false;
+  let lastColumns: string | undefined;
+  let lastDisplay: string | undefined;
+
+  BREAKPOINTS.forEach((breakpoint: Breakpoint, index) => {
+    hidden = hideMap[breakpoint] ?? hidden;
+
+    const columns = hidden || index < collapseIndex ? 'grid-cols-1' : template;
+    const display = hidden ? 'hidden' : 'contents';
+
+    if (columns !== lastColumns) {
+      frame.push(`${breakpointPrefix(breakpoint)}${columns}`);
+      lastColumns = columns;
+    }
+
+    if (display !== lastDisplay) {
+      rail.push(`${breakpointPrefix(breakpoint)}${display}`);
+      lastDisplay = display;
+    }
+  });
+
+  return { frame, rail };
 }
 
 
@@ -110,6 +193,7 @@ export function Split<E extends React.ElementType = 'div'>(props: SplitProps<E>)
     collapseBelow,
     gap,
     rail,
+    railHide,
     railWidth = DEFAULT_RAIL_WIDTH,
     side = 'start',
     style,
@@ -123,10 +207,13 @@ export function Split<E extends React.ElementType = 'div'>(props: SplitProps<E>)
   // Layout Computation
   // ----
   const template = side === 'start' ? 'split-cols' : 'split-cols-end';
+  const layout = layoutOf(template, collapseBelow, railHide);
+  const width = railWidthOf(railWidth);
 
-  const templateClasses = collapseBelow === undefined
-    ? [ template ]
-    : [ 'grid-cols-1', `${breakpointPrefix(collapseBelow)}${template}` ];
+  /** Wrapped only when it can hide: otherwise the rail is the grid item itself, as it always was */
+  const railNode = railHide === undefined
+    ? rail
+    : <div data-slot={'split-rail'} className={cn(layout.rail, '*:min-w-0')}>{rail}</div>;
 
 
   // ----
@@ -137,13 +224,20 @@ export function Split<E extends React.ElementType = 'div'>(props: SplitProps<E>)
       data-slot={'split'}
       data-side={side}
       data-collapse-below={collapseBelow}
-      className={cn('grid *:min-w-0', templateClasses, gap === undefined ? DEFAULT_GAP_CLASS.split : gapClasses(gap), baseClasses, className)}
-      style={{ '--split-rail': toLength(railWidth), ...style } as SplitStyle}
+      className={cn(
+        'grid *:min-w-0',
+        layout.frame,
+        width.classes,
+        gap === undefined ? DEFAULT_GAP_CLASS.split : gapClasses(gap),
+        baseClasses,
+        className
+      )}
+      style={{ ...width.style, ...style }}
       {...rest}
     >
-      {side === 'start' && rail}
+      {side === 'start' && railNode}
       {children}
-      {side === 'end' && rail}
+      {side === 'end' && railNode}
     </Component>
   );
 

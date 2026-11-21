@@ -14,6 +14,7 @@ import { tsx } from '@/docs/snippet';
 import { PropsTable, SlotsTable } from '@/docs/Tables';
 import basic from '@/examples/layout/split/basic.tsx?example';
 import collapse from '@/examples/layout/split/collapse.tsx?example';
+import railHide from '@/examples/layout/split/rail-hide.tsx?example';
 import inContext from '@/examples/layout/split/in-context.tsx?example';
 import side from '@/examples/layout/split/side.tsx?example';
 import { pageAt } from '@/nav';
@@ -91,6 +92,30 @@ function SplitPage(): React.ReactNode {
         </Section>
 
         <Section
+          title={'Hiding the rail, and its width per breakpoint'}
+          lead={(
+            <React.Fragment>
+              <InlineCode>railHide</InlineCode> hides the rail per breakpoint, and where it is hidden the content takes
+              the whole width: <InlineCode>{'{ base: true, md: false }'}</InlineCode> is a navigation that exists from{' '}
+              <InlineCode>md</InlineCode> up, the shape of most sidebars on a phone. <InlineCode>railWidth</InlineCode>{' '}
+              takes one width per breakpoint too. Drag the handle of the preview across <InlineCode>md</InlineCode> and{' '}
+              <InlineCode>xl</InlineCode>.
+            </React.Fragment>
+          )}
+        >
+          <Example of={railHide} resizable align={'stretch'} />
+          <Prose>
+            <p>
+              With <InlineCode>railHide</InlineCode> declared the rail is wrapped in an element of its own,{' '}
+              <InlineCode>split-rail</InlineCode>, which is <InlineCode>display: contents</InlineCode> where the rail
+              shows: the rail still lays out as the grid item it was, and a class or a sticky position on it keeps
+              working. A hidden rail is gone for a screen reader too, so a phone needs another way to reach it, a menu
+              button or a drawer.
+            </p>
+          </Prose>
+        </Section>
+
+        <Section
           title={'In context'}
           lead={(
             <React.Fragment>
@@ -134,7 +159,12 @@ function SplitPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable rows={[ { slot: 'split', part: 'The frame, unless a data-slot is passed', attributes: [ 'data-side', 'data-collapse-below' ] } ]} />
+          <SlotsTable
+            rows={[
+              { slot: 'split', part: 'The frame, unless a data-slot is passed', attributes: [ 'data-side', 'data-collapse-below' ] },
+              { slot: 'split-rail', part: 'The wrapper of the rail, only with railHide', attributes: [] }
+            ]}
+          />
         </Section>
 
         <Section title={'API'}>

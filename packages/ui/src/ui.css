@@ -56,6 +56,13 @@
 @source inline("not-{sm,md,lg,xl,2xl}:hidden");
 @source inline("{sm:,md:,lg:,xl:,2xl:,}split-cols");
 @source inline("{sm:,md:,lg:,xl:,2xl:,}split-cols-end");
+@source inline("{sm:,md:,lg:,xl:,2xl:,}contents");
+@source inline("split-rail-base");
+@source inline("sm:split-rail-sm");
+@source inline("md:split-rail-md");
+@source inline("lg:split-rail-lg");
+@source inline("xl:split-rail-xl");
+@source inline("2xl:split-rail-2xl");
 @source inline("-mx-{0,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,12,14,16,xs,sm,md,lg,xl,2xl}");
 @source inline("h-{0,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,12,14,16,xs,sm,md,lg,xl,2xl}");
 @source inline("gap-{stack,cluster,grid,split,item,heading}");
@@ -317,6 +324,35 @@
 
 @utility split-cols-end {
   grid-template-columns: 1fr var(--split-rail);
+}
+
+/*
+ * The width of the rail per breakpoint: `railWidth={{ base: '14rem', xl: '18rem' }}` writes
+ * `--split-rail-base` and `--split-rail-xl` inline, and `split-rail-base xl:split-rail-xl` on the frame,
+ * which copy each into `--split-rail` from their breakpoint up.
+ */
+@utility split-rail-base {
+  --split-rail: var(--split-rail-base);
+}
+
+@utility split-rail-sm {
+  --split-rail: var(--split-rail-sm);
+}
+
+@utility split-rail-md {
+  --split-rail: var(--split-rail-md);
+}
+
+@utility split-rail-lg {
+  --split-rail: var(--split-rail-lg);
+}
+
+@utility split-rail-xl {
+  --split-rail: var(--split-rail-xl);
+}
+
+@utility split-rail-2xl {
+  --split-rail: var(--split-rail-2xl);
 }
 
 /*
