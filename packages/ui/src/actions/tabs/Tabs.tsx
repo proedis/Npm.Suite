@@ -256,6 +256,11 @@ function TabContent(props: { item: TabItem; size: TabsSize }): React.ReactNode {
  * The tabs are data rather than children: the overflow measures them, reorders them and draws them
  * again as menu items, which children wrapped in fragments or components would not allow.
  *
+ * ⚠️ The row takes the whole width it is given, and that width has to come from the parent. Inside
+ * a container that sizes to its content (a centred column, an `inline-flex`, a cell of an auto table)
+ * the width the tabs measure is their own: a tab sent into "More" shrinks the content, the container
+ * shrinks with it, and the row stays narrower than it could be. Give such a container a width.
+ *
  * Parts with a slot: `tabs` (the root, where `className` lands), `tabs-row`, `tabs-rail` (with
  * `data-size`), `tabs-list`, `tabs-indicator`, `tabs-tab`, `tabs-tab-content`, `tabs-tab-leading`,
  * `tabs-tab-count`, `tabs-more`, `tabs-panel`, and `tabs-measure`, the hidden copy whose tabs carry
