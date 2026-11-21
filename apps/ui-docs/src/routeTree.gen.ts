@@ -55,6 +55,8 @@ import { Route as FoundationsSharedPropsRouteImport } from './routes/foundations
 import { Route as FoundationsSlotsRouteImport } from './routes/foundations/slots'
 import { Route as FoundationsThemingRouteImport } from './routes/foundations/theming'
 import { Route as FoundationsTonesRouteImport } from './routes/foundations/tones'
+import { Route as HooksUseBreakpointRouteImport } from './routes/hooks/use-breakpoint'
+import { Route as HooksUseIsMobileRouteImport } from './routes/hooks/use-is-mobile'
 import { Route as LayoutAspectRatioRouteImport } from './routes/layout/aspect-ratio'
 import { Route as LayoutBleedRouteImport } from './routes/layout/bleed'
 import { Route as LayoutBoxRouteImport } from './routes/layout/box'
@@ -310,6 +312,16 @@ const FoundationsTonesRoute = FoundationsTonesRouteImport.update({
   path: '/foundations/tones',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HooksUseBreakpointRoute = HooksUseBreakpointRouteImport.update({
+  id: '/hooks/use-breakpoint',
+  path: '/hooks/use-breakpoint',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HooksUseIsMobileRoute = HooksUseIsMobileRouteImport.update({
+  id: '/hooks/use-is-mobile',
+  path: '/hooks/use-is-mobile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LayoutAspectRatioRoute = LayoutAspectRatioRouteImport.update({
   id: '/layout/aspect-ratio',
   path: '/layout/aspect-ratio',
@@ -479,6 +491,8 @@ export interface FileRoutesByFullPath {
   '/foundations/slots': typeof FoundationsSlotsRoute
   '/foundations/theming': typeof FoundationsThemingRoute
   '/foundations/tones': typeof FoundationsTonesRoute
+  '/hooks/use-breakpoint': typeof HooksUseBreakpointRoute
+  '/hooks/use-is-mobile': typeof HooksUseIsMobileRoute
   '/layout/aspect-ratio': typeof LayoutAspectRatioRoute
   '/layout/bleed': typeof LayoutBleedRoute
   '/layout/box': typeof LayoutBoxRoute
@@ -551,6 +565,8 @@ export interface FileRoutesByTo {
   '/foundations/slots': typeof FoundationsSlotsRoute
   '/foundations/theming': typeof FoundationsThemingRoute
   '/foundations/tones': typeof FoundationsTonesRoute
+  '/hooks/use-breakpoint': typeof HooksUseBreakpointRoute
+  '/hooks/use-is-mobile': typeof HooksUseIsMobileRoute
   '/layout/aspect-ratio': typeof LayoutAspectRatioRoute
   '/layout/bleed': typeof LayoutBleedRoute
   '/layout/box': typeof LayoutBoxRoute
@@ -624,6 +640,8 @@ export interface FileRoutesById {
   '/foundations/slots': typeof FoundationsSlotsRoute
   '/foundations/theming': typeof FoundationsThemingRoute
   '/foundations/tones': typeof FoundationsTonesRoute
+  '/hooks/use-breakpoint': typeof HooksUseBreakpointRoute
+  '/hooks/use-is-mobile': typeof HooksUseIsMobileRoute
   '/layout/aspect-ratio': typeof LayoutAspectRatioRoute
   '/layout/bleed': typeof LayoutBleedRoute
   '/layout/box': typeof LayoutBoxRoute
@@ -698,6 +716,8 @@ export interface FileRouteTypes {
     | '/foundations/slots'
     | '/foundations/theming'
     | '/foundations/tones'
+    | '/hooks/use-breakpoint'
+    | '/hooks/use-is-mobile'
     | '/layout/aspect-ratio'
     | '/layout/bleed'
     | '/layout/box'
@@ -770,6 +790,8 @@ export interface FileRouteTypes {
     | '/foundations/slots'
     | '/foundations/theming'
     | '/foundations/tones'
+    | '/hooks/use-breakpoint'
+    | '/hooks/use-is-mobile'
     | '/layout/aspect-ratio'
     | '/layout/bleed'
     | '/layout/box'
@@ -842,6 +864,8 @@ export interface FileRouteTypes {
     | '/foundations/slots'
     | '/foundations/theming'
     | '/foundations/tones'
+    | '/hooks/use-breakpoint'
+    | '/hooks/use-is-mobile'
     | '/layout/aspect-ratio'
     | '/layout/bleed'
     | '/layout/box'
@@ -915,6 +939,8 @@ export interface RootRouteChildren {
   FoundationsSlotsRoute: typeof FoundationsSlotsRoute
   FoundationsThemingRoute: typeof FoundationsThemingRoute
   FoundationsTonesRoute: typeof FoundationsTonesRoute
+  HooksUseBreakpointRoute: typeof HooksUseBreakpointRoute
+  HooksUseIsMobileRoute: typeof HooksUseIsMobileRoute
   LayoutAspectRatioRoute: typeof LayoutAspectRatioRoute
   LayoutBleedRoute: typeof LayoutBleedRoute
   LayoutBoxRoute: typeof LayoutBoxRoute
@@ -1265,6 +1291,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FoundationsTonesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/hooks/use-breakpoint': {
+      id: '/hooks/use-breakpoint'
+      path: '/hooks/use-breakpoint'
+      fullPath: '/hooks/use-breakpoint'
+      preLoaderRoute: typeof HooksUseBreakpointRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hooks/use-is-mobile': {
+      id: '/hooks/use-is-mobile'
+      path: '/hooks/use-is-mobile'
+      fullPath: '/hooks/use-is-mobile'
+      preLoaderRoute: typeof HooksUseIsMobileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/layout/aspect-ratio': {
       id: '/layout/aspect-ratio'
       path: '/layout/aspect-ratio'
@@ -1483,6 +1523,8 @@ const rootRouteChildren: RootRouteChildren = {
   FoundationsSlotsRoute: FoundationsSlotsRoute,
   FoundationsThemingRoute: FoundationsThemingRoute,
   FoundationsTonesRoute: FoundationsTonesRoute,
+  HooksUseBreakpointRoute: HooksUseBreakpointRoute,
+  HooksUseIsMobileRoute: HooksUseIsMobileRoute,
   LayoutAspectRatioRoute: LayoutAspectRatioRoute,
   LayoutBleedRoute: LayoutBleedRoute,
   LayoutBoxRoute: LayoutBoxRoute,

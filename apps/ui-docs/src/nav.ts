@@ -255,8 +255,8 @@ export const NAV: readonly NavGroup[] = [
     title      : 'Hooks',
     description: 'Client only, in the vocabulary of the breakpoints the package declares.',
     items      : [
-      { title: 'useBreakpoint', to: '/hooks/use-breakpoint', subpath: '@proedis/ui/hooks', description: 'Whether the window is at least a breakpoint wide.', icon: Tv, ready: false },
-      { title: 'useIsMobile', to: '/hooks/use-is-mobile', subpath: '@proedis/ui/hooks', description: 'Whether the window is below the mobile breakpoint.', icon: Webhook, ready: false }
+      { title: 'useBreakpoint', to: '/hooks/use-breakpoint', subpath: '@proedis/ui/hooks', description: 'Whether the window is at least a breakpoint wide.', icon: Tv, ready: true },
+      { title: 'useIsMobile', to: '/hooks/use-is-mobile', subpath: '@proedis/ui/hooks', description: 'Whether the window is below the mobile breakpoint.', icon: Webhook, ready: true }
     ]
   }
 ];
