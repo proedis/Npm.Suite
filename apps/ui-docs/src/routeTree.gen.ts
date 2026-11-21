@@ -11,6 +11,12 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ActionsButtonRouteImport } from './routes/actions/button'
+import { Route as ActionsCollapsibleRouteImport } from './routes/actions/collapsible'
+import { Route as ActionsMenuRouteImport } from './routes/actions/menu'
+import { Route as ActionsSegmentedControlRouteImport } from './routes/actions/segmented-control'
+import { Route as ActionsTabsRouteImport } from './routes/actions/tabs'
+import { Route as ActionsToggleRouteImport } from './routes/actions/toggle'
+import { Route as ActionsTooltipRouteImport } from './routes/actions/tooltip'
 import { Route as DisplayBadgeRouteImport } from './routes/display/badge'
 import { Route as DisplayBadgeCounterRouteImport } from './routes/display/badge-counter'
 import { Route as DisplayHeadingRouteImport } from './routes/display/heading'
@@ -54,6 +60,36 @@ const IndexRoute = IndexRouteImport.update({
 const ActionsButtonRoute = ActionsButtonRouteImport.update({
   id: '/actions/button',
   path: '/actions/button',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ActionsCollapsibleRoute = ActionsCollapsibleRouteImport.update({
+  id: '/actions/collapsible',
+  path: '/actions/collapsible',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ActionsMenuRoute = ActionsMenuRouteImport.update({
+  id: '/actions/menu',
+  path: '/actions/menu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ActionsSegmentedControlRoute = ActionsSegmentedControlRouteImport.update({
+  id: '/actions/segmented-control',
+  path: '/actions/segmented-control',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ActionsTabsRoute = ActionsTabsRouteImport.update({
+  id: '/actions/tabs',
+  path: '/actions/tabs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ActionsToggleRoute = ActionsToggleRouteImport.update({
+  id: '/actions/toggle',
+  path: '/actions/toggle',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ActionsTooltipRoute = ActionsTooltipRouteImport.update({
+  id: '/actions/tooltip',
+  path: '/actions/tooltip',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DisplayBadgeRoute = DisplayBadgeRouteImport.update({
@@ -231,6 +267,12 @@ const PrimitivesVisuallyHiddenRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/actions/button': typeof ActionsButtonRoute
+  '/actions/collapsible': typeof ActionsCollapsibleRoute
+  '/actions/menu': typeof ActionsMenuRoute
+  '/actions/segmented-control': typeof ActionsSegmentedControlRoute
+  '/actions/tabs': typeof ActionsTabsRoute
+  '/actions/toggle': typeof ActionsToggleRoute
+  '/actions/tooltip': typeof ActionsTooltipRoute
   '/display/badge': typeof DisplayBadgeRoute
   '/display/badge-counter': typeof DisplayBadgeCounterRoute
   '/display/heading': typeof DisplayHeadingRoute
@@ -269,6 +311,12 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/actions/button': typeof ActionsButtonRoute
+  '/actions/collapsible': typeof ActionsCollapsibleRoute
+  '/actions/menu': typeof ActionsMenuRoute
+  '/actions/segmented-control': typeof ActionsSegmentedControlRoute
+  '/actions/tabs': typeof ActionsTabsRoute
+  '/actions/toggle': typeof ActionsToggleRoute
+  '/actions/tooltip': typeof ActionsTooltipRoute
   '/display/badge': typeof DisplayBadgeRoute
   '/display/badge-counter': typeof DisplayBadgeCounterRoute
   '/display/heading': typeof DisplayHeadingRoute
@@ -308,6 +356,12 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/actions/button': typeof ActionsButtonRoute
+  '/actions/collapsible': typeof ActionsCollapsibleRoute
+  '/actions/menu': typeof ActionsMenuRoute
+  '/actions/segmented-control': typeof ActionsSegmentedControlRoute
+  '/actions/tabs': typeof ActionsTabsRoute
+  '/actions/toggle': typeof ActionsToggleRoute
+  '/actions/tooltip': typeof ActionsTooltipRoute
   '/display/badge': typeof DisplayBadgeRoute
   '/display/badge-counter': typeof DisplayBadgeCounterRoute
   '/display/heading': typeof DisplayHeadingRoute
@@ -348,6 +402,12 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/actions/button'
+    | '/actions/collapsible'
+    | '/actions/menu'
+    | '/actions/segmented-control'
+    | '/actions/tabs'
+    | '/actions/toggle'
+    | '/actions/tooltip'
     | '/display/badge'
     | '/display/badge-counter'
     | '/display/heading'
@@ -386,6 +446,12 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/actions/button'
+    | '/actions/collapsible'
+    | '/actions/menu'
+    | '/actions/segmented-control'
+    | '/actions/tabs'
+    | '/actions/toggle'
+    | '/actions/tooltip'
     | '/display/badge'
     | '/display/badge-counter'
     | '/display/heading'
@@ -424,6 +490,12 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/actions/button'
+    | '/actions/collapsible'
+    | '/actions/menu'
+    | '/actions/segmented-control'
+    | '/actions/tabs'
+    | '/actions/toggle'
+    | '/actions/tooltip'
     | '/display/badge'
     | '/display/badge-counter'
     | '/display/heading'
@@ -463,6 +535,12 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ActionsButtonRoute: typeof ActionsButtonRoute
+  ActionsCollapsibleRoute: typeof ActionsCollapsibleRoute
+  ActionsMenuRoute: typeof ActionsMenuRoute
+  ActionsSegmentedControlRoute: typeof ActionsSegmentedControlRoute
+  ActionsTabsRoute: typeof ActionsTabsRoute
+  ActionsToggleRoute: typeof ActionsToggleRoute
+  ActionsTooltipRoute: typeof ActionsTooltipRoute
   DisplayBadgeRoute: typeof DisplayBadgeRoute
   DisplayBadgeCounterRoute: typeof DisplayBadgeCounterRoute
   DisplayHeadingRoute: typeof DisplayHeadingRoute
@@ -513,6 +591,48 @@ declare module '@tanstack/react-router' {
       path: '/actions/button'
       fullPath: '/actions/button'
       preLoaderRoute: typeof ActionsButtonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/actions/collapsible': {
+      id: '/actions/collapsible'
+      path: '/actions/collapsible'
+      fullPath: '/actions/collapsible'
+      preLoaderRoute: typeof ActionsCollapsibleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/actions/menu': {
+      id: '/actions/menu'
+      path: '/actions/menu'
+      fullPath: '/actions/menu'
+      preLoaderRoute: typeof ActionsMenuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/actions/segmented-control': {
+      id: '/actions/segmented-control'
+      path: '/actions/segmented-control'
+      fullPath: '/actions/segmented-control'
+      preLoaderRoute: typeof ActionsSegmentedControlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/actions/tabs': {
+      id: '/actions/tabs'
+      path: '/actions/tabs'
+      fullPath: '/actions/tabs'
+      preLoaderRoute: typeof ActionsTabsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/actions/toggle': {
+      id: '/actions/toggle'
+      path: '/actions/toggle'
+      fullPath: '/actions/toggle'
+      preLoaderRoute: typeof ActionsToggleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/actions/tooltip': {
+      id: '/actions/tooltip'
+      path: '/actions/tooltip'
+      fullPath: '/actions/tooltip'
+      preLoaderRoute: typeof ActionsTooltipRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/display/badge': {
@@ -759,6 +879,12 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ActionsButtonRoute: ActionsButtonRoute,
+  ActionsCollapsibleRoute: ActionsCollapsibleRoute,
+  ActionsMenuRoute: ActionsMenuRoute,
+  ActionsSegmentedControlRoute: ActionsSegmentedControlRoute,
+  ActionsTabsRoute: ActionsTabsRoute,
+  ActionsToggleRoute: ActionsToggleRoute,
+  ActionsTooltipRoute: ActionsTooltipRoute,
   DisplayBadgeRoute: DisplayBadgeRoute,
   DisplayBadgeCounterRoute: DisplayBadgeCounterRoute,
   DisplayHeadingRoute: DisplayHeadingRoute,

@@ -191,12 +191,12 @@ export const NAV: readonly NavGroup[] = [
     description: 'What a user presses: buttons, menus, views, tabs.',
     items      : [
       { title: 'Button', to: '/actions/button', subpath: '@proedis/ui/actions/button', peers: BASE_UI, description: 'Three fills, seven tones, three sizes, and IconButton with the tooltip it always carries.', icon: MousePointerClick, ready: true },
-      { title: 'CollapsibleSection', to: '/actions/collapsible', subpath: '@proedis/ui/actions/collapsible', peers: BASE_UI, description: 'A section that opens and closes from its header.', icon: ChevronsUpDown, ready: false },
-      { title: 'Menu', to: '/actions/menu', subpath: '@proedis/ui/actions/menu', peers: BASE_UI, description: 'The actions on a thing, with groups, view choices and one level of submenu.', icon: Ellipsis, ready: false },
-      { title: 'SegmentedControl', to: '/actions/segmented-control', subpath: '@proedis/ui/actions/segmented-control', peers: BASE_UI, description: 'One choice among a few views of the same thing.', icon: Columns2, ready: false },
-      { title: 'Tabs', to: '/actions/tabs', subpath: '@proedis/ui/actions/tabs', peers: BASE_UI, description: 'The sections of one thing read one at a time, with More for those that do not fit.', icon: PanelsTopLeft, ready: false },
-      { title: 'Toggle', to: '/actions/toggle', subpath: '@proedis/ui/actions/toggle', peers: BASE_UI, description: 'A button that stays on in a bar, and a group of them.', icon: ToggleRight, ready: false },
-      { title: 'Tooltip', to: '/actions/tooltip', subpath: '@proedis/ui/actions/tooltip', peers: BASE_UI, description: 'The dark label over a control, and the provider that groups them.', icon: MessageSquare, ready: false }
+      { title: 'CollapsibleSection', to: '/actions/collapsible', subpath: '@proedis/ui/actions/collapsible', peers: BASE_UI, description: 'A section that opens and closes from its header.', icon: ChevronsUpDown, ready: true },
+      { title: 'Menu', to: '/actions/menu', subpath: '@proedis/ui/actions/menu', peers: BASE_UI, description: 'The actions on a thing, with groups, view choices and one level of submenu.', icon: Ellipsis, ready: true },
+      { title: 'SegmentedControl', to: '/actions/segmented-control', subpath: '@proedis/ui/actions/segmented-control', peers: BASE_UI, description: 'One choice among a few views of the same thing.', icon: Columns2, ready: true },
+      { title: 'Tabs', to: '/actions/tabs', subpath: '@proedis/ui/actions/tabs', peers: BASE_UI, description: 'The sections of one thing read one at a time, with More for those that do not fit.', icon: PanelsTopLeft, ready: true },
+      { title: 'Toggle', to: '/actions/toggle', subpath: '@proedis/ui/actions/toggle', peers: BASE_UI, description: 'A button that stays on in a bar, and a group of them.', icon: ToggleRight, ready: true },
+      { title: 'Tooltip', to: '/actions/tooltip', subpath: '@proedis/ui/actions/tooltip', peers: BASE_UI, description: 'The dark label over a control, and the provider that groups them.', icon: MessageSquare, ready: true }
     ]
   },
   {
