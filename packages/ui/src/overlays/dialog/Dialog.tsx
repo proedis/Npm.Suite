@@ -74,7 +74,7 @@ export interface DialogDiscard {
   readonly icon: React.ReactNode;
 }
 
-export interface DialogProps {
+export interface StrictDialogProps {
   /** Controlled only */
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -110,12 +110,6 @@ export interface DialogProps {
   /** With `lg` only, from 3 to 5: an index beside the body. The body uses `Dialog.Section` */
   sections?: readonly OverlaySection[];
 
-  /** The form was changed: the x, Cancel and Esc ask first, a click outside does not close */
-  dirty?: boolean;
-
-  /** Required with `dirty` */
-  discard?: DialogDiscard;
-
   /** `load`: the veil, Esc and the x still close. `submit`: the veil over all, nothing closes */
   busy?: OverlayBusy;
 
@@ -129,6 +123,26 @@ export interface DialogProps {
 
   className?: string;
 }
+
+/**
+ * `dirty` and the texts of the prompt it opens. A union so the texts are required as soon as `dirty`
+ * can be true: without them the prompt has nothing to say, and `dirty` used to do nothing at all.
+ * `dirty={form.isDirty}` with no `discard` does not compile; `dirty={false}`, or none, needs none.
+ */
+export type DialogDirtyProps =
+  | {
+    /** The form was changed: the x, Cancel and Esc ask first, a click outside does not close */
+    dirty?: false;
+    discard?: DialogDiscard;
+  }
+  | {
+    dirty: boolean;
+
+    /** The texts of "Discard changes?", required with `dirty` */
+    discard: DialogDiscard;
+  };
+
+export type DialogProps = StrictDialogProps & DialogDirtyProps;
 
 interface DialogCloseContextValue {
   requestClose: () => void;

@@ -34,6 +34,8 @@ import { CELL, ColumnGroup, HEAD, PIN_START, ROW, SkeletonRows, TruncationToolti
 import { EMPTY_SELECTION, isRowSelected, selectionCount, setRowsSelected } from '../table/tableState';
 
 
+import type { DialogDirtyProps } from '../../overlays/dialog/Dialog';
+
 import type { TableColumn, TableSelection } from '../table/tableTypes';
 
 import type { ModalSelectorColumn, ModalSelectorProps, ModalSelectorRowBlock } from './modalSelectorTypes';
@@ -754,6 +756,9 @@ export function ModalSelector<TData>(props: ModalSelectorProps<TData>): React.Re
 
   const canConfirm = multiple ? count > 0 : pick !== null && !failed;
 
+  /* Only a multiple selector has changes to discard, and only it declares the texts of the prompt */
+  const dirtyProps: DialogDirtyProps = props.multiple ? { dirty, discard: props.discard } : {};
+
   return (
     <Dialog
       open={open}
@@ -765,8 +770,7 @@ export function ModalSelector<TData>(props: ModalSelectorProps<TData>): React.Re
       iconTone={iconTone}
       toolbar={toolbar}
       error={confirmError ? labels.confirmError : undefined}
-      dirty={dirty}
-      discard={props.multiple ? props.discard : undefined}
+      {...dirtyProps}
       busy={confirming ? 'submit' : false}
       returnFocus={returnFocus}
       footerStart={footerStart}

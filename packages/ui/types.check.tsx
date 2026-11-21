@@ -17,6 +17,7 @@ import * as React from 'react';
 import { Badge, Box, Container, Heading, IconBox, Item, Label, Spinner, Stack, Surface, VisuallyHidden } from './src';
 import { AlertDialog } from './src/overlays/alert-dialog';
 import { Button, IconButton } from './src/actions/button';
+import { Dialog } from './src/overlays/dialog';
 import { Drawer } from './src/overlays/drawer';
 import { Checkbox, CheckboxGroup } from './src/forms/checkbox';
 import { Combobox } from './src/forms/combobox';
@@ -399,6 +400,21 @@ const drawerLabels = { close: 'Close', discard: { title: 't', description: 'd', 
 /** @ts-expect-error with arrows, the arrows need their names */
 const namelessArrows = <Drawer open onOpenChange={() => undefined} title={'T'} labels={drawerLabels} onNext={() => undefined} />;
 
+/* `dirty` needs the texts of the prompt it opens as soon as it can be true: without them it did nothing */
+declare const formIsDirty: boolean;
+
+const discardTexts = { icon: null, title: 't', description: 'd', action: 'a', cancel: 'c' };
+
+/** @ts-expect-error a form that may be dirty, with no texts for its prompt */
+const dirtyWithoutPrompt = <Dialog open onOpenChange={() => undefined} title={'T'} labels={{ close: 'c' }} dirty={formIsDirty} />;
+
+const dirtyWithPrompt = <Dialog open onOpenChange={() => undefined} title={'T'} labels={{ close: 'c' }} dirty={formIsDirty} discard={discardTexts} />;
+
+const neverDirty = <Dialog open onOpenChange={() => undefined} title={'T'} labels={{ close: 'c' }} dirty={false} />;
+
+/** @ts-expect-error the same rule in a drawer */
+const drawerDirtyWithoutPrompt = <Drawer open onOpenChange={() => undefined} title={'T'} labels={drawerLabels} dirty={formIsDirty} />;
+
 const alertLabels = { busyLoad: 'l', busyAction: 'a', close: 'c', timeout: { title: 't', description: 'd' } };
 
 const namelessConfirm = (
@@ -477,5 +493,6 @@ export const CHECKED = [
   namedToggle, namelessToggle, namedGroup, namelessGroup, chosenView, emptyView, namelessItem,
   formLibraryBox, namedRadioGroup, switchWithTitle, namedTabs, namelessTabs, closedTabs,
   silentIconButton, silentPassword, namelessArrows, namelessConfirm,
+  dirtyWithoutPrompt, dirtyWithPrompt, neverDirty, drawerDirtyWithoutPrompt,
   filtersBarRoot, filtersBarChildren, singlePendingEnter, multiplePendingEnter
 ];

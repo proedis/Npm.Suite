@@ -35,7 +35,7 @@ import {
 
 import type { ButtonProps } from '../../actions/button/Button';
 
-import type { DialogDiscard, DialogLabels } from '../dialog/Dialog';
+import type { DialogDirtyProps, DialogLabels } from '../dialog/Dialog';
 import type { OverlayBusy, OverlaySection, OverlaySize } from '../overlay-shell/overlayShell';
 
 export type { OverlayBusy as DrawerBusy, OverlaySection as DrawerSection, OverlaySize as DrawerSize };
@@ -91,9 +91,6 @@ export interface StrictDrawerProps {
   /** 400, 560, 800px. Defaults to `md`; the same for detail and edit */
   size?: OverlaySize;
 
-  dirty?: boolean;
-  discard?: DialogDiscard;
-
   busy?: OverlayBusy;
   onSubmitTimeout?: () => void;
 
@@ -116,7 +113,8 @@ export type DrawerNavigationProps =
     labels: DrawerLabels & { readonly previous: string; readonly next: string };
   };
 
-export type DrawerProps = StrictDrawerProps & DrawerNavigationProps;
+/** `dirty` asks for the texts of its prompt, as in a Dialog */
+export type DrawerProps = StrictDrawerProps & DrawerNavigationProps & DialogDirtyProps;
 
 type PendingMove = 'close' | 'back' | 'previous' | 'next';
 
