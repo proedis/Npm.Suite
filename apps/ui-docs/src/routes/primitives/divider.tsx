@@ -14,6 +14,8 @@ import { tsx } from '@/docs/snippet';
 import { PropsTable, SlotsTable } from '@/docs/Tables';
 import basic from '@/examples/primitives/divider/basic.tsx?example';
 import label from '@/examples/primitives/divider/label.tsx?example';
+import line from '@/examples/primitives/divider/line.tsx?example';
+import spacing from '@/examples/primitives/divider/spacing.tsx?example';
 import stackDivided from '@/examples/primitives/divider/stack-divided.tsx?example';
 import vertical from '@/examples/primitives/divider/vertical.tsx?example';
 import { pageAt } from '@/nav';
@@ -80,6 +82,34 @@ function DividerPage(): React.ReactNode {
         </Section>
 
         <Section
+          title={'Line'}
+          lead={(
+            <React.Fragment>
+              The line is a border, so it takes a thickness, a pattern and a colour: <InlineCode>lineWidth</InlineCode>{' '}
+              in pixels (1, 2 or 4), <InlineCode>lineStyle</InlineCode> (solid, dashed, dotted, double) and{' '}
+              <InlineCode>lineTone</InlineCode>, the line of the theme or the ink of one of the seven tones. A double
+              line needs a width of 4 to show its two strokes.
+            </React.Fragment>
+          )}
+        >
+          <Example of={line} />
+        </Section>
+
+        <Section
+          title={'Spacing'}
+          lead={(
+            <React.Fragment>
+              Outside a Stack nothing gives a divider room, so <InlineCode>spacing</InlineCode> does: the space on both
+              sides of the line, across it, above and below a horizontal divider and before and after a vertical one.
+              A step of the scale by name or a number, per breakpoint if needed. It defaults to{' '}
+              <InlineCode>0</InlineCode>, so inside a Stack the gap is the only room and nothing doubles.
+            </React.Fragment>
+          )}
+        >
+          <Example of={spacing} />
+        </Section>
+
+        <Section
           title={'Between the children of a stack'}
           lead={(
             <React.Fragment>
@@ -109,7 +139,7 @@ function DividerPage(): React.ReactNode {
         <Section title={'Slots and data attributes'}>
           <SlotsTable
             rows={[
-              { slot: 'divider', part: 'The rule, or the row holding the two rules and the caption', attributes: [ 'data-orientation', 'data-labelled' ] }
+              { slot: 'divider', part: 'The rule, or the row holding the two rules and the caption', attributes: [ 'data-orientation', 'data-labelled', 'data-line-tone', 'data-line-width', 'data-line-style' ] }
             ]}
           />
         </Section>

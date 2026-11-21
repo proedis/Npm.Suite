@@ -13,6 +13,7 @@ import { PageBody, PageHeader, Prose, Section } from '@/docs/Page';
 import { css, tsx } from '@/docs/snippet';
 import { PropsTable, SlotsTable } from '@/docs/Tables';
 import basic from '@/examples/primitives/loading-bar/basic.tsx?example';
+import line from '@/examples/primitives/loading-bar/line.tsx?example';
 import updating from '@/examples/primitives/loading-bar/updating.tsx?example';
 import { pageAt } from '@/nav';
 
@@ -64,6 +65,20 @@ function LoadingBarPage(): React.ReactNode {
         </Section>
 
         <Section
+          title={'Height and tone'}
+          lead={(
+            <React.Fragment>
+              <InlineCode>lineWidth</InlineCode> sets the height in pixels, 1 to 4, 2 by default.{' '}
+              <InlineCode>lineTone</InlineCode> picks the tone: the track is its soft fill and the segment its solid
+              fill, except for <InlineCode>muted</InlineCode> and <InlineCode>secondary</InlineCode>, whose solid fill
+              is a surface, so the segment is drawn in their ink.
+            </React.Fragment>
+          )}
+        >
+          <Example of={line} />
+        </Section>
+
+        <Section
           title={'Placement'}
           lead={'The bar is a block as wide as its parent and draws nothing around itself. The caller puts it on an edge.'}
         >
@@ -111,7 +126,7 @@ function LoadingBarPage(): React.ReactNode {
         <Section title={'Slots and data attributes'}>
           <SlotsTable
             rows={[
-              { slot: 'loading-bar', part: 'The track' },
+              { slot: 'loading-bar', part: 'The track', attributes: [ 'data-line-tone', 'data-line-width' ] },
               { slot: 'loading-bar-segment', part: 'The running segment' }
             ]}
           />
