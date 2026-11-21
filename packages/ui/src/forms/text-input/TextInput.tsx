@@ -41,8 +41,10 @@ export interface StrictTextInputProps extends BaseProps {
   size?: TextInputSize;
 
   /**
-   * The kind of value, which sets the span of the field in a form section (1, 2, 3, 4) and the
-   * minimum width. Defaults to `default`.
+   * The kind of value, which sets the minimum width of the frame: `short` 16 steps of the spacing
+   * scale, the others 24 (64px and 96px at the default spacing).
+   * Reported as `data-width`. It does not set the span of the field in a form section: that is the
+   * `span` of the `Field` around it. Defaults to `default`.
    */
   width?: TextInputWidth;
 

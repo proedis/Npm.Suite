@@ -14,7 +14,7 @@ export type SafeAreaSides = 'all' | 'top' | 'bottom' | 'horizontal' | 'vertical'
 
 
 export interface StrictSafeAreaProps extends BaseProps {
-  /** Which edges to keep clear of the device's own furniture. Defaults to all of them */
+  /** Which edges to keep clear of the device's own furniture. Defaults to `all` */
   sides?: SafeAreaSides;
 
 }

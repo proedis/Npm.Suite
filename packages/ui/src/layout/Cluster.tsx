@@ -13,13 +13,13 @@ import type { Align, Justify, Responsive, SpacingValue } from '../core/responsiv
  * Types Definition
  * -------- */
 export interface StrictClusterProps extends BaseProps {
-  /** Cross-axis alignment */
+  /** Cross-axis alignment. Defaults to `center` */
   align?: Responsive<Align>;
 
-  /** Space between items, in Tailwind spacing steps */
+  /** Space between items, in Tailwind spacing steps. Defaults to `2` */
   gap?: Responsive<SpacingValue>;
 
-  /** Main-axis distribution */
+  /** Main-axis distribution. Defaults to `start` */
   justify?: Responsive<Justify>;
 
   /** Sits in a line of text like a word: `inline-flex` */

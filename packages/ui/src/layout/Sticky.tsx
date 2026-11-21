@@ -12,13 +12,13 @@ import type { SpacingValue } from '../core/responsive';
  * Types Definition
  * -------- */
 export interface StrictStickyProps extends BaseProps {
-  /** Distance from the edge, in Tailwind spacing steps */
+  /** Distance from the edge, in Tailwind spacing steps. Defaults to `0` */
   offset?: SpacingValue;
 
-  /** Which edge to pin to */
+  /** Which edge to pin to. Defaults to `top` */
   position?: 'top' | 'bottom';
 
-  /** Stacking order */
+  /** Stacking order. Defaults to `10` */
   z?: number;
 
 }

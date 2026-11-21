@@ -13,16 +13,16 @@ import type { Responsive, SpacingValue } from '../core/responsive';
  * Types Definition
  * -------- */
 export interface StrictGridProps extends BaseProps {
-  /** Space between cells, in Tailwind spacing steps */
+  /** Space between cells, in Tailwind spacing steps. Defaults to `4` */
   gap?: Responsive<SpacingValue>;
 
   /**
    * `fill` keeps the empty tracks, so a row of two cards keeps the width of three.
-   * `fit` collapses them and the cards stretch.
+   * `fit` collapses them and the cards stretch. Defaults to `fill`
    */
   fill?: 'fill' | 'fit';
 
-  /** How narrow a column may get before the grid wraps, in pixels */
+  /** How narrow a column may get before the grid wraps, in pixels. Defaults to `240` */
   minColWidth?: number;
 
 }
