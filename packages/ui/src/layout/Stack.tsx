@@ -11,6 +11,7 @@ import {
   justifyClasses
 } from '../core/responsive';
 
+import { DEFAULT_GAP_CLASS } from './defaultGap';
 import { layoutAttributes } from './layoutAttributes';
 
 import type { BaseProps } from '../core/base';
@@ -44,7 +45,8 @@ export interface StrictStackProps extends BaseProps {
   inline?: boolean;
 
   /**
-   * Space between children: a step of the spacing scale by name, or a Tailwind spacing step by number. Defaults to `md`.
+   * Space between children: a step of the spacing scale by name, or a Tailwind spacing step by number.
+   * Defaults to `md`: the theme moves it for every Stack that declares none with `--stack-gap`.
    *
    * Declare `0` for children that touch: a stack with no gap is a decision, and it reads as one.
    */
@@ -89,7 +91,7 @@ export function Stack<E extends React.ElementType = 'div'>(props: StackProps<E>)
     columns,
     direction = 'vertical',
     divided = false,
-    gap = 'md',
+    gap,
     inline = false,
     justify,
     wrap = false,
@@ -109,7 +111,7 @@ export function Stack<E extends React.ElementType = 'div'>(props: StackProps<E>)
       ? [ inline ? 'inline-grid' : 'grid', ...columnsClasses(columns) ]
       : [ inline ? 'inline-flex' : 'flex', ...directionClasses(direction), wrap && 'flex-wrap' ]),
 
-    ...gapClasses(gap),
+    ...(gap === undefined ? [ DEFAULT_GAP_CLASS.stack ] : gapClasses(gap)),
 
     /** In grid mode the rules ride the column axis, because there is no single direction to follow */
     ...(divided ? [ 'divide-border', ...(isGrid ? [ 'divide-x' ] : divideClasses(direction)) ] : []),

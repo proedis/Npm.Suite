@@ -4,6 +4,7 @@ import { splitBaseProps } from '../core/base';
 import { cn } from '../core/cn';
 import { gapClasses } from '../core/responsive';
 
+import { DEFAULT_GAP_CLASS } from './defaultGap';
 import { layoutAttributes } from './layoutAttributes';
 
 import type { BaseProps } from '../core/base';
@@ -15,7 +16,8 @@ import type { Responsive, Spacing } from '../core/responsive';
  * Types Definition
  * -------- */
 export interface StrictGridProps extends BaseProps {
-  /** Space between cells: a step of the spacing scale by name, or a Tailwind spacing step by number. Defaults to `md` */
+  /** Space between cells: a step of the spacing scale by name, or a Tailwind spacing step by number.
+   * Defaults to `md`, moved by the theme with `--grid-gap` */
   gap?: Responsive<Spacing>;
 
   /**
@@ -56,7 +58,7 @@ export function Grid<E extends React.ElementType = 'div'>(props: GridProps<E>): 
     as: Component = 'div',
     className,
     fill = 'fill',
-    gap = 'md',
+    gap,
     minColWidth = 240,
     style,
     ...others
@@ -72,7 +74,7 @@ export function Grid<E extends React.ElementType = 'div'>(props: GridProps<E>): 
     <Component
       data-slot={'grid'}
       {...layoutAttributes(rest, { 'data-fill': fill })}
-      className={cn('grid', gapClasses(gap), baseClasses, className)}
+      className={cn('grid', gap === undefined ? DEFAULT_GAP_CLASS.grid : gapClasses(gap), baseClasses, className)}
       style={{
         /** `min(px, 100%)` is what keeps the single column from overflowing a very narrow screen */
         gridTemplateColumns: `repeat(auto-${fill}, minmax(min(${minColWidth}px, 100%), 1fr))`,

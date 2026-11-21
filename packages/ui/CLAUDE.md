@@ -364,6 +364,21 @@ narrower stylesheet is the one you have to ask for.
   Tailwind's source from 4.1.5 to the installed version but not in its documented namespaces:
   re-check them when bumping Tailwind. `inline` is what makes a subtree that redeclares `--space-md`
   change only what is inside it, since the class carries `var(--space-md)` itself.
+- **A default is a variable of the theme, read only when the prop is undeclared.** `Stack` writes
+  `gap-stack` (`gap: var(--stack-gap, var(--space-md))`), `<Stack gap={'lg'}>` writes `gap-lg`: the
+  same for `Cluster`, `Grid`, `Split`, `Item`, `Heading` (`--*-gap`) and `Surface.Separator`
+  (`--separator-space`). The fallback sits in the class, not on `:root`, so it is resolved where the
+  component is and a region redeclaring the scale moves the defaults inside it. The classes are written
+  once, in `layout/defaultGap.ts`, the section where layout classes live; `Item` and `Heading` import
+  them from there and pass `gap={0}` to their Stack, the class winning through `cn`. `Heading` writes
+  `data-gap` only when the gap is declared.
+- **Every variable of the package is overridden in a plain `:root` after the import, never in
+  `@theme`.** Measured with Tailwind's compiler and a browser: from `:root` every variable changes; from
+  `@theme`, `@theme inline` or `@layer base` the colours, `--space-*`, `--radius-scale` and `--z-*` are
+  ignored, because the package's defaults are unlayered and an unlayered rule beats any layer, and a
+  control height from `@theme` is lost under a coarse pointer. Breakpoints are the reverse (`@theme`
+  only). The documentation states this rule on every component page; keep it true if the defaults ever
+  move into a layer.
 - **`Stack`, `Grid` and `Split` default their gap to `md`, `Cluster` to `sm`.** A Stack with no gap
   used to be a Stack whose children touch, so every structural Stack inside the package declares
   `gap={0}`: 119 of them, inserted by the TypeScript AST right after the tag name so a later spread or

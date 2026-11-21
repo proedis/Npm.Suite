@@ -5,11 +5,12 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
+import { DEFAULT_GAP_CLASS } from '../../layout/defaultGap';
 import { Stack } from '../../layout/Stack';
 
 import type { BaseProps } from '../../core/base';
 import type { PolymorphicProps } from '../../core/polymorphic';
-import type { Align, Direction, Responsive, Spacing, SpacingValue } from '../../core/responsive';
+import type { Align, Direction, Responsive, Spacing } from '../../core/responsive';
 
 
 /* --------
@@ -18,8 +19,6 @@ import type { Align, Direction, Responsive, Spacing, SpacingValue } from '../../
 const DEFAULT_ALIGN: Align = 'center';
 
 const DEFAULT_DIRECTION: Direction = 'horizontal';
-
-const DEFAULT_GAP: SpacingValue = 3;
 
 
 /**
@@ -94,7 +93,7 @@ export interface StrictItemProps extends BaseProps, VariantProps<typeof itemVari
 
   /**
    * Space between the leading visual, the text and the tail: a step of the spacing scale by name, or a
-   * Tailwind spacing step by number. Defaults to `3`
+   * Tailwind spacing step by number. Defaults to `3`, moved by the theme with `--item-gap`
    */
   gap?: Responsive<Spacing>;
 }
@@ -268,7 +267,7 @@ export function Item<E extends React.ElementType = 'div'>(props: ItemProps<E>): 
     as: Component = 'div',
     className,
     direction = DEFAULT_DIRECTION,
-    gap = DEFAULT_GAP,
+    gap,
     inset = false,
     interactive = false,
     ...others
@@ -283,6 +282,7 @@ export function Item<E extends React.ElementType = 'div'>(props: ItemProps<E>): 
   const classes = cn(
     itemVariants({ inset, interactive }),
     SLOT_PLUMBING,
+    gap === undefined && DEFAULT_GAP_CLASS.item,
     baseClasses,
     className
   );
@@ -299,7 +299,7 @@ export function Item<E extends React.ElementType = 'div'>(props: ItemProps<E>): 
       data-interactive={interactive || undefined}
       direction={direction}
       align={align}
-      gap={gap}
+      gap={gap ?? 0}
       className={classes}
       {...rest}
     />

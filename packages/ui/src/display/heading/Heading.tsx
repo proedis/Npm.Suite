@@ -5,11 +5,12 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
+import { DEFAULT_GAP_CLASS } from '../../layout/defaultGap';
 import { Stack } from '../../layout/Stack';
 
 import type { BaseProps } from '../../core/base';
 import type { PolymorphicProps } from '../../core/polymorphic';
-import type { Spacing, SpacingValue } from '../../core/responsive';
+import type { Spacing } from '../../core/responsive';
 
 
 /* --------
@@ -17,8 +18,6 @@ import type { Spacing, SpacingValue } from '../../core/responsive';
  * -------- */
 
 /** One source per part, read by `cva` to apply and by the component to report */
-const DEFAULT_GAP: SpacingValue = 0.5;
-
 const DEFAULT_TITLE_SIZE = 'sm';
 
 const DEFAULT_DESCRIPTION_SIZE = 'sm';
@@ -146,7 +145,7 @@ const eyebrowVariants = cva('font-medium tracking-wider text-muted-foreground up
 export interface StrictHeadingProps extends BaseProps {
   /**
    * Space between the title and the description: a step of the spacing scale by name, or a Tailwind
-   * spacing step by number. Defaults to `0.5`
+   * spacing step by number. Defaults to `0.5`, moved by the theme with `--heading-gap`
    */
   gap?: Spacing;
 }
@@ -363,7 +362,7 @@ export function Heading<E extends React.ElementType = 'div'>(props: HeadingProps
   const {
     as: Component = 'div',
     className,
-    gap = DEFAULT_GAP,
+    gap,
     ...others
   } = props as HeadingProps<'div'>;
 
@@ -378,8 +377,8 @@ export function Heading<E extends React.ElementType = 'div'>(props: HeadingProps
       as={Component}
       data-slot={'heading'}
       data-gap={gap}
-      gap={gap}
-      className={cn('min-w-0', baseClasses, className)}
+      gap={gap ?? 0}
+      className={cn('min-w-0', gap === undefined && DEFAULT_GAP_CLASS.heading, baseClasses, className)}
       {...rest}
     />
   );

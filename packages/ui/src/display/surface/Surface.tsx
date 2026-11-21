@@ -114,7 +114,7 @@ export type SurfaceSectionProps<E extends React.ElementType = 'div'> =
 export interface StrictSurfaceSeparatorProps extends BaseProps {
   /**
    * How much room a `gap` takes: a step of the spacing scale by name, or a Tailwind spacing step by
-   * number. Defaults to `lg`. Ignored by a `divider`
+   * number. Defaults to `lg`, moved by the theme with `--separator-space`. Ignored by a `divider`
    */
   space?: Spacing;
 
@@ -237,7 +237,7 @@ function SurfaceSeparator(props: SurfaceSeparatorProps): React.ReactNode {
   // ----
   const {
     className,
-    space = 'lg',
+    space,
     type = 'divider',
     ...others
   } = props;
@@ -257,7 +257,7 @@ function SurfaceSeparator(props: SurfaceSeparatorProps): React.ReactNode {
       aria-hidden
       data-slot={'surface-separator'}
       data-type={'gap'}
-      className={cn('shrink-0', `h-${space}`, baseClasses, className)}
+      className={cn('shrink-0', space === undefined ? 'h-separator' : `h-${space}`, baseClasses, className)}
       {...rest}
     />
   );

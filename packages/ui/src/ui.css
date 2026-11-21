@@ -58,6 +58,8 @@
 @source inline("{sm:,md:,lg:,xl:,2xl:,}split-cols-end");
 @source inline("-mx-{0,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,12,14,16,xs,sm,md,lg,xl,2xl}");
 @source inline("h-{0,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,12,14,16,xs,sm,md,lg,xl,2xl}");
+@source inline("gap-{stack,cluster,grid,split,item,heading}");
+@source inline("h-separator");
 
 /*
  * Dark mode as a class on an ancestor, which is what makes a theme switch a single attribute write.
@@ -181,6 +183,25 @@
   --height-lg: var(--space-lg);
   --height-xl: var(--space-xl);
   --height-2xl: var(--space-2xl);
+
+  /*
+   * The default of every spacing prop, one variable per component, read only where the prop is not
+   * declared: `<Stack>` writes `gap-stack`, `<Stack gap={'lg'}>` writes `gap-lg`. Undeclared, each falls
+   * back to its step of the scale, resolved where the component is, so a region that redeclares
+   * `--space-md` still moves the Stacks inside it; declared, it sets that default for the whole theme:
+   *
+   *   :root { --stack-gap: var(--space-lg); }
+   *
+   * ⚠️ A value given on `:root` is resolved on `:root`: `var(--space-lg)` there is the page's `lg`, and a
+   * region that redeclares the scale has to redeclare `--stack-gap` too.
+   */
+  --gap-stack: var(--stack-gap, var(--space-md));
+  --gap-cluster: var(--cluster-gap, var(--space-sm));
+  --gap-grid: var(--grid-gap, var(--space-md));
+  --gap-split: var(--split-gap, var(--space-md));
+  --gap-item: var(--item-gap, calc(var(--spacing) * 3));
+  --gap-heading: var(--heading-gap, calc(var(--spacing) * 0.5));
+  --height-separator: var(--separator-space, var(--space-lg));
 }
 
 /*

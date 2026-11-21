@@ -4,6 +4,8 @@ import { splitBaseProps } from '../core/base';
 import { cn } from '../core/cn';
 import { breakpointPrefix, gapClasses } from '../core/responsive';
 
+import { DEFAULT_GAP_CLASS } from './defaultGap';
+
 import type { BaseProps } from '../core/base';
 import type { PolymorphicProps } from '../core/polymorphic';
 import type { MediaBreakpoint, Responsive, Spacing } from '../core/responsive';
@@ -21,7 +23,8 @@ export interface StrictSplitProps extends BaseProps {
    */
   collapseBelow?: MediaBreakpoint;
 
-  /** Space between the two panes: a step of the spacing scale by name, or a Tailwind spacing step by number. Defaults to `md` */
+  /** Space between the two panes: a step of the spacing scale by name, or a Tailwind spacing step by number.
+   * Defaults to `md`, moved by the theme with `--split-gap` */
   gap?: Responsive<Spacing>;
 
   /** The fixed pane: a navigation rail, a filter column, an inspector */
@@ -105,7 +108,7 @@ export function Split<E extends React.ElementType = 'div'>(props: SplitProps<E>)
     children,
     className,
     collapseBelow,
-    gap = 'md',
+    gap,
     rail,
     railWidth = DEFAULT_RAIL_WIDTH,
     side = 'start',
@@ -134,7 +137,7 @@ export function Split<E extends React.ElementType = 'div'>(props: SplitProps<E>)
       data-slot={'split'}
       data-side={side}
       data-collapse-below={collapseBelow}
-      className={cn('grid *:min-w-0', templateClasses, gapClasses(gap), baseClasses, className)}
+      className={cn('grid *:min-w-0', templateClasses, gap === undefined ? DEFAULT_GAP_CLASS.split : gapClasses(gap), baseClasses, className)}
       style={{ '--split-rail': toLength(railWidth), ...style } as SplitStyle}
       {...rest}
     >

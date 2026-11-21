@@ -4,6 +4,7 @@ import { splitBaseProps } from '../core/base';
 import { cn } from '../core/cn';
 import { alignClasses, gapClasses, justifyClasses } from '../core/responsive';
 
+import { DEFAULT_GAP_CLASS } from './defaultGap';
 import { layoutAttributes } from './layoutAttributes';
 
 import type { BaseProps } from '../core/base';
@@ -18,7 +19,8 @@ export interface StrictClusterProps extends BaseProps {
   /** Cross-axis alignment. Defaults to `center` */
   align?: Responsive<Align>;
 
-  /** Space between items: a step of the spacing scale by name, or a Tailwind spacing step by number. Defaults to `sm` */
+  /** Space between items: a step of the spacing scale by name, or a Tailwind spacing step by number.
+   * Defaults to `sm`, moved by the theme with `--cluster-gap` */
   gap?: Responsive<Spacing>;
 
   /** Main-axis distribution. Defaults to `start` */
@@ -53,7 +55,7 @@ export function Cluster<E extends React.ElementType = 'div'>(props: ClusterProps
     align = 'center',
     as: Component = 'div',
     className,
-    gap = 'sm',
+    gap,
     inline = false,
     justify = 'start',
     ...others
@@ -69,7 +71,7 @@ export function Cluster<E extends React.ElementType = 'div'>(props: ClusterProps
     <Component
       data-slot={'cluster'}
       {...layoutAttributes(rest, { 'data-inline': inline || undefined })}
-      className={cn(inline ? 'inline-flex' : 'flex', 'flex-wrap', gapClasses(gap), alignClasses(align), justifyClasses(justify), baseClasses, className)}
+      className={cn(inline ? 'inline-flex' : 'flex', 'flex-wrap', gap === undefined ? DEFAULT_GAP_CLASS.cluster : gapClasses(gap), alignClasses(align), justifyClasses(justify), baseClasses, className)}
       {...rest}
     />
   );

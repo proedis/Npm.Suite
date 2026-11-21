@@ -1012,6 +1012,52 @@ for them. Overriding is one declaration **after** the import:
 }
 ```
 
+### Where a value goes
+
+Every variable of the package, colour, scale, size or default alike, goes in **plain CSS, in
+`:root { }` after the import** (`.dark { }` for the dark value, any other selector for a region). The
+one exception is a breakpoint, which goes in `@theme { }`. Measured, each placement compiled with
+Tailwind and read back in a browser:
+
+| Where | What happens to the variables of this package |
+| --- | --- |
+| `:root { }` after the import | every one changes, on every device |
+| `.dark { }`, `.toolbar { }` | in dark mode only, inside that element only |
+| `@theme { }` | ⚠️ half are ignored with no error: the colours, `--space-*`, `--radius-scale`, `--z-*`. A control height works on a desktop and is lost under a finger |
+| `@theme inline { }` | ⚠️ same as `@theme` |
+| `@layer base { :root { } }` | ⚠️ the colours, the scale and the radius stay the package's |
+| `@theme { --breakpoint-md: 50rem }` | the one thing that belongs there: Tailwind writes a breakpoint into each media query while compiling, so on `:root` it changes nothing |
+
+The reason: the package declares its defaults in a plain `:root`, outside any CSS layer, and its classes
+read the variable where the element is. Between two plain declarations the later one wins, hence
+*after* the import; `@theme` and `@layer base` both end up inside a layer, and a layer loses against an
+unlayered rule whatever the order. A variable the package does not declare on `:root` still works from
+`@theme`, which is exactly what makes that placement a trap: a theme half applied.
+
+### The default of every spacing prop
+
+A prop left undeclared reads a variable, so the default is the theme's to change:
+
+| Variable | Default | Moves |
+| --- | --- | --- |
+| `--stack-gap` | `md` | the gap of a `Stack` that declares none |
+| `--cluster-gap` | `sm` | the gap of a `Cluster` that declares none |
+| `--grid-gap` | `md` | the gap of a `Grid` that declares none |
+| `--split-gap` | `md` | the gap between the panes of a `Split` that declares none |
+| `--item-gap` | `0.75rem` | the gap of an `Item` that declares none, the header of a `Surface` included |
+| `--heading-gap` | `0.125rem` | the gap of a `Heading` that declares none |
+| `--separator-space` | `lg` | the room of a `Surface.Separator` of type gap that declares no `space` |
+
+```css
+:root {
+  --stack-gap: var(--space-lg);
+}
+```
+
+Undeclared, each one falls back to its step where the component is, so a region that redeclares
+`--space-md` moves the defaults inside it. ⚠️ A value given on `:root` is resolved on `:root`: a region
+that redeclares the scale has to redeclare `--stack-gap` too. A declared prop never reads the default.
+
 Three colour families and one line colour:
 
 | Token | Read by |
