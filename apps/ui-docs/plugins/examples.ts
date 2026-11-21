@@ -54,9 +54,12 @@ export function examples(): Plugin {
         return `export default { code: ${JSON.stringify(code)}, html: ${JSON.stringify(html)}, file: ${JSON.stringify(path.basename(file))} };`;
       }
 
+      /* The path below `src/examples`, without extension: what the preview route of a resizable frame loads */
+      const exampleId = file.split('/src/examples/')[1]?.replace(/\.tsx?$/, '') ?? '';
+
       return [
         `import Component from ${JSON.stringify(file)};`,
-        `export default { Component, code: ${JSON.stringify(code)}, html: ${JSON.stringify(html)}, file: ${JSON.stringify(path.basename(file))} };`
+        `export default { Component, id: ${JSON.stringify(exampleId)}, code: ${JSON.stringify(code)}, html: ${JSON.stringify(html)}, file: ${JSON.stringify(path.basename(file))} };`
       ].join('\n');
     }
   };

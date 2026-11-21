@@ -4,6 +4,7 @@ import { cn } from '@proedis/ui/core';
 import { Stack } from '@proedis/ui/layout';
 
 import { CodeBlock } from './CodeBlock';
+import { ResizableFrame } from './ResizableFrame';
 
 import type { ExampleModule } from './exampleModule';
 
@@ -24,6 +25,13 @@ interface ExampleProps {
 
   /** Classes for the preview pane: a height, a different padding */
   previewClassName?: string;
+
+  /**
+   * Renders the example in a frame whose width the reader drags, with a preset per breakpoint: for an
+   * example whose point is how it answers to the width. Its responsive classes answer to the frame,
+   * not to the window. Not for an overlay, which the frame would confine.
+   */
+  resizable?: boolean;
 }
 
 
@@ -40,7 +48,7 @@ export function Example(props: ExampleProps): React.ReactNode {
   // ----
   // Props Deconstruct
   // ----
-  const { align = 'center', maxCodeHeight = 480, of, previewClassName } = props;
+  const { align = 'center', maxCodeHeight = 480, of, previewClassName, resizable = false } = props;
   const { Component } = of;
 
 
@@ -48,16 +56,20 @@ export function Example(props: ExampleProps): React.ReactNode {
   // Component Render
   // ----
   return (
-    <div data-slot={'example'}>
-      <Stack
-        data-slot={'example-preview'}
-        align={align === 'stretch' ? 'stretch' : 'center'}
-        justify={align === 'start' ? 'start' : 'center'}
-        direction={align === 'start' ? 'horizontal' : 'vertical'}
-        className={cn('min-h-36 overflow-x-auto rounded-t-xl border border-border bg-background p-6 sm:p-10', previewClassName)}
-      >
-        <Component />
-      </Stack>
+    <div data-slot={'example'} data-resizable={resizable || undefined}>
+      {resizable ? (
+        <ResizableFrame id={of.id} file={of.file} align={align} previewClassName={previewClassName} />
+      ) : (
+        <Stack
+          data-slot={'example-preview'}
+          align={align === 'stretch' ? 'stretch' : 'center'}
+          justify={align === 'start' ? 'start' : 'center'}
+          direction={align === 'start' ? 'horizontal' : 'vertical'}
+          className={cn('min-h-36 overflow-x-auto rounded-t-xl border border-border bg-background p-6 sm:p-10', previewClassName)}
+        >
+          <Component />
+        </Stack>
+      )}
 
       <CodeBlock attached snippet={of} title={of.file} maxHeight={maxCodeHeight} />
     </div>

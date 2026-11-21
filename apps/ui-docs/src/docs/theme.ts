@@ -70,6 +70,18 @@ if (typeof window !== 'undefined') {
       apply();
     }
   });
+
+  /*
+   * A choice made in another document of the site: the page around the frame of a resizable example,
+   * or another tab. The storage event never reaches the document that wrote the value.
+   */
+  window.addEventListener('storage', (event) => {
+    if (event.key === STORAGE_KEY || event.key === null) {
+      choice = readChoice();
+      apply();
+      listeners.forEach((listener) => listener());
+    }
+  });
 }
 
 

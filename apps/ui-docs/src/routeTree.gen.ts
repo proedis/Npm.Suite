@@ -73,6 +73,7 @@ import { Route as OverlaysAlertDialogRouteImport } from './routes/overlays/alert
 import { Route as OverlaysDialogRouteImport } from './routes/overlays/dialog'
 import { Route as OverlaysDrawerRouteImport } from './routes/overlays/drawer'
 import { Route as OverlaysPopoverRouteImport } from './routes/overlays/popover'
+import { Route as PreviewSplatRouteImport } from './routes/preview/$'
 import { Route as PrimitivesBusyVeilRouteImport } from './routes/primitives/busy-veil'
 import { Route as PrimitivesDividerRouteImport } from './routes/primitives/divider'
 import { Route as PrimitivesLabelRouteImport } from './routes/primitives/label'
@@ -402,6 +403,11 @@ const OverlaysPopoverRoute = OverlaysPopoverRouteImport.update({
   path: '/overlays/popover',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PreviewSplatRoute = PreviewSplatRouteImport.update({
+  id: '/preview/$',
+  path: '/preview/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrimitivesBusyVeilRoute = PrimitivesBusyVeilRouteImport.update({
   id: '/primitives/busy-veil',
   path: '/primitives/busy-veil',
@@ -509,6 +515,7 @@ export interface FileRoutesByFullPath {
   '/overlays/dialog': typeof OverlaysDialogRoute
   '/overlays/drawer': typeof OverlaysDrawerRoute
   '/overlays/popover': typeof OverlaysPopoverRoute
+  '/preview/$': typeof PreviewSplatRoute
   '/primitives/busy-veil': typeof PrimitivesBusyVeilRoute
   '/primitives/divider': typeof PrimitivesDividerRoute
   '/primitives/label': typeof PrimitivesLabelRoute
@@ -583,6 +590,7 @@ export interface FileRoutesByTo {
   '/overlays/dialog': typeof OverlaysDialogRoute
   '/overlays/drawer': typeof OverlaysDrawerRoute
   '/overlays/popover': typeof OverlaysPopoverRoute
+  '/preview/$': typeof PreviewSplatRoute
   '/primitives/busy-veil': typeof PrimitivesBusyVeilRoute
   '/primitives/divider': typeof PrimitivesDividerRoute
   '/primitives/label': typeof PrimitivesLabelRoute
@@ -658,6 +666,7 @@ export interface FileRoutesById {
   '/overlays/dialog': typeof OverlaysDialogRoute
   '/overlays/drawer': typeof OverlaysDrawerRoute
   '/overlays/popover': typeof OverlaysPopoverRoute
+  '/preview/$': typeof PreviewSplatRoute
   '/primitives/busy-veil': typeof PrimitivesBusyVeilRoute
   '/primitives/divider': typeof PrimitivesDividerRoute
   '/primitives/label': typeof PrimitivesLabelRoute
@@ -734,6 +743,7 @@ export interface FileRouteTypes {
     | '/overlays/dialog'
     | '/overlays/drawer'
     | '/overlays/popover'
+    | '/preview/$'
     | '/primitives/busy-veil'
     | '/primitives/divider'
     | '/primitives/label'
@@ -808,6 +818,7 @@ export interface FileRouteTypes {
     | '/overlays/dialog'
     | '/overlays/drawer'
     | '/overlays/popover'
+    | '/preview/$'
     | '/primitives/busy-veil'
     | '/primitives/divider'
     | '/primitives/label'
@@ -882,6 +893,7 @@ export interface FileRouteTypes {
     | '/overlays/dialog'
     | '/overlays/drawer'
     | '/overlays/popover'
+    | '/preview/$'
     | '/primitives/busy-veil'
     | '/primitives/divider'
     | '/primitives/label'
@@ -957,6 +969,7 @@ export interface RootRouteChildren {
   OverlaysDialogRoute: typeof OverlaysDialogRoute
   OverlaysDrawerRoute: typeof OverlaysDrawerRoute
   OverlaysPopoverRoute: typeof OverlaysPopoverRoute
+  PreviewSplatRoute: typeof PreviewSplatRoute
   PrimitivesBusyVeilRoute: typeof PrimitivesBusyVeilRoute
   PrimitivesDividerRoute: typeof PrimitivesDividerRoute
   PrimitivesLabelRoute: typeof PrimitivesLabelRoute
@@ -1417,6 +1430,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OverlaysPopoverRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/preview/$': {
+      id: '/preview/$'
+      path: '/preview/$'
+      fullPath: '/preview/$'
+      preLoaderRoute: typeof PreviewSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/primitives/busy-veil': {
       id: '/primitives/busy-veil'
       path: '/primitives/busy-veil'
@@ -1541,6 +1561,7 @@ const rootRouteChildren: RootRouteChildren = {
   OverlaysDialogRoute: OverlaysDialogRoute,
   OverlaysDrawerRoute: OverlaysDrawerRoute,
   OverlaysPopoverRoute: OverlaysPopoverRoute,
+  PreviewSplatRoute: PreviewSplatRoute,
   PrimitivesBusyVeilRoute: PrimitivesBusyVeilRoute,
   PrimitivesDividerRoute: PrimitivesDividerRoute,
   PrimitivesLabelRoute: PrimitivesLabelRoute,

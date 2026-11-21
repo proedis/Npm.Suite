@@ -9,6 +9,9 @@ import type * as React from 'react';
 export interface ExampleModule {
   readonly Component: React.ComponentType;
 
+  /** The path of the file below `src/examples`, without extension: `layout/stack/responsive` */
+  readonly id: string;
+
   /** The source of the file, as written */
   readonly code: string;
 
@@ -21,4 +24,4 @@ export interface ExampleModule {
 
 
 /** What `import x from '…/name.ts?source'` gives: the source of a module, to read */
-export type SourceModule = Omit<ExampleModule, 'Component'>;
+export type SourceModule = Omit<ExampleModule, 'Component' | 'id'>;

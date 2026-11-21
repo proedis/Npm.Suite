@@ -553,6 +553,13 @@ package:
   it: the page states it under the table, and the fix is a JSDoc sentence in the package. Only the
   props the package declares; what comes from a native element or Base UI is one line on the page.
 
+**A responsive example is judged in a frame, never on the window.** `<Example of={x} resizable />`
+renders the example in a same-origin iframe of the site's own `/preview/<id>` route, whose width the
+reader drags from a handle or picks from a preset per breakpoint: Tailwind's breakpoints are media
+queries, and only a viewport of its own makes one fire for a box narrower than the window. The frame
+reports its content height by `postMessage`, follows the site theme through the `storage` event, and is
+drawn scaled when wider than the column. Not for an overlay, which the frame would confine.
+
 `src/nav.ts` is the one list of pages: sidebar, pager and overview read it, and a page not yet written
 is listed with `ready: false`, greyed and not linked. A page names itself with `pageAt(route)`.
 

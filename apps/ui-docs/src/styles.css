@@ -27,3 +27,9 @@
     @apply bg-background text-foreground antialiased;
   }
 }
+
+/* The frame of a resizable preview: the page around it grows to the content, so nothing scrolls inside */
+html[data-preview-frame],
+html[data-preview-frame] body {
+  overflow: hidden;
+}
