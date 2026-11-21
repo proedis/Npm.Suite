@@ -99,7 +99,7 @@ function CheckboxPage(): React.ReactNode {
               </React.Fragment>
             )}
           >
-            <Example of={orientation} />
+            <Example of={orientation} resizable />
           </SubSection>
         </Section>
 

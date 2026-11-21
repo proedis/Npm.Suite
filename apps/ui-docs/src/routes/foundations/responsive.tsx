@@ -70,7 +70,7 @@ function ResponsivePage(): React.ReactNode {
       />
 
       <PageBody>
-        <Example of={stackMap} />
+        <Example of={stackMap} resizable />
 
         <Section
           title={'One value or a map'}
@@ -91,7 +91,7 @@ function ResponsivePage(): React.ReactNode {
               <Stack columns={{ base: 1, sm: 2, lg: 4 }} />         // 1, 2 from sm, 4 from lg
             `}
           />
-          <Example of={columns} />
+          <Example of={columns} resizable />
         </Section>
 
         <Section
@@ -186,11 +186,12 @@ function ResponsivePage(): React.ReactNode {
             </React.Fragment>
           )}
         >
-          <Example of={fieldSpan} />
+          <Example of={fieldSpan} resizable />
           <Prose>
             <p>
-              Drag the corner of the dashed frame to make it narrow. The first section reflows as soon as it is narrow,
-              whatever the window; the second follows the window only, because a map speaks of the window like every{' '}
+              Two handles, two widths. The handle on the right of the preview sets the window; the corner of the dashed
+              box inside sets only the container of the form. Keep the window wide and drag the corner: the first section
+              reflows as soon as it is narrow, the second does not. Then narrow the window: the second follows it only, because a map speaks of the window like every{' '}
               <InlineCode>Responsive</InlineCode> prop. Container sizes and window breakpoints share names in Tailwind
               for different widths, so the package never mixes the two in one prop.
             </p>

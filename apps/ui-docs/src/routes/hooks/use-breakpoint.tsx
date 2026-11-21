@@ -46,16 +46,16 @@ function UseBreakpointPage(): React.ReactNode {
       />
 
       <PageBody>
-        <Example of={readout} />
+        <Example of={readout} resizable />
 
         <Section
           title={'Mobile first'}
           lead={(
             <React.Fragment>
               <InlineCode>{'useBreakpoint(\'md\')'}</InlineCode> is <InlineCode>true</InlineCode> from 768px up, exactly
-              where a <InlineCode>md:</InlineCode> class starts to apply. Resize the window: the rows switch one by one at
-              640, 768, 1024, 1280 and 1536 pixels. <InlineCode>base</InlineCode> is not a breakpoint the hook takes, since
-              it is true at every width.
+              where a <InlineCode>md:</InlineCode> class starts to apply. Drag the handle of the preview below: inside it the
+              window is the frame, and the rows switch one by one at 640, 768, 1024, 1280 and 1536 pixels.{' '}
+              <InlineCode>base</InlineCode> is not a breakpoint the hook takes, since it is true at every width.
             </React.Fragment>
           )}
         />
@@ -71,7 +71,7 @@ function UseBreakpointPage(): React.ReactNode {
             </React.Fragment>
           )}
         >
-          <Example of={layout} align={'stretch'} />
+          <Example of={layout} resizable align={'stretch'} />
           <Callout>
             A different padding, a column that becomes a row, a part that disappears: those are classes, or the
             responsive props of the layout primitives and <InlineCode>hideBelow</InlineCode> /{' '}

@@ -79,13 +79,13 @@ function SplitPage(): React.ReactNode {
           lead={(
             <React.Fragment>
               <InlineCode>collapseBelow</InlineCode> stacks the two panes below a breakpoint, rail first when it sits
-              at the start and last when it sits at the end, which is again the DOM order. Narrow the window below{' '}
+              at the start and last when it sits at the end, which is again the DOM order. Drag the handle of the preview below{' '}
               <InlineCode>lg</InlineCode> to see the filters move above the results. The gap is responsive, so it can
               be tighter while the panes are stacked.
             </React.Fragment>
           )}
         >
-          <Example of={collapse} align={'stretch'} />
+          <Example of={collapse} resizable align={'stretch'} />
         </Section>
 
         <Section
@@ -97,7 +97,7 @@ function SplitPage(): React.ReactNode {
             </React.Fragment>
           )}
         >
-          <Example of={inContext} align={'stretch'} />
+          <Example of={inContext} resizable align={'stretch'} />
         </Section>
 
         <Section

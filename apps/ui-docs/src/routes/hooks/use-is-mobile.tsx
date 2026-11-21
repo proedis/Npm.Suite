@@ -42,7 +42,7 @@ function UseIsMobilePage(): React.ReactNode {
       />
 
       <PageBody>
-        <Example of={readout} />
+        <Example of={readout} resizable />
 
         <Section
           title={'Below a breakpoint'}
@@ -50,7 +50,8 @@ function UseIsMobilePage(): React.ReactNode {
             <React.Fragment>
               <InlineCode>useIsMobile()</InlineCode> is <InlineCode>true</InlineCode> below 768px, the width where{' '}
               <InlineCode>md:</InlineCode> classes start; <InlineCode>{'useIsMobile(\'lg\')'}</InlineCode> below 1024px,
-              for a layout that needs more room before it opens up. Resize the window to see both switch.
+              for a layout that needs more room before it opens up. Drag the handle of the preview to see both switch:
+              inside it the window is the frame.
             </React.Fragment>
           )}
         />
@@ -65,7 +66,7 @@ function UseIsMobilePage(): React.ReactNode {
             </React.Fragment>
           )}
         >
-          <Example of={actions} />
+          <Example of={actions} resizable />
         </Section>
 
         <Section

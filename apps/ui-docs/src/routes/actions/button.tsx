@@ -186,11 +186,11 @@ function ButtonPage(): React.ReactNode {
             <React.Fragment>
               <InlineCode>block</InlineCode> takes the whole width of the container, and it takes one value per
               breakpoint too: the second button is full width on a phone and back to its own width from{' '}
-              <InlineCode>sm</InlineCode>. Narrow the window to see it.
+              <InlineCode>sm</InlineCode>. Drag the handle of the preview below 640 pixels to see it.
             </React.Fragment>
           )}
         >
-          <Example of={block} />
+          <Example of={block} resizable />
         </Section>
 
         <Section

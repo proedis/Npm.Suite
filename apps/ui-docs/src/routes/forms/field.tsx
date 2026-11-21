@@ -144,7 +144,7 @@ function FieldPage(): React.ReactNode {
             </React.Fragment>
           )}
         >
-          <Example of={orientation} />
+          <Example of={orientation} resizable />
           <Callout>
             In a <Link to={'/forms/form'} className={'font-medium underline'}>Form.Section</Link> the orientation is
             ignored: the grid of the section aligns the labels of a row, and a field turned sideways would break the

@@ -83,7 +83,7 @@ function RadioPage(): React.ReactNode {
             </React.Fragment>
           )}
         >
-          <Example of={orientation} />
+          <Example of={orientation} resizable />
         </Section>
 
         <Section

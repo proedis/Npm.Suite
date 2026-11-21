@@ -82,7 +82,7 @@ function AlertPage(): React.ReactNode {
             </React.Fragment>
           )}
         >
-          <Example of={actions} />
+          <Example of={actions} resizable />
           <Callout tone={'warning'}>
             Without the permission to solve it, leave the action out. A disabled action in an alert is a dead end the
             user can see and cannot use.

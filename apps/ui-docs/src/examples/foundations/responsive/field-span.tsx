@@ -8,7 +8,7 @@ import { Stack } from '@proedis/ui/layout';
 
 export default function Example(): React.ReactNode {
   return (
-    /* Drag the corner of the frame: the first section answers to its own width, the second to the window */
+    /* The corner of this box sets the container; the handle of the preview sets the window */
     <Stack className={'w-full resize-x overflow-auto rounded-xl border border-dashed border-border p-4'}>
       <Form>
         <Form.Section title={'One value: the section decides'}>

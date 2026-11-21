@@ -5,7 +5,7 @@ import { useBreakpoint } from '@proedis/ui/hooks';
 import { Stack } from '@proedis/ui/layout';
 
 
-/** One row per breakpoint: resize the window and watch them switch, from the widest down */
+/** One row per breakpoint: change the width and watch them switch, from the widest down */
 function Row(props: { breakpoint: 'sm' | 'md' | 'lg' | 'xl' | '2xl'; width: number }): React.ReactNode {
   const { breakpoint, width } = props;
   const matches = useBreakpoint(breakpoint);

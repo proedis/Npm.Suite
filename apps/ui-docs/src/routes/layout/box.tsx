@@ -44,10 +44,10 @@ function BoxPage(): React.ReactNode {
       />
 
       <PageBody>
-        <Example of={hide} />
+        <Example of={hide} resizable />
         <Prose>
           <p>
-            Narrow the window below 768 pixels and the first line gives way to the second.{' '}
+            Drag the handle of the preview below 768 pixels and the first line gives way to the second.{' '}
             <InlineCode>hideBelow</InlineCode> shows an element from a breakpoint up, <InlineCode>hideFrom</InlineCode>{' '}
             shows it below one. Both take <InlineCode>sm</InlineCode>, <InlineCode>md</InlineCode>,{' '}
             <InlineCode>lg</InlineCode>, <InlineCode>xl</InlineCode> or <InlineCode>2xl</InlineCode>, and the other
@@ -73,11 +73,11 @@ function BoxPage(): React.ReactNode {
               A Box around some children of a stack is an item of that stack, which breaks its gap. Give it the{' '}
               <InlineCode>contents</InlineCode> class and the wrapper disappears from the layout: its children stay
               direct items of the stack, gap included, while <InlineCode>hideBelow</InlineCode> still hides the
-              whole group. Narrow the window below <InlineCode>lg</InlineCode> to see Export and Print go together.
+              whole group. Drag the preview below <InlineCode>lg</InlineCode> to see Export and Print go together.
             </React.Fragment>
           )}
         >
-          <Example of={contents} />
+          <Example of={contents} resizable />
           <Callout tone={'warning'} title={'contents belongs on a Box only'}>
             On a <InlineCode>Stack</InlineCode> or a <InlineCode>Cluster</InlineCode> the class would leave the
             component’s own gap and alignment inert, silently, since an element with{' '}

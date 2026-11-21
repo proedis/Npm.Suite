@@ -136,7 +136,7 @@ function FormPage(): React.ReactNode {
             </React.Fragment>
           )}
         >
-          <Example of={narrow} previewClassName={'p-4 sm:p-6'} />
+          <Example of={narrow} resizable previewClassName={'p-4 sm:p-6'} />
         </Section>
 
         <Section
@@ -144,11 +144,12 @@ function FormPage(): React.ReactNode {
           lead={(
             <React.Fragment>
               A span written as a map speaks of the window, like every responsive prop of the package, and the section no
-              longer steps in: whoever passes a map has decided at every width. Resize the window.
+              longer steps in: whoever passes a map has decided at every width. Drag the handle of the preview across{' '}
+              <InlineCode>md</InlineCode>.
             </React.Fragment>
           )}
         >
-          <Example of={responsiveSpan} previewClassName={'p-4 sm:p-6'} />
+          <Example of={responsiveSpan} resizable previewClassName={'p-4 sm:p-6'} />
           <Callout>
             The container sizes of Tailwind share their names with the breakpoints but not their widths (
             <InlineCode>@sm</InlineCode> is 384px, <InlineCode>sm</InlineCode> 640px). That is why a map is always the

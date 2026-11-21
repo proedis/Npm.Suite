@@ -43,7 +43,7 @@ function ContainerPage(): React.ReactNode {
       />
 
       <PageBody>
-        <Example of={basic} align={'stretch'} />
+        <Example of={basic} resizable align={'stretch'} />
 
         <Section
           title={'Sizes'}
@@ -88,7 +88,7 @@ function ContainerPage(): React.ReactNode {
             </React.Fragment>
           )}
         >
-          <Example of={padded} align={'stretch'} />
+          <Example of={padded} resizable align={'stretch'} />
         </Section>
 
         <Section

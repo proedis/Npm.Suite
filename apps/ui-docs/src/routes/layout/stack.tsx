@@ -139,13 +139,13 @@ function StackPage(): React.ReactNode {
             <React.Fragment>
               Give it <InlineCode>columns</InlineCode> and the stack becomes a grid of equal columns, from 1 to
               12, and <InlineCode>direction</InlineCode> stops applying. Here: one column on a phone, two from{' '}
-              <InlineCode>sm</InlineCode>, four from <InlineCode>lg</InlineCode>. Narrow the window to watch it
-              reflow. When the number of columns should follow the room rather than the breakpoint, use{' '}
+              <InlineCode>sm</InlineCode>, four from <InlineCode>lg</InlineCode>. Drag the handle of the preview,
+              or pick a breakpoint over it, to watch it reflow. When the number of columns should follow the room rather than the breakpoint, use{' '}
               <InlineCode>Grid</InlineCode>.
             </React.Fragment>
           )}
         >
-          <Example of={columns} align={'stretch'} />
+          <Example of={columns} resizable align={'stretch'} />
         </Section>
 
         <Section
@@ -169,11 +169,12 @@ function StackPage(): React.ReactNode {
               {' '}<InlineCode>justify</InlineCode> and <InlineCode>columns</InlineCode> take one value, or one
               per breakpoint: <InlineCode>{'{ base, sm, md, lg, xl, 2xl }'}</InlineCode>. The map is mobile
               first, so <InlineCode>base</InlineCode> applies everywhere until a wider breakpoint says otherwise.
-              The breakpoints are the window’s: 640, 768, 1024, 1280 and 1536 pixels.
+              The breakpoints are the window’s: 640, 768, 1024, 1280 and 1536 pixels. Here the window is the frame of
+              the preview, whose width the handle on its right sets.
             </React.Fragment>
           )}
         >
-          <Example of={responsive} align={'stretch'} />
+          <Example of={responsive} resizable align={'stretch'} />
           <Prose>
             <p>
               This one is a column with a small gap on a phone and a row with a wide gap from{' '}

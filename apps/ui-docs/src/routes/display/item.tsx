@@ -81,11 +81,11 @@ function ItemPage(): React.ReactNode {
           lead={(
             <React.Fragment>
               The heading grows and has <InlineCode>min-w-0</InlineCode>, the actions do not shrink: the pressure of a long
-              title lands on the title, which truncates, and never on the buttons. Narrow the window to see it.
+              title lands on the title, which truncates, and never on the buttons. Drag the preview narrower to see it.
             </React.Fragment>
           )}
         >
-          <Example of={truncation} />
+          <Example of={truncation} resizable />
           <Callout>
             The plumbing is a descendant rule on the item, so it beats a class on the heading itself: a{' '}
             <InlineCode>grow-0</InlineCode> on the heading loses. That is the price of nobody having to remember the
@@ -147,7 +147,7 @@ function ItemPage(): React.ReactNode {
               </React.Fragment>
             )}
           >
-            <Example of={responsive} />
+            <Example of={responsive} resizable />
           </SubSection>
         </Section>
 

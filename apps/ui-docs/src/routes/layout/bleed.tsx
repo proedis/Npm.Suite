@@ -43,13 +43,13 @@ function BleedPage(): React.ReactNode {
       />
 
       <PageBody>
-        <Example of={basic} align={'stretch'} />
+        <Example of={basic} resizable align={'stretch'} />
         <Prose>
           <p>
             Left alone, Bleed pulls out by exactly the padding of a <InlineCode>Container</InlineCode>:{' '}
             <InlineCode>1rem</InlineCode>, <InlineCode>1.5rem</InlineCode> from <InlineCode>sm</InlineCode>,{' '}
-            <InlineCode>2rem</InlineCode> from <InlineCode>lg</InlineCode>. Resize the window and the band keeps
-            touching the edges.
+            <InlineCode>2rem</InlineCode> from <InlineCode>lg</InlineCode>. Drag the handle of the preview and the band keeps
+            touching the edges at every breakpoint.
           </p>
         </Prose>
 

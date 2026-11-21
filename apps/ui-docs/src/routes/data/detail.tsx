@@ -171,7 +171,7 @@ function DetailPage(): React.ReactNode {
             </React.Fragment>
           )}
         >
-          <Example of={responsive} align={'stretch'} previewClassName={STRETCH} />
+          <Example of={responsive} resizable align={'stretch'} previewClassName={STRETCH} />
         </Section>
 
         <Section
@@ -183,11 +183,11 @@ function DetailPage(): React.ReactNode {
               value of the package, and is the caller’s decision at every width: the rule of the grid steps aside. A
               map without <InlineCode>base</InlineCode> starts from the columns of the kind.{' '}
               <InlineCode>breakBefore</InlineCode> starts a new row, per breakpoint too: the first of two related
-              values. Narrow the window to watch both.
+              values. Drag the handle of the preview to watch both.
             </React.Fragment>
           )}
         >
-          <Example of={spanMap} align={'stretch'} previewClassName={STRETCH} />
+          <Example of={spanMap} resizable align={'stretch'} previewClassName={STRETCH} />
           <Callout>
             The same contract as the <InlineCode>span</InlineCode> and <InlineCode>breakBefore</InlineCode> of a{' '}
             <InlineCode>Field</InlineCode>, on purpose: a value and the field that edits it keep the same place at every

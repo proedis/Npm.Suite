@@ -108,12 +108,12 @@ function TabsPage(): React.ReactNode {
           lead={(
             <React.Fragment>
               The tabs that do not fit go into “More”, a menu after a divider, outside the tab list. A tab chosen there
-              takes the last visible place, and the open tab is never in the menu. Narrow the window to watch the row
-              give tabs up and take them back.
+              takes the last visible place, and the open tab is never in the menu. Drag the handle of the preview to watch
+              the row give tabs up and take them back.
             </React.Fragment>
           )}
         >
-          <Example of={overflow} />
+          <Example of={overflow} resizable previewClassName={'min-h-80 justify-start'} />
           <Callout tone={'warning'}>
             Tabs fill the width of their container and measure that width. In a container that shrinks to its
             content, a centred column or an inline row, that width is only what the tabs already take, and they go

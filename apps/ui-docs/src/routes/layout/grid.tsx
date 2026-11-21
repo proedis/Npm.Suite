@@ -45,10 +45,10 @@ function GridPage(): React.ReactNode {
       />
 
       <PageBody>
-        <Example of={basic} align={'stretch'} />
+        <Example of={basic} resizable align={'stretch'} />
         <Prose>
           <p>
-            Each column is at least 160 pixels here. Narrow the window and the grid drops a column every time one
+            Each column is at least 160 pixels here. Drag the handle of the preview and the grid drops a column every time one
             no longer fits, down to a single one. On a screen narrower than the minimum, that single column takes
             the whole width instead of overflowing it.
           </p>
@@ -65,14 +65,14 @@ function GridPage(): React.ReactNode {
             </React.Fragment>
           )}
         >
-          <Example of={fill} align={'stretch'} />
+          <Example of={fill} resizable align={'stretch'} />
         </Section>
 
         <Section
           title={'In context'}
           lead={'The vehicles of a fleet, as cards of at least 240 pixels: four across a wide page, one on a phone.'}
         >
-          <Example of={inContext} align={'stretch'} />
+          <Example of={inContext} resizable align={'stretch'} />
         </Section>
 
         <Section

@@ -61,7 +61,7 @@ function SharedPropsPage(): React.ReactNode {
       />
 
       <PageBody>
-        <Example of={hide} />
+        <Example of={hide} resizable />
 
         <Section
           title={'Showing and hiding by width'}
@@ -69,8 +69,8 @@ function SharedPropsPage(): React.ReactNode {
             <React.Fragment>
               <InlineCode>hideBelow</InlineCode> hides below a breakpoint, so the element shows from it up;{' '}
               <InlineCode>hideFrom</InlineCode> hides from a breakpoint up. Together they make the two halves of a
-              layout that differs on a phone, with exactly one of them on screen at any width. Resize the window to
-              watch the badges of the example appear one by one.
+              layout that differs on a phone, with exactly one of them on screen at any width. Drag the handle of the
+              preview, or pick a breakpoint over it, to watch the badges of the example appear one by one.
             </React.Fragment>
           )}
         >
@@ -95,7 +95,7 @@ function SharedPropsPage(): React.ReactNode {
             </React.Fragment>
           )}
         >
-          <Example of={displayKept} />
+          <Example of={displayKept} resizable />
           <Callout tone={'warning'} title={'Why not hidden lg:flex'}>
             The obvious implementation names the display to restore, and naming it wrong fails in silence. A stack{' '}
             <InlineCode>flex flex-col gap-4</InlineCode> given <InlineCode>hidden lg:contents</InlineCode> is{' '}
@@ -116,7 +116,7 @@ function SharedPropsPage(): React.ReactNode {
             </React.Fragment>
           )}
         >
-          <Example of={boxContents} />
+          <Example of={boxContents} resizable />
           <Prose>
             <p>
               <InlineCode>contents</InlineCode> belongs on a Box, never on a primitive that owns a layout: there it would
