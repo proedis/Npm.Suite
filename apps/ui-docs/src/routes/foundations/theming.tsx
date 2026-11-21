@@ -8,13 +8,14 @@ import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
-import { css } from '@/docs/snippet';
+import { css, tsx } from '@/docs/snippet';
 import { DocTable } from '@/docs/Tables';
 import controlHeights from '@/examples/foundations/theming/control-heights.tsx?example';
 import darkScope from '@/examples/foundations/theming/dark-scope.tsx?example';
 import radius from '@/examples/foundations/theming/radius.tsx?example';
 import retune from '@/examples/foundations/theming/retune.tsx?example';
 import softPalette from '@/examples/foundations/theming/soft-palette.tsx?example';
+import spacing from '@/examples/foundations/theming/spacing.tsx?example';
 import tokens from '@/examples/foundations/theming/tokens.tsx?example';
 import { pageAt } from '@/nav';
 
@@ -29,10 +30,37 @@ const PAGE = pageAt('/foundations/theming');
 const SHEETS: readonly (readonly [ string, string ])[] = [
   [ "@import '@proedis/ui'", 'theme.css: every token, its defaults, the dark variant, every utility. The one to use.' ],
   [ "@import '@proedis/ui/theme.css'", 'The same file, named explicitly.' ],
-  [ "@import '@proedis/ui/ui.css'", 'The layout tier only: background, foreground, muted, muted-foreground, border and the radius scale.' ]
+  [ "@import '@proedis/ui/ui.css'", 'The layout tier only: background, foreground, muted, muted-foreground, border, the radius scale and the spacing scale.' ]
 ];
 
 const SOURCE_DIRECTIVE = '@source ".";';
+
+/** The named steps of the spacing scale */
+const SPACING_ROWS: readonly (readonly [ string, string, string ])[] = [
+  [ 'xs', '1', '0.25rem' ],
+  [ 'sm', '2', '0.5rem' ],
+  [ 'md', '4', '1rem' ],
+  [ 'lg', '6', '1.5rem' ],
+  [ 'xl', '8', '2rem' ],
+  [ '2xl', '12', '3rem' ]
+];
+
+/** Where a spacing prop starts when it is not declared */
+const SPACING_DEFAULTS: readonly (readonly [ string, string ])[] = [
+  [ 'Stack, Grid, Split: gap', 'md' ],
+  [ 'Cluster: gap', 'sm' ],
+  [ 'Surface.Separator: space', 'lg' ],
+  [ 'Sticky: offset', '0' ],
+  [ 'Item: gap', '3, its own geometry: the leading visual and the text' ],
+  [ 'Heading: gap', '0.5, its own geometry: the title and the line under it' ]
+];
+
+/** The control heights, at a fine pointer and under a finger */
+const CONTROL_ROWS: readonly (readonly [ string, string, string ])[] = [
+  [ 'sm', '2rem', '2.25rem' ],
+  [ 'md', '2.25rem', '2.5rem' ],
+  [ 'lg', '2.5rem', '2.75rem' ]
+];
 
 /** Every family of the contract, with what it is for */
 const FAMILIES: readonly (readonly [ string, string, string ])[] = [
@@ -47,7 +75,7 @@ const FAMILIES: readonly (readonly [ string, string, string ])[] = [
   [ 'Tooltip', '--tooltip, --tooltip-foreground, --tooltip-muted-foreground', 'The dark label over a control, and its quieter second line.' ],
   [ 'Veils', '--busy-veil, --overlay, --overlay-nested, --scroll-shade', 'What covers a working dialog, the veil under a dialog and under one opened from it, the shade at the edge of a scroll.' ],
   [ 'Stacking', '--z-dialog, --z-popover, --z-toast, --z-tooltip', '50, 55, 60 and 70: what opens from a dialog sits above it, a toast stays usable over it, a tooltip is above everything.' ],
-  [ 'Shape and size', '--radius-scale, --spacing-control-*, --container-8xl, --text-2xs', 'The corner language, the three heights of a control, the widest page, the step below text-xs.' ]
+  [ 'Shape and size', '--radius-scale, --space-*, --spacing-control-*, --container-8xl, --text-2xs', 'The corner language, the spacing scale by name, the three heights of a control, the widest page, the step below text-xs.' ]
 ];
 
 
@@ -214,6 +242,83 @@ function ThemingPage(): React.ReactNode {
         </Section>
 
         <Section
+          title={'The spacing scale'}
+          lead={(
+            <React.Fragment>
+              Six steps by name, <InlineCode>xs</InlineCode> to <InlineCode>2xl</InlineCode>, that every spacing prop
+              of the package takes: the <InlineCode>gap</InlineCode> of the layout primitives, the{' '}
+              <InlineCode>space</InlineCode> of a separator, the <InlineCode>inset</InlineCode> of Bleed, the{' '}
+              <InlineCode>offset</InlineCode> of Sticky. The defaults are Tailwind’s own steps, so{' '}
+              <InlineCode>md</InlineCode> is <InlineCode>gap-4</InlineCode>, 1rem; each name is a variable of the
+              theme, <InlineCode>--space-md</InlineCode>, written as a multiple of <InlineCode>--spacing</InlineCode>.
+            </React.Fragment>
+          )}
+        >
+          <DocTable
+            head={[ 'Name', 'Tailwind step', 'Default', 'Variable' ]}
+            rows={SPACING_ROWS.map(([ name, step, length ]) => [
+              <InlineCode key={'n'}>{name}</InlineCode>,
+              step,
+              length,
+              <code key={'v'} className={'font-mono text-xs text-foreground'}>--space-{name}</code>
+            ])}
+          />
+          <Prose>
+            <p>
+              The same names work in a class, on five families of utilities: <InlineCode>gap-md</InlineCode>,{' '}
+              <InlineCode>p-md</InlineCode> and its sides, <InlineCode>m-md</InlineCode> and{' '}
+              <InlineCode>-mx-md</InlineCode>, <InlineCode>top-md</InlineCode> and the other insets,{' '}
+              <InlineCode>h-md</InlineCode>. A layout written with props and a padding written in a class speak one
+              vocabulary, and a theme moves both.
+            </p>
+          </Prose>
+          <CodeBlock
+            snippet={tsx`
+              <Stack gap={'md'}>…</Stack>                       // the default, written out
+              <Stack gap={{ base: 'sm', lg: 'lg' }}>…</Stack>   // per breakpoint
+              <section className={'px-lg py-md'}>…</section>     // the same scale in a class
+            `}
+          />
+          <CodeBlock
+            title={'app.css'}
+            snippet={css`
+              :root {
+                --space-md: 1.25rem;   /* every gap, padding, inset named md */
+              }
+            `}
+          />
+          <Example of={spacing} />
+          <Prose>
+            <p>
+              The class carries the variable itself, <InlineCode>gap: var(--space-md)</InlineCode>, so a region that
+              redeclares the scale changes only what is inside it: the right column above is the same markup in a
+              wrapper that declares a smaller <InlineCode>md</InlineCode> and <InlineCode>sm</InlineCode>. That is the
+              mechanism of a denser area, a toolbar or a table panel, without a single prop changed in it.
+            </p>
+          </Prose>
+          <DocTable
+            head={[ 'Prop', 'Default' ]}
+            rows={SPACING_DEFAULTS.map(([ prop, value ]) => [ prop, <InlineCode key={'d'}>{value}</InlineCode> ])}
+          />
+          <Prose>
+            <p>
+              A number is still accepted, a step of Tailwind’s scale (<InlineCode>{'gap={3}'}</InlineCode> is{' '}
+              <InlineCode>gap-3</InlineCode>), for the length no name covers. It is a measure written in the code and
+              it does not move with the theme: a page that mixes <InlineCode>{'gap={4}'}</InlineCode> and{' '}
+              <InlineCode>{"gap={'md'}"}</InlineCode> follows a retuned <InlineCode>md</InlineCode> only halfway.
+            </p>
+          </Prose>
+          <Callout tone={'warning'} title={'Why the names are not spacing tokens of Tailwind'}>
+            The obvious way to name a step is <InlineCode>--spacing-md</InlineCode> in the theme, and it breaks
+            Tailwind: the width utilities read <InlineCode>--spacing-*</InlineCode> before{' '}
+            <InlineCode>--container-*</InlineCode>, so <InlineCode>max-w-md</InlineCode> would turn from 28rem into
+            1rem, in the package and in the application. The scale is read through the keys of each property instead
+            (<InlineCode>--gap-*</InlineCode>, <InlineCode>--padding-*</InlineCode> and the others), which nothing else
+            reads: every utility Tailwind already had keeps its value.
+          </Callout>
+        </Section>
+
+        <Section
           title={'The soft palette'}
           lead={(
             <React.Fragment>
@@ -237,20 +342,45 @@ function ThemingPage(): React.ReactNode {
           title={'Control heights'}
           lead={(
             <React.Fragment>
-              Three heights shared by every control, so a field, a select and a button of the same size line up in a
-              row: 2, 2.25 and 2.5rem. Under a coarse pointer they grow one step each, to 2.25, 2.5 and 2.75rem, because
-              the size of a control is a matter of the finger, not of the width of the window.
+              Two controls of the same size have the same height, whatever they are: a field, a select, a date
+              picker, a segmented control, a toggle, an icon button and a button at <InlineCode>md</InlineCode> line up
+              on both edges in a row. Every control takes the same three sizes, <InlineCode>sm</InlineCode>,{' '}
+              <InlineCode>md</InlineCode> and <InlineCode>lg</InlineCode>, and each size is one height of the theme.
             </React.Fragment>
           )}
         >
           <Example of={controlHeights} />
+          <DocTable
+            head={[ 'Size', 'Height', 'Under a finger', 'Variable' ]}
+            rows={CONTROL_ROWS.map(([ size, fine, coarse ]) => [
+              <InlineCode key={'s'}>{size}</InlineCode>,
+              fine,
+              coarse,
+              <code key={'v'} className={'font-mono text-xs text-foreground'}>--spacing-control-{size}</code>
+            ])}
+          />
           <Prose>
             <p>
-              The readout shows what this browser resolves. Turn on touch emulation in the developer tools and reload:
-              the three values move. The coarse step is declared in Tailwind’s <InlineCode>theme</InlineCode> layer, so
-              an application that redeclares the heights on <InlineCode>:root</InlineCode> wins on every device, and
-              redeclares them inside its own <InlineCode>@media (pointer: coarse)</InlineCode> to keep a different step
-              for touch.
+              The rule holds by construction. Inside the package the height of a control is written in one place, and
+              the lint of the repository rejects an <InlineCode>h-control-*</InlineCode> written anywhere else, so a
+              new control cannot be one step off the others. The type of the three sizes is{' '}
+              <InlineCode>ControlSize</InlineCode>, exported from <InlineCode>@proedis/ui/core</InlineCode> for the
+              wrappers of an application; a control of the application takes the same height from the class{' '}
+              <InlineCode>h-control-md</InlineCode>, or from <InlineCode>FieldShell</InlineCode>.
+            </p>
+            <p>
+              Under a coarse pointer the three heights grow one step each, because the size of a control is a matter
+              of the finger, not of the width of the window. The readout shows what this browser resolves: turn on
+              touch emulation in the developer tools and reload. The coarse step is declared in Tailwind’s{' '}
+              <InlineCode>theme</InlineCode> layer, so an application that redeclares the heights on{' '}
+              <InlineCode>:root</InlineCode> wins on every device, and redeclares them inside its own{' '}
+              <InlineCode>@media (pointer: coarse)</InlineCode> to keep a different step for touch.
+            </p>
+            <p>
+              Two things are taller on purpose. The strip of <InlineCode>Tabs</InlineCode> is navigation, not a control
+              in a row: its tabs read the same heights, and the strip adds its own padding around them. A read only{' '}
+              <InlineCode>MultiSelect</InlineCode> shows every chip and grows by lines when they do not fit, since there
+              is no list to open.
             </p>
           </Prose>
         </Section>

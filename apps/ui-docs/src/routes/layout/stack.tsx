@@ -76,20 +76,31 @@ function StackPage(): React.ReactNode {
           title={'Gap'}
           lead={(
             <React.Fragment>
-              The space between children, in steps of the Tailwind spacing scale: one step is{' '}
-              <InlineCode>0.25rem</InlineCode>, so <InlineCode>4</InlineCode> is one rem. The steps are{' '}
-              <InlineCode>0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16</InlineCode>, and a
-              theme that rescales <InlineCode>--spacing</InlineCode> rescales every gap with it. With no{' '}
-              <InlineCode>gap</InlineCode> the children touch.
+              The space between children, as a step of the spacing scale by name:{' '}
+              <InlineCode>xs</InlineCode>, <InlineCode>sm</InlineCode>, <InlineCode>md</InlineCode>,{' '}
+              <InlineCode>lg</InlineCode>, <InlineCode>xl</InlineCode>, <InlineCode>2xl</InlineCode>. It
+              defaults to <InlineCode>md</InlineCode>, 1rem, so a Stack with no gap still breathes; declare{' '}
+              <InlineCode>{'gap={0}'}</InlineCode> when the children must touch. Each name is a variable of
+              the theme, so a product that retunes <InlineCode>--space-md</InlineCode> moves every gap named{' '}
+              <InlineCode>md</InlineCode> at once. The scale has a page of its own in{' '}
+              <InlineCode>Foundations</InlineCode>.
             </React.Fragment>
           )}
         >
           <Example of={gap} />
-          <Callout tone={'warning'} title={'The scale is a type, not a number'}>
-            <InlineCode>gap</InlineCode> is a union of those steps. A gap is a class built at runtime, which
-            Tailwind cannot find by scanning the source, so the package declares every step in its stylesheet.
-            A <InlineCode>13</InlineCode> would build a class with no CSS behind it and the gap would silently
-            vanish: here it does not compile instead.
+          <Prose>
+            <p>
+              A number is still accepted, as a step of Tailwind’s own scale (<InlineCode>4</InlineCode> is{' '}
+              <InlineCode>gap-4</InlineCode>, 1rem), for the place no name fits:{' '}
+              <InlineCode>0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16</InlineCode>. A
+              number is a measure written in the code, and it does not follow the theme.
+            </p>
+          </Prose>
+          <Callout tone={'warning'} title={'The scale is a type'}>
+            <InlineCode>gap</InlineCode> is a union of those names and steps. A gap is a class built at
+            runtime, which Tailwind cannot find by scanning the source, so the package declares every step
+            in its stylesheet. A <InlineCode>13</InlineCode> or a <InlineCode>3xl</InlineCode> would build
+            a class with no CSS behind it and the gap would silently vanish: here they do not compile.
           </Callout>
         </Section>
 

@@ -90,8 +90,9 @@ function SegmentedControlPage(): React.ReactNode {
           title={'Sizes'}
           lead={(
             <React.Fragment>
-              <InlineCode>md</InlineCode> in a page header, <InlineCode>sm</InlineCode> in a card header or a 28 pixel
-              bar. The rail takes the height of a control of that size.
+              <InlineCode>md</InlineCode> in a page header, <InlineCode>sm</InlineCode> in a card header or a bar,{' '}
+              <InlineCode>lg</InlineCode> next to large fields. The rail takes the height of every control of that size,
+              so it lines up with the fields and the buttons beside it.
             </React.Fragment>
           )}
         >

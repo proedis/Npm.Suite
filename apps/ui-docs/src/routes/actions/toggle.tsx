@@ -83,8 +83,10 @@ function TogglePage(): React.ReactNode {
           title={'Sizes'}
           lead={(
             <React.Fragment>
-              <InlineCode>sm</InlineCode> in a 28 pixel bar, <InlineCode>md</InlineCode> in an action bar. Inside a group
-              the toggles take the size of the group unless they say otherwise.
+              <InlineCode>sm</InlineCode> in a bar or a table, <InlineCode>md</InlineCode> in an action bar,{' '}
+              <InlineCode>lg</InlineCode> next to large fields. Each is the height of every control of that size, so a
+              toggle lines up with the field and the button beside it. Inside a group the toggles take the size of the
+              group unless they say otherwise.
             </React.Fragment>
           )}
         >

@@ -6,7 +6,12 @@ import { Stack } from '@proedis/ui/layout';
 
 export default function Example(): React.ReactNode {
   return (
-    <Stack align={'center'} gap={4}>
+    <Stack align={'center'}>
+      <SegmentedControl aria-label={'Period, large'} defaultValue={'week'} size={'lg'}>
+        <SegmentedControl.Item value={'day'}>Day</SegmentedControl.Item>
+        <SegmentedControl.Item value={'week'}>Week</SegmentedControl.Item>
+        <SegmentedControl.Item value={'month'}>Month</SegmentedControl.Item>
+      </SegmentedControl>
       <SegmentedControl aria-label={'Period, medium'} defaultValue={'week'} size={'md'}>
         <SegmentedControl.Item value={'day'}>Day</SegmentedControl.Item>
         <SegmentedControl.Item value={'week'}>Week</SegmentedControl.Item>

@@ -7,7 +7,7 @@ import { Block } from '@/examples/layout/Block';
 
 export default function Example(): React.ReactNode {
   return (
-    <Stack gap={4} className={'w-full max-w-sm'}>
+    <Stack className={'w-full max-w-sm'}>
       <Block>01</Block>
       <Block>02</Block>
       <Block>03</Block>
