@@ -577,7 +577,7 @@ export const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>((p
         direction={'horizontal'}
         align={'center'}
         className={cn(baseClasses, className)}
-        /* After the layout props: the mode of the picker, which wins over the stack's own `data-mode` */
+        /* The mode of the picker: a part named by its slot carries no layout attribute of the stack */
         data-mode={isRange ? 'range' : 'date'}
       >
         <Stack

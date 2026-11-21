@@ -942,7 +942,7 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
     <Stack
       {...rest}
       data-slot={'table'}
-      /* After the layout props: the mode of the table, which wins over the stack's own `data-mode` */
+      /* The mode of the table: a part named by its slot carries no layout attribute of the stack */
       data-mode={mode}
       data-status={status}
       className={cn('min-h-0', baseClasses, className)}

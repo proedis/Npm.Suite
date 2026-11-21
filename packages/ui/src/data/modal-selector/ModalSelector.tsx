@@ -785,7 +785,7 @@ export function ModalSelector<TData>(props: ModalSelectorProps<TData>): React.Re
       <Stack data-slot={'modal-selector-body'} className={'h-88 min-h-56 pb-2'}>
         <Stack
           data-slot={'modal-selector-frame'}
-          /* After the layout props: the mode of the selector, which wins over the stack's own `data-mode` */
+          /* The mode of the selector: a part named by its slot carries no layout attribute of the stack */
           data-mode={mode}
           data-multiple={multiple || undefined}
           data-status={status}
