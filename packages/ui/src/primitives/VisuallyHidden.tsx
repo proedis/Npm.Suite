@@ -30,8 +30,9 @@ export type VisuallyHiddenProps<E extends React.ElementType = 'span'> = Polymorp
 /**
  * Content for a screen reader and not for the eye.
  *
- * The opposite of `Show`, and the distinction is the whole reason both exist: `Show` hides from
- * **everyone**, this hides from sight while keeping the content in the accessibility tree. A label
+ * The opposite of hiding with `hidden`, `hideBelow` or `hideFrom`, and the distinction is the whole
+ * reason both exist: those hide from **everyone**, this hides from sight while keeping the content in
+ * the accessibility tree. A label
  * an icon-only button needs, the word "current" next to a highlighted page, the unit of a number
  * that is obvious visually and silent otherwise.
  *
@@ -43,6 +44,11 @@ export type VisuallyHiddenProps<E extends React.ElementType = 'span'> = Polymorp
  * `display: none` and `visibility: hidden` are what this is **not**: both remove the content from
  * the accessibility tree, which is precisely the opposite of the intent. The clipping technique
  * behind `sr-only` is Tailwind's own.
+ *
+ * `focusable` hides it only while it has no focus (`not-focus:sr-only`), rather than hiding it and
+ * revealing it on focus (`sr-only focus:not-sr-only`). The second shape resets padding and margin
+ * under `:focus`, which outranks a plain class: a skip link written with `px-3` came out with no
+ * padding at all. Now the focused state is the caller's classes and nothing else.
  */
 export function VisuallyHidden<E extends React.ElementType = 'span'>(props: VisuallyHiddenProps<E>): React.ReactNode {
 
@@ -64,7 +70,7 @@ export function VisuallyHidden<E extends React.ElementType = 'span'>(props: Visu
     <Component
       data-slot={'visually-hidden'}
       data-focusable={focusable || undefined}
-      className={cn('sr-only', focusable && 'focus:not-sr-only', className)}
+      className={cn(focusable ? 'not-focus:sr-only' : 'sr-only', className)}
       {...rest}
     />
   );
