@@ -25,6 +25,9 @@ import { Route as DisplayItemRouteImport } from './routes/display/item'
 import { Route as DisplayLabeledContentRouteImport } from './routes/display/labeled-content'
 import { Route as DisplayPersonRouteImport } from './routes/display/person'
 import { Route as DisplaySurfaceRouteImport } from './routes/display/surface'
+import { Route as FeedbackAlertRouteImport } from './routes/feedback/alert'
+import { Route as FeedbackEmptyStateRouteImport } from './routes/feedback/empty-state'
+import { Route as FeedbackNotificationsRouteImport } from './routes/feedback/notifications'
 import { Route as FoundationsPolymorphismRouteImport } from './routes/foundations/polymorphism'
 import { Route as FoundationsResponsiveRouteImport } from './routes/foundations/responsive'
 import { Route as FoundationsSharedPropsRouteImport } from './routes/foundations/shared-props'
@@ -130,6 +133,21 @@ const DisplayPersonRoute = DisplayPersonRouteImport.update({
 const DisplaySurfaceRoute = DisplaySurfaceRouteImport.update({
   id: '/display/surface',
   path: '/display/surface',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeedbackAlertRoute = FeedbackAlertRouteImport.update({
+  id: '/feedback/alert',
+  path: '/feedback/alert',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeedbackEmptyStateRoute = FeedbackEmptyStateRouteImport.update({
+  id: '/feedback/empty-state',
+  path: '/feedback/empty-state',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeedbackNotificationsRoute = FeedbackNotificationsRouteImport.update({
+  id: '/feedback/notifications',
+  path: '/feedback/notifications',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FoundationsPolymorphismRoute = FoundationsPolymorphismRouteImport.update({
@@ -281,6 +299,9 @@ export interface FileRoutesByFullPath {
   '/display/labeled-content': typeof DisplayLabeledContentRoute
   '/display/person': typeof DisplayPersonRoute
   '/display/surface': typeof DisplaySurfaceRoute
+  '/feedback/alert': typeof FeedbackAlertRoute
+  '/feedback/empty-state': typeof FeedbackEmptyStateRoute
+  '/feedback/notifications': typeof FeedbackNotificationsRoute
   '/foundations/polymorphism': typeof FoundationsPolymorphismRoute
   '/foundations/responsive': typeof FoundationsResponsiveRoute
   '/foundations/shared-props': typeof FoundationsSharedPropsRoute
@@ -325,6 +346,9 @@ export interface FileRoutesByTo {
   '/display/labeled-content': typeof DisplayLabeledContentRoute
   '/display/person': typeof DisplayPersonRoute
   '/display/surface': typeof DisplaySurfaceRoute
+  '/feedback/alert': typeof FeedbackAlertRoute
+  '/feedback/empty-state': typeof FeedbackEmptyStateRoute
+  '/feedback/notifications': typeof FeedbackNotificationsRoute
   '/foundations/polymorphism': typeof FoundationsPolymorphismRoute
   '/foundations/responsive': typeof FoundationsResponsiveRoute
   '/foundations/shared-props': typeof FoundationsSharedPropsRoute
@@ -370,6 +394,9 @@ export interface FileRoutesById {
   '/display/labeled-content': typeof DisplayLabeledContentRoute
   '/display/person': typeof DisplayPersonRoute
   '/display/surface': typeof DisplaySurfaceRoute
+  '/feedback/alert': typeof FeedbackAlertRoute
+  '/feedback/empty-state': typeof FeedbackEmptyStateRoute
+  '/feedback/notifications': typeof FeedbackNotificationsRoute
   '/foundations/polymorphism': typeof FoundationsPolymorphismRoute
   '/foundations/responsive': typeof FoundationsResponsiveRoute
   '/foundations/shared-props': typeof FoundationsSharedPropsRoute
@@ -416,6 +443,9 @@ export interface FileRouteTypes {
     | '/display/labeled-content'
     | '/display/person'
     | '/display/surface'
+    | '/feedback/alert'
+    | '/feedback/empty-state'
+    | '/feedback/notifications'
     | '/foundations/polymorphism'
     | '/foundations/responsive'
     | '/foundations/shared-props'
@@ -460,6 +490,9 @@ export interface FileRouteTypes {
     | '/display/labeled-content'
     | '/display/person'
     | '/display/surface'
+    | '/feedback/alert'
+    | '/feedback/empty-state'
+    | '/feedback/notifications'
     | '/foundations/polymorphism'
     | '/foundations/responsive'
     | '/foundations/shared-props'
@@ -504,6 +537,9 @@ export interface FileRouteTypes {
     | '/display/labeled-content'
     | '/display/person'
     | '/display/surface'
+    | '/feedback/alert'
+    | '/feedback/empty-state'
+    | '/feedback/notifications'
     | '/foundations/polymorphism'
     | '/foundations/responsive'
     | '/foundations/shared-props'
@@ -549,6 +585,9 @@ export interface RootRouteChildren {
   DisplayLabeledContentRoute: typeof DisplayLabeledContentRoute
   DisplayPersonRoute: typeof DisplayPersonRoute
   DisplaySurfaceRoute: typeof DisplaySurfaceRoute
+  FeedbackAlertRoute: typeof FeedbackAlertRoute
+  FeedbackEmptyStateRoute: typeof FeedbackEmptyStateRoute
+  FeedbackNotificationsRoute: typeof FeedbackNotificationsRoute
   FoundationsPolymorphismRoute: typeof FoundationsPolymorphismRoute
   FoundationsResponsiveRoute: typeof FoundationsResponsiveRoute
   FoundationsSharedPropsRoute: typeof FoundationsSharedPropsRoute
@@ -689,6 +728,27 @@ declare module '@tanstack/react-router' {
       path: '/display/surface'
       fullPath: '/display/surface'
       preLoaderRoute: typeof DisplaySurfaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feedback/alert': {
+      id: '/feedback/alert'
+      path: '/feedback/alert'
+      fullPath: '/feedback/alert'
+      preLoaderRoute: typeof FeedbackAlertRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feedback/empty-state': {
+      id: '/feedback/empty-state'
+      path: '/feedback/empty-state'
+      fullPath: '/feedback/empty-state'
+      preLoaderRoute: typeof FeedbackEmptyStateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feedback/notifications': {
+      id: '/feedback/notifications'
+      path: '/feedback/notifications'
+      fullPath: '/feedback/notifications'
+      preLoaderRoute: typeof FeedbackNotificationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/foundations/polymorphism': {
@@ -893,6 +953,9 @@ const rootRouteChildren: RootRouteChildren = {
   DisplayLabeledContentRoute: DisplayLabeledContentRoute,
   DisplayPersonRoute: DisplayPersonRoute,
   DisplaySurfaceRoute: DisplaySurfaceRoute,
+  FeedbackAlertRoute: FeedbackAlertRoute,
+  FeedbackEmptyStateRoute: FeedbackEmptyStateRoute,
+  FeedbackNotificationsRoute: FeedbackNotificationsRoute,
   FoundationsPolymorphismRoute: FoundationsPolymorphismRoute,
   FoundationsResponsiveRoute: FoundationsResponsiveRoute,
   FoundationsSharedPropsRoute: FoundationsSharedPropsRoute,
