@@ -1054,6 +1054,9 @@ another package. A recessed surface is `--muted`.
 | `useMediaQuery`, `usePrefersReducedMotion` from `@proedis/ui/hooks` | from `@proedis/react`, same signatures; `@proedis/ui/hooks` keeps `useBreakpoint` and `useIsMobile` |
 | `tailwindcss` `^4.0.0` | `^4.1.5`, see Compatibility |
 | a `Badge` with text renders the text as its child | the text is wrapped in `badge-label` and truncates with an ellipsis when the badge is too narrow |
+| `dirty` on a `Dialog` or `Drawer` without `discard` compiled, and did nothing | `discard` is required as soon as `dirty` can be true (`DialogDirtyProps`); `dirty={false}`, or none, needs none |
+| `actions` of an `EmptyState`: any array, the third and later dropped | at most two, by the type (`EmptyStateActions`): an array typed `EmptyStateAction[]` becomes a tuple |
+| `data-mode`, `data-inline`, `data-wrap`, `data-divided`, `data-fill` on the parts of a component laid out by `Stack`, `Cluster`, `Center` or `Grid` | written only on a primitive that renders as itself; a rule matching them on a component part matches nothing now |
 
 ## 🤝 Compatibility
 
