@@ -24,6 +24,7 @@ import {
   OverlaySectionBlock,
   OverlayVeil,
   SUBMIT_TIMEOUT,
+  useFocusOffVeil,
   useFocusWhenSet,
   useNudge,
   useOrigin,
@@ -272,6 +273,15 @@ function DialogRoot(props: DialogProps): React.ReactNode {
   };
 
   const initialFocus = (): HTMLElement | null => {
+    /*
+     * Opened while its data load, everything under the veil is inert and refuses the focus, which
+     * then stayed on the trigger behind the modal. The veil holds it until the data arrive; the effect
+     * below hands it to the first field then.
+     */
+    if (wait.inert) {
+      return veilRef.current;
+    }
+
     const footerButtons = footerRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]), a[href]');
 
     /* The toolbar comes before the body: a search there is the first field */
@@ -288,18 +298,8 @@ function DialogRoot(props: DialogProps): React.ReactNode {
   // Lifecycle Events
   // ----
 
-  /* The data arrived: the focus leaves the veil for the first field, unless an error took it */
-  const wasLoadingRef = React.useRef(false);
-
-  React.useEffect(() => {
-    const wasLoading = wasLoadingRef.current;
-
-    wasLoadingRef.current = busy === 'load';
-
-    if (wasLoading && busy === false && open && !shownError) {
-      initialFocus()?.focus();
-    }
-  });
+  /* The wait ended with the dialog open: the data arrived, or a save kept it open for the next one */
+  useFocusOffVeil(wait.inert, veilRef, initialFocus);
 
 
   // ----

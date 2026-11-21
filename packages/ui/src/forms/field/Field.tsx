@@ -252,7 +252,7 @@ const FOCUSABLE = [
   'textarea:not(:disabled)',
   'select:not(:disabled)',
   'button:not(:disabled)',
-  '[tabindex]:not([tabindex="-1"])'
+  '[tabindex]:not([tabindex="-1"]):not(:disabled)'
 ].join(', ');
 
 

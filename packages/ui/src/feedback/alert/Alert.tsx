@@ -13,7 +13,7 @@ import { Stack } from '../../layout/Stack';
 
 import { VisuallyHidden } from '../../primitives/VisuallyHidden';
 
-import { FOCUSABLE } from '../../internal/focus';
+import { canTakeFocus, FOCUSABLE } from '../../internal/focus';
 import { ClearGlyph, ToneGlyph } from '../../internal/glyphs';
 import { isPresent } from '../../internal/presence';
 
@@ -152,6 +152,7 @@ function focusAfter(root: HTMLElement): void {
     !root.contains(element)
     && (root.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0 // eslint-disable-line no-bitwise -- a position mask
     && element.getClientRects().length > 0
+    && canTakeFocus(element)
   ));
 
   if (next) {

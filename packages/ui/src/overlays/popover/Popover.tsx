@@ -8,7 +8,7 @@ import { cn } from '../../core/cn';
 
 import { Stack } from '../../layout/Stack';
 
-import { FOCUSABLE } from '../../internal/focus';
+import { canTakeFocus, FOCUSABLE } from '../../internal/focus';
 import { ClearGlyph } from '../../internal/glyphs';
 import { isPresent } from '../../internal/presence';
 
@@ -83,7 +83,7 @@ const WIDTHS = { sm: 'w-70', md: 'w-80' } as const;
 function firstFocusable(container: HTMLElement | null): HTMLElement | null {
   const found = container?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? [];
 
-  return Array.from(found).find((element) => element.dataset.slot !== 'popover-close') ?? null;
+  return Array.from(found).find((element) => element.dataset.slot !== 'popover-close' && canTakeFocus(element)) ?? null;
 }
 
 function ArrowGlyph(): React.ReactNode {

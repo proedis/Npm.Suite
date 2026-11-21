@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import { Dialog as DialogPrimitive } from '@base-ui/react/dialog';
 
-import { optionalContextBuilder } from '@proedis/react';
+import { optionalContextBuilder, useSyncedRef } from '@proedis/react';
 
 import { ClearGlyph } from '../../internal/glyphs';
 import { isPresent } from '../../internal/presence';
@@ -26,6 +26,7 @@ import {
   OverlayStatus,
   OverlayVeil,
   SUBMIT_TIMEOUT,
+  useFocusOffVeil,
   useFocusWhenSet,
   useNudge,
   useOrigin,
@@ -328,7 +329,14 @@ function DrawerRoot(props: DrawerProps): React.ReactNode {
     }
   };
 
-  const initialFocus = (): HTMLElement | null => (isDetail ? bodyRef.current : firstField(bodyRef.current) ?? bodyRef.current);
+  /* Opened while loading, the body is inert: the veil holds the focus, as in a Dialog */
+  const initialFocus = (): HTMLElement | null => {
+    if (wait.inert) {
+      return veilRef.current;
+    }
+
+    return isDetail ? bodyRef.current : firstField(bodyRef.current) ?? bodyRef.current;
+  };
 
 
   // ----
@@ -361,15 +369,27 @@ function DrawerRoot(props: DrawerProps): React.ReactNode {
     };
   }, [ popup ]);
 
+  /* The wait ended with the drawer open: the focus leaves the veil for what the drawer shows now */
+  useFocusOffVeil(wait.inert, veilRef, initialFocus);
+
   /* Into the form, the focus goes to the first field; back to the detail, to its main action ("Edit") */
+  const afterMove = (): HTMLElement | null => {
+    const actions = popup?.querySelectorAll<HTMLElement>('[data-slot=drawer-footer] button:not([disabled])');
+    const main = isDetail && actions && actions.length > 0 ? actions[actions.length - 1] : null;
+
+    return main ?? initialFocus();
+  };
+
+  /*
+   * The discard prompt closes after the move it allowed, and the field it came from is gone by then:
+   * it reads the target of the drawer as it is at that moment, not as it was when it opened
+   */
+  const afterMoveRef = useSyncedRef(afterMove);
   const shownModeRef = React.useRef(mode);
 
   React.useEffect(() => {
     if (shownModeRef.current !== mode && open) {
-      const actions = popup?.querySelectorAll<HTMLElement>('[data-slot=drawer-footer] button:not([disabled])');
-      const main = isDetail && actions && actions.length > 0 ? actions[actions.length - 1] : null;
-
-      (main ?? initialFocus())?.focus();
+      afterMove()?.focus();
     }
 
     shownModeRef.current = mode;
@@ -483,6 +503,7 @@ function DrawerRoot(props: DrawerProps): React.ReactNode {
               <DiscardPrompt
                 discard={discard}
                 open={pending !== null}
+                returnFocus={() => afterMoveRef.current()}
                 onCancel={() => setPending(null)}
                 onConfirm={() => {
                   const move = pending;

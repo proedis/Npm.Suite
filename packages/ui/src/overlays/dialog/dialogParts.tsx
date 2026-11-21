@@ -33,6 +33,12 @@ interface DiscardPromptProps {
 
   /** Discarded them: the move the prompt stopped can go on */
   onConfirm: () => void;
+
+  /**
+   * Where the focus goes when the prompt closes and the control it came from is gone: discarding a
+   * form unmounts the field that had the focus. Read when the prompt closes, after the move
+   */
+  returnFocus?: () => HTMLElement | null;
 }
 
 export type OverlayCancelProps = ButtonProps & {
@@ -59,7 +65,7 @@ const UNREAD_LABELS: AlertDialogLabels = { busyLoad: '', busyAction: '', close: 
 
 /** "Discard changes?", in warning, inside the overlay it protects so it sits above it */
 export function DiscardPrompt(props: DiscardPromptProps): React.ReactNode {
-  const { discard, onCancel, onConfirm, open } = props;
+  const { discard, onCancel, onConfirm, open, returnFocus } = props;
 
   return (
     <AlertDialog
@@ -76,6 +82,7 @@ export function DiscardPrompt(props: DiscardPromptProps): React.ReactNode {
       actionLabel={discard.action}
       cancelLabel={discard.cancel}
       onAction={onConfirm}
+      returnFocus={returnFocus}
       labels={UNREAD_LABELS}
     />
   );

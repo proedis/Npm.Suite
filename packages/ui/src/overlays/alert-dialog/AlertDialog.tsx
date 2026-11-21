@@ -23,6 +23,7 @@ import {
   OverlayHeader,
   OverlayVeil,
   SUBMIT_TIMEOUT,
+  useFocusOffVeil,
   useFocusWhenSet,
   useNudge,
   useOrigin,
@@ -281,6 +282,9 @@ export function AlertDialog(props: AlertDialogProps): React.ReactNode {
   const initialFocus = (): HTMLElement | null => (
     confirmText !== undefined && !outcome ? fieldRef.current : cancelRef.current
   );
+
+  /* An action that ended in an outcome leaves only the exit, and the focus goes to it */
+  useFocusOffVeil(wait.inert, veilRef, initialFocus);
 
 
   // ----

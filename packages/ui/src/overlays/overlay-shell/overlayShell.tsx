@@ -15,7 +15,7 @@ import { BusyVeil } from '../../primitives/BusyVeil';
 import { VisuallyHidden } from '../../primitives/VisuallyHidden';
 
 
-import { FOCUSABLE } from '../../internal/focus';
+import { canTakeFocus, FOCUSABLE } from '../../internal/focus';
 import { ToneGlyph } from '../../internal/glyphs';
 import { isPresent } from '../../internal/presence';
 
@@ -70,11 +70,11 @@ export const [ OverlayLevelContext, useOverlayLevelContext ] = optionalContextBu
 
 /** The first field inside, then the first focusable element */
 export function firstField(container: HTMLElement | null): HTMLElement | null {
-  return container?.querySelector<HTMLElement>(FIELD) ?? null;
+  return Array.from(container?.querySelectorAll<HTMLElement>(FIELD) ?? []).find(canTakeFocus) ?? null;
 }
 
 export function firstFocusable(container: HTMLElement | null): HTMLElement | null {
-  return container?.querySelector<HTMLElement>(FOCUSABLE) ?? null;
+  return Array.from(container?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? []).find(canTakeFocus) ?? null;
 }
 
 /** The control focused when the overlay opened, or the fallback, or the title of the page */
@@ -459,6 +459,32 @@ export function useFocusWhenSet(value: unknown, ref: { readonly current: HTMLEle
       ref.current?.focus();
     }
   }, [ key, ref ]);
+}
+
+
+/**
+ * The veil gives the focus back when it stops waiting.
+ *
+ * While an overlay waits the veil holds the focus, since everything under it is inert. When the wait
+ * ends with the overlay still open (the data arrived, a save kept the dialog open for the next one,
+ * an action ended in an outcome), the focus stayed on a veil nobody can use, and Enter did nothing.
+ * It goes to `next()` then, only if it is still on the veil: an error that arrived with the end of
+ * the wait has already taken it, through `useFocusWhenSet`, and keeps it.
+ */
+export function useFocusOffVeil(
+  waiting: boolean,
+  veilRef: { readonly current: HTMLElement | null },
+  next: () => HTMLElement | null
+): void {
+  const nextRef = useSyncedRef(next);
+
+  React.useEffect(() => {
+    const veil = veilRef.current;
+
+    if (!waiting && veil && veil.ownerDocument.activeElement === veil) {
+      nextRef.current()?.focus();
+    }
+  }, [ waiting, veilRef, nextRef ]);
 }
 
 
