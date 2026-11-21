@@ -17,6 +17,18 @@ import { Route as FoundationsSharedPropsRouteImport } from './routes/foundations
 import { Route as FoundationsSlotsRouteImport } from './routes/foundations/slots'
 import { Route as FoundationsThemingRouteImport } from './routes/foundations/theming'
 import { Route as FoundationsTonesRouteImport } from './routes/foundations/tones'
+import { Route as LayoutAspectRatioRouteImport } from './routes/layout/aspect-ratio'
+import { Route as LayoutBleedRouteImport } from './routes/layout/bleed'
+import { Route as LayoutBoxRouteImport } from './routes/layout/box'
+import { Route as LayoutCenterRouteImport } from './routes/layout/center'
+import { Route as LayoutClusterRouteImport } from './routes/layout/cluster'
+import { Route as LayoutContainerRouteImport } from './routes/layout/container'
+import { Route as LayoutGridRouteImport } from './routes/layout/grid'
+import { Route as LayoutSafeAreaRouteImport } from './routes/layout/safe-area'
+import { Route as LayoutSpacerRouteImport } from './routes/layout/spacer'
+import { Route as LayoutSplitRouteImport } from './routes/layout/split'
+import { Route as LayoutStackRouteImport } from './routes/layout/stack'
+import { Route as LayoutStickyRouteImport } from './routes/layout/sticky'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -58,6 +70,66 @@ const FoundationsTonesRoute = FoundationsTonesRouteImport.update({
   path: '/foundations/tones',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LayoutAspectRatioRoute = LayoutAspectRatioRouteImport.update({
+  id: '/layout/aspect-ratio',
+  path: '/layout/aspect-ratio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LayoutBleedRoute = LayoutBleedRouteImport.update({
+  id: '/layout/bleed',
+  path: '/layout/bleed',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LayoutBoxRoute = LayoutBoxRouteImport.update({
+  id: '/layout/box',
+  path: '/layout/box',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LayoutCenterRoute = LayoutCenterRouteImport.update({
+  id: '/layout/center',
+  path: '/layout/center',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LayoutClusterRoute = LayoutClusterRouteImport.update({
+  id: '/layout/cluster',
+  path: '/layout/cluster',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LayoutContainerRoute = LayoutContainerRouteImport.update({
+  id: '/layout/container',
+  path: '/layout/container',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LayoutGridRoute = LayoutGridRouteImport.update({
+  id: '/layout/grid',
+  path: '/layout/grid',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LayoutSafeAreaRoute = LayoutSafeAreaRouteImport.update({
+  id: '/layout/safe-area',
+  path: '/layout/safe-area',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LayoutSpacerRoute = LayoutSpacerRouteImport.update({
+  id: '/layout/spacer',
+  path: '/layout/spacer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LayoutSplitRoute = LayoutSplitRouteImport.update({
+  id: '/layout/split',
+  path: '/layout/split',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LayoutStackRoute = LayoutStackRouteImport.update({
+  id: '/layout/stack',
+  path: '/layout/stack',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LayoutStickyRoute = LayoutStickyRouteImport.update({
+  id: '/layout/sticky',
+  path: '/layout/sticky',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -68,6 +140,18 @@ export interface FileRoutesByFullPath {
   '/foundations/slots': typeof FoundationsSlotsRoute
   '/foundations/theming': typeof FoundationsThemingRoute
   '/foundations/tones': typeof FoundationsTonesRoute
+  '/layout/aspect-ratio': typeof LayoutAspectRatioRoute
+  '/layout/bleed': typeof LayoutBleedRoute
+  '/layout/box': typeof LayoutBoxRoute
+  '/layout/center': typeof LayoutCenterRoute
+  '/layout/cluster': typeof LayoutClusterRoute
+  '/layout/container': typeof LayoutContainerRoute
+  '/layout/grid': typeof LayoutGridRoute
+  '/layout/safe-area': typeof LayoutSafeAreaRoute
+  '/layout/spacer': typeof LayoutSpacerRoute
+  '/layout/split': typeof LayoutSplitRoute
+  '/layout/stack': typeof LayoutStackRoute
+  '/layout/sticky': typeof LayoutStickyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -78,6 +162,18 @@ export interface FileRoutesByTo {
   '/foundations/slots': typeof FoundationsSlotsRoute
   '/foundations/theming': typeof FoundationsThemingRoute
   '/foundations/tones': typeof FoundationsTonesRoute
+  '/layout/aspect-ratio': typeof LayoutAspectRatioRoute
+  '/layout/bleed': typeof LayoutBleedRoute
+  '/layout/box': typeof LayoutBoxRoute
+  '/layout/center': typeof LayoutCenterRoute
+  '/layout/cluster': typeof LayoutClusterRoute
+  '/layout/container': typeof LayoutContainerRoute
+  '/layout/grid': typeof LayoutGridRoute
+  '/layout/safe-area': typeof LayoutSafeAreaRoute
+  '/layout/spacer': typeof LayoutSpacerRoute
+  '/layout/split': typeof LayoutSplitRoute
+  '/layout/stack': typeof LayoutStackRoute
+  '/layout/sticky': typeof LayoutStickyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -89,6 +185,18 @@ export interface FileRoutesById {
   '/foundations/slots': typeof FoundationsSlotsRoute
   '/foundations/theming': typeof FoundationsThemingRoute
   '/foundations/tones': typeof FoundationsTonesRoute
+  '/layout/aspect-ratio': typeof LayoutAspectRatioRoute
+  '/layout/bleed': typeof LayoutBleedRoute
+  '/layout/box': typeof LayoutBoxRoute
+  '/layout/center': typeof LayoutCenterRoute
+  '/layout/cluster': typeof LayoutClusterRoute
+  '/layout/container': typeof LayoutContainerRoute
+  '/layout/grid': typeof LayoutGridRoute
+  '/layout/safe-area': typeof LayoutSafeAreaRoute
+  '/layout/spacer': typeof LayoutSpacerRoute
+  '/layout/split': typeof LayoutSplitRoute
+  '/layout/stack': typeof LayoutStackRoute
+  '/layout/sticky': typeof LayoutStickyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,6 +209,18 @@ export interface FileRouteTypes {
     | '/foundations/slots'
     | '/foundations/theming'
     | '/foundations/tones'
+    | '/layout/aspect-ratio'
+    | '/layout/bleed'
+    | '/layout/box'
+    | '/layout/center'
+    | '/layout/cluster'
+    | '/layout/container'
+    | '/layout/grid'
+    | '/layout/safe-area'
+    | '/layout/spacer'
+    | '/layout/split'
+    | '/layout/stack'
+    | '/layout/sticky'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -111,6 +231,18 @@ export interface FileRouteTypes {
     | '/foundations/slots'
     | '/foundations/theming'
     | '/foundations/tones'
+    | '/layout/aspect-ratio'
+    | '/layout/bleed'
+    | '/layout/box'
+    | '/layout/center'
+    | '/layout/cluster'
+    | '/layout/container'
+    | '/layout/grid'
+    | '/layout/safe-area'
+    | '/layout/spacer'
+    | '/layout/split'
+    | '/layout/stack'
+    | '/layout/sticky'
   id:
     | '__root__'
     | '/'
@@ -121,6 +253,18 @@ export interface FileRouteTypes {
     | '/foundations/slots'
     | '/foundations/theming'
     | '/foundations/tones'
+    | '/layout/aspect-ratio'
+    | '/layout/bleed'
+    | '/layout/box'
+    | '/layout/center'
+    | '/layout/cluster'
+    | '/layout/container'
+    | '/layout/grid'
+    | '/layout/safe-area'
+    | '/layout/spacer'
+    | '/layout/split'
+    | '/layout/stack'
+    | '/layout/sticky'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -132,6 +276,18 @@ export interface RootRouteChildren {
   FoundationsSlotsRoute: typeof FoundationsSlotsRoute
   FoundationsThemingRoute: typeof FoundationsThemingRoute
   FoundationsTonesRoute: typeof FoundationsTonesRoute
+  LayoutAspectRatioRoute: typeof LayoutAspectRatioRoute
+  LayoutBleedRoute: typeof LayoutBleedRoute
+  LayoutBoxRoute: typeof LayoutBoxRoute
+  LayoutCenterRoute: typeof LayoutCenterRoute
+  LayoutClusterRoute: typeof LayoutClusterRoute
+  LayoutContainerRoute: typeof LayoutContainerRoute
+  LayoutGridRoute: typeof LayoutGridRoute
+  LayoutSafeAreaRoute: typeof LayoutSafeAreaRoute
+  LayoutSpacerRoute: typeof LayoutSpacerRoute
+  LayoutSplitRoute: typeof LayoutSplitRoute
+  LayoutStackRoute: typeof LayoutStackRoute
+  LayoutStickyRoute: typeof LayoutStickyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -192,6 +348,90 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FoundationsTonesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/layout/aspect-ratio': {
+      id: '/layout/aspect-ratio'
+      path: '/layout/aspect-ratio'
+      fullPath: '/layout/aspect-ratio'
+      preLoaderRoute: typeof LayoutAspectRatioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/layout/bleed': {
+      id: '/layout/bleed'
+      path: '/layout/bleed'
+      fullPath: '/layout/bleed'
+      preLoaderRoute: typeof LayoutBleedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/layout/box': {
+      id: '/layout/box'
+      path: '/layout/box'
+      fullPath: '/layout/box'
+      preLoaderRoute: typeof LayoutBoxRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/layout/center': {
+      id: '/layout/center'
+      path: '/layout/center'
+      fullPath: '/layout/center'
+      preLoaderRoute: typeof LayoutCenterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/layout/cluster': {
+      id: '/layout/cluster'
+      path: '/layout/cluster'
+      fullPath: '/layout/cluster'
+      preLoaderRoute: typeof LayoutClusterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/layout/container': {
+      id: '/layout/container'
+      path: '/layout/container'
+      fullPath: '/layout/container'
+      preLoaderRoute: typeof LayoutContainerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/layout/grid': {
+      id: '/layout/grid'
+      path: '/layout/grid'
+      fullPath: '/layout/grid'
+      preLoaderRoute: typeof LayoutGridRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/layout/safe-area': {
+      id: '/layout/safe-area'
+      path: '/layout/safe-area'
+      fullPath: '/layout/safe-area'
+      preLoaderRoute: typeof LayoutSafeAreaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/layout/spacer': {
+      id: '/layout/spacer'
+      path: '/layout/spacer'
+      fullPath: '/layout/spacer'
+      preLoaderRoute: typeof LayoutSpacerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/layout/split': {
+      id: '/layout/split'
+      path: '/layout/split'
+      fullPath: '/layout/split'
+      preLoaderRoute: typeof LayoutSplitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/layout/stack': {
+      id: '/layout/stack'
+      path: '/layout/stack'
+      fullPath: '/layout/stack'
+      preLoaderRoute: typeof LayoutStackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/layout/sticky': {
+      id: '/layout/sticky'
+      path: '/layout/sticky'
+      fullPath: '/layout/sticky'
+      preLoaderRoute: typeof LayoutStickyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -204,6 +444,18 @@ const rootRouteChildren: RootRouteChildren = {
   FoundationsSlotsRoute: FoundationsSlotsRoute,
   FoundationsThemingRoute: FoundationsThemingRoute,
   FoundationsTonesRoute: FoundationsTonesRoute,
+  LayoutAspectRatioRoute: LayoutAspectRatioRoute,
+  LayoutBleedRoute: LayoutBleedRoute,
+  LayoutBoxRoute: LayoutBoxRoute,
+  LayoutCenterRoute: LayoutCenterRoute,
+  LayoutClusterRoute: LayoutClusterRoute,
+  LayoutContainerRoute: LayoutContainerRoute,
+  LayoutGridRoute: LayoutGridRoute,
+  LayoutSafeAreaRoute: LayoutSafeAreaRoute,
+  LayoutSpacerRoute: LayoutSpacerRoute,
+  LayoutSplitRoute: LayoutSplitRoute,
+  LayoutStackRoute: LayoutStackRoute,
+  LayoutStickyRoute: LayoutStickyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

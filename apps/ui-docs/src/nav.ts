@@ -144,18 +144,18 @@ export const NAV: readonly NavGroup[] = [
     title      : 'Layout',
     description: 'Where things are. No colour, no opinion: every component of the package lays out through these.',
     items      : [
-      { title: 'Box', to: '/layout/box', subpath: '@proedis/ui/layout', description: 'An element with the shared props and nothing else.', icon: Box, ready: false },
-      { title: 'Stack', to: '/layout/stack', subpath: '@proedis/ui/layout', description: 'A column or a row with a gap, or equal columns: the container everything else is.', icon: Rows3, ready: false },
-      { title: 'Cluster', to: '/layout/cluster', subpath: '@proedis/ui/layout', description: 'A row that wraps, centred on its line: tags, actions, filters.', icon: LayoutList, ready: false },
-      { title: 'Grid', to: '/layout/grid', subpath: '@proedis/ui/layout', description: 'As many columns as fit, each at least a given width.', icon: LayoutGrid, ready: false },
-      { title: 'Center', to: '/layout/center', subpath: '@proedis/ui/layout', description: 'Content centred on both axes, with a maximum width.', icon: AlignVerticalSpaceAround, ready: false },
-      { title: 'Container', to: '/layout/container', subpath: '@proedis/ui/layout', description: 'The page column: a maximum width and the side padding.', icon: Frame, ready: false },
-      { title: 'Split', to: '/layout/split', subpath: '@proedis/ui/layout', description: 'A fixed rail and a flexible pane, stacked below a breakpoint.', icon: Columns2, ready: false },
-      { title: 'Spacer', to: '/layout/spacer', subpath: '@proedis/ui/layout', description: 'The free space of a row, or a fixed gap of the scale.', icon: MoveHorizontal, ready: false },
-      { title: 'Sticky', to: '/layout/sticky', subpath: '@proedis/ui/layout', description: 'Pinned to the top or the bottom edge while its parent scrolls.', icon: Pin, ready: false },
-      { title: 'AspectRatio', to: '/layout/aspect-ratio', subpath: '@proedis/ui/layout', description: 'A box that keeps its proportions at any width.', icon: Crop, ready: false },
-      { title: 'Bleed', to: '/layout/bleed', subpath: '@proedis/ui/layout', description: 'Undoes the padding of the container, to reach its edges.', icon: ScanLine, ready: false },
-      { title: 'SafeArea', to: '/layout/safe-area', subpath: '@proedis/ui/layout', description: 'The insets of a notch and a home indicator, as padding.', icon: Smartphone, ready: false }
+      { title: 'Box', to: '/layout/box', subpath: '@proedis/ui/layout', description: 'An element with the shared props and nothing else.', icon: Box, ready: true },
+      { title: 'Stack', to: '/layout/stack', subpath: '@proedis/ui/layout', description: 'A column or a row with a gap, or equal columns: the container everything else is.', icon: Rows3, ready: true },
+      { title: 'Cluster', to: '/layout/cluster', subpath: '@proedis/ui/layout', description: 'A row that wraps, centred on its line: tags, actions, filters.', icon: LayoutList, ready: true },
+      { title: 'Grid', to: '/layout/grid', subpath: '@proedis/ui/layout', description: 'As many columns as fit, each at least a given width.', icon: LayoutGrid, ready: true },
+      { title: 'Center', to: '/layout/center', subpath: '@proedis/ui/layout', description: 'Content centred on both axes, with a maximum width.', icon: AlignVerticalSpaceAround, ready: true },
+      { title: 'Container', to: '/layout/container', subpath: '@proedis/ui/layout', description: 'The page column: a maximum width and the side padding.', icon: Frame, ready: true },
+      { title: 'Split', to: '/layout/split', subpath: '@proedis/ui/layout', description: 'A fixed rail and a flexible pane, stacked below a breakpoint.', icon: Columns2, ready: true },
+      { title: 'Spacer', to: '/layout/spacer', subpath: '@proedis/ui/layout', description: 'The free space of a row or a column, pushing what follows to the end.', icon: MoveHorizontal, ready: true },
+      { title: 'Sticky', to: '/layout/sticky', subpath: '@proedis/ui/layout', description: 'Pinned to the top or the bottom edge while its parent scrolls.', icon: Pin, ready: true },
+      { title: 'AspectRatio', to: '/layout/aspect-ratio', subpath: '@proedis/ui/layout', description: 'A box that keeps its proportions at any width.', icon: Crop, ready: true },
+      { title: 'Bleed', to: '/layout/bleed', subpath: '@proedis/ui/layout', description: 'Undoes the padding of the container, to reach its edges.', icon: ScanLine, ready: true },
+      { title: 'SafeArea', to: '/layout/safe-area', subpath: '@proedis/ui/layout', description: 'The insets of a notch and a home indicator, as padding.', icon: Smartphone, ready: true }
     ]
   },
   {
