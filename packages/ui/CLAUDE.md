@@ -71,10 +71,11 @@ src/
   ui.css             # sources, token contract, defaults, custom utilities
   theme.css          # ui.css + the full semantic vocabulary for the layer above
   index.ts           # the root barrel: core + layout + primitives + the static display components
-  core/              # cn, the shared props, the polymorphic props, the responsive machinery, the tones
+  core/              # cn, the shared props, the polymorphic props, the responsive machinery and the
+                     # spacing scale, the control sizes, the tones
   layout/            # the twelve primitives that answer *where*
   primitives/        # the small pieces with a look, shared by everything above
-  internal/          # private: glyphs, presence, focus. Never a subpath
+  internal/          # private: glyphs, presence, focus, the control heights. Never a subpath
   display/           # one folder per subpath: what things look like
   actions/           # one folder per subpath: buttons, menus, tabs, toggles, tooltips
   feedback/          # one folder per subpath: alert, empty state, notifications
@@ -106,7 +107,7 @@ imports them by relative path (`../../actions/button/IconButton`): with `preserv
 is emitted once and both subpaths reuse it. A context two subpaths share lives in the one lower down
 (`forms/field/fieldContext.ts` is provided by `form`), so the dependency goes one way.
 
-**Two rules of the root `eslint.config.mjs` hold the structure**, and they are why it does not erode:
+**Three rules of the root `eslint.config.mjs` hold the structure**, and they are why it does not erode:
 
 - `suite/ui-sections`: `import/no-restricted-paths` with one zone per section, so an import against
   the order fails; and one `import/order` for the whole package, with a group per section, so a
@@ -122,6 +123,12 @@ is emitted once and both subpaths reuse it. A context two subpaths share lives i
   `eslint-disable-next-line`: today twelve, all a layout the primitives cannot express (named grid
   tracks and subgrids, tracks counted from the data, `gap-x` apart from `gap-y`, a display switched by
   a container query).
+- `suite/ui-control-height` (in the same block, with an exemption for its one source): an
+  `h-control-*` written anywhere but `internal/control.ts` is an error. **Two controls of the same size
+  have the same height**: every control composes its size from `CONTROL_HEIGHT`, so a new one cannot be
+  a step off the others. `min-h-control-*` is not matched, a label lined up with a field reads the
+  height without being a control. One exception, on its line: the `field` shape of `Skeleton`, in
+  `primitives`, which comes before `internal` and reads the same variable.
 
 The private modules, shared by relative import and never exported by a barrel:
 
@@ -270,6 +277,12 @@ Two choices of the responsive pass that look improvable and are not:
 - **`size` takes one value, and touch is a token.** The height of a control is a matter of the
   pointer, not of the width: `(pointer: coarse)` raises `--spacing-control-*` one step in the `theme`
   layer of `theme.css`, so a product's own declaration still wins, on every device.
+- **Every control takes the three sizes of `ControlSize`**, `sm`, `md` and `lg`, and that is a rule
+  Marco set as non negotiable: a field, a select, a date picker, a segmented control, a toggle, an icon
+  button and a button of one size, side by side, have one height. `Toggle`, `SegmentedControl` and
+  `DatePicker` gained `lg` for it. Two things are taller on purpose and documented as such: the strip
+  of `Tabs` (navigation, its tabs read the same heights inside a padded rail) and a read only
+  `MultiSelect` whose chips wrap.
 
 The line between `layout` and `primitives` is intent, not a token count: `Stack` is in layout even
 though `divided` reads `--border`, because a hairline is an aid to its geometry; `Divider` is a
@@ -339,8 +352,23 @@ narrower stylesheet is the one you have to ask for.
   to it.
 - **The scale is a union type, not `number`.** The classes are declared once in the stylesheet, so a
   value outside the scale builds a class with no CSS behind it — a silent visual defect with no error
-  anywhere. `SpacingValue` and `ColumnsValue` must stay in sync with the `@source inline` lists;
-  changing one without the other reintroduces exactly that bug.
+  anywhere. `SpacingValue`, `SpacingToken` and `ColumnsValue` must stay in sync with the
+  `@source inline` lists; changing one without the other reintroduces exactly that bug.
+- **The spacing scale by name is read through the keys of each property, never `--spacing-*`.**
+  `xs` to `2xl` are `--space-*` on `:root` (Tailwind's steps 1, 2, 4, 6, 8, 12 as multiples of
+  `--spacing`, so `md` is 1rem), and `@theme inline` points `--gap-*`, `--padding-*`, `--margin-*`,
+  `--inset-*` and `--height-*` at them. `--spacing-md` would have been one line and breaks Tailwind:
+  the width utilities read `--spacing-*` before `--container-*`, so `max-w-md` turns from 28rem into
+  1rem, here and in every application. Measured with the compiler, side by side: with the per-property
+  keys every utility Tailwind had keeps its value, the names are only added. Those keys are in
+  Tailwind's source from 4.1.5 to the installed version but not in its documented namespaces:
+  re-check them when bumping Tailwind. `inline` is what makes a subtree that redeclares `--space-md`
+  change only what is inside it, since the class carries `var(--space-md)` itself.
+- **`Stack`, `Grid` and `Split` default their gap to `md`, `Cluster` to `sm`.** A Stack with no gap
+  used to be a Stack whose children touch, so every structural Stack inside the package declares
+  `gap={0}`: 119 of them, inserted by the TypeScript AST right after the tag name so a later spread or
+  prop still wins, and verified on the markup snapshots. `Item` (3) and `Heading` (0.5) keep a number:
+  that gap is their own geometry, not a layout choice of the page.
 - **`@theme inline` to override, plain `@theme` to add.** With `inline` the emitted utility
   references the raw variable (`border-color: var(--border)`), so a consumer's later `:root` wins by
   cascade. Without it the utility would reference `var(--color-border)` and every override would
@@ -892,6 +920,26 @@ documentation site surfaced):
   examples, every slots table compared with the live DOM of its examples, every claim about types
   proved with a probe in both directions, and a sweep of every page with no console error and no
   horizontal overflow at 375px.
+
+What was run for the spacing scale by name and the control heights:
+
+- **Tailwind's compiler, side by side** with and without the stylesheet, on 4.3.5 and on 4.1.5: the
+  per-property keys produce `gap-md`, `p-md`, `-mx-md`, `top-md`, `h-md` on `var(--space-*)`, and every
+  utility that existed (`w-md`, `max-w-md`, `basis-md`, `inset-shadow-xs` and the rest) keeps its value.
+  `--spacing-md`, tried first, turned `max-w-md` into 1rem. The built `ui.css`, compiled with no class
+  scanned, emits every safelisted name and breakpoint.
+- **The markup snapshots** (433 scenes) before and after, ignoring only the `gap-0` now written on the
+  structural Stacks: zero differences, with the default gap moved to `md` and every height composed
+  from `CONTROL_HEIGHT`.
+- **The heights measured in the browser**, one row per size with a field, a select, a date picker, a
+  segmented control, a toggle, an icon button and a button: 32, 36 and 40px for every one of them,
+  `lg` included where it is new. A region redeclaring `--space-md` measured 8px where the page measured
+  16px, on the same markup.
+- **`types.check.tsx`**: names on every spacing prop, responsive names, `lg` on every control; an
+  unknown step, an unknown responsive step and an `xl` control size each made valid for a moment to
+  watch `tsc` fail.
+- **The lint rule** run on a probe file: `h-control-md` in a string and in a template is reported,
+  `min-h-control-md` is not.
 
 ## Two defects the build surfaced
 

@@ -100,12 +100,12 @@ imported where Tailwind compiles.
 import { Cluster, Container, Divider, Stack } from '@proedis/ui';
 
 <Container size={'lg'}>
-  <Stack gap={6}>
-    <Cluster gap={2}>{filters}</Cluster>
+  <Stack gap={'lg'}>
+    <Cluster>{filters}</Cluster>
 
     <Divider />
 
-    <Stack direction={{ base: 'vertical', lg: 'horizontal' }} gap={{ base: 4, lg: 8 }} divided>
+    <Stack direction={{ base: 'vertical', lg: 'horizontal' }} gap={{ base: 'md', lg: 'xl' }} divided>
       {panels}
     </Stack>
   </Stack>
@@ -113,26 +113,78 @@ import { Cluster, Container, Divider, Stack } from '@proedis/ui';
 ```
 
 Every spacing, direction and column prop takes **one value or one per breakpoint**, mobile first:
-`base` carries no prefix and applies until a wider breakpoint overrides it.
+`base` carries no prefix and applies until a wider breakpoint overrides it. A spacing is a step of the
+scale **by name**, `xs` to `2xl`, and a theme retunes each name with one variable.
 
 ## 📖 API
 
-### The responsive scale is a type
+### The spacing scale, by name
 
 ```tsx
-<Stack gap={4} />        // ok
-<Stack gap={13} />       // does not compile
+<Stack gap={'md'} />                     // a step of the scale: the default
+<Stack gap={{ base: 'sm', lg: 'lg' }} /> // per breakpoint
+<Stack gap={0} />                        // children that touch
+<Stack gap={3} />                        // a Tailwind step, for the length no name covers
+<Stack gap={'3xl'} />                    // does not compile
+<Stack gap={13} />                       // does not compile
 ```
 
-That is the whole reason `gap` is not a `number`. The classes these props build are declared once in
-the stylesheet, so a value outside the scale would produce a class with **no CSS behind it** — a
-component silently losing its gap, with no error anywhere. The scale:
+Six names, each a variable of the theme. The defaults are Tailwind's own steps, so `md` is `gap-4`:
+
+| Name | `xs` | `sm` | `md` | `lg` | `xl` | `2xl` |
+| --- | --- | --- | --- | --- | --- | --- |
+| Tailwind step | 1 | 2 | 4 | 6 | 8 | 12 |
+| Default | 0.25rem | 0.5rem | 1rem | 1.5rem | 2rem | 3rem |
+
+Every spacing prop takes them: the `gap` of `Stack`, `Cluster`, `Grid`, `Split`, `Item` and
+`Heading`, the `space` of `Surface.Separator`, the `inset` of `Bleed`, the `offset` of `Sticky`. So do
+five families of classes, for what a prop does not cover: `gap-md`, `p-md` and its sides, `m-md` and
+`-mx-md`, `top-md` and the other insets, `h-md`. One vocabulary in the props and in the classes.
+
+```css
+:root {
+  --space-md: 1.25rem;   /* every gap, padding and inset named md, at once */
+}
+```
+
+The class carries the variable itself, `gap: var(--space-md)`, so an element that redeclares the scale
+changes only what is inside it: a denser toolbar or table panel, with no prop changed in it.
+
+A number is a Tailwind step, still accepted, and it is a measure written in the code: it does **not**
+move with the theme. Prefer the names, and keep a number for the one place no name fits.
+
+⚠️ The names are not `--spacing-md` in Tailwind's theme, which would have been one line: the width
+utilities read `--spacing-*` before `--container-*`, so `max-w-md` would turn from 28rem into 1rem in
+your application. They go through the keys each property reads first (`--gap-*`, `--padding-*`,
+`--margin-*`, `--inset-*`, `--height-*`), and every utility Tailwind already had keeps its value.
+
+Both kinds of value are a union, never a `number`: the classes these props build are declared once in
+the stylesheet, so a value outside the scale would produce a class with **no CSS behind it**, a
+component silently losing its gap with no error anywhere.
 
 | Prop | Values |
 | --- | --- |
-| `gap` (`SpacingValue`) | 0 · 0.5 · 1 · 1.5 · 2 · 2.5 · 3 · 3.5 · 4 · 5 · 6 · 7 · 8 · 9 · 10 · 12 · 14 · 16 |
+| `gap`, `space`, `inset`, `offset` (`Spacing`) | `xs` · `sm` · `md` · `lg` · `xl` · `2xl`, or a `SpacingValue`: 0 · 0.5 · 1 · 1.5 · 2 · 2.5 · 3 · 3.5 · 4 · 5 · 6 · 7 · 8 · 9 · 10 · 12 · 14 · 16 |
 | `columns` (`ColumnsValue`) | 1 → 12 |
 | breakpoints | `base` · `sm` · `md` · `lg` · `xl` · `2xl` |
+
+### One height per control size
+
+A control is anything you type into, pick from or press, and every one of them takes the same three
+sizes, `sm`, `md` and `lg` (`ControlSize`). **Two controls of the same size have the same height**,
+whatever they are: a `TextInput`, a `Select`, a `DatePicker`, a `SegmentedControl`, a `Toggle`, an
+`IconButton` and a `Button` at `md`, side by side, line up on both edges.
+
+| Size | Height | Under a finger |
+| --- | --- | --- |
+| `sm` | 2rem | 2.25rem |
+| `md` | 2.25rem | 2.5rem |
+| `lg` | 2.5rem | 2.75rem |
+
+Each height is one variable, `--spacing-control-md`, so retuning it moves every control of that size.
+Inside the package it is written in one place and the lint of the repository rejects it anywhere
+else, which is what keeps a new control from being a step off. A control of your own reads the same
+height through the class `h-control-md`, or wears `FieldShell`.
 
 ### Two props every primitive takes
 
@@ -204,7 +256,7 @@ The workhorse. Children on an axis, with a responsive direction, gap and optiona
 | --- | --- |
 | `direction` | `vertical` (default) or `horizontal`. Responsive |
 | `columns` | equal columns. Declaring it switches to a grid, and `direction` no longer applies. Responsive |
-| `gap` | responsive |
+| `gap` | a step of the scale, `md` by default. Responsive. `0` for children that touch |
 | `divided` | a hairline between children, **following the active axis** |
 | `align` / `justify` | `items-*` / `justify-*`. Responsive, which is what lets alignment follow a `direction` that changes |
 | `wrap` | let a horizontal stack wrap |
@@ -267,7 +319,7 @@ For a rule *between* the children of a stack use `<Stack divided>`, not `Divider
   <Surface.Separator />
   <Surface.Section>{content}</Surface.Section>
 
-  <Surface.Separator type={'gap'} space={8} />
+  <Surface.Separator type={'gap'} space={'xl'} />
   <Surface.Section flush><DataTable /></Surface.Section>
 
   <Surface.Footer justify={'between'}>{pagination}</Surface.Footer>
@@ -279,7 +331,7 @@ For a rule *between* the children of a stack use `<Stack divided>`, not `Divider
 | `Surface` | `elevation`: `default` · `flat` · `soft` · `raised` — `radius`: `default` · `none` · `lg` → `4xl` — `loading`, `loadingLabel` |
 | `.Header` | **an `Item`**, with the card's padding: every `Item` prop works on it |
 | `.Section` | the body. `flush` drops the padding so a table can reach the edges |
-| `.Separator` | `type`: `divider` (a hairline) or `gap` (`space`, a spacing step) |
+| `.Separator` | `type`: `divider` (a hairline) or `gap` (`space`, a spacing step, `lg` by default) |
 | `.Footer` | `justify`, and `muted` for a recessed row |
 
 **The Surface has no padding and no vertical rhythm of its own.** The room lives in the parts, which
@@ -320,7 +372,7 @@ mind:
 
 | Has `default` | Does not, and why |
 | --- | --- |
-| `Surface.elevation` · `Surface.radius` · `Container.size` · `Label.emphasis` | `IconBox`'s `size` / `fill` / `tone` / `shape`, `Spinner.size`, every `Heading` size and every `gap` are **steps of a scale** — `--spacing`, `--radius-scale`, `--text-*` are the better lever, and `data-size="md"` says what the thing *is* |
+| `Surface.elevation` · `Surface.radius` · `Container.size` · `Label.emphasis` | `IconBox`'s `size` / `fill` / `tone` / `shape`, `Spinner.size`, every `Heading` size and every `gap` are **steps of a scale** — `--space-*`, `--radius-scale`, `--text-*` are the better lever, and `data-size="md"` says what the thing *is* |
 | | `Divider.orientation`, `ScrollArea.orientation`, `Sticky.position`, `Split.side`, `SafeArea.sides`, `Item.direction`, `Grid.fill` are **what you meant**, not a house look: nobody restyles "the dividers we did not give an orientation" |
 | | every boolean: `data-inset` is present or absent, and there is no third state to name |
 
@@ -555,8 +607,8 @@ It wins with no `!important` and no specificity contest: Tailwind emits its util
 `data-tone`, `data-size` and `data-shape`, and they always carry the **resolved** value, defaults
 included.
 
-Two knobs sit one level above that and cost nothing: `size-*` resolves through `--spacing` and every
-radius through `--radius-scale`, so a project that wants the whole interface denser or rounder turns
+Knobs sit one level above that and cost nothing: `size-*` resolves through `--spacing`, every named
+spacing through `--space-*` and every radius through `--radius-scale`, so a project that wants the whole interface denser or rounder turns
 one variable instead of enumerating components. Reach for the attribute when *one* component in *one*
 variant has to differ, and for a wrapper when your application simply has different defaults — that is
 a decision of your app, not a value of the theme.
@@ -624,6 +676,8 @@ components build their classes with, for a primitive of your own that wants to b
 | `splitBaseProps(props)` | pulls `hideBelow` / `hideFrom` out of a props object and hands back `{ baseClasses, rest }` |
 | `responsiveClasses(value, build)` | turns a `Responsive<T>` into the per-breakpoint classes, in cascade order |
 | `gapClasses`, `alignClasses`, `justifyClasses`, `directionClasses`, `columnsClasses`, `divideClasses` | the same, specialised per prop |
+| `Spacing`, `SpacingToken`, `SPACING_TOKENS`, `spacingLength(value)` | the spacing scale as types and data, and the length of a step for a style no class can carry (`var(--space-md)`) |
+| `ControlSize` | `sm` · `md` · `lg`, the sizes of every control, for a wrapper of your own |
 | `breakpointPrefix(bp)`, `responsiveEntries(value)`, `toResponsiveMap(value)` | the pieces `responsiveClasses` is made of |
 | `BREAKPOINTS`, `BREAKPOINT_WIDTHS`, `mediaQuery(bp)` | the scale as data, and the media query behind a named breakpoint |
 | `TONE_CLASSES`, `TONE_COMPOUNDS`, `TONES` | the one tone table, ready to hand to a `cva` call of your own |
@@ -968,10 +1022,11 @@ Three colour families and one line colour:
 | `--muted-foreground` | a quiet label, a divider caption, the scrollbar thumb |
 | `--border` | `Divider`, and the rules `Stack divided` draws |
 | `--radius-scale` | a unitless multiplier over the whole `--radius-*` scale |
+| `--space-xs` … `--space-2xl` | the spacing scale by name: every `gap`, `space`, `inset` and `offset` named, and the `gap-md`, `p-md`, `-mx-md`, `top-md`, `h-md` classes |
 | `--container-8xl` | the width of `Container size='xl'`, one step past Tailwind's own scale |
 | `--text-2xs` | the step below `text-xs`: the description line of `Label`, the smallest `Heading.Eyebrow` and `Heading.Description`, a `sm` `Badge` |
 
-The last three are a **configuration** rather than a colour a component reads: they exist to be
+The last four are a **configuration** rather than a colour a component reads: they exist to be
 turned. `--container-8xl` is there because Tailwind's container scale stops at `7xl` (80rem) and the
 widest page this package offers is 96rem, the width of the `2xl` breakpoint. `--text-2xs` is there
 because a three level text hierarchy does not fit in Tailwind's scale: a label, a description under
@@ -1072,6 +1127,8 @@ another package. A recessed surface is `--muted`.
 | a `Badge` with text renders the text as its child | the text is wrapped in `badge-label` and truncates with an ellipsis when the badge is too narrow |
 | `dirty` on a `Dialog` or `Drawer` without `discard` compiled, and did nothing | `discard` is required as soon as `dirty` can be true (`DialogDirtyProps`); `dirty={false}`, or none, needs none |
 | `actions` of an `EmptyState`: any array, the third and later dropped | at most two, by the type (`EmptyStateActions`): an array typed `EmptyStateAction[]` becomes a tuple |
+| a `Stack` or a `Split` with no `gap`: the children touch | the gap is `md`, 1rem. Declare `gap={0}` where the children must touch |
+| `Cluster` `gap` defaults to `2`, `Grid` to `4`, `Surface.Separator` `space` to `6` | `sm`, `md` and `lg`: the same lengths, now following the theme's `--space-*` |
 | `data-mode`, `data-inline`, `data-wrap`, `data-divided`, `data-fill` on the parts of a component laid out by `Stack`, `Cluster`, `Center` or `Grid` | written only on a primitive that renders as itself; a rule matching them on a component part matches nothing now |
 
 ## 🤝 Compatibility
