@@ -191,7 +191,7 @@ export function SkeletonRows(props: SkeletonRowsProps): React.ReactNode {
 
   return Array.from({ length: rows }, (_, index) => (
     <tr key={index} aria-hidden={'true'} data-slot={slot}>
-      {leading && <td className={cn(CELL, 'ps-3 pe-0')}><Skeleton className={'size-4'} /></td>}
+      {leading && <td className={cn(CELL, 'ps-3 pe-0')}><Skeleton shape={'block'} className={'size-4'} /></td>}
       {columns.map((column) => (
         <td key={column.id} className={CELL}>
           <Skeleton className={SKELETON_WIDTH[column.kind] ?? 'w-3/4'} />

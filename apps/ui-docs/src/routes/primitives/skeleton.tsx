@@ -14,6 +14,8 @@ import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
 import card from '@/examples/primitives/skeleton/card.tsx?example';
 import loading from '@/examples/primitives/skeleton/loading.tsx?example';
 import shapes from '@/examples/primitives/skeleton/shapes.tsx?example';
+import item from '@/examples/primitives/skeleton/item.tsx?example';
+import sizes from '@/examples/primitives/skeleton/sizes.tsx?example';
 import { pageAt } from '@/nav';
 
 
@@ -68,6 +70,33 @@ function SkeletonPage(): React.ReactNode {
         </Section>
 
         <Section
+          title={'Text sizes'}
+          lead={(
+            <React.Fragment>
+              A line of text stands for a size of text: <InlineCode>size</InlineCode> takes Tailwind’s names,{' '}
+              <InlineCode>xs</InlineCode> to <InlineCode>2xl</InlineCode>, <InlineCode>sm</InlineCode> by default. The
+              line is as tall as a line of that text, with the bar across its middle half, so a title and a paragraph of
+              skeleton take the room the real ones will, and the page does not jump when they arrive.
+            </React.Fragment>
+          )}
+        >
+          <Example of={sizes} />
+        </Section>
+
+        <Section
+          title={'An Item'}
+          lead={(
+            <React.Fragment>
+              <InlineCode>{"shape={'item'}"}</InlineCode> is the row of an <InlineCode>Item</InlineCode>: a square where
+              the leading visual goes, a title and a description, with the gap of an Item. A list loading is a column
+              of them; the padding is the list’s, through <InlineCode>className</InlineCode>.
+            </React.Fragment>
+          )}
+        >
+          <Example of={item} />
+        </Section>
+
+        <Section
           title={'In a card'}
           lead={'Everything that does not depend on the data is drawn for real: the frame, the title, the labels. The shapes stand only where a value will appear, at about its length.'}
         >
@@ -101,8 +130,10 @@ function SkeletonPage(): React.ReactNode {
         <Section title={'Slots and data attributes'}>
           <SlotsTable
             rows={[
-              { slot: 'skeleton', part: 'One shape, or one line of a paragraph', attributes: [ 'data-shape' ] },
-              { slot: 'skeleton-lines', part: 'The column around the lines of a paragraph' }
+              { slot: 'skeleton', part: 'One shape, or one line of text', attributes: [ 'data-shape', 'data-size' ] },
+              { slot: 'skeleton-bar', part: 'The bar inside a line of text' },
+              { slot: 'skeleton-lines', part: 'The column around the lines of a paragraph' },
+              { slot: 'skeleton-item', part: 'The row of an item shape' }
             ]}
           />
         </Section>
