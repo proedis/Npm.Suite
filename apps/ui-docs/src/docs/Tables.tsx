@@ -92,7 +92,9 @@ function formatDefault(prop: PropDoc): string | undefined {
     return undefined;
   }
 
-  return prop.values?.includes(`'${prop.default}'`) ? `'${prop.default}'` : prop.default;
+  const quoted = `'${prop.default}'`;
+
+  return prop.values?.includes(quoted) || prop.type.split(' | ').includes(quoted) ? quoted : prop.default;
 }
 
 /**

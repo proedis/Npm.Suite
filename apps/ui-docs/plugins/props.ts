@@ -28,6 +28,71 @@ function hasFlag(flags: number, flag: number): boolean {
 }
 
 
+/**
+ * A type as a reader passes it. A variant declared through `cva` has no type node, so the compiler
+ * spells it, `"sm" | "md" | null | undefined`: the nullish members go, the quotes become the house
+ * single quotes, and a boolean variant reads `boolean`.
+ */
+function readable(type: string): string {
+  const members = [ ...new Set(type.split(' | ').map((member) => member.trim().replace(/^"(.*)"$/, "'$1'"))) ]
+    .filter((member) => member !== 'null' && member !== 'undefined');
+
+  return members.length === 2 && members.includes('true') && members.includes('false') ? 'boolean' : members.join(' | ');
+}
+
+/** The value an expression stands for, through `as const` and a constant declared elsewhere */
+function objectLiteral(checker: ts.TypeChecker, node: ts.Expression | undefined): ts.ObjectLiteralExpression | undefined {
+  let current = node;
+
+  type Wrapper = ts.AsExpression | ts.SatisfiesExpression | ts.ParenthesizedExpression;
+
+  const isWrapper = (expression: ts.Expression): expression is Wrapper => (
+    ts.isAsExpression(expression) || ts.isSatisfiesExpression(expression) || ts.isParenthesizedExpression(expression)
+  );
+
+  while (current && isWrapper(current)) {
+    current = current.expression;
+  }
+
+  if (current && ts.isIdentifier(current)) {
+    const declaration = checker.getSymbolAtLocation(current)?.valueDeclaration;
+    return declaration && ts.isVariableDeclaration(declaration) ? objectLiteral(checker, declaration.initializer) : undefined;
+  }
+
+  return current && ts.isObjectLiteralExpression(current) ? current : undefined;
+}
+
+/**
+ * The default of a `cva` variant, read from the `defaultVariants` of the call that declares it: the
+ * one place it is written, whether inline or through the component's `DEFAULT_VARIANTS` constant.
+ */
+function cvaDefault(checker: ts.TypeChecker, declaration: ts.Declaration, name: string): string | undefined {
+  /* variant key → `variants` object → `variants` property → config object */
+  const variants = declaration.parent;
+  const variantsProperty = variants?.parent;
+  const config = variantsProperty?.parent;
+
+  if (!ts.isPropertyAssignment(declaration) || !config || !ts.isObjectLiteralExpression(config)) {
+    return undefined;
+  }
+
+  const defaults = config.properties.find((property) => (
+    ts.isPropertyAssignment(property) && ts.isIdentifier(property.name) && property.name.text === 'defaultVariants'
+  ));
+
+  const object = defaults && ts.isPropertyAssignment(defaults) ? objectLiteral(checker, defaults.initializer) : undefined;
+  const entry = object?.properties.find((property) => (
+    property.name && ts.isIdentifier(property.name) && property.name.text === name
+  ));
+
+  if (!entry || !ts.isPropertyAssignment(entry)) {
+    return undefined;
+  }
+
+  return ts.isStringLiteral(entry.initializer) ? entry.initializer.text : entry.initializer.getText();
+}
+
+
 /* --------
  * Program
  * -------- */
@@ -160,7 +225,7 @@ class PropsReader {
         : checker.typeToString(checker.getTypeOfSymbol(property))
     ))) ];
 
-    const spelled = written.length === 2 && written.includes('true') && written.includes('false') ? 'boolean' : written.join(' | ');
+    const spelled = readable(written.join(' | '));
 
     /** The literals behind it, when every member of the union is one */
     const resolved = checker.getNonNullableType(checker.getTypeOfSymbol(property));
@@ -195,7 +260,9 @@ class PropsReader {
 
     const description = source ? ts.displayPartsToString(source.getDocumentationComment(checker)) : '';
     const defaultTag = (documented ?? property).getJsDocTags(checker).find((tag) => tag.name === 'default');
-    const defaultValue = defaultTag ? ts.displayPartsToString(defaultTag.text) : DEFAULTS_TO.exec(description)?.[1];
+    const defaultValue = defaultTag
+      ? ts.displayPartsToString(defaultTag.text)
+      : DEFAULTS_TO.exec(description)?.[1] ?? cvaDefault(checker, declarations[0], property.getName());
 
     const shared = owner === 'BaseProps';
 

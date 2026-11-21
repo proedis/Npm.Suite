@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import path from 'node:path';
 
 import tailwindcss from '@tailwindcss/vite';
@@ -16,6 +17,20 @@ import { snippets } from './plugins/snippets.ts';
 
 /** The source of the package, read directly: the site documents what is on the branch, not a release */
 const UI_SOURCE = path.resolve(import.meta.dirname, '../../packages/ui/src');
+
+
+/**
+ * The modules of the optional peers the package imports, found in its source. Vite only meets them
+ * while a page is being served, since the package is source and not a dependency it scans: each one
+ * found late makes it bundle the dependencies again and reload, and for a moment the page holds two
+ * copies of React. Listing them up front, from the source, keeps the list from going stale.
+ */
+const PEER_MODULES = [ ...new Set(
+  fs.readdirSync(UI_SOURCE, { recursive: true, encoding: 'utf8' })
+    .filter((file) => /\.tsx?$/.test(file))
+    .flatMap((file) => [ ...fs.readFileSync(path.join(UI_SOURCE, file), 'utf8').matchAll(/from '(@base-ui\/react\/[\w-]+|@tanstack\/react-table|dayjs)'/g) ])
+    .map((match) => match[1])
+) ].sort();
 
 
 /* --------
@@ -52,6 +67,10 @@ export default defineConfig({
 
     /** The package's source and the site must share one React, or every hook of the package throws */
     dedupe: [ 'react', 'react-dom' ]
+  },
+
+  optimizeDeps: {
+    include: PEER_MODULES
   },
 
   build: {
