@@ -73,8 +73,9 @@ function resolveWidth(
  * const isDesktop = useBreakpoint('lg');
  * ```
  *
- * Server-side, and on the first client render, it answers `false`: the layout settles after
- * hydration instead of mismatching it. Render what mobile should see and let the wide layout arrive.
+ * Server-side, and while hydrating what the server rendered, it answers `false`: the layout settles
+ * after hydration instead of mismatching it. Render what mobile should see and let the wide layout
+ * arrive. An application rendered on the client only gets the real answer from the first render.
  *
  * @param breakpoint - Any breakpoint except `base`, which is always true by definition.
  * @param options - See `UseBreakpointOptions`.

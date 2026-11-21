@@ -181,6 +181,19 @@
   --radius-scale: 1;
 }
 
+/*
+ * The breakpoints, kept in the output for `useBreakpoint`.
+ *
+ * Tailwind writes a breakpoint's width straight into each media query and emits `--breakpoint-*` only
+ * when something reads it with `var()`. The hook reads those variables to follow a project that moved
+ * its scale, so it found none and fell back to the default widths: with `md` moved to 50rem the classes
+ * switched at 800px and `useBreakpoint('md')` at 768px. Reading all five here is what keeps them, at
+ * the project's own values, measured with Tailwind's compiler. Nothing reads `--breakpoints` itself.
+ */
+:root {
+  --breakpoints: var(--breakpoint-sm) var(--breakpoint-md) var(--breakpoint-lg) var(--breakpoint-xl) var(--breakpoint-2xl);
+}
+
 .dark {
   --background: var(--color-zinc-950);
   --foreground: var(--color-zinc-50);
