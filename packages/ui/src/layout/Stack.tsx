@@ -34,7 +34,13 @@ export interface StrictStackProps extends BaseProps {
   /** Draw a hairline between children, following the active axis */
   divided?: boolean;
 
-  /** Sits in a line of text like a word: `inline-flex`, or `inline-grid` with `columns` */
+  /**
+   * Sits in a line of text like a word: `inline-flex`, or `inline-grid` with `columns`.
+   *
+   * For an icon beside its word in a sentence, align on the `baseline` and centre the icon on its own
+   * (`self-center`). An inline box takes its baseline from its first child, and an icon has none: with
+   * `align={'center'}` the browser uses the bottom of the icon, and the word rises off the line.
+   */
   inline?: boolean;
 
   /**

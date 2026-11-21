@@ -209,6 +209,15 @@ function StackPage(): React.ReactNode {
           )}
         >
           <Example of={inline} />
+          <Prose>
+            <p>
+              In a sentence, align it on the <InlineCode>baseline</InlineCode> and centre the icon on its own
+              with <InlineCode>self-center</InlineCode>. An inline box takes its baseline from its first child,
+              and an icon has none: with <InlineCode>{"align={'center'}"}</InlineCode> the browser uses the bottom
+              of the icon, and the word rises three pixels off the line of the sentence. On the baseline the word
+              sits exactly on it, and the icon stays centred on the height of the capitals.
+            </p>
+          </Prose>
         </Section>
 
         <Section
