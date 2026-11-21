@@ -28,6 +28,14 @@ import { Route as DisplaySurfaceRouteImport } from './routes/display/surface'
 import { Route as FeedbackAlertRouteImport } from './routes/feedback/alert'
 import { Route as FeedbackEmptyStateRouteImport } from './routes/feedback/empty-state'
 import { Route as FeedbackNotificationsRouteImport } from './routes/feedback/notifications'
+import { Route as FormsFieldRouteImport } from './routes/forms/field'
+import { Route as FormsFieldShellRouteImport } from './routes/forms/field-shell'
+import { Route as FormsFormRouteImport } from './routes/forms/form'
+import { Route as FormsNumberInputRouteImport } from './routes/forms/number-input'
+import { Route as FormsPasswordInputRouteImport } from './routes/forms/password-input'
+import { Route as FormsSearchInputRouteImport } from './routes/forms/search-input'
+import { Route as FormsTextInputRouteImport } from './routes/forms/text-input'
+import { Route as FormsTextareaRouteImport } from './routes/forms/textarea'
 import { Route as FoundationsPolymorphismRouteImport } from './routes/foundations/polymorphism'
 import { Route as FoundationsResponsiveRouteImport } from './routes/foundations/responsive'
 import { Route as FoundationsSharedPropsRouteImport } from './routes/foundations/shared-props'
@@ -148,6 +156,46 @@ const FeedbackEmptyStateRoute = FeedbackEmptyStateRouteImport.update({
 const FeedbackNotificationsRoute = FeedbackNotificationsRouteImport.update({
   id: '/feedback/notifications',
   path: '/feedback/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FormsFieldRoute = FormsFieldRouteImport.update({
+  id: '/forms/field',
+  path: '/forms/field',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FormsFieldShellRoute = FormsFieldShellRouteImport.update({
+  id: '/forms/field-shell',
+  path: '/forms/field-shell',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FormsFormRoute = FormsFormRouteImport.update({
+  id: '/forms/form',
+  path: '/forms/form',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FormsNumberInputRoute = FormsNumberInputRouteImport.update({
+  id: '/forms/number-input',
+  path: '/forms/number-input',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FormsPasswordInputRoute = FormsPasswordInputRouteImport.update({
+  id: '/forms/password-input',
+  path: '/forms/password-input',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FormsSearchInputRoute = FormsSearchInputRouteImport.update({
+  id: '/forms/search-input',
+  path: '/forms/search-input',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FormsTextInputRoute = FormsTextInputRouteImport.update({
+  id: '/forms/text-input',
+  path: '/forms/text-input',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FormsTextareaRoute = FormsTextareaRouteImport.update({
+  id: '/forms/textarea',
+  path: '/forms/textarea',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FoundationsPolymorphismRoute = FoundationsPolymorphismRouteImport.update({
@@ -302,6 +350,14 @@ export interface FileRoutesByFullPath {
   '/feedback/alert': typeof FeedbackAlertRoute
   '/feedback/empty-state': typeof FeedbackEmptyStateRoute
   '/feedback/notifications': typeof FeedbackNotificationsRoute
+  '/forms/field': typeof FormsFieldRoute
+  '/forms/field-shell': typeof FormsFieldShellRoute
+  '/forms/form': typeof FormsFormRoute
+  '/forms/number-input': typeof FormsNumberInputRoute
+  '/forms/password-input': typeof FormsPasswordInputRoute
+  '/forms/search-input': typeof FormsSearchInputRoute
+  '/forms/text-input': typeof FormsTextInputRoute
+  '/forms/textarea': typeof FormsTextareaRoute
   '/foundations/polymorphism': typeof FoundationsPolymorphismRoute
   '/foundations/responsive': typeof FoundationsResponsiveRoute
   '/foundations/shared-props': typeof FoundationsSharedPropsRoute
@@ -349,6 +405,14 @@ export interface FileRoutesByTo {
   '/feedback/alert': typeof FeedbackAlertRoute
   '/feedback/empty-state': typeof FeedbackEmptyStateRoute
   '/feedback/notifications': typeof FeedbackNotificationsRoute
+  '/forms/field': typeof FormsFieldRoute
+  '/forms/field-shell': typeof FormsFieldShellRoute
+  '/forms/form': typeof FormsFormRoute
+  '/forms/number-input': typeof FormsNumberInputRoute
+  '/forms/password-input': typeof FormsPasswordInputRoute
+  '/forms/search-input': typeof FormsSearchInputRoute
+  '/forms/text-input': typeof FormsTextInputRoute
+  '/forms/textarea': typeof FormsTextareaRoute
   '/foundations/polymorphism': typeof FoundationsPolymorphismRoute
   '/foundations/responsive': typeof FoundationsResponsiveRoute
   '/foundations/shared-props': typeof FoundationsSharedPropsRoute
@@ -397,6 +461,14 @@ export interface FileRoutesById {
   '/feedback/alert': typeof FeedbackAlertRoute
   '/feedback/empty-state': typeof FeedbackEmptyStateRoute
   '/feedback/notifications': typeof FeedbackNotificationsRoute
+  '/forms/field': typeof FormsFieldRoute
+  '/forms/field-shell': typeof FormsFieldShellRoute
+  '/forms/form': typeof FormsFormRoute
+  '/forms/number-input': typeof FormsNumberInputRoute
+  '/forms/password-input': typeof FormsPasswordInputRoute
+  '/forms/search-input': typeof FormsSearchInputRoute
+  '/forms/text-input': typeof FormsTextInputRoute
+  '/forms/textarea': typeof FormsTextareaRoute
   '/foundations/polymorphism': typeof FoundationsPolymorphismRoute
   '/foundations/responsive': typeof FoundationsResponsiveRoute
   '/foundations/shared-props': typeof FoundationsSharedPropsRoute
@@ -446,6 +518,14 @@ export interface FileRouteTypes {
     | '/feedback/alert'
     | '/feedback/empty-state'
     | '/feedback/notifications'
+    | '/forms/field'
+    | '/forms/field-shell'
+    | '/forms/form'
+    | '/forms/number-input'
+    | '/forms/password-input'
+    | '/forms/search-input'
+    | '/forms/text-input'
+    | '/forms/textarea'
     | '/foundations/polymorphism'
     | '/foundations/responsive'
     | '/foundations/shared-props'
@@ -493,6 +573,14 @@ export interface FileRouteTypes {
     | '/feedback/alert'
     | '/feedback/empty-state'
     | '/feedback/notifications'
+    | '/forms/field'
+    | '/forms/field-shell'
+    | '/forms/form'
+    | '/forms/number-input'
+    | '/forms/password-input'
+    | '/forms/search-input'
+    | '/forms/text-input'
+    | '/forms/textarea'
     | '/foundations/polymorphism'
     | '/foundations/responsive'
     | '/foundations/shared-props'
@@ -540,6 +628,14 @@ export interface FileRouteTypes {
     | '/feedback/alert'
     | '/feedback/empty-state'
     | '/feedback/notifications'
+    | '/forms/field'
+    | '/forms/field-shell'
+    | '/forms/form'
+    | '/forms/number-input'
+    | '/forms/password-input'
+    | '/forms/search-input'
+    | '/forms/text-input'
+    | '/forms/textarea'
     | '/foundations/polymorphism'
     | '/foundations/responsive'
     | '/foundations/shared-props'
@@ -588,6 +684,14 @@ export interface RootRouteChildren {
   FeedbackAlertRoute: typeof FeedbackAlertRoute
   FeedbackEmptyStateRoute: typeof FeedbackEmptyStateRoute
   FeedbackNotificationsRoute: typeof FeedbackNotificationsRoute
+  FormsFieldRoute: typeof FormsFieldRoute
+  FormsFieldShellRoute: typeof FormsFieldShellRoute
+  FormsFormRoute: typeof FormsFormRoute
+  FormsNumberInputRoute: typeof FormsNumberInputRoute
+  FormsPasswordInputRoute: typeof FormsPasswordInputRoute
+  FormsSearchInputRoute: typeof FormsSearchInputRoute
+  FormsTextInputRoute: typeof FormsTextInputRoute
+  FormsTextareaRoute: typeof FormsTextareaRoute
   FoundationsPolymorphismRoute: typeof FoundationsPolymorphismRoute
   FoundationsResponsiveRoute: typeof FoundationsResponsiveRoute
   FoundationsSharedPropsRoute: typeof FoundationsSharedPropsRoute
@@ -749,6 +853,62 @@ declare module '@tanstack/react-router' {
       path: '/feedback/notifications'
       fullPath: '/feedback/notifications'
       preLoaderRoute: typeof FeedbackNotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forms/field': {
+      id: '/forms/field'
+      path: '/forms/field'
+      fullPath: '/forms/field'
+      preLoaderRoute: typeof FormsFieldRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forms/field-shell': {
+      id: '/forms/field-shell'
+      path: '/forms/field-shell'
+      fullPath: '/forms/field-shell'
+      preLoaderRoute: typeof FormsFieldShellRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forms/form': {
+      id: '/forms/form'
+      path: '/forms/form'
+      fullPath: '/forms/form'
+      preLoaderRoute: typeof FormsFormRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forms/number-input': {
+      id: '/forms/number-input'
+      path: '/forms/number-input'
+      fullPath: '/forms/number-input'
+      preLoaderRoute: typeof FormsNumberInputRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forms/password-input': {
+      id: '/forms/password-input'
+      path: '/forms/password-input'
+      fullPath: '/forms/password-input'
+      preLoaderRoute: typeof FormsPasswordInputRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forms/search-input': {
+      id: '/forms/search-input'
+      path: '/forms/search-input'
+      fullPath: '/forms/search-input'
+      preLoaderRoute: typeof FormsSearchInputRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forms/text-input': {
+      id: '/forms/text-input'
+      path: '/forms/text-input'
+      fullPath: '/forms/text-input'
+      preLoaderRoute: typeof FormsTextInputRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forms/textarea': {
+      id: '/forms/textarea'
+      path: '/forms/textarea'
+      fullPath: '/forms/textarea'
+      preLoaderRoute: typeof FormsTextareaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/foundations/polymorphism': {
@@ -956,6 +1116,14 @@ const rootRouteChildren: RootRouteChildren = {
   FeedbackAlertRoute: FeedbackAlertRoute,
   FeedbackEmptyStateRoute: FeedbackEmptyStateRoute,
   FeedbackNotificationsRoute: FeedbackNotificationsRoute,
+  FormsFieldRoute: FormsFieldRoute,
+  FormsFieldShellRoute: FormsFieldShellRoute,
+  FormsFormRoute: FormsFormRoute,
+  FormsNumberInputRoute: FormsNumberInputRoute,
+  FormsPasswordInputRoute: FormsPasswordInputRoute,
+  FormsSearchInputRoute: FormsSearchInputRoute,
+  FormsTextInputRoute: FormsTextInputRoute,
+  FormsTextareaRoute: FormsTextareaRoute,
   FoundationsPolymorphismRoute: FoundationsPolymorphismRoute,
   FoundationsResponsiveRoute: FoundationsResponsiveRoute,
   FoundationsSharedPropsRoute: FoundationsSharedPropsRoute,
