@@ -63,6 +63,10 @@ import { Route as LayoutSpacerRouteImport } from './routes/layout/spacer'
 import { Route as LayoutSplitRouteImport } from './routes/layout/split'
 import { Route as LayoutStackRouteImport } from './routes/layout/stack'
 import { Route as LayoutStickyRouteImport } from './routes/layout/sticky'
+import { Route as OverlaysAlertDialogRouteImport } from './routes/overlays/alert-dialog'
+import { Route as OverlaysDialogRouteImport } from './routes/overlays/dialog'
+import { Route as OverlaysDrawerRouteImport } from './routes/overlays/drawer'
+import { Route as OverlaysPopoverRouteImport } from './routes/overlays/popover'
 import { Route as PrimitivesBusyVeilRouteImport } from './routes/primitives/busy-veil'
 import { Route as PrimitivesDividerRouteImport } from './routes/primitives/divider'
 import { Route as PrimitivesLabelRouteImport } from './routes/primitives/label'
@@ -342,6 +346,26 @@ const LayoutStickyRoute = LayoutStickyRouteImport.update({
   path: '/layout/sticky',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OverlaysAlertDialogRoute = OverlaysAlertDialogRouteImport.update({
+  id: '/overlays/alert-dialog',
+  path: '/overlays/alert-dialog',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OverlaysDialogRoute = OverlaysDialogRouteImport.update({
+  id: '/overlays/dialog',
+  path: '/overlays/dialog',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OverlaysDrawerRoute = OverlaysDrawerRouteImport.update({
+  id: '/overlays/drawer',
+  path: '/overlays/drawer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OverlaysPopoverRoute = OverlaysPopoverRouteImport.update({
+  id: '/overlays/popover',
+  path: '/overlays/popover',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrimitivesBusyVeilRoute = PrimitivesBusyVeilRouteImport.update({
   id: '/primitives/busy-veil',
   path: '/primitives/busy-veil',
@@ -439,6 +463,10 @@ export interface FileRoutesByFullPath {
   '/layout/split': typeof LayoutSplitRoute
   '/layout/stack': typeof LayoutStackRoute
   '/layout/sticky': typeof LayoutStickyRoute
+  '/overlays/alert-dialog': typeof OverlaysAlertDialogRoute
+  '/overlays/dialog': typeof OverlaysDialogRoute
+  '/overlays/drawer': typeof OverlaysDrawerRoute
+  '/overlays/popover': typeof OverlaysPopoverRoute
   '/primitives/busy-veil': typeof PrimitivesBusyVeilRoute
   '/primitives/divider': typeof PrimitivesDividerRoute
   '/primitives/label': typeof PrimitivesLabelRoute
@@ -503,6 +531,10 @@ export interface FileRoutesByTo {
   '/layout/split': typeof LayoutSplitRoute
   '/layout/stack': typeof LayoutStackRoute
   '/layout/sticky': typeof LayoutStickyRoute
+  '/overlays/alert-dialog': typeof OverlaysAlertDialogRoute
+  '/overlays/dialog': typeof OverlaysDialogRoute
+  '/overlays/drawer': typeof OverlaysDrawerRoute
+  '/overlays/popover': typeof OverlaysPopoverRoute
   '/primitives/busy-veil': typeof PrimitivesBusyVeilRoute
   '/primitives/divider': typeof PrimitivesDividerRoute
   '/primitives/label': typeof PrimitivesLabelRoute
@@ -568,6 +600,10 @@ export interface FileRoutesById {
   '/layout/split': typeof LayoutSplitRoute
   '/layout/stack': typeof LayoutStackRoute
   '/layout/sticky': typeof LayoutStickyRoute
+  '/overlays/alert-dialog': typeof OverlaysAlertDialogRoute
+  '/overlays/dialog': typeof OverlaysDialogRoute
+  '/overlays/drawer': typeof OverlaysDrawerRoute
+  '/overlays/popover': typeof OverlaysPopoverRoute
   '/primitives/busy-veil': typeof PrimitivesBusyVeilRoute
   '/primitives/divider': typeof PrimitivesDividerRoute
   '/primitives/label': typeof PrimitivesLabelRoute
@@ -634,6 +670,10 @@ export interface FileRouteTypes {
     | '/layout/split'
     | '/layout/stack'
     | '/layout/sticky'
+    | '/overlays/alert-dialog'
+    | '/overlays/dialog'
+    | '/overlays/drawer'
+    | '/overlays/popover'
     | '/primitives/busy-veil'
     | '/primitives/divider'
     | '/primitives/label'
@@ -698,6 +738,10 @@ export interface FileRouteTypes {
     | '/layout/split'
     | '/layout/stack'
     | '/layout/sticky'
+    | '/overlays/alert-dialog'
+    | '/overlays/dialog'
+    | '/overlays/drawer'
+    | '/overlays/popover'
     | '/primitives/busy-veil'
     | '/primitives/divider'
     | '/primitives/label'
@@ -762,6 +806,10 @@ export interface FileRouteTypes {
     | '/layout/split'
     | '/layout/stack'
     | '/layout/sticky'
+    | '/overlays/alert-dialog'
+    | '/overlays/dialog'
+    | '/overlays/drawer'
+    | '/overlays/popover'
     | '/primitives/busy-veil'
     | '/primitives/divider'
     | '/primitives/label'
@@ -827,6 +875,10 @@ export interface RootRouteChildren {
   LayoutSplitRoute: typeof LayoutSplitRoute
   LayoutStackRoute: typeof LayoutStackRoute
   LayoutStickyRoute: typeof LayoutStickyRoute
+  OverlaysAlertDialogRoute: typeof OverlaysAlertDialogRoute
+  OverlaysDialogRoute: typeof OverlaysDialogRoute
+  OverlaysDrawerRoute: typeof OverlaysDrawerRoute
+  OverlaysPopoverRoute: typeof OverlaysPopoverRoute
   PrimitivesBusyVeilRoute: typeof PrimitivesBusyVeilRoute
   PrimitivesDividerRoute: typeof PrimitivesDividerRoute
   PrimitivesLabelRoute: typeof PrimitivesLabelRoute
@@ -1217,6 +1269,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutStickyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/overlays/alert-dialog': {
+      id: '/overlays/alert-dialog'
+      path: '/overlays/alert-dialog'
+      fullPath: '/overlays/alert-dialog'
+      preLoaderRoute: typeof OverlaysAlertDialogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/overlays/dialog': {
+      id: '/overlays/dialog'
+      path: '/overlays/dialog'
+      fullPath: '/overlays/dialog'
+      preLoaderRoute: typeof OverlaysDialogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/overlays/drawer': {
+      id: '/overlays/drawer'
+      path: '/overlays/drawer'
+      fullPath: '/overlays/drawer'
+      preLoaderRoute: typeof OverlaysDrawerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/overlays/popover': {
+      id: '/overlays/popover'
+      path: '/overlays/popover'
+      fullPath: '/overlays/popover'
+      preLoaderRoute: typeof OverlaysPopoverRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/primitives/busy-veil': {
       id: '/primitives/busy-veil'
       path: '/primitives/busy-veil'
@@ -1331,6 +1411,10 @@ const rootRouteChildren: RootRouteChildren = {
   LayoutSplitRoute: LayoutSplitRoute,
   LayoutStackRoute: LayoutStackRoute,
   LayoutStickyRoute: LayoutStickyRoute,
+  OverlaysAlertDialogRoute: OverlaysAlertDialogRoute,
+  OverlaysDialogRoute: OverlaysDialogRoute,
+  OverlaysDrawerRoute: OverlaysDrawerRoute,
+  OverlaysPopoverRoute: OverlaysPopoverRoute,
   PrimitivesBusyVeilRoute: PrimitivesBusyVeilRoute,
   PrimitivesDividerRoute: PrimitivesDividerRoute,
   PrimitivesLabelRoute: PrimitivesLabelRoute,

@@ -235,10 +235,10 @@ export const NAV: readonly NavGroup[] = [
     title      : 'Overlays',
     description: 'What opens above the page: dialogs, drawers, confirmations, popovers.',
     items      : [
-      { title: 'Dialog', to: '/overlays/dialog', subpath: '@proedis/ui/overlays/dialog', peers: BASE_UI, description: 'The modal panel, with submit, cancel and the discard prompt.', icon: AppWindow, ready: false },
-      { title: 'Drawer', to: '/overlays/drawer', subpath: '@proedis/ui/overlays/drawer', peers: BASE_UI, description: 'The detail of an element beside its list, and its form.', icon: PanelRight, ready: false },
-      { title: 'AlertDialog', to: '/overlays/alert-dialog', subpath: '@proedis/ui/overlays/alert-dialog', peers: BASE_UI, description: 'The stop before losing something, in three grades.', icon: MessageSquareWarning, ready: false },
-      { title: 'Popover', to: '/overlays/popover', subpath: '@proedis/ui/overlays/popover', peers: BASE_UI, description: 'Help, a choice or a small form, anchored to its control.', icon: PanelBottom, ready: false }
+      { title: 'Dialog', to: '/overlays/dialog', subpath: '@proedis/ui/overlays/dialog', peers: BASE_UI, description: 'The modal panel, with submit, cancel and the discard prompt.', icon: AppWindow, ready: true },
+      { title: 'Drawer', to: '/overlays/drawer', subpath: '@proedis/ui/overlays/drawer', peers: BASE_UI, description: 'The detail of an element beside its list, and its form.', icon: PanelRight, ready: true },
+      { title: 'AlertDialog', to: '/overlays/alert-dialog', subpath: '@proedis/ui/overlays/alert-dialog', peers: BASE_UI, description: 'The stop before losing something, in three grades.', icon: MessageSquareWarning, ready: true },
+      { title: 'Popover', to: '/overlays/popover', subpath: '@proedis/ui/overlays/popover', peers: BASE_UI, description: 'Help, a choice or a small form, anchored to its control.', icon: PanelBottom, ready: true }
     ]
   },
   {
