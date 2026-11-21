@@ -220,15 +220,15 @@ export const NAV: readonly NavGroup[] = [
       { title: 'SearchInput', to: '/forms/search-input', subpath: '@proedis/ui/forms/search-input', peers: BASE_UI, description: 'A lens, a clear action, and Esc that empties it.', icon: Search, ready: true },
       { title: 'NumberInput', to: '/forms/number-input', subpath: '@proedis/ui/forms/number-input', peers: BASE_UI, description: 'A quantity, a weight, an amount.', icon: Hash, ready: true },
       { title: 'Textarea', to: '/forms/textarea', subpath: '@proedis/ui/forms/textarea', peers: BASE_UI, description: 'The multi-line text field.', icon: WrapText, ready: true },
-      { title: 'Select', to: '/forms/select', subpath: '@proedis/ui/forms/select', peers: BASE_UI, description: 'One choice from a list, with a search past eight options.', icon: ChevronsUpDown, ready: false },
-      { title: 'MultiSelect', to: '/forms/multi-select', subpath: '@proedis/ui/forms/multi-select', peers: BASE_UI, description: 'Several choices from a list that is not in view.', icon: ListChecks, ready: false },
-      { title: 'Combobox', to: '/forms/combobox', subpath: '@proedis/ui/forms/combobox', peers: BASE_UI, description: 'One record or several, among results from the server.', icon: TextSearch, ready: false },
-      { title: 'DatePicker', to: '/forms/date-picker', subpath: '@proedis/ui/forms/date-picker', peers: BASE_UI_DAYJS, description: 'A date or a period, typed or picked from a calendar.', icon: CalendarDays, ready: false },
-      { title: 'Checkbox', to: '/forms/checkbox', subpath: '@proedis/ui/forms/checkbox', peers: BASE_UI, description: 'A box, and a group with the parent box computed from its options.', icon: SquareCheck, ready: false },
-      { title: 'CheckboxGrid', to: '/forms/checkbox-grid', subpath: '@proedis/ui/forms/checkbox-grid', peers: BASE_UI, description: 'A grid of boxes in groups that open and close.', icon: Grid2x2Check, ready: false },
-      { title: 'Radio', to: '/forms/radio', subpath: '@proedis/ui/forms/radio', peers: BASE_UI, description: 'One choice in view, classic or as cards.', icon: CircleDot, ready: false },
-      { title: 'Switch', to: '/forms/switch', subpath: '@proedis/ui/forms/switch', peers: BASE_UI, description: 'On or off, at once.', icon: ToggleLeft, ready: false },
-      { title: 'FileUpload', to: '/forms/file-upload', subpath: '@proedis/ui/forms/file-upload', peers: BASE_UI, description: 'Attaching files in a form, and the attachments of an element.', icon: Paperclip, ready: false }
+      { title: 'Select', to: '/forms/select', subpath: '@proedis/ui/forms/select', peers: BASE_UI, description: 'One choice from a list, with a search past eight options.', icon: ChevronsUpDown, ready: true },
+      { title: 'MultiSelect', to: '/forms/multi-select', subpath: '@proedis/ui/forms/multi-select', peers: BASE_UI, description: 'Several choices from a list that is not in view.', icon: ListChecks, ready: true },
+      { title: 'Combobox', to: '/forms/combobox', subpath: '@proedis/ui/forms/combobox', peers: BASE_UI, description: 'One record or several, among results from the server.', icon: TextSearch, ready: true },
+      { title: 'DatePicker', to: '/forms/date-picker', subpath: '@proedis/ui/forms/date-picker', peers: BASE_UI_DAYJS, description: 'A date or a period, typed or picked from a calendar.', icon: CalendarDays, ready: true },
+      { title: 'Checkbox', to: '/forms/checkbox', subpath: '@proedis/ui/forms/checkbox', peers: BASE_UI, description: 'A box, and a group with the parent box computed from its options.', icon: SquareCheck, ready: true },
+      { title: 'CheckboxGrid', to: '/forms/checkbox-grid', subpath: '@proedis/ui/forms/checkbox-grid', peers: BASE_UI, description: 'A grid of boxes in groups that open and close.', icon: Grid2x2Check, ready: true },
+      { title: 'Radio', to: '/forms/radio', subpath: '@proedis/ui/forms/radio', peers: BASE_UI, description: 'One choice in view, classic or as cards.', icon: CircleDot, ready: true },
+      { title: 'Switch', to: '/forms/switch', subpath: '@proedis/ui/forms/switch', peers: BASE_UI, description: 'On or off, at once.', icon: ToggleLeft, ready: true },
+      { title: 'FileUpload', to: '/forms/file-upload', subpath: '@proedis/ui/forms/file-upload', peers: BASE_UI, description: 'Attaching files in a form, and the attachments of an element.', icon: Paperclip, ready: true }
     ]
   },
   {

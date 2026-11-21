@@ -28,12 +28,21 @@ import { Route as DisplaySurfaceRouteImport } from './routes/display/surface'
 import { Route as FeedbackAlertRouteImport } from './routes/feedback/alert'
 import { Route as FeedbackEmptyStateRouteImport } from './routes/feedback/empty-state'
 import { Route as FeedbackNotificationsRouteImport } from './routes/feedback/notifications'
+import { Route as FormsCheckboxRouteImport } from './routes/forms/checkbox'
+import { Route as FormsCheckboxGridRouteImport } from './routes/forms/checkbox-grid'
+import { Route as FormsComboboxRouteImport } from './routes/forms/combobox'
+import { Route as FormsDatePickerRouteImport } from './routes/forms/date-picker'
 import { Route as FormsFieldRouteImport } from './routes/forms/field'
 import { Route as FormsFieldShellRouteImport } from './routes/forms/field-shell'
+import { Route as FormsFileUploadRouteImport } from './routes/forms/file-upload'
 import { Route as FormsFormRouteImport } from './routes/forms/form'
+import { Route as FormsMultiSelectRouteImport } from './routes/forms/multi-select'
 import { Route as FormsNumberInputRouteImport } from './routes/forms/number-input'
 import { Route as FormsPasswordInputRouteImport } from './routes/forms/password-input'
+import { Route as FormsRadioRouteImport } from './routes/forms/radio'
 import { Route as FormsSearchInputRouteImport } from './routes/forms/search-input'
+import { Route as FormsSelectRouteImport } from './routes/forms/select'
+import { Route as FormsSwitchRouteImport } from './routes/forms/switch'
 import { Route as FormsTextInputRouteImport } from './routes/forms/text-input'
 import { Route as FormsTextareaRouteImport } from './routes/forms/textarea'
 import { Route as FoundationsPolymorphismRouteImport } from './routes/foundations/polymorphism'
@@ -158,6 +167,26 @@ const FeedbackNotificationsRoute = FeedbackNotificationsRouteImport.update({
   path: '/feedback/notifications',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FormsCheckboxRoute = FormsCheckboxRouteImport.update({
+  id: '/forms/checkbox',
+  path: '/forms/checkbox',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FormsCheckboxGridRoute = FormsCheckboxGridRouteImport.update({
+  id: '/forms/checkbox-grid',
+  path: '/forms/checkbox-grid',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FormsComboboxRoute = FormsComboboxRouteImport.update({
+  id: '/forms/combobox',
+  path: '/forms/combobox',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FormsDatePickerRoute = FormsDatePickerRouteImport.update({
+  id: '/forms/date-picker',
+  path: '/forms/date-picker',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FormsFieldRoute = FormsFieldRouteImport.update({
   id: '/forms/field',
   path: '/forms/field',
@@ -168,9 +197,19 @@ const FormsFieldShellRoute = FormsFieldShellRouteImport.update({
   path: '/forms/field-shell',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FormsFileUploadRoute = FormsFileUploadRouteImport.update({
+  id: '/forms/file-upload',
+  path: '/forms/file-upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FormsFormRoute = FormsFormRouteImport.update({
   id: '/forms/form',
   path: '/forms/form',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FormsMultiSelectRoute = FormsMultiSelectRouteImport.update({
+  id: '/forms/multi-select',
+  path: '/forms/multi-select',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FormsNumberInputRoute = FormsNumberInputRouteImport.update({
@@ -183,9 +222,24 @@ const FormsPasswordInputRoute = FormsPasswordInputRouteImport.update({
   path: '/forms/password-input',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FormsRadioRoute = FormsRadioRouteImport.update({
+  id: '/forms/radio',
+  path: '/forms/radio',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FormsSearchInputRoute = FormsSearchInputRouteImport.update({
   id: '/forms/search-input',
   path: '/forms/search-input',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FormsSelectRoute = FormsSelectRouteImport.update({
+  id: '/forms/select',
+  path: '/forms/select',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FormsSwitchRoute = FormsSwitchRouteImport.update({
+  id: '/forms/switch',
+  path: '/forms/switch',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FormsTextInputRoute = FormsTextInputRouteImport.update({
@@ -350,12 +404,21 @@ export interface FileRoutesByFullPath {
   '/feedback/alert': typeof FeedbackAlertRoute
   '/feedback/empty-state': typeof FeedbackEmptyStateRoute
   '/feedback/notifications': typeof FeedbackNotificationsRoute
+  '/forms/checkbox': typeof FormsCheckboxRoute
+  '/forms/checkbox-grid': typeof FormsCheckboxGridRoute
+  '/forms/combobox': typeof FormsComboboxRoute
+  '/forms/date-picker': typeof FormsDatePickerRoute
   '/forms/field': typeof FormsFieldRoute
   '/forms/field-shell': typeof FormsFieldShellRoute
+  '/forms/file-upload': typeof FormsFileUploadRoute
   '/forms/form': typeof FormsFormRoute
+  '/forms/multi-select': typeof FormsMultiSelectRoute
   '/forms/number-input': typeof FormsNumberInputRoute
   '/forms/password-input': typeof FormsPasswordInputRoute
+  '/forms/radio': typeof FormsRadioRoute
   '/forms/search-input': typeof FormsSearchInputRoute
+  '/forms/select': typeof FormsSelectRoute
+  '/forms/switch': typeof FormsSwitchRoute
   '/forms/text-input': typeof FormsTextInputRoute
   '/forms/textarea': typeof FormsTextareaRoute
   '/foundations/polymorphism': typeof FoundationsPolymorphismRoute
@@ -405,12 +468,21 @@ export interface FileRoutesByTo {
   '/feedback/alert': typeof FeedbackAlertRoute
   '/feedback/empty-state': typeof FeedbackEmptyStateRoute
   '/feedback/notifications': typeof FeedbackNotificationsRoute
+  '/forms/checkbox': typeof FormsCheckboxRoute
+  '/forms/checkbox-grid': typeof FormsCheckboxGridRoute
+  '/forms/combobox': typeof FormsComboboxRoute
+  '/forms/date-picker': typeof FormsDatePickerRoute
   '/forms/field': typeof FormsFieldRoute
   '/forms/field-shell': typeof FormsFieldShellRoute
+  '/forms/file-upload': typeof FormsFileUploadRoute
   '/forms/form': typeof FormsFormRoute
+  '/forms/multi-select': typeof FormsMultiSelectRoute
   '/forms/number-input': typeof FormsNumberInputRoute
   '/forms/password-input': typeof FormsPasswordInputRoute
+  '/forms/radio': typeof FormsRadioRoute
   '/forms/search-input': typeof FormsSearchInputRoute
+  '/forms/select': typeof FormsSelectRoute
+  '/forms/switch': typeof FormsSwitchRoute
   '/forms/text-input': typeof FormsTextInputRoute
   '/forms/textarea': typeof FormsTextareaRoute
   '/foundations/polymorphism': typeof FoundationsPolymorphismRoute
@@ -461,12 +533,21 @@ export interface FileRoutesById {
   '/feedback/alert': typeof FeedbackAlertRoute
   '/feedback/empty-state': typeof FeedbackEmptyStateRoute
   '/feedback/notifications': typeof FeedbackNotificationsRoute
+  '/forms/checkbox': typeof FormsCheckboxRoute
+  '/forms/checkbox-grid': typeof FormsCheckboxGridRoute
+  '/forms/combobox': typeof FormsComboboxRoute
+  '/forms/date-picker': typeof FormsDatePickerRoute
   '/forms/field': typeof FormsFieldRoute
   '/forms/field-shell': typeof FormsFieldShellRoute
+  '/forms/file-upload': typeof FormsFileUploadRoute
   '/forms/form': typeof FormsFormRoute
+  '/forms/multi-select': typeof FormsMultiSelectRoute
   '/forms/number-input': typeof FormsNumberInputRoute
   '/forms/password-input': typeof FormsPasswordInputRoute
+  '/forms/radio': typeof FormsRadioRoute
   '/forms/search-input': typeof FormsSearchInputRoute
+  '/forms/select': typeof FormsSelectRoute
+  '/forms/switch': typeof FormsSwitchRoute
   '/forms/text-input': typeof FormsTextInputRoute
   '/forms/textarea': typeof FormsTextareaRoute
   '/foundations/polymorphism': typeof FoundationsPolymorphismRoute
@@ -518,12 +599,21 @@ export interface FileRouteTypes {
     | '/feedback/alert'
     | '/feedback/empty-state'
     | '/feedback/notifications'
+    | '/forms/checkbox'
+    | '/forms/checkbox-grid'
+    | '/forms/combobox'
+    | '/forms/date-picker'
     | '/forms/field'
     | '/forms/field-shell'
+    | '/forms/file-upload'
     | '/forms/form'
+    | '/forms/multi-select'
     | '/forms/number-input'
     | '/forms/password-input'
+    | '/forms/radio'
     | '/forms/search-input'
+    | '/forms/select'
+    | '/forms/switch'
     | '/forms/text-input'
     | '/forms/textarea'
     | '/foundations/polymorphism'
@@ -573,12 +663,21 @@ export interface FileRouteTypes {
     | '/feedback/alert'
     | '/feedback/empty-state'
     | '/feedback/notifications'
+    | '/forms/checkbox'
+    | '/forms/checkbox-grid'
+    | '/forms/combobox'
+    | '/forms/date-picker'
     | '/forms/field'
     | '/forms/field-shell'
+    | '/forms/file-upload'
     | '/forms/form'
+    | '/forms/multi-select'
     | '/forms/number-input'
     | '/forms/password-input'
+    | '/forms/radio'
     | '/forms/search-input'
+    | '/forms/select'
+    | '/forms/switch'
     | '/forms/text-input'
     | '/forms/textarea'
     | '/foundations/polymorphism'
@@ -628,12 +727,21 @@ export interface FileRouteTypes {
     | '/feedback/alert'
     | '/feedback/empty-state'
     | '/feedback/notifications'
+    | '/forms/checkbox'
+    | '/forms/checkbox-grid'
+    | '/forms/combobox'
+    | '/forms/date-picker'
     | '/forms/field'
     | '/forms/field-shell'
+    | '/forms/file-upload'
     | '/forms/form'
+    | '/forms/multi-select'
     | '/forms/number-input'
     | '/forms/password-input'
+    | '/forms/radio'
     | '/forms/search-input'
+    | '/forms/select'
+    | '/forms/switch'
     | '/forms/text-input'
     | '/forms/textarea'
     | '/foundations/polymorphism'
@@ -684,12 +792,21 @@ export interface RootRouteChildren {
   FeedbackAlertRoute: typeof FeedbackAlertRoute
   FeedbackEmptyStateRoute: typeof FeedbackEmptyStateRoute
   FeedbackNotificationsRoute: typeof FeedbackNotificationsRoute
+  FormsCheckboxRoute: typeof FormsCheckboxRoute
+  FormsCheckboxGridRoute: typeof FormsCheckboxGridRoute
+  FormsComboboxRoute: typeof FormsComboboxRoute
+  FormsDatePickerRoute: typeof FormsDatePickerRoute
   FormsFieldRoute: typeof FormsFieldRoute
   FormsFieldShellRoute: typeof FormsFieldShellRoute
+  FormsFileUploadRoute: typeof FormsFileUploadRoute
   FormsFormRoute: typeof FormsFormRoute
+  FormsMultiSelectRoute: typeof FormsMultiSelectRoute
   FormsNumberInputRoute: typeof FormsNumberInputRoute
   FormsPasswordInputRoute: typeof FormsPasswordInputRoute
+  FormsRadioRoute: typeof FormsRadioRoute
   FormsSearchInputRoute: typeof FormsSearchInputRoute
+  FormsSelectRoute: typeof FormsSelectRoute
+  FormsSwitchRoute: typeof FormsSwitchRoute
   FormsTextInputRoute: typeof FormsTextInputRoute
   FormsTextareaRoute: typeof FormsTextareaRoute
   FoundationsPolymorphismRoute: typeof FoundationsPolymorphismRoute
@@ -855,6 +972,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FeedbackNotificationsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/forms/checkbox': {
+      id: '/forms/checkbox'
+      path: '/forms/checkbox'
+      fullPath: '/forms/checkbox'
+      preLoaderRoute: typeof FormsCheckboxRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forms/checkbox-grid': {
+      id: '/forms/checkbox-grid'
+      path: '/forms/checkbox-grid'
+      fullPath: '/forms/checkbox-grid'
+      preLoaderRoute: typeof FormsCheckboxGridRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forms/combobox': {
+      id: '/forms/combobox'
+      path: '/forms/combobox'
+      fullPath: '/forms/combobox'
+      preLoaderRoute: typeof FormsComboboxRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forms/date-picker': {
+      id: '/forms/date-picker'
+      path: '/forms/date-picker'
+      fullPath: '/forms/date-picker'
+      preLoaderRoute: typeof FormsDatePickerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/forms/field': {
       id: '/forms/field'
       path: '/forms/field'
@@ -869,11 +1014,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FormsFieldShellRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/forms/file-upload': {
+      id: '/forms/file-upload'
+      path: '/forms/file-upload'
+      fullPath: '/forms/file-upload'
+      preLoaderRoute: typeof FormsFileUploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/forms/form': {
       id: '/forms/form'
       path: '/forms/form'
       fullPath: '/forms/form'
       preLoaderRoute: typeof FormsFormRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forms/multi-select': {
+      id: '/forms/multi-select'
+      path: '/forms/multi-select'
+      fullPath: '/forms/multi-select'
+      preLoaderRoute: typeof FormsMultiSelectRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forms/number-input': {
@@ -890,11 +1049,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FormsPasswordInputRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/forms/radio': {
+      id: '/forms/radio'
+      path: '/forms/radio'
+      fullPath: '/forms/radio'
+      preLoaderRoute: typeof FormsRadioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/forms/search-input': {
       id: '/forms/search-input'
       path: '/forms/search-input'
       fullPath: '/forms/search-input'
       preLoaderRoute: typeof FormsSearchInputRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forms/select': {
+      id: '/forms/select'
+      path: '/forms/select'
+      fullPath: '/forms/select'
+      preLoaderRoute: typeof FormsSelectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forms/switch': {
+      id: '/forms/switch'
+      path: '/forms/switch'
+      fullPath: '/forms/switch'
+      preLoaderRoute: typeof FormsSwitchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forms/text-input': {
@@ -1116,12 +1296,21 @@ const rootRouteChildren: RootRouteChildren = {
   FeedbackAlertRoute: FeedbackAlertRoute,
   FeedbackEmptyStateRoute: FeedbackEmptyStateRoute,
   FeedbackNotificationsRoute: FeedbackNotificationsRoute,
+  FormsCheckboxRoute: FormsCheckboxRoute,
+  FormsCheckboxGridRoute: FormsCheckboxGridRoute,
+  FormsComboboxRoute: FormsComboboxRoute,
+  FormsDatePickerRoute: FormsDatePickerRoute,
   FormsFieldRoute: FormsFieldRoute,
   FormsFieldShellRoute: FormsFieldShellRoute,
+  FormsFileUploadRoute: FormsFileUploadRoute,
   FormsFormRoute: FormsFormRoute,
+  FormsMultiSelectRoute: FormsMultiSelectRoute,
   FormsNumberInputRoute: FormsNumberInputRoute,
   FormsPasswordInputRoute: FormsPasswordInputRoute,
+  FormsRadioRoute: FormsRadioRoute,
   FormsSearchInputRoute: FormsSearchInputRoute,
+  FormsSelectRoute: FormsSelectRoute,
+  FormsSwitchRoute: FormsSwitchRoute,
   FormsTextInputRoute: FormsTextInputRoute,
   FormsTextareaRoute: FormsTextareaRoute,
   FoundationsPolymorphismRoute: FoundationsPolymorphismRoute,
