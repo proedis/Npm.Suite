@@ -15,33 +15,41 @@ both.** 📐
 
 ## ✨ What's in the box
 
-Twenty-seven primitives, the interactive components, the machinery behind them, and the stylesheet
-they read:
+The layout primitives, the components on top of them, the stylesheet they read, and the machinery
+behind all of it, in sections that build on each other:
 
 ```ts
-import { Stack, Divider } from '@proedis/ui';              // everything except hooks and interactive
-import { Stack } from '@proedis/ui/layout';                // …or say which tier you are in
-import { Divider } from '@proedis/ui/components';
+import { Stack, Surface } from '@proedis/ui';                 // core, layout, primitives, static display
+import { Stack } from '@proedis/ui/layout';                   // …or say which section you are in
+import { Divider } from '@proedis/ui/primitives';
 import { cn, type Responsive } from '@proedis/ui/core';
-import { useIsMobile } from '@proedis/ui/hooks';           // client-only, its own entry point
-import { Button } from '@proedis/ui/interactive/button';   // one subpath per interactive component
+import { useIsMobile } from '@proedis/ui/hooks';              // client-only, its own entry point
+import { Button } from '@proedis/ui/actions/button';          // one subpath per component above primitives
+import { Dialog } from '@proedis/ui/overlays/dialog';
 ```
 
-`core` holds **no JSX**: the class machinery, the shared props and the types. `layout` answers *where
-things are*, `components` answers *what they look like*, and `hooks` is the client-only half. 🧱
+| Section | Subpath | What it answers |
+| --- | --- | --- |
+| **core** | `@proedis/ui/core` | the class machinery, the shared props, the responsive types, the tones. **No JSX** |
+| **layout** | `@proedis/ui/layout` | *where things are*: `Box` · `Stack` · `Cluster` · `Grid` · `Center` · `Container` · `Split` · `Spacer` · `Sticky` · `AspectRatio` · `Bleed` · `SafeArea` |
+| **primitives** | `@proedis/ui/primitives` | the small pieces with a look: `BusyVeil` · `Divider` · `Label` · `LoadingBar` · `ScrollArea` · `Skeleton` · `Spinner` · `VisuallyHidden` |
+| **display** | `@proedis/ui/display/<name>` | what things look like: `Badge` · `BadgeCounter` · `Heading` · `IconBox` · `Item` · `LabeledContent` · `Surface`, and `Person` on Base UI |
+| **actions** | `@proedis/ui/actions/<name>` | what a user presses: `Button` · `IconButton` · `CollapsibleSection` · `Menu` · `SegmentedControl` · `Tabs` · `Toggle` · `Tooltip` |
+| **feedback** | `@proedis/ui/feedback/<name>` | what the interface says back: `Alert` · `EmptyState` · notifications |
+| **forms** | `@proedis/ui/forms/<name>` | `Form`, `Field` and every control |
+| **overlays** | `@proedis/ui/overlays/<name>` | `Dialog` · `Drawer` · `AlertDialog` · `Popover` |
+| **data** | `@proedis/ui/data/<name>` | `Table` · `FiltersBar` · `ModalSelector` · `Detail` |
+| **hooks** | `@proedis/ui/hooks` | `useBreakpoint`, `useIsMobile`, client-only; the generic ones (`useMediaQuery`, `useDelayedBusy`, `useOverflowItems`…) are in `@proedis/react` |
+| **tokens** | `@proedis/ui` (CSS) | the full vocabulary, or the five tokens of the layout through `ui.css` |
 
-| | |
-| --- | --- |
-| **Layout** | `Box` · `Stack` · `Grid` · `Cluster` · `Center` · `Container` · `Split` · `Spacer` · `Sticky` · `AspectRatio` |
-| **Visibility** | `hideBelow` / `hideFrom` on every primitive, plus `VisuallyHidden` |
-| **Escapes** | `Bleed` · `SafeArea` — out of a padding, and out of the notch |
-| **Components** | `Surface` · `Item` · `Heading` · `Badge` · `BadgeCounter` · `IconBox` · `Spinner` · `Skeleton` · `LoadingBar` · `BusyVeil` · `Divider` · `ScrollArea` · `Label` · `LabeledContent` |
-| **Responsive** | `Responsive<T>`, the typed scales, and the class builders behind every prop |
-| **Utilities** | `cn` — class composition where the last conflicting utility wins |
-| **Types** | `PolymorphicProps` — `as` typed by the element it renders, not by `div` |
-| **Hooks** | `useBreakpoint`, `useIsMobile`; the generic ones (`useMediaQuery`, `usePrefersReducedMotion`, `useDelayedBusy`, `useOverflowItems`) are in `@proedis/react` |
-| **Interactive** | `Tooltip` · `Button` · `IconButton` · `Form` · `Field` · `TextInput` · `PasswordInput` · `SearchInput` · `Textarea` · `NumberInput` · `Checkbox` · `RadioGroup` · `Switch` · `Select` · `MultiSelect` · `Combobox` · `DatePicker` · `FileUpload` · `AttachmentList` · `Toggle` · `ToggleGroup` · `SegmentedControl` · `Popover` · `Menu` · `Dialog` · `AlertDialog` · `Drawer` · `Alert` · `EmptyState` · `Tabs` · `Avatar` · `AvatarGroup` · `Person` · notifications (`NotificationsProvider`, `JobsButton`), on Base UI |
-| **Tokens** | a five token contract, or the **full vocabulary** through `theme.css` |
+Each section imports only from the ones above it in this table, and every container of every
+component is a layout primitive: a lint rule checks both. 🧱 The package root re-exports core, layout,
+primitives and the static display components, so `@proedis/ui` alone is enough to start and stays
+renderable from a React Server Component. Everything with behaviour lives on its own subpath, so each
+one brings only its own optional peers.
+
+📚 Every component has a page with live examples, the accessibility, the slots and the generated API
+in the documentation site, `apps/ui-docs` in this repository: `yarn workspace @proedis/ui-docs dev`.
 
 ## 📦 Installation
 
@@ -64,7 +72,7 @@ That single line does three things: it lets Tailwind see the classes this packag
 the **full token contract**, and it declares neutral defaults for all of it. Nothing else to configure:
 no safelist to copy, no `@source` to add.
 
-The full contract is the default because the `components` tier reads it — `IconBox` alone needs
+The full contract is the default because the components read it: `IconBox` alone needs
 `primary`, `secondary`, `success`, `warning`, `destructive` and `info`. A project that wants **only**
 the layout tier and its five tokens asks for the narrower sheet by name:
 
@@ -79,9 +87,9 @@ One or the other, never both: the full sheet imports the narrow one itself. See
 | --- | --- |
 | `react` | `>=19.0.0 <20.0.0` |
 | `tailwindcss` | `^4.1.5` |
-| `@base-ui/react` | `^1.7.0`, **optional**: only for the `interactive/*` subpaths |
-| `dayjs` | `^1.11.0`, **optional**: only for `interactive/date-picker`, `interactive/filters-bar` and `interactive/modal-selector`, with the locale loaded by the application |
-| `@tanstack/react-table` | `^9.3.1`, **optional**: only for `interactive/table` |
+| `@base-ui/react` | `^1.7.0`, **optional**: for `display/person` and every subpath of actions, feedback, forms, overlays and data |
+| `dayjs` | `^1.11.0`, **optional**: only for `forms/date-picker`, `data/filters-bar` and `data/modal-selector`, with the locale loaded by the application |
+| `@tanstack/react-table` | `^9.3.1`, **optional**: only for `data/table` |
 
 ⚠️ The stylesheet uses Tailwind directives. Loaded as a plain `<link>` it does nothing — it has to be
 imported where Tailwind compiles.
@@ -640,63 +648,67 @@ width outside the theme's scale), next to `usePrefersReducedMotion`, `useDelayed
 `useOverflowItems`: hooks that know nothing of this package live there.
 
 The breakpoint pair reads the widths from the `--breakpoint-*` theme variables first, so a project
-that moved the scale is followed instead of drifting from it, and falls back to Tailwind's defaults.
-Both answer `false` on the server and on the first client render: the layout settles after hydration
-rather than mismatching it.
+that moved the scale is followed instead of drifting from it. The stylesheet keeps all five in the
+output: Tailwind writes a breakpoint straight into each media query and would otherwise emit none of
+them. On the server and while hydrating, `useBreakpoint` answers `false` and `useIsMobile` `true`, so
+the first render is the mobile one and the wide layout settles after hydration; an application
+rendered on the client only gets the real answer from its first render.
 
 They live behind their own entry point on purpose — everything exported from the package root is
 renderable from a React Server Component, and a barrel re-exporting a hook would take that away.
 Reach for them only where CSS cannot do the job: a bottom sheet instead of a dialog, not a padding.
 
-### The interactive tier — `@proedis/ui/interactive/*`
+### The components with behaviour
 
-The components with behaviour: keyboard, focus, state, accessibility. Their **logic and structure**
-are shared; their **look** is a neutral default every application retunes from its own stylesheet,
-through the `data-slot` on every part and the `data-*` that reports every resolved variant (see
+Everything above the primitives that has keyboard, focus, state or a portal: the actions, the
+feedback, the forms, the overlays, the data, and `Person`. Their **logic and structure** are shared;
+their **look** is a neutral default every application retunes from its own stylesheet, through the
+`data-slot` on every part and the `data-*` that reports every resolved variant (see
 [Customizing a component](#️-customizing-a-component)). The slot names are public API.
 
 They run on [Base UI](https://base-ui.com), an **optional** peer: a project that never imports from
-these subpaths installs nothing new. One subpath per component, so each brings only its own peers, and
-none of them is re-exported by the root barrel. Every module is client-only (`'use client'`).
+these subpaths installs nothing new. One subpath per component, under its section, so each brings only
+its own peers; none of them is re-exported by the root barrel. Every module is client-only
+(`'use client'`). Each subpath also exports the types of its props, labels and values.
 
 | Subpath | Exports |
 | --- | --- |
-| `interactive/tooltip` | `Tooltip`, `TooltipProvider` |
-| `interactive/button` | `Button`, `IconButton`, `buttonVariants` |
-| `interactive/field` | `Field` (`.Label`, `.Description`, `.Error`, `.Counter`), `FIELD_SPAN`, `useFieldControl` |
-| `interactive/field-shell` | `FieldShell`, the frame of every text control, for a control of your own |
-| `interactive/form` | `Form` (`.Header`, `.ErrorSummary`, `.Section`, `.Footer`) |
-| `interactive/text-input` | `TextInput` (`.Action`), `textInputVariants` |
-| `interactive/password-input` | `PasswordInput` |
-| `interactive/search-input` | `SearchInput` |
-| `interactive/textarea` | `Textarea` |
-| `interactive/number-input` | `NumberInput` |
-| `interactive/checkbox` | `Checkbox`, `CheckboxGroup` (with a computed parent box) |
-| `interactive/checkbox-grid` | `CheckboxGrid`: boxes in sections that open and close, a row of parent boxes in each open group |
-| `interactive/radio` | `RadioGroup`, `Radio` (classic or `variant="card"`) |
-| `interactive/switch` | `Switch` |
-| `interactive/select` | `Select`, with a search past `searchThreshold` options |
-| `interactive/multi-select` | `MultiSelect` |
-| `interactive/combobox` | `Combobox`, one record or several (`multiple`) among results from the server |
-| `interactive/date-picker` | `DatePicker`, a date or a period (`mode="range"`); needs `dayjs` |
-| `interactive/file-upload` | `FileUpload`, `AttachmentList`, `validateFiles`, `acceptsFile` |
-| `interactive/toggle` | `Toggle`, `ToggleGroup` |
-| `interactive/segmented-control` | `SegmentedControl` (`.Item`) |
-| `interactive/popover` | `Popover` (`.Submit`) |
-| `interactive/menu` | `Menu` (`.Item`, `.Group`, `.Separator`, `.RadioGroup`, `.RadioItem`, `.CheckboxItem`, `.Submenu`) |
-| `interactive/dialog` | `Dialog` (`.Submit`, `.Cancel`, `.Section`) |
-| `interactive/alert-dialog` | `AlertDialog`, in three grades |
-| `interactive/drawer` | `Drawer` (`.Submit`, `.Cancel`, `.Section`) |
-| `interactive/alert` | `Alert`, `alertVariants` |
-| `interactive/empty-state` | `EmptyState` |
-| `interactive/detail` | `Detail` (`.Section`, `.Grid`, `.Item`), `DETAIL_SPAN`: the read-only content of a record |
-| `interactive/collapsible` | `CollapsibleSection`: a section that opens and closes from its header |
-| `interactive/tabs` | `Tabs` (`.Panel`), with "More" for the tabs that do not fit |
-| `interactive/person` | `Avatar`, `AvatarGroup`, `Person` |
-| `interactive/toast` | `createNotifications`, `NotificationsProvider`, `JobsButton` |
-| `interactive/table` | `Table`, `TableFormatsProvider`, `useTableFormats`, `sortingToFields`; needs `@tanstack/react-table` |
-| `interactive/filters-bar` | `FiltersBar`: search, a button per filter, "More filters", "Clear filters"; needs `dayjs` |
-| `interactive/modal-selector` | `ModalSelector`, `ModalSelectorField`: one record or several from a list, in a Dialog; needs `dayjs` |
+| `display/person` | `Avatar`, `AvatarGroup`, `Person` |
+| `actions/button` | `Button`, `IconButton` |
+| `actions/collapsible` | `CollapsibleSection`: a section that opens and closes from its header |
+| `actions/menu` | `Menu` (`.Item`, `.Group`, `.Separator`, `.RadioGroup`, `.RadioItem`, `.CheckboxItem`, `.Submenu`) |
+| `actions/segmented-control` | `SegmentedControl` (`.Item`) |
+| `actions/tabs` | `Tabs` (`.Panel`), with "More" for the tabs that do not fit |
+| `actions/toggle` | `Toggle`, `ToggleGroup` |
+| `actions/tooltip` | `Tooltip`, `TooltipProvider` |
+| `feedback/alert` | `Alert` |
+| `feedback/empty-state` | `EmptyState`, at most two actions |
+| `feedback/notifications` | `createNotifications`, `NotificationsProvider`, `JobsButton` |
+| `forms/form` | `Form` (`.Header`, `.ErrorSummary`, `.Section`, `.Footer`), `FormSubmit` |
+| `forms/field` | `Field` (`.Label`, `.Description`, `.Error`, `.Counter`), `FIELD_SPAN`, `useFieldControl` |
+| `forms/field-shell` | `FieldShell`, the frame of every text control, for a control of your own |
+| `forms/text-input` | `TextInput` (`.Action`) |
+| `forms/password-input` | `PasswordInput` |
+| `forms/search-input` | `SearchInput` |
+| `forms/number-input` | `NumberInput` |
+| `forms/textarea` | `Textarea` |
+| `forms/select` | `Select`, with a search past `searchThreshold` options |
+| `forms/multi-select` | `MultiSelect`, and the `SelectOption` type its options take |
+| `forms/combobox` | `Combobox`, one record or several (`multiple`) among results from the server |
+| `forms/date-picker` | `DatePicker`, a date or a period (`mode="range"`); needs `dayjs` |
+| `forms/checkbox` | `Checkbox`, `CheckboxGroup` (with a computed parent box) |
+| `forms/checkbox-grid` | `CheckboxGrid`: boxes in sections that open and close, a row of parent boxes in each open group |
+| `forms/radio` | `RadioGroup`, `Radio` (classic or `variant="card"`) |
+| `forms/switch` | `Switch` |
+| `forms/file-upload` | `FileUpload`, `AttachmentList`, `validateFiles`, `acceptsFile` |
+| `overlays/dialog` | `Dialog` (`.Submit`, `.Cancel`, `.Section`) |
+| `overlays/drawer` | `Drawer` (`.Submit`, `.Cancel`, `.Section`) |
+| `overlays/alert-dialog` | `AlertDialog`, in three grades |
+| `overlays/popover` | `Popover` (`.Submit`) |
+| `data/table` | `Table`, `TableFormatsProvider`, `useTableFormats`, `sortingToFields`; needs `@tanstack/react-table` |
+| `data/filters-bar` | `FiltersBar`: search, a button per filter, "More filters", "Clear filters", and the `DateRange` of its date filters; needs `dayjs` |
+| `data/modal-selector` | `ModalSelector`, `ModalSelectorField`: one record or several from a list, in a Dialog; needs `dayjs` |
+| `data/detail` | `Detail` (`.Section`, `.Grid`, `.Item`), `DETAIL_SPAN`: the read-only content of a record |
 
 ```tsx
 <TooltipProvider>                                   {/* once, above everything */}
@@ -803,7 +815,8 @@ What is worth knowing before using them:
   formatters, says how dates, numbers and enum labels read. The package knows no formatter.
 - **A detail lines up with its form.** `Detail.Grid` has the six columns of `Form.Section`, and a
   `Detail.Item` takes the columns of the field of its `type` (`DETAIL_SPAN`, built on `FIELD_SPAN`):
-  in edit the fields take the place of the values and nothing moves. `span` and `breakBefore` follow
+  in edit the fields take the place of the values in the same columns. The rows grow, since a
+  control is taller than a line of text. `span` and `breakBefore` follow
   the contract of the `Field` ones, a value per breakpoint included, so an override holds in both
   modes; a map without `base` starts from the type's columns. A value that is not there reads
   "—" with `labels.empty` as its name; `copyable` adds a button that copies the text of the value and
@@ -1047,6 +1060,9 @@ another package. A recessed surface is `--muted`.
 
 | 1.x | 2.0 |
 | --- | --- |
+| `@proedis/ui/components` | gone: `Divider`, `Label`, `ScrollArea`, `Skeleton`, `Spinner`, `VisuallyHidden`, `BusyVeil`, `LoadingBar` from `@proedis/ui/primitives`; `Badge`, `Heading`, `IconBox`, `Item`, `LabeledContent`, `Surface` and the others from `@proedis/ui/display/<name>`. The package root still exports all of them |
+| `@proedis/ui/interactive/<name>` | `@proedis/ui/<section>/<name>`: `actions/button`, `forms/text-input`, `overlays/dialog`, `data/table`, `display/person`… (see [the table](#the-components-with-behaviour)) |
+| `@proedis/ui/interactive/toast` | `@proedis/ui/feedback/notifications`, same exports |
 | `react` `>=18.0.0 <20.0.0` | `>=19.0.0 <20.0.0`: the compiled code imports `react/compiler-runtime`, and `ref` is passed as a prop |
 | `combobox-footer` on the "too many results" line of the single `Combobox` | `combobox-too-many`, as on the multiple one; `combobox-footer` is now only the footer of actions of the multiple field |
 | `resultsFor`, `onFlush` on a multiple `Combobox` | single field only: they never did anything on the multiple one |
@@ -1065,10 +1081,10 @@ another package. A recessed surface is `--muted`.
 | React | `>=19.0.0 <20.0.0`. The components are compiled by the React Compiler before publishing, against the `react/compiler-runtime` React 19 ships: nothing to configure, nothing else to install |
 | Tailwind | `^4.1.5` — the stylesheet uses `@source`, `@source inline`, `@theme inline`, `@utility` and `@custom-variant`, and the error mark is one line tall with `h-lh`. Measured: 4.0 does not compile the stylesheet, 4.1.0 to 4.1.4 compile it without `h-lh`, 4.1.5 generates the same classes as the latest 4.x |
 | TypeScript | `>=5.2.0`, the suite floor — the emitted declarations are compiled against it |
-| Runtime | ES2022. The package root is server-renderable; `/hooks` and `/interactive/*` are client-only |
-| Base UI | `^1.7.0`, optional, for `/interactive/*` only |
-| dayjs | `^1.11.0`, optional, for `/interactive/date-picker`, `/interactive/filters-bar`, `/interactive/modal-selector` |
-| TanStack Table | `^9.3.1`, optional, for `/interactive/table` only |
+| Runtime | ES2022. The package root is server-renderable; `/hooks`, `/display/person` and every subpath of actions, feedback, forms, overlays and data are client-only |
+| Base UI | `^1.7.0`, optional, for those same client-only subpaths |
+| dayjs | `^1.11.0`, optional, for `/forms/date-picker`, `/data/filters-bar`, `/data/modal-selector` |
+| TanStack Table | `^9.3.1`, optional, for `/data/table` only |
 
 ## 📄 License
 
