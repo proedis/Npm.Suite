@@ -11,6 +11,9 @@ import { highlight } from './highlight.ts';
 
 const QUERY = '?example';
 
+/** The source alone, of any module: a fixture, a setup file, the module of an entity */
+const SOURCE_QUERY = '?source';
+
 
 /* --------
  * Plugin
@@ -24,6 +27,9 @@ const QUERY = '?example';
  * The module imports the file without the query, so the component goes through the normal pipeline
  * (TypeScript, JSX, Fast Refresh). Editing the file invalidates both modules, since Vite keys them on
  * the same file.
+ *
+ * `?source` gives the highlighted source alone, of a module with no component to render: the setup a
+ * page shows is the file its examples import, not a copy of it.
  */
 export function examples(): Plugin {
   return {
@@ -31,16 +37,22 @@ export function examples(): Plugin {
     enforce: 'pre',
 
     async load(id) {
-      if (!id.endsWith(QUERY)) {
+      const isExample = id.endsWith(QUERY);
+
+      if (!isExample && !id.endsWith(SOURCE_QUERY)) {
         return null;
       }
 
-      const file = id.slice(0, -QUERY.length);
+      const file = id.slice(0, -(isExample ? QUERY : SOURCE_QUERY).length);
       /* The two blank lines of the house style between blocks read as a gap on a page: one is enough */
       const code = (await readFile(file, 'utf8')).trimEnd().replace(/\n{3,}/g, '\n\n');
-      const html = await highlight(code, 'tsx');
+      const html = await highlight(code, file.endsWith('.tsx') ? 'tsx' : 'ts');
 
       this.addWatchFile(file);
+
+      if (!isExample) {
+        return `export default { code: ${JSON.stringify(code)}, html: ${JSON.stringify(html)}, file: ${JSON.stringify(path.basename(file))} };`;
+      }
 
       return [
         `import Component from ${JSON.stringify(file)};`,

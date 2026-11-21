@@ -18,3 +18,7 @@ export interface ExampleModule {
   /** The name of the file, shown over the code */
   readonly file: string;
 }
+
+
+/** What `import x from '…/name.ts?source'` gives: the source of a module, to read */
+export type SourceModule = Omit<ExampleModule, 'Component'>;

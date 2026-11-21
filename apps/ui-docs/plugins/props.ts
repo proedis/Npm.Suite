@@ -14,7 +14,8 @@ const PREFIX = 'virtual:ui-props/';
 
 const RESOLVED = `\0${PREFIX}`;
 
-const DEFAULTS_TO = /Defaults? to `([^`]+)`/;
+/** "Defaults to `md`", or a bare number or boolean: "Defaults to 3" */
+const DEFAULTS_TO = /Defaults? to (?:`([^`]+)`|(-?\d+(?:\.\d+)?|true|false)\b)/;
 
 
 /* --------
@@ -38,6 +39,12 @@ function readable(type: string): string {
     .filter((member) => member !== 'null' && member !== 'undefined');
 
   return members.length === 2 && members.includes('true') && members.includes('false') ? 'boolean' : members.join(' | ');
+}
+
+/** The default a JSDoc states in prose */
+function defaultInProse(description: string): string | undefined {
+  const match = DEFAULTS_TO.exec(description);
+  return match ? match[1] ?? match[2] : undefined;
 }
 
 /** The value an expression stands for, through `as const` and a constant declared elsewhere */
@@ -218,14 +225,18 @@ class PropsReader {
     declarations: ts.Declaration[],
     typeName: string
   ): PropDoc {
-    /** The type as written, once per distinct spelling: a prop of a union is declared in each member */
+    /*
+     * The type as written, once per distinct spelling: a prop of a union is declared in each member.
+     * A type node is kept as the author wrote it, `| null` included; only a spelling the compiler
+     * produced for a node-less declaration (a `cva` variant) goes through `readable`.
+     */
     const written = [ ...new Set(declarations.map((declaration) => (
       ts.isPropertySignature(declaration) && declaration.type
         ? declaration.type.getText()
-        : checker.typeToString(checker.getTypeOfSymbol(property))
+        : readable(checker.typeToString(checker.getTypeOfSymbol(property)))
     ))) ];
 
-    const spelled = readable(written.join(' | '));
+    const spelled = written.length === 2 && written.includes('true') && written.includes('false') ? 'boolean' : written.join(' | ');
 
     /** The literals behind it, when every member of the union is one */
     const resolved = checker.getNonNullableType(checker.getTypeOfSymbol(property));
@@ -262,7 +273,7 @@ class PropsReader {
     const defaultTag = (documented ?? property).getJsDocTags(checker).find((tag) => tag.name === 'default');
     const defaultValue = defaultTag
       ? ts.displayPartsToString(defaultTag.text)
-      : DEFAULTS_TO.exec(description)?.[1] ?? cvaDefault(checker, declarations[0], property.getName());
+      : defaultInProse(description) ?? cvaDefault(checker, declarations[0], property.getName());
 
     const shared = owner === 'BaseProps';
 

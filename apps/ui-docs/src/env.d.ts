@@ -12,6 +12,12 @@ declare module '*?example' {
   export default example;
 }
 
+/** The source of a module, highlighted: see `plugins/examples.ts` */
+declare module '*?source' {
+  const source: import('./docs/exampleModule').SourceModule;
+  export default source;
+}
+
 /** The props of a type of @proedis/ui, read by the compiler: see `plugins/props.ts` */
 declare module 'virtual:ui-props/*' {
   const props: readonly import('./docs/propDoc').PropDoc[];
