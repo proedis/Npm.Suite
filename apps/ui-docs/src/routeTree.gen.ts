@@ -17,6 +17,10 @@ import { Route as ActionsSegmentedControlRouteImport } from './routes/actions/se
 import { Route as ActionsTabsRouteImport } from './routes/actions/tabs'
 import { Route as ActionsToggleRouteImport } from './routes/actions/toggle'
 import { Route as ActionsTooltipRouteImport } from './routes/actions/tooltip'
+import { Route as DataDetailRouteImport } from './routes/data/detail'
+import { Route as DataFiltersBarRouteImport } from './routes/data/filters-bar'
+import { Route as DataModalSelectorRouteImport } from './routes/data/modal-selector'
+import { Route as DataTableRouteImport } from './routes/data/table'
 import { Route as DisplayBadgeRouteImport } from './routes/display/badge'
 import { Route as DisplayBadgeCounterRouteImport } from './routes/display/badge-counter'
 import { Route as DisplayHeadingRouteImport } from './routes/display/heading'
@@ -114,6 +118,26 @@ const ActionsToggleRoute = ActionsToggleRouteImport.update({
 const ActionsTooltipRoute = ActionsTooltipRouteImport.update({
   id: '/actions/tooltip',
   path: '/actions/tooltip',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DataDetailRoute = DataDetailRouteImport.update({
+  id: '/data/detail',
+  path: '/data/detail',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DataFiltersBarRoute = DataFiltersBarRouteImport.update({
+  id: '/data/filters-bar',
+  path: '/data/filters-bar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DataModalSelectorRoute = DataModalSelectorRouteImport.update({
+  id: '/data/modal-selector',
+  path: '/data/modal-selector',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DataTableRoute = DataTableRouteImport.update({
+  id: '/data/table',
+  path: '/data/table',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DisplayBadgeRoute = DisplayBadgeRouteImport.update({
@@ -417,6 +441,10 @@ export interface FileRoutesByFullPath {
   '/actions/tabs': typeof ActionsTabsRoute
   '/actions/toggle': typeof ActionsToggleRoute
   '/actions/tooltip': typeof ActionsTooltipRoute
+  '/data/detail': typeof DataDetailRoute
+  '/data/filters-bar': typeof DataFiltersBarRoute
+  '/data/modal-selector': typeof DataModalSelectorRoute
+  '/data/table': typeof DataTableRoute
   '/display/badge': typeof DisplayBadgeRoute
   '/display/badge-counter': typeof DisplayBadgeCounterRoute
   '/display/heading': typeof DisplayHeadingRoute
@@ -485,6 +513,10 @@ export interface FileRoutesByTo {
   '/actions/tabs': typeof ActionsTabsRoute
   '/actions/toggle': typeof ActionsToggleRoute
   '/actions/tooltip': typeof ActionsTooltipRoute
+  '/data/detail': typeof DataDetailRoute
+  '/data/filters-bar': typeof DataFiltersBarRoute
+  '/data/modal-selector': typeof DataModalSelectorRoute
+  '/data/table': typeof DataTableRoute
   '/display/badge': typeof DisplayBadgeRoute
   '/display/badge-counter': typeof DisplayBadgeCounterRoute
   '/display/heading': typeof DisplayHeadingRoute
@@ -554,6 +586,10 @@ export interface FileRoutesById {
   '/actions/tabs': typeof ActionsTabsRoute
   '/actions/toggle': typeof ActionsToggleRoute
   '/actions/tooltip': typeof ActionsTooltipRoute
+  '/data/detail': typeof DataDetailRoute
+  '/data/filters-bar': typeof DataFiltersBarRoute
+  '/data/modal-selector': typeof DataModalSelectorRoute
+  '/data/table': typeof DataTableRoute
   '/display/badge': typeof DisplayBadgeRoute
   '/display/badge-counter': typeof DisplayBadgeCounterRoute
   '/display/heading': typeof DisplayHeadingRoute
@@ -624,6 +660,10 @@ export interface FileRouteTypes {
     | '/actions/tabs'
     | '/actions/toggle'
     | '/actions/tooltip'
+    | '/data/detail'
+    | '/data/filters-bar'
+    | '/data/modal-selector'
+    | '/data/table'
     | '/display/badge'
     | '/display/badge-counter'
     | '/display/heading'
@@ -692,6 +732,10 @@ export interface FileRouteTypes {
     | '/actions/tabs'
     | '/actions/toggle'
     | '/actions/tooltip'
+    | '/data/detail'
+    | '/data/filters-bar'
+    | '/data/modal-selector'
+    | '/data/table'
     | '/display/badge'
     | '/display/badge-counter'
     | '/display/heading'
@@ -760,6 +804,10 @@ export interface FileRouteTypes {
     | '/actions/tabs'
     | '/actions/toggle'
     | '/actions/tooltip'
+    | '/data/detail'
+    | '/data/filters-bar'
+    | '/data/modal-selector'
+    | '/data/table'
     | '/display/badge'
     | '/display/badge-counter'
     | '/display/heading'
@@ -829,6 +877,10 @@ export interface RootRouteChildren {
   ActionsTabsRoute: typeof ActionsTabsRoute
   ActionsToggleRoute: typeof ActionsToggleRoute
   ActionsTooltipRoute: typeof ActionsTooltipRoute
+  DataDetailRoute: typeof DataDetailRoute
+  DataFiltersBarRoute: typeof DataFiltersBarRoute
+  DataModalSelectorRoute: typeof DataModalSelectorRoute
+  DataTableRoute: typeof DataTableRoute
   DisplayBadgeRoute: typeof DisplayBadgeRoute
   DisplayBadgeCounterRoute: typeof DisplayBadgeCounterRoute
   DisplayHeadingRoute: typeof DisplayHeadingRoute
@@ -945,6 +997,34 @@ declare module '@tanstack/react-router' {
       path: '/actions/tooltip'
       fullPath: '/actions/tooltip'
       preLoaderRoute: typeof ActionsTooltipRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/data/detail': {
+      id: '/data/detail'
+      path: '/data/detail'
+      fullPath: '/data/detail'
+      preLoaderRoute: typeof DataDetailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/data/filters-bar': {
+      id: '/data/filters-bar'
+      path: '/data/filters-bar'
+      fullPath: '/data/filters-bar'
+      preLoaderRoute: typeof DataFiltersBarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/data/modal-selector': {
+      id: '/data/modal-selector'
+      path: '/data/modal-selector'
+      fullPath: '/data/modal-selector'
+      preLoaderRoute: typeof DataModalSelectorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/data/table': {
+      id: '/data/table'
+      path: '/data/table'
+      fullPath: '/data/table'
+      preLoaderRoute: typeof DataTableRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/display/badge': {
@@ -1365,6 +1445,10 @@ const rootRouteChildren: RootRouteChildren = {
   ActionsTabsRoute: ActionsTabsRoute,
   ActionsToggleRoute: ActionsToggleRoute,
   ActionsTooltipRoute: ActionsTooltipRoute,
+  DataDetailRoute: DataDetailRoute,
+  DataFiltersBarRoute: DataFiltersBarRoute,
+  DataModalSelectorRoute: DataModalSelectorRoute,
+  DataTableRoute: DataTableRoute,
   DisplayBadgeRoute: DisplayBadgeRoute,
   DisplayBadgeCounterRoute: DisplayBadgeCounterRoute,
   DisplayHeadingRoute: DisplayHeadingRoute,

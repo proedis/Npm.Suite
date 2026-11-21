@@ -245,10 +245,10 @@ export const NAV: readonly NavGroup[] = [
     title      : 'Data',
     description: 'Lists of records and the detail of one: tables, filters, selectors.',
     items      : [
-      { title: 'Table', to: '/data/table', subpath: '@proedis/ui/data/table', peers: [ '@base-ui/react', '@tanstack/react-table' ], description: 'Sorting, pages, selection, row actions, from the client or the server.', icon: Table2, ready: false },
-      { title: 'FiltersBar', to: '/data/filters-bar', subpath: '@proedis/ui/data/filters-bar', peers: BASE_UI_DAYJS, description: 'The filters of a list, with More for those that do not fit.', icon: ListFilter, ready: false },
-      { title: 'ModalSelector', to: '/data/modal-selector', subpath: '@proedis/ui/data/modal-selector', peers: [ '@base-ui/react', 'dayjs', '@tanstack/react-table' ], description: 'Choosing records from a long list, in a dialog.', icon: Filter, ready: false },
-      { title: 'Detail', to: '/data/detail', subpath: '@proedis/ui/data/detail', peers: BASE_UI, description: 'The fields of one record, on the grid of its form.', icon: Grid3x3, ready: false }
+      { title: 'Table', to: '/data/table', subpath: '@proedis/ui/data/table', peers: [ '@base-ui/react', '@tanstack/react-table' ], description: 'Sorting, pages, selection, row actions, from the client or the server.', icon: Table2, ready: true },
+      { title: 'FiltersBar', to: '/data/filters-bar', subpath: '@proedis/ui/data/filters-bar', peers: BASE_UI_DAYJS, description: 'The filters of a list, with More for those that do not fit.', icon: ListFilter, ready: true },
+      { title: 'ModalSelector', to: '/data/modal-selector', subpath: '@proedis/ui/data/modal-selector', peers: BASE_UI_DAYJS, description: 'Choosing records from a long list, in a dialog.', icon: Filter, ready: true },
+      { title: 'Detail', to: '/data/detail', subpath: '@proedis/ui/data/detail', peers: BASE_UI, description: 'The fields of one record, on the grid of its form.', icon: Grid3x3, ready: true }
     ]
   },
   {
