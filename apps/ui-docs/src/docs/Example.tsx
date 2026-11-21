@@ -61,6 +61,7 @@ export function Example(props: ExampleProps): React.ReactNode {
         <ResizableFrame id={of.id} file={of.file} align={align} previewClassName={previewClassName} />
       ) : (
         <Stack
+          gap={0}
           data-slot={'example-preview'}
           align={align === 'stretch' ? 'stretch' : 'center'}
           justify={align === 'start' ? 'start' : 'center'}

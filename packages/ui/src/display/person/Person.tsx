@@ -226,7 +226,7 @@ export const Avatar = React.forwardRef<HTMLSpanElement, AvatarProps>((props, ref
   const circle = (
     <AvatarPrimitive.Root
       ref={ref}
-      render={<Stack as={'span'} inline direction={'horizontal'} align={'center'} justify={'center'} />}
+      render={<Stack gap={0} as={'span'} inline direction={'horizontal'} align={'center'} justify={'center'} />}
       role={decorative ? undefined : 'img'}
       aria-label={decorative ? undefined : name}
       aria-hidden={decorative || undefined}
@@ -253,7 +253,7 @@ export const Avatar = React.forwardRef<HTMLSpanElement, AvatarProps>((props, ref
       <AvatarPrimitive.Fallback
         delay={src ? 600 : undefined}
         data-slot={'avatar-fallback'}
-        render={<Stack as={'span'} inline direction={'horizontal'} align={'center'} justify={'center'} />}
+        render={<Stack gap={0} as={'span'} inline direction={'horizontal'} align={'center'} justify={'center'} />}
       >
         {identity.kind === 'person' ? identity.initials : <KindGlyph kind={identity.kind} />}
       </AvatarPrimitive.Fallback>
@@ -377,7 +377,7 @@ export const Person = React.forwardRef<HTMLSpanElement, PersonProps>((props, ref
       <Avatar {...avatar} size={24} decorative className={stacked ? undefined : '-my-0.5'} />
       {stacked
         ? (
-          <Stack as={'span'} data-slot={'person-text'} className={'min-w-0'}>
+          <Stack gap={0} as={'span'} data-slot={'person-text'} className={'min-w-0'}>
             {nameLine}
             {children !== null && children !== undefined && (
               <span data-slot={'person-detail'} className={'text-muted-foreground'}>{children}</span>
@@ -435,7 +435,7 @@ export const AvatarGroup = React.forwardRef<HTMLButtonElement, AvatarGroupProps>
         aria-label={label}
         data-slot={'avatar-group'}
         data-size={size}
-        render={<Stack as={'button'} inline direction={'horizontal'} align={'center'} />}
+        render={<Stack gap={0} as={'button'} inline direction={'horizontal'} align={'center'} />}
         className={cn(
           'shrink-0 cursor-default rounded-full outline-none',
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
@@ -449,6 +449,7 @@ export const AvatarGroup = React.forwardRef<HTMLButtonElement, AvatarGroupProps>
         ))}
         {hidden > 0 && (
           <Stack
+            gap={0}
             as={'span'}
             aria-hidden
             data-slot={'avatar-group-count'}
@@ -471,7 +472,7 @@ export const AvatarGroup = React.forwardRef<HTMLButtonElement, AvatarGroupProps>
         <PopoverPrimitive.Positioner sideOffset={8} collisionPadding={8} align={'start'} className={'z-popover'}>
           <PopoverPrimitive.Popup
             data-slot={'avatar-group-list'}
-            render={<Stack />}
+            render={<Stack gap={0} />}
             className={cn(
               'max-h-(--available-height) w-75 overflow-y-auto overscroll-contain rounded-md bg-popover p-3 text-sm text-popover-foreground shadow-md outline-none',
               'transition-opacity duration-150 data-starting-style:opacity-0 data-ending-style:transition-none motion-reduce:transition-none'

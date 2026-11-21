@@ -15,7 +15,7 @@ export default function Example(): React.ReactNode {
 
   return (
     <Cluster gap={6}>
-      <Stack as={'span'} inline className={'relative'}>
+      <Stack gap={0} as={'span'} inline className={'relative'}>
         <IconButton label={'Jobs'} icon={<Bell />} aria-describedby={'live-count'} />
         {/* At 0 it renders nothing at all */}
         <BadgeCounter count={count} tone={'info'} />

@@ -529,6 +529,7 @@ export function ModalSelector<TData>(props: ModalSelectorProps<TData>): React.Re
         {multiple && (
           <td className={cn(CELL, ACTIVE_INK, PIN_START, CHOSEN_BAR, 'start-0 ps-3 pe-0')}>
             <Stack
+              gap={0}
               as={'span'}
               aria-hidden={'true'}
               data-slot={'modal-selector-row-box'}
@@ -648,6 +649,7 @@ export function ModalSelector<TData>(props: ModalSelectorProps<TData>): React.Re
       <Stack data-slot={'modal-selector-toolbar-row'} direction={'horizontal'} align={'center'} gap={2} className={'h-7 min-w-0'}>
         {onlySelected && (
           <Stack
+            gap={0}
             as={'span'}
             data-slot={'modal-selector-only-selected'}
             inline
@@ -656,6 +658,7 @@ export function ModalSelector<TData>(props: ModalSelectorProps<TData>): React.Re
             className={'shrink-0'}
           >
             <Stack
+              gap={0}
               as={'span'}
               data-slot={'modal-selector-only-selected-label'}
               inline
@@ -782,8 +785,9 @@ export function ModalSelector<TData>(props: ModalSelectorProps<TData>): React.Re
       )}
       labels={{ close: labels.close, busySubmit: labels.busySubmit }}
     >
-      <Stack data-slot={'modal-selector-body'} className={'h-88 min-h-56 pb-2'}>
+      <Stack gap={0} data-slot={'modal-selector-body'} className={'h-88 min-h-56 pb-2'}>
         <Stack
+          gap={0}
           data-slot={'modal-selector-frame'}
           /* The mode of the selector: a part named by its slot carries no layout attribute of the stack */
           data-mode={mode}

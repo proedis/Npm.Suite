@@ -59,7 +59,7 @@ export function TableColumnsButton<TData>(props: {
   // Component Render
   // ----
   return (
-    <Stack as={'span'} data-slot={'table-columns'} inline direction={'horizontal'} className={'relative shrink-0'}>
+    <Stack gap={0} as={'span'} data-slot={'table-columns'} inline direction={'horizontal'} className={'relative shrink-0'}>
       <Popover
         trigger={(
           <IconButton

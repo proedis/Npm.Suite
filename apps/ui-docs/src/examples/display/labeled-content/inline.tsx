@@ -8,7 +8,7 @@ import { Stack } from '@proedis/ui/layout';
 /** The name on the left, the value pushed to the end: a settings or a summary row */
 export default function Example(): React.ReactNode {
   return (
-    <Stack divided className={'w-full max-w-sm rounded-xl border border-border'}>
+    <Stack gap={0} divided className={'w-full max-w-sm rounded-xl border border-border'}>
       <LabeledContent inline className={'px-4 py-3'}>
         <LabeledContent.Label>Push notifications</LabeledContent.Label>
         <LabeledContent.Value>On</LabeledContent.Value>

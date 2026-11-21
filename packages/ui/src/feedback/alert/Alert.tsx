@@ -304,6 +304,7 @@ export const Alert = React.forwardRef<HTMLDivElement, AlertProps>((props, ref) =
 
             {action !== null && action !== undefined && (
               <Stack
+                gap={0}
                 data-slot={'alert-action'}
                 direction={'horizontal'}
                 className={cn('shrink-0 @md:ms-auto', size === 'md' ? '@md:mt-0.5' : '@md:-my-0.5')}

@@ -294,16 +294,17 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, r
         className={cn(loading && 'opacity-0')}
       >
         {leading !== null && leading !== undefined && (
-          <Stack as={'span'} data-slot={'button-leading'} inline direction={'horizontal'}>{leading}</Stack>
+          <Stack gap={0} as={'span'} data-slot={'button-leading'} inline direction={'horizontal'}>{leading}</Stack>
         )}
         {children}
         {trailing !== null && trailing !== undefined && (
-          <Stack as={'span'} data-slot={'button-trailing'} inline direction={'horizontal'}>{trailing}</Stack>
+          <Stack gap={0} as={'span'} data-slot={'button-trailing'} inline direction={'horizontal'}>{trailing}</Stack>
         )}
       </Stack>
 
       {loading && (
         <Stack
+          gap={0}
           as={'span'}
           data-slot={'button-spinner'}
           inline
@@ -355,6 +356,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, r
 
     return (
       <Stack
+        gap={0}
         as={'a'}
         {...anchorRest}
         {...dataAttributes}
@@ -377,8 +379,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, r
    */
   const ownRender = rest.render;
   const render = React.isValidElement<Record<string, unknown>>(ownRender)
-    ? <Stack as={ownRender.type as React.ElementType} {...ownRender.props} {...ROOT_LAYOUT} />
-    : ownRender ?? <Stack as={'button'} {...ROOT_LAYOUT} />;
+    ? <Stack gap={0} as={ownRender.type as React.ElementType} {...ownRender.props} {...ROOT_LAYOUT} />
+    : ownRender ?? <Stack gap={0} as={'button'} {...ROOT_LAYOUT} />;
 
   return (
     <ButtonPrimitive

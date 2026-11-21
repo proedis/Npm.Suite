@@ -159,13 +159,13 @@ export const FieldShell = React.forwardRef<HTMLDivElement, FieldShellProps>((pro
       onMouseDown={handleMouseDown}
     >
       {isPresent(leading) && (
-        <Stack as={'span'} data-slot={'field-shell-leading'} direction={'horizontal'} align={'center'} className={'shrink-0'}>{leading}</Stack>
+        <Stack gap={0} as={'span'} data-slot={'field-shell-leading'} direction={'horizontal'} align={'center'} className={'shrink-0'}>{leading}</Stack>
       )}
 
-      <Stack data-slot={'field-shell-content'} direction={'horizontal'} align={'center'} className={'h-full min-w-0 flex-1'}>{children}</Stack>
+      <Stack gap={0} data-slot={'field-shell-content'} direction={'horizontal'} align={'center'} className={'h-full min-w-0 flex-1'}>{children}</Stack>
 
       {isPresent(trailing) && (
-        <Stack as={'span'} data-slot={'field-shell-trailing'} direction={'horizontal'} align={'center'} className={'shrink-0'}>{trailing}</Stack>
+        <Stack gap={0} as={'span'} data-slot={'field-shell-trailing'} direction={'horizontal'} align={'center'} className={'shrink-0'}>{trailing}</Stack>
       )}
     </Stack>
   );

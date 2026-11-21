@@ -167,7 +167,7 @@ export const Switch = React.forwardRef<HTMLSpanElement, SwitchProps>((props, ref
         aria-describedby={[ ariaDescribedBy, hasDescription ? descriptionId : undefined ].filter(Boolean).join(' ') || undefined}
         aria-busy={pending || undefined}
         data-slot={'switch-track'}
-        render={<Stack as={'span'} inline direction={'horizontal'} align={'center'} />}
+        render={<Stack gap={0} as={'span'} inline direction={'horizontal'} align={'center'} />}
         className={TRACK}
       >
         <SwitchPrimitive.Thumb data-slot={'switch-thumb'} className={THUMB} />

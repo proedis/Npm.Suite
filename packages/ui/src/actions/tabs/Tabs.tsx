@@ -192,7 +192,7 @@ function countText(count: number): string {
 /** The count of a tab, a pill: on the tab and on its item in "More" */
 function CountPill(props: { count: number; slot: string }): React.ReactNode {
   return (
-    <Stack as={'span'} aria-hidden data-slot={props.slot} inline direction={'horizontal'} align={'center'} justify={'center'} className={PILL}>
+    <Stack gap={0} as={'span'} aria-hidden data-slot={props.slot} inline direction={'horizontal'} align={'center'} justify={'center'} className={PILL}>
       {countText(props.count)}
     </Stack>
   );
@@ -212,7 +212,7 @@ function TabContent(props: { item: TabItem; size: TabsSize }): React.ReactNode {
       className={'group-data-disabled/tab:opacity-50'}
     >
       {item.leading !== null && item.leading !== undefined && (
-        <Stack as={'span'} data-slot={'tabs-tab-leading'} inline direction={'horizontal'}>{item.leading}</Stack>
+        <Stack gap={0} as={'span'} data-slot={'tabs-tab-leading'} inline direction={'horizontal'}>{item.leading}</Stack>
       )}
       {item.label}
       {item.count !== undefined && (
@@ -357,7 +357,7 @@ const TabsRoot = React.forwardRef<HTMLDivElement, TabsProps>((props, ref) => {
         value={item.value}
         disabled={item.disabled && !isActive}
         data-slot={'tabs-tab'}
-        render={<Stack as={'button'} {...TAB_LAYOUT} />}
+        render={<Stack gap={0} as={'button'} {...TAB_LAYOUT} />}
         className={cn(TAB_BASE, TAB_SIZES[size])}
       >
         <TabContent item={item} size={size} />
@@ -404,7 +404,7 @@ const TabsRoot = React.forwardRef<HTMLDivElement, TabsProps>((props, ref) => {
         render={<Stack gap={3} />}
         className={cn('min-w-0', baseClasses, className)}
       >
-        <Stack ref={rowRef} data-slot={'tabs-row'} direction={'horizontal'} className={'relative w-full min-w-0'}>
+        <Stack gap={0} ref={rowRef} data-slot={'tabs-row'} direction={'horizontal'} className={'relative w-full min-w-0'}>
           <Stack
             data-slot={'tabs-rail'}
             data-size={size}
@@ -473,7 +473,7 @@ const TabsRoot = React.forwardRef<HTMLDivElement, TabsProps>((props, ref) => {
             className={'pointer-events-none invisible absolute start-0 top-0'}
           >
             {items.map((item) => (
-              <Stack key={item.value} as={'span'} data-slot={'tabs-tab'} {...TAB_LAYOUT} className={cn(TAB_BASE, TAB_SIZES[size])}>
+              <Stack gap={0} key={item.value} as={'span'} data-slot={'tabs-tab'} {...TAB_LAYOUT} className={cn(TAB_BASE, TAB_SIZES[size])}>
                 <TabContent item={item} size={size} />
               </Stack>
             ))}

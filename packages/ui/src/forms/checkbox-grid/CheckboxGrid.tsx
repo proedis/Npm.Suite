@@ -566,12 +566,12 @@ export function CheckboxGrid(props: CheckboxGridProps): React.ReactNode {
       aria-labelledby={options.labelledBy}
       aria-describedby={options.describedBy}
       data-slot={'checkbox-grid-box'}
-      render={<Stack as={'span'} inline direction={'horizontal'} align={'center'} justify={'center'} />}
+      render={<Stack gap={0} as={'span'} inline direction={'horizontal'} align={'center'} justify={'center'} />}
       className={cn(CHECKBOX_BOX, 'outline-none')}
     >
       <CheckboxPrimitive.Indicator
         data-slot={'checkbox-grid-indicator'}
-        render={<Stack as={'span'} direction={'horizontal'} align={'center'} justify={'center'} />}
+        render={<Stack gap={0} as={'span'} direction={'horizontal'} align={'center'} justify={'center'} />}
       >
         {options.mixed ? <DashGlyph /> : <CheckGlyph />}
       </CheckboxPrimitive.Indicator>
@@ -587,10 +587,10 @@ export function CheckboxGrid(props: CheckboxGridProps): React.ReactNode {
           style={template}
           className={cn(ROW_TRACKS, 'border-t border-border')}
         >
-          <Stack as={'span'} data-slot={'checkbox-grid-item-name'} direction={'horizontal'} align={'center'} className={'min-w-0 py-1.5 ps-12 pe-2'}>
+          <Stack gap={0} as={'span'} data-slot={'checkbox-grid-item-name'} direction={'horizontal'} align={'center'} className={'min-w-0 py-1.5 ps-12 pe-2'}>
             {item.label}
           </Stack>
-          <Stack as={'span'} data-slot={'checkbox-grid-text'} direction={'horizontal'} align={'center'} className={'py-1.5 pe-6'}>
+          <Stack gap={0} as={'span'} data-slot={'checkbox-grid-text'} direction={'horizontal'} align={'center'} className={'py-1.5 pe-6'}>
             {labels.readOnlyValue?.(item, columns.filter((column) => isChecked(currentValue, item.id, column.id)))}
           </Stack>
         </li>
@@ -625,6 +625,7 @@ export function CheckboxGrid(props: CheckboxGridProps): React.ReactNode {
           )}
         >
           <Stack
+            gap={0}
             as={'span'}
             role={'rowheader'}
             id={rowName}
@@ -660,6 +661,7 @@ export function CheckboxGrid(props: CheckboxGridProps): React.ReactNode {
 
               return (
                 <Stack
+                  gap={0}
                   as={'span'}
                   key={column.id}
                   role={'gridcell'}
@@ -692,6 +694,7 @@ export function CheckboxGrid(props: CheckboxGridProps): React.ReactNode {
 
             return (
               <Stack
+                gap={0}
                 as={'span'}
                 key={column.id}
                 role={'gridcell'}
@@ -743,6 +746,7 @@ export function CheckboxGrid(props: CheckboxGridProps): React.ReactNode {
   // ----
   return (
     <Stack
+      gap={0}
       {...rest}
       ref={rootRef}
       data-slot={'checkbox-grid'}

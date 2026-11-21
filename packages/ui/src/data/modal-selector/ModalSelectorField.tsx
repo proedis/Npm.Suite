@@ -240,6 +240,7 @@ export function ModalSelectorField<TData>(props: ModalSelectorFieldProps<TData>)
       >
         {named.slice(0, MAX_CHIPS).map((item, index) => (
           <Stack
+            gap={0}
             as={'span'}
             key={`${item.label}-${index}`}
             data-slot={'modal-selector-field-chip'}
@@ -254,6 +255,7 @@ export function ModalSelectorField<TData>(props: ModalSelectorFieldProps<TData>)
         {hidden.length > 0 && (
           <Tooltip content={<OverflowTooltipList values={hidden.map((item) => item.label)} />}>
             <Stack
+              gap={0}
               as={'span'}
               data-slot={'modal-selector-field-more'}
               inline
@@ -321,6 +323,7 @@ export function ModalSelectorField<TData>(props: ModalSelectorFieldProps<TData>)
       </button>
 
       <Stack
+        gap={0}
         as={'span'}
         data-slot={'modal-selector-field-content'}
         direction={'horizontal'}
@@ -351,6 +354,7 @@ export function ModalSelectorField<TData>(props: ModalSelectorFieldProps<TData>)
           />
         )}
         <Stack
+          gap={0}
           as={'span'}
           data-slot={'modal-selector-field-glyph'}
           inline

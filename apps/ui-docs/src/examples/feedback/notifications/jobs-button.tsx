@@ -12,6 +12,7 @@ export default function Example(): React.ReactNode {
   return (
     /* The top bar of an application: the history of the session sits at its end */
     <Stack
+      gap={0}
       direction={'horizontal'}
       align={'center'}
       justify={'between'}

@@ -105,6 +105,7 @@ export function DomReadout(props: DomReadoutProps): React.ReactNode {
   // ----
   return (
     <Stack
+      gap={0}
       as={'pre'}
       aria-label={'Rendered markup'}
       className={'w-full overflow-x-auto rounded-lg bg-muted px-3 py-2.5 font-mono text-xs/5 text-muted-foreground'}

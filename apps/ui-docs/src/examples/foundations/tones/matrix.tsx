@@ -34,12 +34,12 @@ export default function Example(): React.ReactNode {
             <Button key={`button-${fill}`} size={'sm'} fill={fill} tone={tone}>Action</Button>
           ))}
           {FILLS.map((fill) => (
-            <Stack key={`badge-${fill}`} align={'center'}>
+            <Stack gap={0} key={`badge-${fill}`} align={'center'}>
               <Badge fill={fill} tone={tone}>State</Badge>
             </Stack>
           ))}
           {FILLS.map((fill) => (
-            <Stack key={`icon-${fill}`} align={'center'}>
+            <Stack gap={0} key={`icon-${fill}`} align={'center'}>
               <IconBox size={'sm'} fill={fill} tone={tone}><Bell /></IconBox>
             </Stack>
           ))}

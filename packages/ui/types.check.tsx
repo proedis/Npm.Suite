@@ -75,6 +75,22 @@ const outsideTheColumns = <Stack columns={13}>no</Stack>;
 /** @ts-expect-error a responsive value still has to be on the scale */
 const outsideTheScaleResponsive = <Stack gap={{ base: 2, lg: 11 }}>no</Stack>;
 
+/* The named steps of the spacing scale, beside the numbers, on every spacing prop */
+const namedSteps = (
+  <Stack gap={'md'} direction={{ base: 'vertical', lg: 'horizontal' }}>
+    <Stack gap={{ base: 'sm', lg: 2 }}>ok</Stack>
+    <Heading gap={'xs'}>ok</Heading>
+    <Item gap={{ base: 'sm', md: 'lg' }}>ok</Item>
+    <Surface.Separator type={'gap'} space={'2xl'} />
+  </Stack>
+);
+
+/** @ts-expect-error 'huge' is not a step of the scale */
+const unknownStep = <Stack gap={'huge'}>no</Stack>;
+
+/** @ts-expect-error a responsive value by name still has to be a step */
+const unknownStepResponsive = <Stack gap={{ base: 'md', lg: '3xl' }}>no</Stack>;
+
 /** @ts-expect-error 'base' is not a MediaBreakpoint: it has no media query */
 const baseIsNotABreakpoint = <Stack hideBelow={'base'}>no</Stack>;
 
@@ -503,5 +519,6 @@ export const CHECKED = [
   formLibraryBox, namedRadioGroup, switchWithTitle, namedTabs, namelessTabs, closedTabs,
   silentIconButton, silentPassword, namelessArrows, namelessConfirm,
   dirtyWithoutPrompt, dirtyWithPrompt, neverDirty, drawerDirtyWithoutPrompt, twoActions, threeActions,
-  filtersBarRoot, filtersBarChildren, singlePendingEnter, multiplePendingEnter
+  filtersBarRoot, filtersBarChildren, singlePendingEnter, multiplePendingEnter,
+  namedSteps, unknownStep, unknownStepResponsive
 ];

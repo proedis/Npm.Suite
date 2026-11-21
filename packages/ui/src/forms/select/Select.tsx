@@ -126,7 +126,7 @@ const DEFAULT_THRESHOLD = 8;
 /** The button that opens the list, a row through `render` (`TRIGGER_LAYOUT`) */
 const TRIGGER = 'h-full min-w-0 flex-1 cursor-default bg-transparent text-start outline-none';
 
-const TRIGGER_LAYOUT = <Stack as={'button'} direction={'horizontal'} align={'center'} />;
+const TRIGGER_LAYOUT = <Stack gap={0} as={'button'} direction={'horizontal'} align={'center'} />;
 
 const VALUE = 'min-w-0 flex-1 truncate data-placeholder:text-placeholder';
 

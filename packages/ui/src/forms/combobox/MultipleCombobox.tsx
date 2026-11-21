@@ -310,6 +310,7 @@ export const MultipleCombobox = React.forwardRef<HTMLButtonElement, MultipleComb
                     : (
                       <React.Fragment>
                         <Stack
+                          gap={0}
                           as={'span'}
                           data-slot={'combobox-item-box'}
                           inline
@@ -321,7 +322,7 @@ export const MultipleCombobox = React.forwardRef<HTMLButtonElement, MultipleComb
                         >
                           <CheckGlyph />
                         </Stack>
-                        <Stack as={'span'} data-slot={'combobox-item-text'} className={'min-w-0 flex-1'}>
+                        <Stack gap={0} as={'span'} data-slot={'combobox-item-text'} className={'min-w-0 flex-1'}>
                           <span data-slot={'combobox-item-label'}>{item.label}</span>
                           {(item.code || item.description) && (
                             <span className={'text-xs text-muted-foreground'}>

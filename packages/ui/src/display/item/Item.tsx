@@ -9,7 +9,7 @@ import { Stack } from '../../layout/Stack';
 
 import type { BaseProps } from '../../core/base';
 import type { PolymorphicProps } from '../../core/polymorphic';
-import type { Align, Direction, Responsive, SpacingValue } from '../../core/responsive';
+import type { Align, Direction, Responsive, Spacing, SpacingValue } from '../../core/responsive';
 
 
 /* --------
@@ -92,8 +92,11 @@ export interface StrictItemProps extends BaseProps, VariantProps<typeof itemVari
    */
   direction?: Responsive<Direction>;
 
-  /** Space between the leading visual, the text and the tail. Defaults to `3` */
-  gap?: Responsive<SpacingValue>;
+  /**
+   * Space between the leading visual, the text and the tail: a step of the spacing scale by name, or a
+   * Tailwind spacing step by number. Defaults to `3`
+   */
+  gap?: Responsive<Spacing>;
 }
 
 export type ItemProps<E extends React.ElementType = 'div'> = PolymorphicProps<E, StrictItemProps>;
@@ -175,6 +178,7 @@ function ItemTrailing<E extends React.ElementType = 'span'>(props: ItemTrailingP
   // ----
   return (
     <Stack
+      gap={0}
       as={Component}
       data-slot={'item-trailing'}
       inline

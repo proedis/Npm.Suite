@@ -148,7 +148,7 @@ export function ToneGlyph(props: { tone: ToneGlyphTone; className?: string; slot
  */
 export function ErrorGlyph(): React.ReactNode {
   return (
-    <Stack as={'span'} data-slot={'field-error-icon-box'} direction={'horizontal'} align={'center'} className={'h-lh shrink-0'}>
+    <Stack gap={0} as={'span'} data-slot={'field-error-icon-box'} direction={'horizontal'} align={'center'} className={'h-lh shrink-0'}>
       <ToneGlyph tone={'destructive'} slot={'field-error-icon'} className={'size-3.5'} />
     </Stack>
   );

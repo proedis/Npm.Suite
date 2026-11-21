@@ -292,7 +292,7 @@ const TextInputBase = React.forwardRef<HTMLInputElement, TextInputProps>((props,
     >
       <TextInputContext.Provider value={state}>
         {isPresent(leading) && (
-          <Stack as={'span'} data-slot={'text-input-leading'} direction={'horizontal'} align={'center'} className={'shrink-0'}>{leading}</Stack>
+          <Stack gap={0} as={'span'} data-slot={'text-input-leading'} direction={'horizontal'} align={'center'} className={'shrink-0'}>{leading}</Stack>
         )}
 
         {isPresent(prefix) && (
@@ -322,7 +322,7 @@ const TextInputBase = React.forwardRef<HTMLInputElement, TextInputProps>((props,
         {loading
           ? <Spinner data-slot={'text-input-spinner'} size={'sm'} className={size === 'sm' ? 'size-3.5' : undefined} label={loadingLabel} />
           : isPresent(trailing) && (
-            <Stack as={'span'} data-slot={'text-input-trailing'} direction={'horizontal'} align={'center'} className={'shrink-0'}>{trailing}</Stack>
+            <Stack gap={0} as={'span'} data-slot={'text-input-trailing'} direction={'horizontal'} align={'center'} className={'shrink-0'}>{trailing}</Stack>
           )}
       </TextInputContext.Provider>
     </Stack>

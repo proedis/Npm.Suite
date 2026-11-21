@@ -573,6 +573,7 @@ export const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>((p
   return (
     <PopoverPrimitive.Root open={open} onOpenChange={handleOpenChange} modal={false}>
       <Stack
+        gap={0}
         data-slot={'date-picker'}
         direction={'horizontal'}
         align={'center'}
@@ -705,7 +706,7 @@ export const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>((p
 
             <Stack data-slot={'date-picker-footer'} gap={1} className={'mt-1 border-t border-border pt-1'}>
               {footerText && <span data-slot={'date-picker-footer-text'} className={'px-1 text-xs text-muted-foreground'}>{footerText}</span>}
-              <Stack data-slot={'date-picker-footer-actions'} direction={'horizontal'} align={'center'} justify={'between'}>
+              <Stack gap={0} data-slot={'date-picker-footer-actions'} direction={'horizontal'} align={'center'} justify={'between'}>
                 {!isRange && (
                   <Button data-slot={'date-picker-today'} size={'sm'} fill={'plain'} tone={'primary'} disabled={isDateUnavailable?.(today) || outOfLimits(today)} onClick={() => handleSelect(today)}>
                     {labels.today}

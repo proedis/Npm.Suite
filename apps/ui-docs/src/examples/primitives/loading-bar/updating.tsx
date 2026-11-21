@@ -37,7 +37,7 @@ export default function Example(): React.ReactNode {
       <div className={'relative overflow-hidden rounded-xl border border-border'} aria-busy={wait.busy}>
         {wait.visible && <LoadingBar className={'absolute inset-x-0 top-0'} />}
         {/* Dimmed, not inert: the focus inside the list stays where it was */}
-        <Stack divided className={cn('transition-opacity', wait.visible && 'pointer-events-none opacity-70')}>
+        <Stack gap={0} divided className={cn('transition-opacity', wait.visible && 'pointer-events-none opacity-70')}>
           {VEHICLES[shown].map((plate) => (
             <Item key={plate} inset className={'text-sm'}>{plate}</Item>
           ))}

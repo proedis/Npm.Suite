@@ -221,7 +221,7 @@ export function CollapsibleSection(props: CollapsibleSectionProps): React.ReactN
                 : 'rounded-md px-2 focus-visible:outline-offset-2'
             )}
           >
-            <Stack as={'span'} data-slot={'collapsible-section-chevron-box'} direction={'horizontal'} align={'center'} className={'h-5 shrink-0'}>
+            <Stack gap={0} as={'span'} data-slot={'collapsible-section-chevron-box'} direction={'horizontal'} align={'center'} className={'h-5 shrink-0'}>
               <ChevronGlyph />
             </Stack>
             <span id={titleId} data-slot={'collapsible-section-title'} className={'min-w-0'}>{title}</span>
@@ -240,6 +240,7 @@ export function CollapsibleSection(props: CollapsibleSectionProps): React.ReactN
             )}
             {hasMeta && (
               <Stack
+                gap={0}
                 as={'span'}
                 id={metaId}
                 data-slot={'collapsible-section-meta'}

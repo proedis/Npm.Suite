@@ -8,11 +8,12 @@ const SECTIONS = [ 'Vehicles', 'Drivers', 'Rounds', 'Depots' ];
 
 export default function Example(): React.ReactNode {
   return (
-    <Stack as={'nav'} aria-label={'Fleet'} className={'w-full max-w-xs'}>
+    <Stack gap={0} as={'nav'} aria-label={'Fleet'} className={'w-full max-w-xs'}>
       <Stack as={'ul'} gap={1}>
         {SECTIONS.map((section) => (
           <li key={section}>
             <Stack
+              gap={0}
               as={'a'}
               href={`#${section.toLowerCase()}`}
               direction={'horizontal'}

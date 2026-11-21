@@ -246,6 +246,7 @@ export function IconBox<E extends React.ElementType = 'span'>(props: IconBoxProp
    */
   return (
     <Stack
+      gap={0}
       as={Component}
       data-slot={'icon-box'}
       data-fill={fill}

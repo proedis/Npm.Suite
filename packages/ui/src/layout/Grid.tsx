@@ -8,15 +8,15 @@ import { layoutAttributes } from './layoutAttributes';
 
 import type { BaseProps } from '../core/base';
 import type { PolymorphicProps } from '../core/polymorphic';
-import type { Responsive, SpacingValue } from '../core/responsive';
+import type { Responsive, Spacing } from '../core/responsive';
 
 
 /* --------
  * Types Definition
  * -------- */
 export interface StrictGridProps extends BaseProps {
-  /** Space between cells, in Tailwind spacing steps. Defaults to `4` */
-  gap?: Responsive<SpacingValue>;
+  /** Space between cells: a step of the spacing scale by name, or a Tailwind spacing step by number. Defaults to `md` */
+  gap?: Responsive<Spacing>;
 
   /**
    * `fill` keeps the empty tracks, so a row of two cards keeps the width of three.
@@ -56,7 +56,7 @@ export function Grid<E extends React.ElementType = 'div'>(props: GridProps<E>): 
     as: Component = 'div',
     className,
     fill = 'fill',
-    gap = 4,
+    gap = 'md',
     minColWidth = 240,
     style,
     ...others

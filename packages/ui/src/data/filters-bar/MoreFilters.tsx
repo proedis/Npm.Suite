@@ -280,7 +280,7 @@ export function MoreFilters(props: MoreFiltersProps): React.ReactNode {
                 </React.Fragment>
               )
               : (
-                <Stack ref={rowsRef} data-slot={'more-filters-names'} onKeyDown={handleRowsKeyDown}>
+                <Stack gap={0} ref={rowsRef} data-slot={'more-filters-names'} onKeyDown={handleRowsKeyDown}>
                   {filters.map((filter, index) => {
                     const values = filterValueLabels(filter, labels);
                     const off = (filter.disabled ?? false) && values.length === 0;
@@ -305,7 +305,7 @@ export function MoreFilters(props: MoreFiltersProps): React.ReactNode {
                         className={NAME_ROW}
                         onClick={() => enter(filter)}
                       >
-                        <Stack as={'span'} data-slot={'more-filters-row-text'} className={'min-w-0 flex-1'}>
+                        <Stack gap={0} as={'span'} data-slot={'more-filters-row-text'} className={'min-w-0 flex-1'}>
                           <span data-slot={'more-filters-row-label'}>{filter.label}</span>
                           {values.length > 0 && (
                             <Stack
@@ -321,6 +321,7 @@ export function MoreFilters(props: MoreFiltersProps): React.ReactNode {
                           )}
                         </Stack>
                         <Stack
+                          gap={0}
                           as={'span'}
                           data-slot={'more-filters-row-end'}
                           inline

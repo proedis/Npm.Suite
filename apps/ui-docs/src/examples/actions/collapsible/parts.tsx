@@ -9,7 +9,7 @@ import { Stack } from '@proedis/ui/layout';
 
 export default function Example(): React.ReactNode {
   return (
-    <Stack className={'w-full max-w-lg'}>
+    <Stack gap={0} className={'w-full max-w-lg'}>
       <CollapsibleSection
         defaultOpen
         title={'Contract'}

@@ -341,6 +341,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
   const optionContent = (option: SelectOption): React.ReactNode => (
     <React.Fragment>
       <Stack
+        gap={0}
         as={'span'}
         data-slot={'multi-select-item-box'}
         inline

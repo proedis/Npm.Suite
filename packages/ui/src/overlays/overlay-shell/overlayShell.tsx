@@ -300,7 +300,7 @@ export function OverlayFrame(props: OverlayFrameProps): React.ReactNode {
 
       <DialogPrimitive.Viewport
         data-slot={`${dataSlot}-viewport`}
-        render={<Stack direction={'horizontal'} align={isDrawer ? undefined : 'start'} justify={isDrawer ? 'end' : 'center'} />}
+        render={<Stack gap={0} direction={'horizontal'} align={isDrawer ? undefined : 'start'} justify={isDrawer ? 'end' : 'center'} />}
         className={cn(
           'fixed inset-0 z-10',
           isDrawer ? 'p-2' : cn('px-4 pb-4', DIALOG_TOP[Math.min(level, 2)])
@@ -320,7 +320,7 @@ export function OverlayFrame(props: OverlayFrameProps): React.ReactNode {
           {...dataAttributes}
           data-slot={dataSlot}
           data-size={size}
-          render={<Stack />}
+          render={<Stack gap={0} />}
           className={cn(
             'relative min-w-0 rounded-lg bg-popover text-sm text-popover-foreground shadow-lg outline-none',
             'tabular-nums wrap-anywhere',
@@ -667,6 +667,7 @@ export function OverlayBody(props: OverlayBodyProps): React.ReactNode {
       )}
 
       <Stack
+        gap={0}
         data-slot={`${dataSlot}-content`}
         inert={inertValue(inert)}
         aria-busy={inert || undefined}
@@ -722,7 +723,7 @@ export function OverlayBody(props: OverlayBodyProps): React.ReactNode {
           </Stack>
         )}
 
-        <Stack data-slot={`${dataSlot}-scroll`} className={'relative min-h-0 min-w-0 flex-1'}>
+        <Stack gap={0} data-slot={`${dataSlot}-scroll`} className={'relative min-h-0 min-w-0 flex-1'}>
           <div data-slot={`${dataSlot}-shade`} data-edge={'top'} data-visible={shades.top || undefined} className={cn(shade, 'top-0 bg-linear-to-b', shades.top ? 'opacity-100' : 'opacity-0')} />
 
           <div

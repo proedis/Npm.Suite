@@ -15,7 +15,7 @@ import { layoutAttributes } from './layoutAttributes';
 
 import type { BaseProps } from '../core/base';
 import type { PolymorphicProps } from '../core/polymorphic';
-import type { Align, ColumnsValue, Direction, Justify, Responsive, SpacingValue } from '../core/responsive';
+import type { Align, ColumnsValue, Direction, Justify, Responsive, Spacing } from '../core/responsive';
 
 
 /* --------
@@ -37,8 +37,12 @@ export interface StrictStackProps extends BaseProps {
   /** Sits in a line of text like a word: `inline-flex`, or `inline-grid` with `columns` */
   inline?: boolean;
 
-  /** Space between children, in Tailwind spacing steps */
-  gap?: Responsive<SpacingValue>;
+  /**
+   * Space between children: a step of the spacing scale by name, or a Tailwind spacing step by number. Defaults to `md`.
+   *
+   * Declare `0` for children that touch: a stack with no gap is a decision, and it reads as one.
+   */
+  gap?: Responsive<Spacing>;
 
   /** Main-axis distribution */
   justify?: Responsive<Justify>;
@@ -59,9 +63,9 @@ export type StackProps<E extends React.ElementType = 'div'> = PolymorphicProps<E
  * The workhorse: children on an axis, with a responsive direction, gap and optional dividers.
  *
  * ```tsx
- * <Stack gap={4}>…</Stack>
- * <Stack direction={{ base: 'vertical', lg: 'horizontal' }} gap={{ base: 2, lg: 6 }} divided>…</Stack>
- * <Stack columns={{ base: 1, md: 3 }} gap={4}>…</Stack>
+ * <Stack>…</Stack>                                   // gap `md`
+ * <Stack direction={{ base: 'vertical', lg: 'horizontal' }} gap={{ base: 'sm', lg: 'lg' }} divided>…</Stack>
+ * <Stack columns={{ base: 1, md: 3 }} gap={'lg'}>…</Stack>
  * ```
  *
  * Declaring `columns` turns it into a grid of equal columns; `direction` is then meaningless and
@@ -79,7 +83,7 @@ export function Stack<E extends React.ElementType = 'div'>(props: StackProps<E>)
     columns,
     direction = 'vertical',
     divided = false,
-    gap,
+    gap = 'md',
     inline = false,
     justify,
     wrap = false,

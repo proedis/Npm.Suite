@@ -362,7 +362,7 @@ export function FilterList(props: FilterListProps): React.ReactNode {
   } as const;
 
   return (
-    <Stack data-slot={'filter-list'} className={'min-h-0'}>
+    <Stack gap={0} data-slot={'filter-list'} className={'min-h-0'}>
       {searchable && (
         <Stack data-slot={'filter-list-search'} direction={'horizontal'} align={'center'} gap={2} className={LIST_SEARCH}>
           <SearchGlyph />
@@ -434,6 +434,7 @@ export function FilterList(props: FilterListProps): React.ReactNode {
                 <React.Fragment>
                   {multiple && (
                     <Stack
+                      gap={0}
                       as={'span'}
                       data-slot={'filter-list-box'}
                       inline
@@ -446,7 +447,7 @@ export function FilterList(props: FilterListProps): React.ReactNode {
                       <CheckGlyph />
                     </Stack>
                   )}
-                  <Stack as={'span'} data-slot={'filter-list-item-text'} className={'min-w-0 flex-1'}>
+                  <Stack gap={0} as={'span'} data-slot={'filter-list-item-text'} className={'min-w-0 flex-1'}>
                     <span data-slot={'filter-list-item-label'}>{item.label}</span>
                     {(item.code || item.description) && (
                       <span data-slot={'filter-list-item-description'} className={'text-xs text-muted-foreground'}>{[ item.code, item.description ].filter(Boolean).join(' · ')}</span>
@@ -454,6 +455,7 @@ export function FilterList(props: FilterListProps): React.ReactNode {
                   </Stack>
                   {!multiple && (
                     <Stack
+                      gap={0}
                       as={'span'}
                       data-slot={'filter-list-tick'}
                       inline

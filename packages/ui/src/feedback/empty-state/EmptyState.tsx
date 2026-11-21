@@ -226,6 +226,7 @@ export const EmptyState = React.forwardRef<HTMLElement, EmptyStateProps>((props,
 
   return (
     <Stack
+      gap={0}
       {...rest}
       data-slot={'empty-state'}
       data-size={size}

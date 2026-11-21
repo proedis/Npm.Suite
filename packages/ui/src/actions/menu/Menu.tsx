@@ -128,7 +128,7 @@ const ITEM_TONE = {
 const ITEM_ICON = 'mt-0.5 shrink-0 text-muted-foreground group-data-disabled/menu-item:opacity-50 [&_svg]:size-4';
 
 /** The mark at the end of a checkbox or radio item, shown when it is chosen */
-const ITEM_INDICATOR = <Stack as={'span'} inline direction={'horizontal'} />;
+const ITEM_INDICATOR = <Stack gap={0} as={'span'} inline direction={'horizontal'} />;
 
 /** The layout of an item (`LIST_ITEM`): a row aligned at the top, given through `render` to the Base UI part */
 const ITEM_LAYOUT = <Stack direction={'horizontal'} align={'start'} gap={2} />;
@@ -144,7 +144,7 @@ const LINK_ITEM_LAYOUT = <Stack as={'a'} direction={'horizontal'} align={'start'
 /** The icon before the label of an item */
 function ItemIcon(props: { className?: string; children: React.ReactNode }): React.ReactNode {
   return (
-    <Stack as={'span'} data-slot={'menu-item-icon'} inline direction={'horizontal'} className={cn(ITEM_ICON, props.className)}>
+    <Stack gap={0} as={'span'} data-slot={'menu-item-icon'} inline direction={'horizontal'} className={cn(ITEM_ICON, props.className)}>
       {props.children}
     </Stack>
   );
@@ -182,7 +182,7 @@ function ItemContent(props: {
       {icon !== null && icon !== undefined && (
         <ItemIcon className={tone === 'destructive' ? 'text-current' : undefined}>{icon}</ItemIcon>
       )}
-      <Stack as={'span'} data-slot={'menu-item-text'} className={'min-w-0 flex-1'}>
+      <Stack gap={0} as={'span'} data-slot={'menu-item-text'} className={'min-w-0 flex-1'}>
         <span data-slot={'menu-item-label'} className={'group-data-disabled/menu-item:opacity-50'}>{children}</span>
         {description !== null && description !== undefined && description !== '' && (
           <span id={descriptionId} data-slot={'menu-item-description'} className={'text-xs text-muted-foreground'}>

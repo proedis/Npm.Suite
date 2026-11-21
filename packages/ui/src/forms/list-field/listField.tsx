@@ -113,7 +113,7 @@ export const LIST_RETRY: ComboboxItem = { value: '\u0000retry', label: '' };
  * The layout of the classes of the list panel, given through `render` to the Base UI parts that carry
  * them: the panel a column (`LIST_PANEL`), an option a row aligned at the top (`LIST_ITEM`)
  */
-export const LIST_PANEL_LAYOUT = <Stack />;
+export const LIST_PANEL_LAYOUT = <Stack gap={0} />;
 
 export const LIST_ITEM_LAYOUT = <Stack direction={'horizontal'} align={'start'} gap={2} />;
 

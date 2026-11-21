@@ -146,7 +146,7 @@ export function OverflowTooltipList(props: OverflowTooltipListProps): React.Reac
   const { rest, values } = props;
 
   return (
-    <Stack as={'span'} data-slot={'list-overflow-values'}>
+    <Stack gap={0} as={'span'} data-slot={'list-overflow-values'}>
       {values.slice(0, TOOLTIP_LIST_LIMIT).map((value, index) => <span key={index}>{value}</span>)}
       {rest && values.length > TOOLTIP_LIST_LIMIT && (
         <span className={'text-tooltip-muted-foreground'}>{rest(values.length - TOOLTIP_LIST_LIMIT)}</span>

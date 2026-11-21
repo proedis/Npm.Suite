@@ -7,7 +7,7 @@ import { Stack } from '@proedis/ui/layout';
 
 export default function Example(): React.ReactNode {
   return (
-    <Stack className={'w-full max-w-lg'}>
+    <Stack gap={0} className={'w-full max-w-lg'}>
       {/* Closed, the body leaves the document: what was typed is gone when it opens again */}
       <CollapsibleSection defaultOpen title={'Unmounted when closed'}>
         <TextInput aria-label={'Note on the stop'} placeholder={'Type, close, open again'} />

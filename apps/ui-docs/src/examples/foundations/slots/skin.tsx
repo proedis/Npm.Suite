@@ -59,7 +59,7 @@ export default function Example(): React.ReactNode {
     <Stack columns={{ base: 1, md: 2 }} gap={4} className={'w-full'}>
       <style>{SKIN}</style>
       <Sample title={'The package'} />
-      <Stack data-skin>
+      <Stack gap={0} data-skin>
         <Sample title={'The same markup, skinned'} />
       </Stack>
     </Stack>

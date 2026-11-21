@@ -19,6 +19,7 @@
  *   :root {
  *     --border: oklch(0.9 0.02 264);
  *     --radius-scale: 1.6;            // moves the whole radius scale, every step at once
+ *     --space-md: 1.25rem;            // every gap, padding, inset named `md`
  *   }
  */
 
@@ -35,15 +36,15 @@
  * stylesheet always ships next to the code it describes.
  *
  * `@source inline(...)` covers the classes the primitives build from their props at runtime, which
- * no scanner can find in the source. The listed values ARE the scale: `SpacingValue` and
- * `ColumnsValue` in TypeScript declare exactly this set, so a value with no CSS behind it fails to
+ * no scanner can find in the source. The listed values ARE the scale: `SpacingValue`, `SpacingToken`
+ * and `ColumnsValue` in TypeScript declare exactly this set, so a value with no CSS behind it fails to
  * compile instead of silently rendering nothing. Change one, change both.
  */
 @source ".";
 
 @source inline("{sm:,md:,lg:,xl:,2xl:,}flex-row");
 @source inline("{sm:,md:,lg:,xl:,2xl:,}flex-col");
-@source inline("{sm:,md:,lg:,xl:,2xl:,}gap-{0,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,12,14,16}");
+@source inline("{sm:,md:,lg:,xl:,2xl:,}gap-{0,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,12,14,16,xs,sm,md,lg,xl,2xl}");
 @source inline("{sm:,md:,lg:,xl:,2xl:,}grid-cols-{1,2,3,4,5,6,7,8,9,10,11,12}");
 @source inline("{sm:,md:,lg:,xl:,2xl:,}divide-x");
 @source inline("{sm:,md:,lg:,xl:,2xl:,}divide-y");
@@ -55,8 +56,8 @@
 @source inline("not-{sm,md,lg,xl,2xl}:hidden");
 @source inline("{sm:,md:,lg:,xl:,2xl:,}split-cols");
 @source inline("{sm:,md:,lg:,xl:,2xl:,}split-cols-end");
-@source inline("-mx-{0,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,12,14,16}");
-@source inline("h-{0,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,12,14,16}");
+@source inline("-mx-{0,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,12,14,16,xs,sm,md,lg,xl,2xl}");
+@source inline("h-{0,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,12,14,16,xs,sm,md,lg,xl,2xl}");
 
 /*
  * Dark mode as a class on an ancestor, which is what makes a theme switch a single attribute write.
@@ -125,6 +126,61 @@
   --radius-2xl: calc(1rem * var(--radius-scale));
   --radius-3xl: calc(1.5rem * var(--radius-scale));
   --radius-4xl: calc(2rem * var(--radius-scale));
+
+  /*
+   * The named spacing scale, read by the classes of five properties: `gap-md`, `p-md`, `-mx-md`,
+   * `top-md`, `h-md`. Each points at the variable of the step, `--space-md`, declared with the defaults
+   * below, so redeclaring that variable moves every class of that step at once, and a subtree that
+   * redeclares it moves only what is inside it.
+   *
+   * ⚠️ Why five namespaces and not `--spacing-md`, which would reach every spacing utility in one
+   * line: Tailwind reads `--spacing-*` before `--container-*` for the widths, so a `--spacing-md`
+   * turns `max-w-md` and `w-md` from 28rem into 1rem, in this package and in every application that
+   * imports it. Measured with Tailwind's compiler. `--gap`, `--padding`, `--margin`, `--inset` and
+   * `--height` are the keys those utilities read before `--spacing`, in 4.1.5 (the floor of the peer
+   * range) as in the version installed. Only utilities of the same property read them (`min-h` and
+   * `max-h` read `--height` too), none of them had a step by these names, and compiled side by side
+   * every existing utility keeps its value: the names are only added. They are not in Tailwind's
+   * documented namespaces: re-check them when bumping Tailwind.
+   *
+   * `inline`, so the class carries `var(--space-md)` itself: with a plain `@theme` it would carry
+   * `var(--gap-md)`, resolved once on `:root`, and a subtree redeclaring `--space-md` would change
+   * nothing.
+   */
+  --gap-xs: var(--space-xs);
+  --gap-sm: var(--space-sm);
+  --gap-md: var(--space-md);
+  --gap-lg: var(--space-lg);
+  --gap-xl: var(--space-xl);
+  --gap-2xl: var(--space-2xl);
+
+  --padding-xs: var(--space-xs);
+  --padding-sm: var(--space-sm);
+  --padding-md: var(--space-md);
+  --padding-lg: var(--space-lg);
+  --padding-xl: var(--space-xl);
+  --padding-2xl: var(--space-2xl);
+
+  --margin-xs: var(--space-xs);
+  --margin-sm: var(--space-sm);
+  --margin-md: var(--space-md);
+  --margin-lg: var(--space-lg);
+  --margin-xl: var(--space-xl);
+  --margin-2xl: var(--space-2xl);
+
+  --inset-xs: var(--space-xs);
+  --inset-sm: var(--space-sm);
+  --inset-md: var(--space-md);
+  --inset-lg: var(--space-lg);
+  --inset-xl: var(--space-xl);
+  --inset-2xl: var(--space-2xl);
+
+  --height-xs: var(--space-xs);
+  --height-sm: var(--space-sm);
+  --height-md: var(--space-md);
+  --height-lg: var(--space-lg);
+  --height-xl: var(--space-xl);
+  --height-2xl: var(--space-2xl);
 }
 
 /*
@@ -179,6 +235,18 @@
   --border: var(--color-zinc-200);
   /* Unitless: it multiplies the radius scale, and 1 leaves it exactly as Tailwind ships it */
   --radius-scale: 1;
+
+  /*
+   * The spacing scale by name. Tailwind's own steps 1, 2, 4, 6, 8 and 12, written as multiples of
+   * `--spacing` so they follow a project that moved it: at the default 0.25rem, `md` is 1rem, the same
+   * length as `gap-4`.
+   */
+  --space-xs: calc(var(--spacing) * 1);
+  --space-sm: calc(var(--spacing) * 2);
+  --space-md: calc(var(--spacing) * 4);
+  --space-lg: calc(var(--spacing) * 6);
+  --space-xl: calc(var(--spacing) * 8);
+  --space-2xl: calc(var(--spacing) * 12);
 }
 
 /*

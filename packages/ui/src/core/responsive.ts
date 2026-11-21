@@ -61,6 +61,29 @@ export type Responsive<T> = T | Partial<Record<Breakpoint, T>>;
 export type SpacingValue = 0 | 0.5 | 1 | 1.5 | 2 | 2.5 | 3 | 3.5 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 12 | 14 | 16;
 
 
+/**
+ * The named steps of the spacing scale, the vocabulary a layout is written in.
+ *
+ * Each name is a variable of the stylesheet, `--space-md`, and the classes these props build read it
+ * (`gap-md` is `gap: var(--space-md)`), so a theme retunes every gap, inset and separator named `md`
+ * with one declaration, and a subtree that redeclares the scale changes only what is inside it. The
+ * defaults are Tailwind's own steps 1, 2, 4, 6, 8 and 12, so `md` is `gap-4`, 1rem, and they follow a
+ * project that moved `--spacing`.
+ *
+ * A number from `SpacingValue` is still accepted, and it is a measure written in the code: it does not
+ * move with the theme. Prefer the names; a number is for the one place the scale has no step for.
+ */
+export type SpacingToken = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+
+
+/** A step of the spacing scale by name, or a Tailwind spacing step by number */
+export type Spacing = SpacingValue | SpacingToken;
+
+
+/** The named steps, smallest first */
+export const SPACING_TOKENS: readonly SpacingToken[] = [ 'xs', 'sm', 'md', 'lg', 'xl', '2xl' ];
+
+
 /** The column counts a grid may take. Same reasoning as `SpacingValue` */
 export type ColumnsValue = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
 
@@ -169,8 +192,8 @@ export function responsiveClasses<T>(
 }
 
 
-/** `gap-*`, responsive */
-export function gapClasses(gap: Responsive<SpacingValue> | undefined): string[] {
+/** `gap-*`, responsive: `gap-md` for a name, `gap-4` for a number */
+export function gapClasses(gap: Responsive<Spacing> | undefined): string[] {
   return responsiveClasses(gap, value => `gap-${value}`);
 }
 
@@ -216,6 +239,15 @@ export function divideClasses(direction: Responsive<Direction> | undefined): str
   return responsiveClasses(direction, value => (
     value === 'horizontal' ? 'divide-x divide-y-0' : 'divide-y divide-x-0'
   ));
+}
+
+
+/**
+ * The length of a spacing step, for a style that no class can carry: the variable of a name, so it
+ * still follows the theme, or the multiple of `--spacing` of a number.
+ */
+export function spacingLength(value: Spacing): string {
+  return typeof value === 'string' ? `var(--space-${value})` : `calc(var(--spacing) * ${value})`;
 }
 
 

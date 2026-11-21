@@ -9,7 +9,7 @@ import { Stack } from '@proedis/ui/layout';
 
 export default function Example(): React.ReactNode {
   return (
-    <Stack as={'span'} inline className={'relative'}>
+    <Stack gap={0} as={'span'} inline className={'relative'}>
       {/* The name stays "Jobs" for voice control; the count reaches a screen reader as a description */}
       <IconButton label={'Jobs'} icon={<Bell />} aria-describedby={'jobs-count'} />
       <BadgeCounter count={3} tone={'info'} />

@@ -16,7 +16,7 @@ export default function Example(): React.ReactNode {
           <Sticky className={'border-b border-border bg-background/90 px-4 py-2 text-sm font-semibold text-foreground backdrop-blur'}>
             {day}
           </Sticky>
-          <Stack divided>
+          <Stack gap={0} divided>
             {[ 'Round 1', 'Round 2', 'Round 3' ].map((round) => (
               <p key={round} className={'px-4 py-3 text-sm text-muted-foreground'}>{day}, {round.toLowerCase()}</p>
             ))}

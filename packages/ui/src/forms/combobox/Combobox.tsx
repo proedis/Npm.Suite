@@ -462,7 +462,7 @@ const SingleCombobox = React.forwardRef<HTMLInputElement, SingleComboboxProps>((
                 data-slot={'combobox-chevron'}
                 tabIndex={-1}
                 aria-hidden={'true'}
-                render={<Stack as={'button'} direction={'horizontal'} align={'center'} />}
+                render={<Stack gap={0} as={'button'} direction={'horizontal'} align={'center'} />}
                 className={'outline-none'}
               >
                 <ChevronGlyph />
@@ -495,7 +495,7 @@ const SingleCombobox = React.forwardRef<HTMLInputElement, SingleComboboxProps>((
                   {item === LIST_RETRY
                     ? <span className={'min-w-0 flex-1'}>{labels.retry}</span>
                     : (
-                      <Stack as={'span'} data-slot={'combobox-item-text'} className={'min-w-0 flex-1'}>
+                      <Stack gap={0} as={'span'} data-slot={'combobox-item-text'} className={'min-w-0 flex-1'}>
                         <span>{item.label}</span>
                         {(item.code || item.description) && (
                           <span className={'text-xs text-muted-foreground'}>

@@ -26,7 +26,7 @@ export default function Example(): React.ReactNode {
         <Stack key={tone} direction={'horizontal'} align={'center'} gap={4}>
           <span className={'w-24 font-mono text-xs text-muted-foreground'}>{tone}</span>
           {FILLS.map((fill) => (
-            <Stack key={fill} direction={'horizontal'} className={'w-24'}>
+            <Stack gap={0} key={fill} direction={'horizontal'} className={'w-24'}>
               <Badge fill={fill} tone={tone}>{label}</Badge>
             </Stack>
           ))}

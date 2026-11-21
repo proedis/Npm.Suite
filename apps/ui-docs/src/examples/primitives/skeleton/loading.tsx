@@ -23,7 +23,7 @@ export default function Example(): React.ReactNode {
   return (
     <Stack gap={3} align={'start'} className={'w-full max-w-sm'}>
       <Button fill={'soft'} size={'sm'} onClick={handleReload}>Load again</Button>
-      <Stack divided aria-busy={wait.busy} className={'w-full rounded-xl border border-border text-sm'}>
+      <Stack gap={0} divided aria-busy={wait.busy} className={'w-full rounded-xl border border-border text-sm'}>
         {ROWS.map((row) => (
           <Item key={row} inset>
             {wait.visible ? <Skeleton className={'w-40'} /> : <span className={'grow'}>{row}</span>}

@@ -13,7 +13,7 @@ export function VehicleList(props: { vehicles: readonly Vehicle[]; onOpen: (inde
   const { onOpen, vehicles } = props;
 
   return (
-    <Stack divided className={'w-full max-w-md rounded-md border border-border'}>
+    <Stack gap={0} divided className={'w-full max-w-md rounded-md border border-border'}>
       {vehicles.map((vehicle, index) => (
         <Item key={vehicle.plate} as={'button'} type={'button'} interactive inset className={'text-start'} onClick={() => onOpen(index)}>
           <Stack gap={0.5} className={'grow'}>

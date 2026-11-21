@@ -2,18 +2,19 @@ import * as React from 'react';
 
 import { splitBaseProps } from '../core/base';
 import { cn } from '../core/cn';
+import { spacingLength } from '../core/responsive';
 
 import type { BaseProps } from '../core/base';
 import type { PolymorphicProps } from '../core/polymorphic';
-import type { SpacingValue } from '../core/responsive';
+import type { Spacing } from '../core/responsive';
 
 
 /* --------
  * Types Definition
  * -------- */
 export interface StrictStickyProps extends BaseProps {
-  /** Distance from the edge, in Tailwind spacing steps. Defaults to `0` */
-  offset?: SpacingValue;
+  /** Distance from the edge: a step of the spacing scale by name, or a Tailwind spacing step by number. Defaults to `0` */
+  offset?: Spacing;
 
   /** Which edge to pin to. Defaults to `top` */
   position?: 'top' | 'bottom';
@@ -25,14 +26,6 @@ export interface StrictStickyProps extends BaseProps {
 
 
 export type StickyProps<E extends React.ElementType = 'div'> = PolymorphicProps<E, StrictStickyProps>;
-
-
-/* --------
- * Constants Definition
- * -------- */
-
-/** Tailwind's spacing step, in rem. One step is 0.25rem */
-const SPACING_STEP_REM = 0.25;
 
 
 /* --------
@@ -66,7 +59,7 @@ export function Sticky<E extends React.ElementType = 'div'>(props: StickyProps<E
   // ----
   // Layout Computation
   // ----
-  const edge = `${offset * SPACING_STEP_REM}rem`;
+  const edge = spacingLength(offset);
 
 
   // ----

@@ -153,6 +153,7 @@ function JobRow(props: { job: Job; labels: NotificationsLabels; store: Notificat
   if (action?.target) {
     actionButton = (
       <Stack
+        gap={0}
         as={'a'}
         {...linkProps(action.target)}
         data-slot={'toast-job-link'}
@@ -348,7 +349,7 @@ function JobsPanel(props: JobsPanelProps): React.ReactNode {
     >
       {state.expanded
         ? (
-          <Stack data-slot={'toast-jobs-panel'} className={'toast-panel-width rounded-md bg-popover shadow-lg'}>
+          <Stack gap={0} data-slot={'toast-jobs-panel'} className={'toast-panel-width rounded-md bg-popover shadow-lg'}>
             <Stack
               data-slot={'toast-jobs-header'}
               direction={'horizontal'}
@@ -508,7 +509,7 @@ export function NotificationsProvider(props: NotificationsProviderProps): React.
           <ToastPrimitive.Viewport
             aria-label={labels.confirmRegion}
             data-slot={'toast-viewport'}
-            render={<Stack direction={'horizontal'} justify={'center'} />}
+            render={<Stack gap={0} direction={'horizontal'} justify={'center'} />}
             className={'pointer-events-none fixed bottom-4 z-toast toast-span px-4 outline-none'}
           >
             <ConfirmationRows labels={labels} store={notifications.store} />

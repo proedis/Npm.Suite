@@ -17,7 +17,7 @@ export default function Example(): React.ReactNode {
         <Badge fill={'soft'} tone={'success'}>Active</Badge>
       </Stack>
 
-      <Stack>
+      <Stack gap={0}>
         <CollapsibleSection
           defaultOpen
           headingLevel={3}

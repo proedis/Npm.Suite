@@ -82,7 +82,7 @@ export function Sidebar(props: { onNavigate?: () => void }): React.ReactNode {
       {NAV.map((group) => (
         <Stack key={group.title} gap={3}>
           <h2 className={'text-sm font-semibold text-foreground'}>{group.title}</h2>
-          <Stack as={'ul'} className={'border-s border-border'}>
+          <Stack gap={0} as={'ul'} className={'border-s border-border'}>
             {group.items.map((item) => (
               <li key={item.to}>
                 <SidebarItem item={item} active={item.to === current} onNavigate={props.onNavigate} />

@@ -94,7 +94,7 @@ export function FilterDate(props: FilterDateProps): React.ReactNode {
   const showClear = clearable && !draft && isFilterActive(filter);
 
   return (
-    <Stack data-slot={'filter-date'}>
+    <Stack gap={0} data-slot={'filter-date'}>
       <Calendar
         autoFocus
         locale={filter.locale}

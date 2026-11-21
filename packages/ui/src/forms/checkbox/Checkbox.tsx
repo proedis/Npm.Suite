@@ -254,7 +254,7 @@ export const CheckboxGroup = React.forwardRef<HTMLDivElement, CheckboxGroupProps
       data-readonly={readOnly || undefined}
       data-invalid={field.invalid || undefined}
       data-field-control={''}
-      render={<Stack direction={orientation} />}
+      render={<Stack gap={0} direction={orientation} />}
       className={cn(
         choiceGroupClasses(orientation),
         'has-[>[data-parent]]:*:not-data-parent:ms-6',
@@ -429,12 +429,12 @@ export const Checkbox = React.forwardRef<HTMLSpanElement, CheckboxProps>((props,
       data-invalid={isInvalid || undefined}
       data-slot={'checkbox-box'}
       data-field-control={group ? undefined : ''}
-      render={<Stack as={'span'} inline direction={'horizontal'} align={'center'} justify={'center'} />}
+      render={<Stack gap={0} as={'span'} inline direction={'horizontal'} align={'center'} justify={'center'} />}
       className={BOX}
     >
       <CheckboxPrimitive.Indicator
         data-slot={'checkbox-indicator'}
-        render={<Stack as={'span'} direction={'horizontal'} align={'center'} justify={'center'} />}
+        render={<Stack gap={0} as={'span'} direction={'horizontal'} align={'center'} justify={'center'} />}
       >
         {isIndeterminate ? <DashGlyph /> : <CheckGlyph />}
       </CheckboxPrimitive.Indicator>

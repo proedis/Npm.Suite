@@ -108,6 +108,7 @@ function PreviewPage(): React.ReactNode {
   return (
     <div ref={contentRef}>
       <Stack
+        gap={0}
         align={align === 'stretch' ? 'stretch' : 'center'}
         justify={align === 'start' ? 'start' : 'center'}
         direction={align === 'start' ? 'horizontal' : 'vertical'}

@@ -9,7 +9,7 @@ import { Stack } from '@proedis/ui/layout';
 export default function Example(): React.ReactNode {
   return (
     /* The corner of this box sets the container; the handle of the preview sets the window */
-    <Stack className={'w-full resize-x overflow-auto rounded-xl border border-dashed border-border p-4'}>
+    <Stack gap={0} className={'w-full resize-x overflow-auto rounded-xl border border-dashed border-border p-4'}>
       <Form>
         <Form.Section title={'One value: the section decides'}>
           <Field span={2}>

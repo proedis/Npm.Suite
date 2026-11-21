@@ -14,7 +14,7 @@ import { Item } from '../item/Item';
 
 import type { BaseProps } from '../../core/base';
 import type { PolymorphicProps } from '../../core/polymorphic';
-import type { Justify, Responsive, SpacingValue } from '../../core/responsive';
+import type { Justify, Responsive, Spacing } from '../../core/responsive';
 
 import type { ItemProps } from '../item/Item';
 
@@ -112,8 +112,11 @@ export type SurfaceSectionProps<E extends React.ElementType = 'div'> =
 
 
 export interface StrictSurfaceSeparatorProps extends BaseProps {
-  /** How much room a `gap` takes, in Tailwind spacing steps. Ignored by a `divider` */
-  space?: SpacingValue;
+  /**
+   * How much room a `gap` takes: a step of the spacing scale by name, or a Tailwind spacing step by
+   * number. Defaults to `lg`. Ignored by a `divider`
+   */
+  space?: Spacing;
 
   /** A hairline, or empty room. Defaults to `divider` */
   type?: 'divider' | 'gap';
@@ -222,7 +225,7 @@ SurfaceSection.displayName = 'Surface.Section';
  *
  * ```tsx
  * <Surface.Separator />                          // a hairline
- * <Surface.Separator type={'gap'} space={8} />   // room instead
+ * <Surface.Separator type={'gap'} space={'xl'} />   // room instead
  * ```
  *
  * A `divider` renders a `Divider`, so it arrives with `role="separator"` already on it.
@@ -234,7 +237,7 @@ function SurfaceSeparator(props: SurfaceSeparatorProps): React.ReactNode {
   // ----
   const {
     className,
-    space = 6,
+    space = 'lg',
     type = 'divider',
     ...others
   } = props;
@@ -394,6 +397,7 @@ export function Surface<E extends React.ElementType = 'div'>(props: SurfaceProps
   // ----
   return (
     <Stack
+      gap={0}
       as={Component}
       data-slot={'surface'}
       data-elevation={elevation}
@@ -403,6 +407,7 @@ export function Surface<E extends React.ElementType = 'div'>(props: SurfaceProps
       {...rest}
     >
       <Stack
+        gap={0}
         data-slot={'surface-body'}
         className={cn(
           'min-w-0 transition-opacity duration-300',

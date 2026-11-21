@@ -6,7 +6,7 @@ import { breakpointPrefix, gapClasses } from '../core/responsive';
 
 import type { BaseProps } from '../core/base';
 import type { PolymorphicProps } from '../core/polymorphic';
-import type { MediaBreakpoint, Responsive, SpacingValue } from '../core/responsive';
+import type { MediaBreakpoint, Responsive, Spacing } from '../core/responsive';
 
 
 /* --------
@@ -21,8 +21,8 @@ export interface StrictSplitProps extends BaseProps {
    */
   collapseBelow?: MediaBreakpoint;
 
-  /** Space between the two panes, in Tailwind spacing steps */
-  gap?: Responsive<SpacingValue>;
+  /** Space between the two panes: a step of the spacing scale by name, or a Tailwind spacing step by number. Defaults to `md` */
+  gap?: Responsive<Spacing>;
 
   /** The fixed pane: a navigation rail, a filter column, an inspector */
   rail: React.ReactNode;
@@ -105,7 +105,7 @@ export function Split<E extends React.ElementType = 'div'>(props: SplitProps<E>)
     children,
     className,
     collapseBelow,
-    gap,
+    gap = 'md',
     rail,
     railWidth = DEFAULT_RAIL_WIDTH,
     side = 'start',

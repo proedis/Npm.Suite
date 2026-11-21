@@ -940,6 +940,7 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
   // ----
   return (
     <Stack
+      gap={0}
       {...rest}
       data-slot={'table'}
       /* The mode of the table: a part named by its slot carries no layout attribute of the stack */
@@ -969,7 +970,7 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
           )
           : (
             <React.Fragment>
-              <Stack data-slot={'table-toolbar-content'} direction={'horizontal'} align={'center'} className={'min-w-0 flex-1'}>
+              <Stack gap={0} data-slot={'table-toolbar-content'} direction={'horizontal'} align={'center'} className={'min-w-0 flex-1'}>
                 {toolbar}
               </Stack>
               <span data-slot={'table-count'} aria-live={'polite'} className={'shrink-0 text-xs text-muted-foreground tabular-nums'}>
@@ -986,7 +987,7 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
           )}
       </Stack>
 
-      <Stack data-slot={'table-card'} className={'relative min-h-0 overflow-hidden rounded-lg bg-card shadow-sm'}>
+      <Stack gap={0} data-slot={'table-card'} className={'relative min-h-0 overflow-hidden rounded-lg bg-card shadow-sm'}>
         {/* On the line under the header, which is the first thing in the card */}
         {fetching && <LoadingBar className={'absolute inset-x-0 top-8 z-30 -mt-0.5'} />}
 
@@ -1086,6 +1087,7 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
                           : (
                             <Tooltip content={reason}>
                               <Stack
+                                gap={0}
                                 as={'span'}
                                 data-slot={'table-select-blocked'}
                                 inline

@@ -236,7 +236,7 @@ export const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>((props, r
       data-icon-only={iconOnly || undefined}
       data-size={resolvedSize}
       data-slot={'toggle'}
-      render={<Stack as={'button'} inline direction={'horizontal'} align={'center'} justify={'center'} />}
+      render={<Stack gap={0} as={'button'} inline direction={'horizontal'} align={'center'} justify={'center'} />}
       className={cn(
         PRESSABLE_BASE,
         PRESSABLE_OFF,
@@ -260,7 +260,7 @@ export const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>((props, r
         className={PRESSABLE_CONTENT}
       >
         {leading !== null && leading !== undefined && (
-          <Stack as={'span'} data-slot={'toggle-leading'} inline direction={'horizontal'}>{leading}</Stack>
+          <Stack gap={0} as={'span'} data-slot={'toggle-leading'} inline direction={'horizontal'}>{leading}</Stack>
         )}
         {children}
       </Stack>

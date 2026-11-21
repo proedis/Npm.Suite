@@ -368,9 +368,10 @@ export function Calendar(props: CalendarProps): React.ReactNode {
           />
 
           <div ref={gridRef} role={'grid'} aria-label={capitalize(monthYear.format(month.toDate()))} data-slot={'calendar-grid'} onKeyDown={handleGridKeyDown}>
-            <Stack role={'row'} data-slot={'calendar-weekdays'} columns={7}>
+            <Stack gap={0} role={'row'} data-slot={'calendar-weekdays'} columns={7}>
               {weekdays.map((day) => (
                 <Stack
+                  gap={0}
                   as={'span'}
                   key={day.day()}
                   role={'columnheader'}
@@ -387,7 +388,7 @@ export function Calendar(props: CalendarProps): React.ReactNode {
             </Stack>
 
             {rows.map((row) => (
-              <Stack key={row[0].format(ISO)} role={'row'} data-slot={'calendar-week'} columns={7}>
+              <Stack gap={0} key={row[0].format(ISO)} role={'row'} data-slot={'calendar-week'} columns={7}>
                 {row.map((day, column) => {
                   const iso = day.format(ISO);
                   const meta = dayMeta?.(iso);
@@ -400,6 +401,7 @@ export function Calendar(props: CalendarProps): React.ReactNode {
 
                   const cell = (
                     <Stack
+                      gap={0}
                       as={'button'}
                       type={'button'}
                       tabIndex={day.isSame(focused, 'day') ? 0 : -1}
@@ -457,6 +459,7 @@ export function Calendar(props: CalendarProps): React.ReactNode {
           <Stack data-slot={'calendar-months'} columns={3} gap={1}>
             {Array.from({ length: 12 }, (_, index) => month.month(index)).map((item) => (
               <Stack
+                gap={0}
                 as={'button'}
                 key={item.month()}
                 type={'button'}
@@ -492,6 +495,7 @@ export function Calendar(props: CalendarProps): React.ReactNode {
           <Stack data-slot={'calendar-years'} columns={3} gap={1}>
             {Array.from({ length: 12 }, (_, index) => yearBlockStart + index).map((year) => (
               <Stack
+                gap={0}
                 as={'button'}
                 key={year}
                 type={'button'}

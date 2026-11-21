@@ -8,7 +8,7 @@ import { layoutAttributes } from './layoutAttributes';
 
 import type { BaseProps } from '../core/base';
 import type { PolymorphicProps } from '../core/polymorphic';
-import type { Align, Justify, Responsive, SpacingValue } from '../core/responsive';
+import type { Align, Justify, Responsive, Spacing } from '../core/responsive';
 
 
 /* --------
@@ -18,8 +18,8 @@ export interface StrictClusterProps extends BaseProps {
   /** Cross-axis alignment. Defaults to `center` */
   align?: Responsive<Align>;
 
-  /** Space between items, in Tailwind spacing steps. Defaults to `2` */
-  gap?: Responsive<SpacingValue>;
+  /** Space between items: a step of the spacing scale by name, or a Tailwind spacing step by number. Defaults to `sm` */
+  gap?: Responsive<Spacing>;
 
   /** Main-axis distribution. Defaults to `start` */
   justify?: Responsive<Justify>;
@@ -53,7 +53,7 @@ export function Cluster<E extends React.ElementType = 'div'>(props: ClusterProps
     align = 'center',
     as: Component = 'div',
     className,
-    gap = 2,
+    gap = 'sm',
     inline = false,
     justify = 'start',
     ...others

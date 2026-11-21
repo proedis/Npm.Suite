@@ -40,7 +40,7 @@ export default function Example(): React.ReactNode {
         <Button size={'sm'} fill={'plain'} tone={'muted'} onClick={handleCloseAll}>Close all</Button>
       </Stack>
 
-      <Stack>
+      <Stack gap={0}>
         {SECTIONS.map((section) => (
           <CollapsibleSection
             key={section.id}

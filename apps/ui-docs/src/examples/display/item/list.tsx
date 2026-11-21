@@ -20,7 +20,7 @@ const ORDERS = [
 export default function Example(): React.ReactNode {
   return (
     <Surface className={'w-full max-w-md border border-border'}>
-      <Stack as={'ul'} divided>
+      <Stack gap={0} as={'ul'} divided>
         {ORDERS.map((order) => (
           <li key={order.code}>
             <Item as={'button'} type={'button'} interactive inset className={'w-full text-start'}>

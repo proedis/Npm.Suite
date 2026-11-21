@@ -36,7 +36,7 @@ export default function Example(): React.ReactNode {
       <Card caption={'Follows the page'} />
 
       {/* The class on any ancestor switches the subtree: the tokens and the dark: variant both read it */}
-      <Stack className={'dark'}>
+      <Stack gap={0} className={'dark'}>
         <Card caption={'Always dark: className="dark" on a wrapper'} />
       </Stack>
     </Stack>

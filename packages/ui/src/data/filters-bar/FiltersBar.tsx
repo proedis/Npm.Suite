@@ -365,12 +365,12 @@ export const FiltersBar = React.forwardRef<HTMLDivElement, FiltersBarProps>((pro
         >
           {search && <span data-copy={'search'} className={'w-60 shrink-0'} />}
           {filters.map((filter) => <FilterButtonCopy key={filter.id} filter={filter} squeeze={null} labels={labels} />)}
-          <Stack as={'span'} data-copy={'more'} data-slot={'filters-bar-measure-more'} inline direction={'horizontal'}>
+          <Stack gap={0} as={'span'} data-copy={'more'} data-slot={'filters-bar-measure-more'} inline direction={'horizontal'}>
             <Button tabIndex={-1} size={'sm'} fill={morePanel.fill} tone={morePanel.tone} leading={filtersBarGlyph('filter')}>
               {moreFiltersButtonProps(false, filters.filter(isFilterActive).length, labels).children}
             </Button>
           </Stack>
-          <Stack as={'span'} data-copy={'clear'} data-slot={'filters-bar-measure-clear'} inline direction={'horizontal'}>
+          <Stack gap={0} as={'span'} data-copy={'clear'} data-slot={'filters-bar-measure-clear'} inline direction={'horizontal'}>
             <Button tabIndex={-1} size={'sm'} fill={'plain'} tone={'destructive'}>{labels.clearAll}</Button>
           </Stack>
         </Stack>

@@ -9,7 +9,7 @@ import { Stack } from '../../layout/Stack';
 
 import type { BaseProps } from '../../core/base';
 import type { PolymorphicProps } from '../../core/polymorphic';
-import type { SpacingValue } from '../../core/responsive';
+import type { Spacing, SpacingValue } from '../../core/responsive';
 
 
 /* --------
@@ -144,8 +144,11 @@ const eyebrowVariants = cva('font-medium tracking-wider text-muted-foreground up
  * Types Definition
  * -------- */
 export interface StrictHeadingProps extends BaseProps {
-  /** Space between the title and the description, in Tailwind spacing steps. Defaults to `0.5` */
-  gap?: SpacingValue;
+  /**
+   * Space between the title and the description: a step of the spacing scale by name, or a Tailwind
+   * spacing step by number. Defaults to `0.5`
+   */
+  gap?: Spacing;
 }
 
 export type HeadingProps<E extends React.ElementType = 'div'> = PolymorphicProps<E, StrictHeadingProps>;

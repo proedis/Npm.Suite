@@ -19,7 +19,7 @@ export default function Example(): React.ReactNode {
   return (
     <Stack gap={3} className={'w-full max-w-sm'}>
       <SearchInput aria-label={'Search the streets'} labels={{ clear: 'Clear the search' }} value={query} onValueChange={setQuery} />
-      <Stack as={'ul'} aria-live={'polite'} className={'rounded-md border border-border'} divided>
+      <Stack gap={0} as={'ul'} aria-live={'polite'} className={'rounded-md border border-border'} divided>
         {matches.map((street) => (
           <Item as={'li'} key={street} inset className={'text-sm'}>{street}</Item>
         ))}

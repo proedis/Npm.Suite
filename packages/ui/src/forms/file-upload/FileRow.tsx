@@ -112,6 +112,7 @@ export function FileThumbnail(props: FileThumbnailProps): React.ReactNode {
 
   return (
     <Stack
+      gap={0}
       as={'span'}
       data-slot={'file-thumbnail'}
       aria-hidden={'true'}
@@ -164,7 +165,7 @@ export function FileRow(props: FileRowProps): React.ReactNode {
     >
       {thumbnail}
 
-      <Stack as={'span'} data-slot={`${slot}-text`} className={'min-w-0 flex-1'}>
+      <Stack gap={0} as={'span'} data-slot={`${slot}-text`} className={'min-w-0 flex-1'}>
         <Tooltip content={nameText} truncatedOnly align={'start'}>
           <span data-slot={`${slot}-label`} data-truncate={''} className={'min-w-0 truncate text-sm'}>{name}</span>
         </Tooltip>

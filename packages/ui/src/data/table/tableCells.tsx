@@ -192,6 +192,7 @@ export function CellContent<TData>(props: {
     return value === true
       ? (
         <Stack
+          gap={0}
           as={'span'}
           data-slot={'table-cell-check'}
           inline

@@ -52,10 +52,10 @@ export default function Example(): React.ReactNode {
   return (
     <Stack columns={{ base: 1, md: 2 }} gap={4} className={'w-full'}>
       <style>{RETUNED}</style>
-      <Stack data-theme-demo={'default'}>
+      <Stack gap={0} data-theme-demo={'default'}>
         <Panel title={'The defaults'} />
       </Stack>
-      <Stack data-theme-demo={'retuned'}>
+      <Stack gap={0} data-theme-demo={'retuned'}>
         <Panel title={'Four tokens redeclared'} />
       </Stack>
     </Stack>

@@ -232,7 +232,7 @@ export const RadioGroup = React.forwardRef<HTMLDivElement, RadioGroupProps>((pro
       data-readonly={readOnly || undefined}
       data-invalid={isInvalid || undefined}
       data-field-control={''}
-      render={<Stack direction={orientation} />}
+      render={<Stack gap={0} direction={orientation} />}
       className={cn(
         choiceGroupClasses(orientation, variant === 'card' ? 'card' : 'list'),
         baseClasses,
@@ -306,7 +306,7 @@ export const Radio = React.forwardRef<HTMLSpanElement, RadioProps>((props, ref) 
         aria-describedby={[ ariaDescribedBy, hasDescription ? descriptionId : undefined ].filter(Boolean).join(' ') || undefined}
         data-invalid={group.invalid || undefined}
         data-slot={'radio-circle'}
-        render={<Stack as={'span'} inline direction={'horizontal'} align={'center'} justify={'center'} />}
+        render={<Stack gap={0} as={'span'} inline direction={'horizontal'} align={'center'} justify={'center'} />}
         className={CIRCLE}
       >
         <RadioPrimitive.Indicator data-slot={'radio-dot'} className={DOT} />

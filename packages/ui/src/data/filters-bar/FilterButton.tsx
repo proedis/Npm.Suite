@@ -108,6 +108,7 @@ export function FilterButtonCopy(props: FilterFaceProps): React.ReactNode {
 
   return (
     <Stack
+      gap={0}
       as={'span'}
       data-slot={'filters-bar-measure-filter'}
       data-filter-copy={''}
@@ -245,6 +246,7 @@ export function FilterButton(props: FilterButtonProps): React.ReactNode {
   return (
     <PopoverPrimitive.Root open={open} onOpenChange={handleOpenChange} modal={false}>
       <Stack
+        gap={0}
         as={'span'}
         ref={groupRef}
         data-slot={'filter'}

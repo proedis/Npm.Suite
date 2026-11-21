@@ -86,6 +86,7 @@ export function BadgeCounter(props: BadgeCounterProps): React.ReactNode {
 
   return (
     <Stack
+      gap={0}
       as={'span'}
       aria-hidden
       data-slot={'badge-counter'}

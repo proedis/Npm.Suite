@@ -184,7 +184,7 @@ export function JobsButton(props: JobsButtonProps): React.ReactNode {
   // ----
   return (
     <PopoverPrimitive.Root open={open} onOpenChange={handleOpenChange}>
-      <Stack as={'span'} data-slot={'jobs'} inline direction={'horizontal'} className={cn('relative', baseClasses, className)}>
+      <Stack gap={0} as={'span'} data-slot={'jobs'} inline direction={'horizontal'} className={cn('relative', baseClasses, className)}>
         <PopoverPrimitive.Trigger
           render={(
             <IconButton
@@ -203,7 +203,7 @@ export function JobsButton(props: JobsButtonProps): React.ReactNode {
         <PopoverPrimitive.Positioner sideOffset={4} collisionPadding={8} align={'end'} className={'z-popover'}>
           <PopoverPrimitive.Popup
             data-slot={'jobs-history'}
-            render={<Stack />}
+            render={<Stack gap={0} />}
             className={cn(
               'max-h-(--available-height) w-90 rounded-md bg-popover p-1 text-sm text-popover-foreground shadow-md outline-none',
               'transition-opacity duration-150 data-starting-style:opacity-0 data-ending-style:transition-none motion-reduce:transition-none'

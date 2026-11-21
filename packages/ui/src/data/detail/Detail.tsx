@@ -623,7 +623,7 @@ const DetailRoot = React.forwardRef<HTMLDivElement, DetailProps>((props, ref) =>
   // Component Render
   // ----
   return (
-    <Stack {...rest} ref={ref} data-slot={'detail'} className={cn(baseClasses, className)}>
+    <Stack gap={0} {...rest} ref={ref} data-slot={'detail'} className={cn(baseClasses, className)}>
       <DetailContext.Provider value={state}>
         {children}
       </DetailContext.Provider>

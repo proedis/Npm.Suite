@@ -257,7 +257,7 @@ function SegmentedControlItem(props: SegmentedControlItemProps, ref: React.Forwa
       data-disabled={isDisabled || undefined}
       data-icon-only={iconOnly || undefined}
       data-slot={'segmented-control-item'}
-      render={<Stack as={'button'} inline direction={'horizontal'} align={'center'} justify={'center'} />}
+      render={<Stack gap={0} as={'button'} inline direction={'horizontal'} align={'center'} justify={'center'} />}
       className={cn(
         PRESSABLE_BASE,
         'duration-200',
@@ -280,7 +280,7 @@ function SegmentedControlItem(props: SegmentedControlItemProps, ref: React.Forwa
         className={PRESSABLE_CONTENT}
       >
         {leading !== null && leading !== undefined && (
-          <Stack as={'span'} data-slot={'segmented-control-leading'} inline direction={'horizontal'}>{leading}</Stack>
+          <Stack gap={0} as={'span'} data-slot={'segmented-control-leading'} inline direction={'horizontal'}>{leading}</Stack>
         )}
         {children}
       </Stack>

@@ -257,7 +257,7 @@ function PopoverRoot(props: PopoverProps): React.ReactNode {
             finalFocus={finalFocus}
             data-slot={'popover'}
             data-width={width}
-            render={<Stack />}
+            render={<Stack gap={0} />}
             className={cn(
               'relative max-h-(--available-height) rounded-md bg-popover text-sm text-popover-foreground shadow-md outline-none',
               'origin-(--transform-origin) tabular-nums wrap-anywhere',
