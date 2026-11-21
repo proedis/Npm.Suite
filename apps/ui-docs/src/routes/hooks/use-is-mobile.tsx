@@ -73,9 +73,10 @@ function UseIsMobilePage(): React.ReactNode {
           title={'Server rendering'}
           lead={(
             <React.Fragment>
-              On the server, and while a server rendered page hydrates, it answers <InlineCode>false</InlineCode>: it
-              assumes a desktop, since it is useBreakpoint negated. The mobile layout arrives right after hydration, so
-              where a flash of the desktop layout on a phone would matter, prefer the responsive classes.
+              On the server, and while a server rendered page hydrates, it answers <InlineCode>true</InlineCode>: it is
+              useBreakpoint negated, and useBreakpoint answers <InlineCode>false</InlineCode> there, so the first render
+              is the phone layout and the wide one arrives right after hydration. A page rendered on the client only
+              gets the real answer from its first render.
             </React.Fragment>
           )}
         />
@@ -87,7 +88,7 @@ function UseIsMobilePage(): React.ReactNode {
               rows={[
                 [ <InlineCode key={'p'}>below</InlineCode>, <code key={'t'} className={'font-mono text-xs text-primary'}>{'\'sm\' | \'md\' | \'lg\' | \'xl\' | \'2xl\''}</code>, 'The breakpoint to stay under. Defaults to md.' ],
                 [ <InlineCode key={'p'}>options</InlineCode>, <code key={'t'} className={'font-mono text-xs text-primary'}>UseBreakpointOptions</code>, 'Optional: the widths, as for useBreakpoint.' ],
-                [ 'Returns', <code key={'t'} className={'font-mono text-xs text-primary'}>boolean</code>, 'Whether the window is narrower than that breakpoint. False on the server and while hydrating.' ]
+                [ 'Returns', <code key={'t'} className={'font-mono text-xs text-primary'}>boolean</code>, 'Whether the window is narrower than that breakpoint. True on the server and while hydrating.' ]
               ]}
             />
           </SubSection>

@@ -8,6 +8,7 @@ import { Callout } from '@/docs/Callout';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
+import { CodeBlock } from '@/docs/CodeBlock';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
 import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
@@ -110,7 +111,8 @@ function DrawerPage(): React.ReactNode {
               size, the same title and description. With <InlineCode>onBack</InlineCode>, Cancel and Esc go back to the
               detail rather than closing, through the discard prompt when <InlineCode>dirty</InlineCode>; the x always
               closes the whole drawer. Into the form the focus goes to the first field, and back in the detail to its
-              main action, the “Edit” that started it.
+              main action, the “Edit” that started it, also when the way back went through the discard prompt: the
+              prompt returns the focus to the drawer once the field it came from is gone.
             </React.Fragment>
           )}
         >
@@ -149,6 +151,21 @@ function DrawerPage(): React.ReactNode {
             </React.Fragment>
           )}
         />
+
+        <Section
+          title={'Type safety'}
+          lead={'As in a Dialog, a drawer that can be dirty brings the texts of its discard prompt.'}
+        >
+          <CodeBlock
+            snippet={tsx`
+              // @ts-expect-error: dirty can be true and the prompt has nothing to say
+              <Drawer open={open} onOpenChange={setOpen} mode={'form'} title={'FT-234-KL'} labels={labels} dirty={form.isDirty} />
+
+              // Fine
+              <Drawer open={open} onOpenChange={setOpen} mode={'form'} title={'FT-234-KL'} labels={labels} dirty={form.isDirty} discard={discard} />
+            `}
+          />
+        </Section>
 
         <Section title={'Accessibility'}>
           <Prose>
@@ -219,7 +236,8 @@ function DrawerPage(): React.ReactNode {
                   <InlineCode>busy</InlineCode> and <InlineCode>dirty</InlineCode> default to{' '}
                   <InlineCode>false</InlineCode>. <InlineCode>discard</InlineCode> is a{' '}
                   <InlineCode>DialogDiscard</InlineCode>, imported from <InlineCode>@proedis/ui/overlays/dialog</InlineCode>,
-                  and <InlineCode>sections</InlineCode> takes the same items as the Dialog’s.
+                  required as soon as <InlineCode>dirty</InlineCode> can be true, and <InlineCode>sections</InlineCode>{' '}
+                  takes the same items as the Dialog’s.
                 </React.Fragment>
               )}
             />

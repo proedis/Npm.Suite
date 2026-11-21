@@ -27,8 +27,8 @@ import { pageAt } from '@/nav';
 const PAGE = pageAt('/display/item');
 
 const PROPS = refineProps(itemProps, {
-  inset      : { default: 'false', description: 'Row padding on the item itself, so the hover of an interactive row fills it edge to edge.' },
-  interactive: { default: 'false', description: 'The cursor, the hover and the focus ring of a row that is pressed. The affordance only: the element and its semantics are yours.' },
+  inset      : { description: 'Row padding on the item itself, so the hover of an interactive row fills it edge to edge.' },
+  interactive: { description: 'The cursor, the hover and the focus ring of a row that is pressed. The affordance only: the element and its semantics are yours.' },
   direction  : { default: '\'horizontal\'' }
 });
 

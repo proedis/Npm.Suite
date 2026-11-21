@@ -29,9 +29,9 @@ import { pageAt } from '@/nav';
 const PAGE = pageAt('/display/badge');
 
 const PROPS = refineProps(badgeProps, {
-  fill: { default: '\'soft\'', description: 'How the tone is painted: a tenth of it behind its ink, the full colour, or the ink alone.' },
-  tone: { default: '\'muted\'', description: 'Which of the seven tones, from the same table Button and IconBox read.' },
-  size: { default: '\'md\'', description: '20, 24 or 28 pixels tall, from the declared scale.' }
+  fill: { description: 'How the tone is painted: a tenth of it behind its ink, the full colour, or the ink alone.' },
+  tone: { description: 'Which of the seven tones, from the same table Button and IconBox read.' },
+  size: { description: '20, 24 or 28 pixels tall, from the declared scale.' }
 });
 
 

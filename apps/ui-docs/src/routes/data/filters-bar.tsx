@@ -54,7 +54,7 @@ function FiltersBarPage(): React.ReactNode {
         imports={tsx`
           import { FiltersBar } from '@proedis/ui/data/filters-bar';
 
-          import type { DateFilter, FilterOption, FiltersBarFilter, FiltersBarLabels } from '@proedis/ui/data/filters-bar';
+          import type { DateFilter, DateRange, FilterOption, FiltersBarFilter, FiltersBarLabels } from '@proedis/ui/data/filters-bar';
         `}
       />
 
@@ -303,7 +303,16 @@ function FiltersBarPage(): React.ReactNode {
               <PropsTable props={remoteProps} />
             </SubSection>
             <SubSection title={'DateFilter'} id={'api-date-filter'}>
-              <PropsTable props={dateFilterProps} />
+              <PropsTable
+                props={dateFilterProps}
+                rest={(
+                  <React.Fragment>
+                    The period is a <InlineCode>DateRange</InlineCode>, exported by this subpath:{' '}
+                    <InlineCode>{'{ from, to }'}</InlineCode>, either end <InlineCode>null</InlineCode> while open, the
+                    type a page keeps in its state.
+                  </React.Fragment>
+                )}
+              />
             </SubSection>
           </SubSection>
 

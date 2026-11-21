@@ -113,9 +113,8 @@ function GridPage(): React.ReactNode {
             props={gridProps}
             rest={(
               <React.Fragment>
-                Defaults: <InlineCode>{'fill={\'fill\'}'}</InlineCode>, <InlineCode>{'gap={4}'}</InlineCode>,{' '}
-                <InlineCode>{'minColWidth={240}'}</InlineCode>. <InlineCode>as</InlineCode> picks the element,{' '}
-                <InlineCode>div</InlineCode> by default, and every other prop goes to it.
+                <InlineCode>as</InlineCode> picks the element, <InlineCode>div</InlineCode> by default, and every other
+                prop goes to it.
               </React.Fragment>
             )}
           />

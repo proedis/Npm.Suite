@@ -11,7 +11,6 @@ import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
-import { refineProps } from '@/docs/refineProps';
 import { tsx } from '@/docs/snippet';
 import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
 import basic from '@/examples/forms/form/basic.tsx?example';
@@ -31,9 +30,6 @@ import { pageAt } from '@/nav';
 
 const PAGE = pageAt('/forms/form');
 
-const HEADER_PROPS = refineProps(formHeaderProps, { headingLevel: { default: '2' } });
-
-const SECTION_PROPS = refineProps(formSectionProps, { headingLevel: { default: '3' } });
 
 const LINK = 'font-medium text-primary hover:underline';
 
@@ -314,13 +310,13 @@ function FormPage(): React.ReactNode {
             </Prose>
           </SubSection>
           <SubSection title={'Form.Header'} id={'api-form-header'}>
-            <PropsTable props={HEADER_PROPS} rest={'Every other prop goes to the header, and children go under the line.'} />
+            <PropsTable props={formHeaderProps} rest={'Every other prop goes to the header, and children go under the line.'} />
           </SubSection>
           <SubSection title={'Form.ErrorSummary'} id={'api-form-error-summary'}>
             <PropsTable props={formErrorSummaryProps} rest={'Every other prop goes to the summary, which takes no children: its lines come from the fields.'} />
           </SubSection>
           <SubSection title={'Form.Section'} id={'api-form-section'}>
-            <PropsTable props={SECTION_PROPS} rest={'Every other prop goes to the grid.'} />
+            <PropsTable props={formSectionProps} rest={'Every other prop goes to the grid.'} />
           </SubSection>
           <SubSection title={'Form.Footer'} id={'api-form-footer'}>
             <Prose>

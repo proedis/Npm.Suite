@@ -3,17 +3,13 @@ import * as React from 'react';
 import { FiltersBar } from '@proedis/ui/data/filters-bar';
 import { Table } from '@proedis/ui/data/table';
 
-import type { DateFilter, FilterOption } from '@proedis/ui/data/filters-bar';
+import type { DateRange, FilterOption } from '@proedis/ui/data/filters-bar';
 import type { TableViewState } from '@proedis/ui/data/table';
 import { DISTRICTS, PEOPLE, ROUNDS_SORTING } from '../fixtures';
 import { filtersBarLabels } from '../labels';
 
 import { roundColumns, roundLabels } from './rounds';
 import { useRounds } from './useRounds';
-
-
-/** A period, as the date filter holds it: either end may stay open */
-type Period = DateFilter['value'];
 
 
 const STATUS_OPTIONS: readonly FilterOption[] = [
@@ -28,7 +24,7 @@ const DISTRICT_OPTIONS: readonly FilterOption[] = DISTRICTS.map((district) => ({
 
 const DRIVER_OPTIONS: readonly FilterOption[] = PEOPLE.map((person) => ({ value: person.id, label: person.name }));
 
-const NO_DATES: Period = { from: null, to: null };
+const NO_DATES: DateRange = { from: null, to: null };
 
 
 export default function Example(): React.ReactNode {
@@ -38,7 +34,7 @@ export default function Example(): React.ReactNode {
   const [ status, setStatus ] = React.useState<string[]>([]);
   const [ district, setDistrict ] = React.useState<string | null>(null);
   const [ driver, setDriver ] = React.useState<string[]>([]);
-  const [ scheduled, setScheduled ] = React.useState<Period>(NO_DATES);
+  const [ scheduled, setScheduled ] = React.useState<DateRange>(NO_DATES);
 
   const [ view, setView ] = React.useState<TableViewState>({
     sorting         : ROUNDS_SORTING,

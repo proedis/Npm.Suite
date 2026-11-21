@@ -127,9 +127,8 @@ function ClusterPage(): React.ReactNode {
             props={clusterProps}
             rest={(
               <React.Fragment>
-                Defaults: <InlineCode>{'align={\'center\'}'}</InlineCode>, <InlineCode>{'gap={2}'}</InlineCode>,{' '}
-                <InlineCode>{'justify={\'start\'}'}</InlineCode>. <InlineCode>as</InlineCode> picks the element,{' '}
-                <InlineCode>div</InlineCode> by default, and every other prop goes to it.
+                <InlineCode>as</InlineCode> picks the element, <InlineCode>div</InlineCode> by default, and every other
+                prop goes to it.
               </React.Fragment>
             )}
           />

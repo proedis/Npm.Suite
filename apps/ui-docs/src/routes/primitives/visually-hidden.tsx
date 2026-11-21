@@ -64,11 +64,13 @@ function VisuallyHiddenPage(): React.ReactNode {
           )}
         >
           <Example of={skipLink} align={'start'} />
-          <Callout tone={'warning'} title={'Padding goes inside'}>
-            Once focused, <InlineCode>focus:not-sr-only</InlineCode> resets the padding of the element to 0, and its{' '}
-            <InlineCode>:focus</InlineCode> selector beats a <InlineCode>px-3</InlineCode> of yours. Put the padding on a
-            child, as the example does, or the focused link is a tight box around its text.
-          </Callout>
+          <Prose>
+            <p>
+              It is hidden only while it has no focus (<InlineCode>not-focus:sr-only</InlineCode>), so once focused it is
+              your classes and nothing else: the padding, the colours and a position such as{' '}
+              <InlineCode>fixed</InlineCode> go on the component itself, as in the example.
+            </p>
+          </Prose>
           <Callout>
             The target of a skip link needs <InlineCode>tabIndex={'{-1}'}</InlineCode> when it is not focusable itself, or
             some browsers move the scroll and leave the focus behind.

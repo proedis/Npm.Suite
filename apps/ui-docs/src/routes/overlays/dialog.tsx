@@ -167,9 +167,10 @@ function DialogPage(): React.ReactNode {
             <React.Fragment>
               <InlineCode>dirty</InlineCode> says the form was changed. The x, Cancel and Esc then open the discard
               prompt instead of closing, and a click on the veil only jolts. <InlineCode>discard</InlineCode> carries the
-              texts of the prompt, since the package writes none, and <InlineCode>dirty</InlineCode> needs it: without
-              it the type still compiles, and the x, Cancel and Esc close the dialog as if nothing had changed. The
-              prompt is an AlertDialog in the warning tone, rendered inside the dialog so it sits above it.
+              texts of the prompt, since the package writes none, and the type asks for it as soon as{' '}
+              <InlineCode>dirty</InlineCode> can be true: <InlineCode>{'dirty={form.isDirty}'}</InlineCode> without it does
+              not compile, while <InlineCode>{'dirty={false}'}</InlineCode>, or no <InlineCode>dirty</InlineCode>, needs
+              none. The prompt is an AlertDialog in the warning tone, rendered inside the dialog so it sits above it.
             </React.Fragment>
           )}
         >
@@ -183,7 +184,9 @@ function DialogPage(): React.ReactNode {
               <InlineCode>busy</InlineCode> makes the dialog inert at once, so a second click or a second Enter cannot
               send twice, and shows the veil only after 300ms, for at least 400ms: a fast answer flashes nothing. The
               veil says its label, <InlineCode>busySubmit</InlineCode> or <InlineCode>busyLoad</InlineCode>, and a save
-              moves the focus onto it, so the keyboard has somewhere to stay while the rest is inert.
+              moves the focus onto it, so the keyboard has somewhere to stay while the rest is inert. When the wait ends
+              with the dialog still open, a save that keeps it open for the next one, the focus goes back to the first
+              field, unless an error arrived with the answer and took it.
             </React.Fragment>
           )}
         >
@@ -204,7 +207,8 @@ function DialogPage(): React.ReactNode {
             lead={(
               <React.Fragment>
                 <InlineCode>{'busy={\'load\'}'}</InlineCode> covers the body while its data arrive, and the x and Esc
-                still close: nothing can be lost yet. When the wait ends the focus moves to the first field.
+                still close: nothing can be lost yet. A dialog opened while loading gives the focus to the veil, since
+                everything under it is inert, and when the data arrive the focus moves to the first field.
               </React.Fragment>
             )}
           >
@@ -271,7 +275,8 @@ function DialogPage(): React.ReactNode {
           lead={(
             <React.Fragment>
               On opening, to the first field, the toolbar’s before the body’s; with no field, to the primary of the
-              footer, which in a confirmation is the action; with no footer, to the body. Never to the x. On closing,
+              footer, which in a confirmation is the action; with no footer, to the body; while the data load, to the
+              veil. Never to the x, and never to a control under the veil. On closing,
               back to the control that opened it, or to <InlineCode>returnFocus</InlineCode> when that control is gone,
               or to the <InlineCode>h1</InlineCode> of the page.
             </React.Fragment>
@@ -291,6 +296,22 @@ function DialogPage(): React.ReactNode {
           )}
         >
           <Example of={inContext} />
+        </Section>
+
+        <Section
+          title={'Type safety'}
+          lead={'A dialog that can be dirty brings the texts of the prompt it opens, or it does not compile.'}
+        >
+          <CodeBlock
+            snippet={tsx`
+              // @ts-expect-error: dirty can be true and the prompt has nothing to say
+              <Dialog open={open} onOpenChange={setOpen} title={'New vehicle'} labels={labels} dirty={form.isDirty} />
+
+              // Both are fine
+              <Dialog open={open} onOpenChange={setOpen} title={'New vehicle'} labels={labels} dirty={form.isDirty} discard={discard} />
+              <Dialog open={open} onOpenChange={setOpen} title={'Vehicle'} labels={labels} dirty={false} />
+            `}
+          />
         </Section>
 
         <Section title={'Accessibility'}>

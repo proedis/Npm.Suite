@@ -69,7 +69,8 @@ function EmptyStatePage(): React.ReactNode {
           title={'Actions'}
           lead={(
             <React.Fragment>
-              At most two, given as data. Each one says its <InlineCode>role</InlineCode> and the component picks its
+              At most two, given as data: the type is a tuple of none, one or two, so a third does not compile. Each one
+              says its <InlineCode>role</InlineCode> and the component picks its
               look, so no screen invents its own: <InlineCode>create</InlineCode> is a solid primary button on a page and
               a soft one in a panel, <InlineCode>clear</InlineCode> is plain destructive with an x when it brings no
               icon, <InlineCode>retry</InlineCode> and <InlineCode>back</InlineCode> are solid secondary.
@@ -138,7 +139,7 @@ function EmptyStatePage(): React.ReactNode {
           <Example of={inContext} />
         </Section>
 
-        <Section title={'Type safety'} lead={'Each size takes the props that make sense for it, and nothing else.'}>
+        <Section title={'Type safety'} lead={'Each size takes the props that make sense for it, and nothing else, and no more than two actions.'}>
           <CodeBlock
             snippet={tsx`
               // @ts-expect-error: a page names the level of its heading
@@ -149,6 +150,9 @@ function EmptyStatePage(): React.ReactNode {
 
               // @ts-expect-error: a panel has an icon
               <EmptyState kind={'no-results'} title={'No match'} />
+
+              // @ts-expect-error: a third action
+              <EmptyState kind={'error'} title={'Not loaded'} icon={<CloudOff />} actions={[ retry, back, help ]} />
             `}
           />
         </Section>
@@ -207,7 +211,7 @@ function EmptyStatePage(): React.ReactNode {
               nothing to do.
             </Guidance>
             <Guidance kind={'dont'} title={'More than two actions'}>
-              The component draws two at most and leaves the rest out. Three choices on an empty screen is a menu.
+              The type takes two at most, and a third does not compile. Three choices on an empty screen is a menu.
             </Guidance>
           </GuidanceGrid>
         </Section>

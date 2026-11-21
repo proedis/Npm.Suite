@@ -28,9 +28,9 @@ import { pageAt } from '@/nav';
 const PAGE = pageAt('/display/icon-box');
 
 const PROPS = refineProps(iconBoxProps, {
-  fill: { default: '\'soft\'', description: 'A tenth of the tone with a hairline, the full colour, or no surface at all.' },
-  tone: { default: '\'muted\'', description: 'Which of the seven tones, from the same table Badge and Button read.' },
-  size: { default: '\'md\'', description: 'The side of the box, its radius and the size of the glyph move together.' }
+  fill: { description: 'A tenth of the tone with a hairline, the full colour, or no surface at all.' },
+  tone: { description: 'Which of the seven tones, from the same table Badge and Button read.' },
+  size: { description: 'The side of the box, its radius and the size of the glyph move together.' }
 });
 
 

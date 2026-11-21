@@ -13,7 +13,6 @@ import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
-import { refineProps } from '@/docs/refineProps';
 import { tsx } from '@/docs/snippet';
 import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
 import basic from '@/examples/forms/field/basic.tsx?example';
@@ -31,10 +30,6 @@ import { pageAt } from '@/nav';
  * -------- */
 
 const PAGE = pageAt('/forms/field');
-
-const FIELD_PROPS = refineProps(fieldProps, {
-  span: { default: '3' }
-});
 
 
 /* --------
@@ -269,7 +264,7 @@ function FieldPage(): React.ReactNode {
 
         <Section title={'API'}>
           <SubSection title={'Field'} id={'api-field'}>
-            <PropsTable props={FIELD_PROPS} rest={'Every other prop goes to the root div: id, className, data-*, ref.'} />
+            <PropsTable props={fieldProps} rest={'Every other prop goes to the root div: id, className, data-*, ref.'} />
           </SubSection>
           <SubSection title={'Field.Label'} id={'api-field-label'}>
             <PropsTable props={fieldLabelProps} rest={'Every other prop goes to the label element.'} />

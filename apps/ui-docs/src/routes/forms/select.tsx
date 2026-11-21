@@ -245,7 +245,7 @@ function SelectPage(): React.ReactNode {
                 The frame takes <InlineCode>className</InlineCode> and the shared props; every other prop, with the{' '}
                 <InlineCode>ref</InlineCode>, reaches the button that opens the list, the element that takes the focus:{' '}
                 <InlineCode>id</InlineCode>, <InlineCode>aria-*</InlineCode>, <InlineCode>onBlur</InlineCode> for a form
-                library. <InlineCode>size</InlineCode> defaults to <InlineCode>md</InlineCode>.
+                library.
               </React.Fragment>
             )}
           />

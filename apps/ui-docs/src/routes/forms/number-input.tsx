@@ -30,9 +30,6 @@ const PROPS = refineProps(numberInputProps, {
   value       : { type: 'number | null' },
   defaultValue: { type: 'number | null', description: 'The starting value, when the field owns it.' },
   onValueChange: { description: 'Every committed change: the number, or `null` when the field is emptied.' },
-  min         : { default: '0' },
-  step        : { default: '1' },
-  decimals    : { default: '0' },
   readOnly    : { description: 'The value stays reachable and selectable, and cannot change.' },
   disabled    : { description: 'Inside a disabled `Field` it is on already.' }
 });

@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { FiltersBar } from '@proedis/ui/data/filters-bar';
 
-import type { DateFilter } from '@proedis/ui/data/filters-bar';
+import type { DateRange } from '@proedis/ui/data/filters-bar';
 import { filtersBarLabels } from '../labels';
 
 
@@ -16,8 +16,8 @@ const HOLIDAYS: Readonly<Record<string, string>> = {
 
 
 export default function Example(): React.ReactNode {
-  const [ scheduled, setScheduled ] = React.useState<DateFilter['value']>({ from: '2026-11-09', to: '2026-11-20' });
-  const [ weighed, setWeighed ] = React.useState<DateFilter['value']>({ from: null, to: null });
+  const [ scheduled, setScheduled ] = React.useState<DateRange>({ from: '2026-11-09', to: '2026-11-20' });
+  const [ weighed, setWeighed ] = React.useState<DateRange>({ from: null, to: null });
 
   return (
     <FiltersBar

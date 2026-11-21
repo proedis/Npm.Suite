@@ -8,7 +8,7 @@ import { CodeBlock } from '@/docs/CodeBlock';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
-import { PageBody, PageHeader, Section, SubSection } from '@/docs/Page';
+import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
 import { DocTable, PropsTable } from '@/docs/Tables';
 import layout from '@/examples/hooks/use-breakpoint/layout.tsx?example';
@@ -101,19 +101,22 @@ function UseBreakpointPage(): React.ReactNode {
             </React.Fragment>
           )}
         >
-          <Callout tone={'warning'} title={'Tailwind emits only the variables something uses'}>
-            A breakpoint variable reaches the page only when a utility reads it, and the <InlineCode>md:</InlineCode>{' '}
-            prefix does not: on this site only <InlineCode>--breakpoint-sm</InlineCode> and{' '}
-            <InlineCode>--breakpoint-lg</InlineCode> are there. A project that moves its scale cannot count on the
-            variables, so it passes the widths it uses, once, to every call. A variable that is there still wins over{' '}
-            <InlineCode>widths</InlineCode>, and both describe the same theme, so they never disagree.
-          </Callout>
+          <Prose>
+            <p>
+              Tailwind writes a breakpoint straight into each media query and emits a <InlineCode>--breakpoint-*</InlineCode>{' '}
+              variable only when something reads it. The stylesheet of the package reads all five, so they are always
+              on the page, at the values of the project: a project that moves <InlineCode>md</InlineCode> to 50rem in its{' '}
+              <InlineCode>@theme</InlineCode> gets <InlineCode>md:</InlineCode> classes and{' '}
+              <InlineCode>{'useBreakpoint(\'md\')'}</InlineCode> switching at the same 800px, with nothing to pass.{' '}
+              <InlineCode>widths</InlineCode> is for a scale that is not declared as those variables at all.
+            </p>
+          </Prose>
           <CodeBlock
             snippet={tsx`
               import { useBreakpoint } from '@proedis/ui/hooks';
               import type { UseBreakpointOptions } from '@proedis/ui/hooks';
 
-              /** The scale of the theme, written once where the application keeps its constants */
+              /** A scale the theme does not declare as --breakpoint-* variables, written once */
               export const BREAKPOINTS: UseBreakpointOptions = {
                 widths: { sm: 640, md: 800, lg: 1200, xl: 1440, '2xl': 1680 }
               };
@@ -169,12 +172,12 @@ function UseBreakpointPage(): React.ReactNode {
               A width, a padding, a direction: classes and responsive props never flash and cost nothing.
             </Guidance>
             <Guidance kind={'do'} title={'Render the narrow layout first'}>
-              The hook says false before it knows. A phone layout shown for a frame on a desktop is invisible; the
-              opposite is not.
+              On the server and while hydrating the hook says false. A phone layout shown for a frame on a desktop is
+              invisible; the opposite is not.
             </Guidance>
             <Guidance kind={'dont'} title={'Hardcode 768 at a call site'}>
-              The widths belong to the theme. When the theme moves them, pass them once through widths rather than
-              writing a number in every component.
+              The widths belong to the theme, and the hook reads them from it. A number written at a call site stops
+              matching the classes the day the theme moves.
             </Guidance>
           </GuidanceGrid>
         </Section>

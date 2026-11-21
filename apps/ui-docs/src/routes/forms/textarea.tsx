@@ -25,8 +25,6 @@ import { pageAt } from '@/nav';
 const PAGE = pageAt('/forms/textarea');
 
 const PROPS = refineProps(textareaProps, {
-  rows     : { default: '3' },
-  maxRows  : { default: '12' },
   className: { description: 'Classes for the textarea, last so they win.' }
 });
 

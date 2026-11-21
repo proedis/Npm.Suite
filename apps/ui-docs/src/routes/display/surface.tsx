@@ -31,8 +31,8 @@ import { pageAt } from '@/nav';
 const PAGE = pageAt('/display/surface');
 
 const PROPS = refineProps(surfaceProps, {
-  elevation: { default: '\'default\'', description: 'The shadow. default draws the house shadow and reports itself as default, apart from an explicit soft.' },
-  radius   : { default: '\'default\'', description: 'The corners. default draws the house radius and reports itself as default, apart from an explicit 4xl.' }
+  elevation: { description: 'The shadow. default draws the house shadow and reports itself as default, apart from an explicit soft.' },
+  radius   : { description: 'The corners. default draws the house radius and reports itself as default, apart from an explicit 4xl.' }
 });
 
 const SEPARATOR_PROPS = refineProps(surfaceSeparatorProps, {

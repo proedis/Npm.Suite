@@ -103,8 +103,7 @@ function StickyPage(): React.ReactNode {
             props={stickyProps}
             rest={(
               <React.Fragment>
-                Defaults: <InlineCode>{'position={\'top\'}'}</InlineCode>, <InlineCode>{'offset={0}'}</InlineCode>,{' '}
-                <InlineCode>{'z={10}'}</InlineCode>, written as an inline style that your <InlineCode>style</InlineCode>{' '}
+                The edge and <InlineCode>z</InlineCode> are written as an inline style that your <InlineCode>style</InlineCode>{' '}
                 overrides. <InlineCode>as</InlineCode> picks the element, <InlineCode>div</InlineCode> by default.
               </React.Fragment>
             )}

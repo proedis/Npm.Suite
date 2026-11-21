@@ -145,7 +145,6 @@ function ContainerPage(): React.ReactNode {
             props={containerProps}
             rest={(
               <React.Fragment>
-                Defaults: <InlineCode>{'size={\'default\'}'}</InlineCode>, <InlineCode>padded</InlineCode>.{' '}
                 <InlineCode>as</InlineCode> picks the element, <InlineCode>div</InlineCode> by default, and every
                 other prop goes to it.
               </React.Fragment>

@@ -34,11 +34,6 @@ const AVATAR_PROPS = refineProps(avatarProps.filter((prop) => prop.from !== 'Ava
   size: { default: '24' }
 });
 
-const GROUP_PROPS = refineProps(avatarGroupProps, {
-  max : { default: '3' },
-  size: { default: '24' }
-});
-
 
 /* --------
  * Page
@@ -248,7 +243,7 @@ function PersonPage(): React.ReactNode {
             <PropsTable props={personProps} rest={'Every other prop and the ref go to the outer span.'} />
           </SubSection>
           <SubSection title={'AvatarGroup'} id={'api-avatar-group'}>
-            <PropsTable props={GROUP_PROPS} rest={'Every other prop and the ref go to the button that opens the list.'} />
+            <PropsTable props={avatarGroupProps} rest={'Every other prop and the ref go to the button that opens the list.'} />
           </SubSection>
           <SubSection title={'AvatarGroupItem'} id={'api-avatar-group-item'}>
             <PropsTable props={avatarGroupItemProps} />

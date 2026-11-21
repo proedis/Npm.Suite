@@ -151,7 +151,8 @@ function AlertDialogPage(): React.ReactNode {
               <InlineCode>{'busy={\'action\'}'}</InlineCode> makes the dialog inert while the action runs, with a veil
               after 300ms, and nothing closes it. An <InlineCode>error</InlineCode> worth retrying shows at the top of the
               body and takes the focus. <InlineCode>result</InlineCode> turns the dialog into an outcome, partly done or
-              impossible, where only the exit stays, renamed with <InlineCode>labels.close</InlineCode>. After{' '}
+              impossible, where only the exit stays, renamed with <InlineCode>labels.close</InlineCode>, and the focus
+              moves from the veil to that exit, so Enter closes it. After{' '}
               <InlineCode>timeoutMs</InlineCode>, 15 seconds by default and 4 in this example, the outcome becomes
               uncertain: the server may have done it anyway, and <InlineCode>onTimeout</InlineCode> tells the page to
               reload what it shows.

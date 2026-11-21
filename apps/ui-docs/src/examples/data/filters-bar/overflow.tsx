@@ -5,7 +5,7 @@ import { cn } from '@proedis/ui/core';
 import { FiltersBar } from '@proedis/ui/data/filters-bar';
 import { Stack } from '@proedis/ui/layout';
 
-import type { DateFilter } from '@proedis/ui/data/filters-bar';
+import type { DateRange } from '@proedis/ui/data/filters-bar';
 import { filtersBarLabels } from '../labels';
 
 import { DISTRICT_OPTIONS, DRIVER_OPTIONS, MATERIAL_OPTIONS, SHIFT_OPTIONS, STATUS_OPTIONS } from './options';
@@ -29,7 +29,7 @@ export default function Example(): React.ReactNode {
   const [ driver, setDriver ] = React.useState<string[]>([]);
   const [ shift, setShift ] = React.useState<string | null>('morning');
   const [ material, setMaterial ] = React.useState<string[]>([ 'glass' ]);
-  const [ scheduled, setScheduled ] = React.useState<DateFilter['value']>({ from: null, to: null });
+  const [ scheduled, setScheduled ] = React.useState<DateRange>({ from: null, to: null });
 
   const handleClear = React.useCallback(() => {
     setStatus([]);

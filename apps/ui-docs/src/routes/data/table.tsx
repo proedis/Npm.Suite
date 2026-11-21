@@ -300,11 +300,12 @@ function TablePage(): React.ReactNode {
           )}
         >
           <Example of={focusRow} align={'stretch'} previewClassName={'p-3 sm:p-5'} />
-          <Callout tone={'warning'}>
-            When the code is a link, as here, the row is scrolled into view but the focus does not land yet: the table
-            asks it of the code’s cell, which is not focusable when it holds a link, rather than of the link. Measured
-            on the example above; reported as a defect of the package.
-          </Callout>
+          <Prose>
+            <p>
+              When the code is a link, as here, the focus lands on the link, the element the grid would give it to; a code
+              without a link takes the focus on its cell.
+            </p>
+          </Prose>
         </Section>
 
         <Section title={'Accessibility'}>
@@ -384,8 +385,7 @@ function TablePage(): React.ReactNode {
               rest={(
                 <React.Fragment>
                   The native props of a <InlineCode>{'<div>'}</InlineCode> reach the root, around the toolbar, the grid
-                  and the footer. <InlineCode>mode</InlineCode> defaults to <InlineCode>&apos;server&apos;</InlineCode>,{' '}
-                  <InlineCode>status</InlineCode> to <InlineCode>&apos;ready&apos;</InlineCode>,{' '}
+                  and the footer. <InlineCode>status</InlineCode> defaults to <InlineCode>&apos;ready&apos;</InlineCode>,{' '}
                   <InlineCode>pageSizeOptions</InlineCode> to <InlineCode>[ 25, 50, 100 ]</InlineCode> with 50 as the
                   first size, <InlineCode>filterKey</InlineCode> to the empty string.
                 </React.Fragment>

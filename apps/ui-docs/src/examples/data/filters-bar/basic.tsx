@@ -3,7 +3,7 @@ import * as React from 'react';
 import { FiltersBar } from '@proedis/ui/data/filters-bar';
 import { Stack } from '@proedis/ui/layout';
 
-import type { DateFilter } from '@proedis/ui/data/filters-bar';
+import type { DateRange } from '@proedis/ui/data/filters-bar';
 import { filtersBarLabels } from '../labels';
 
 import { DISTRICT_OPTIONS, STATUS_OPTIONS } from './options';
@@ -15,7 +15,7 @@ export default function Example(): React.ReactNode {
   const [ search, setSearch ] = React.useState('');
   const [ status, setStatus ] = React.useState<string[]>([ 'late' ]);
   const [ district, setDistrict ] = React.useState<string | null>(null);
-  const [ scheduled, setScheduled ] = React.useState<DateFilter['value']>({ from: null, to: null });
+  const [ scheduled, setScheduled ] = React.useState<DateRange>({ from: null, to: null });
 
   const handleClear = React.useCallback(() => {
     setStatus([]);

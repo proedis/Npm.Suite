@@ -32,17 +32,17 @@ const LINES = { description: 'Clamp the part to that many lines, with an ellipsi
 
 const TITLE_PROPS = refineProps(headingTitleProps, {
   lines: LINES,
-  size : { default: '\'sm\'', description: 'sm for a list row, lg for the header of a card, xl for a page or an empty state.' }
+  size : { description: 'sm for a list row, lg for the header of a card, xl for a page or an empty state.' }
 });
 
 const DESCRIPTION_PROPS = refineProps(headingDescriptionProps, {
   lines: LINES,
-  size : { default: '\'sm\'', description: 'The size of the line under the title: 11, 12 or 14 pixels.' }
+  size : { description: 'The size of the line under the title: 11, 12 or 14 pixels.' }
 });
 
 const EYEBROW_PROPS = refineProps(headingEyebrowProps, {
   lines: LINES,
-  size : { default: '\'xs\'', description: 'The small capitals over the title: 11 or 12 pixels.' }
+  size : { description: 'The small capitals over the title: 11 or 12 pixels.' }
 });
 
 

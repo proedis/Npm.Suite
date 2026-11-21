@@ -1,5 +1,8 @@
+import type { SelectOption } from '@proedis/ui/forms/multi-select';
+
+
 /** The kinds of waste a round collects: under the threshold, a plain list of boxes */
-export const WASTE = [
+export const WASTE: readonly SelectOption[] = [
   { value: 'paper', label: 'Paper' },
   { value: 'plastic', label: 'Plastic' },
   { value: 'glass', label: 'Glass' },
@@ -9,7 +12,7 @@ export const WASTE = [
 ];
 
 /** Twenty towns: past the threshold, a search and the footer act on what it finds */
-export const TOWNS = [
+export const TOWNS: readonly SelectOption[] = [
   'Andezeno', 'Arignano', 'Baldissero Torinese', 'Cambiano', 'Carmagnola', 'Chieri', 'Isolabella', 'Marentino',
   'Mombello di Torino', 'Moncalieri', 'Montaldo Torinese', 'Moriondo Torinese', 'Pavarolo', 'Pecetto Torinese',
   'Pino Torinese', 'Poirino', 'Riva presso Chieri', 'Santena', 'Trofarello', 'Villastellone'

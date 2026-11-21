@@ -107,9 +107,11 @@ function SlotsPage(): React.ReactNode {
               the package.
             </p>
             <p>
-              The <InlineCode>data-mode</InlineCode> and <InlineCode>data-inline</InlineCode> in the readout come from that
-              primitive too: they describe how the part is laid out, flex or grid, inline or not. They are not part of the
-              component’s contract, and a skin does not target them.
+              Their layout attributes stay behind too. A Stack on its own reports <InlineCode>data-mode</InlineCode>,{' '}
+              <InlineCode>data-inline</InlineCode>, <InlineCode>data-wrap</InlineCode> and{' '}
+              <InlineCode>data-divided</InlineCode>, as Cluster, Center and Grid report theirs; once a component names it
+              as one of its parts, it reports the part and nothing of how the part is laid out. An attribute of the same
+              name on a part, as the <InlineCode>data-mode</InlineCode> of a DatePicker, is the component’s own.
             </p>
           </Prose>
         </Section>

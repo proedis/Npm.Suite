@@ -95,8 +95,9 @@ function AlertPage(): React.ReactNode {
             <React.Fragment>
               Only <InlineCode>info</InlineCode> and <InlineCode>success</InlineCode> close: <InlineCode>onDismiss</InlineCode>{' '}
               and <InlineCode>dismissLabel</InlineCode>, the name and the tooltip of the x, travel together. Before{' '}
-              <InlineCode>onDismiss</InlineCode> runs, the focus moves to the first element that follows the alert, or
-              to the <InlineCode>main</InlineCode>, so it is not lost with the alert. A warning and an error go away
+              <InlineCode>onDismiss</InlineCode> runs, the focus moves to the first element that follows the alert and
+              can take it (a disabled button is skipped, one focusable while disabled is not), or to the{' '}
+              <InlineCode>main</InlineCode>, so it is not lost with the alert. A warning and an error go away
               only once solved.
             </React.Fragment>
           )}

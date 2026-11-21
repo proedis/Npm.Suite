@@ -112,8 +112,8 @@ function SafeAreaPage(): React.ReactNode {
             props={safeAreaProps}
             rest={(
               <React.Fragment>
-                Default: <InlineCode>{'sides={\'all\'}'}</InlineCode>. <InlineCode>as</InlineCode> picks the element,{' '}
-                <InlineCode>div</InlineCode> by default, and every other prop goes to it.
+                <InlineCode>as</InlineCode> picks the element, <InlineCode>div</InlineCode> by default, and every other
+                prop goes to it.
               </React.Fragment>
             )}
           />

@@ -9,7 +9,6 @@ import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
-import { refineProps } from '@/docs/refineProps';
 import { tsx } from '@/docs/snippet';
 import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
 import action from '@/examples/forms/text-input/action.tsx?example';
@@ -31,15 +30,6 @@ const PAGE = pageAt('/forms/text-input');
 
 const LINK = 'font-medium text-primary hover:underline';
 
-/**
- * The JSDoc of `width` says it sets the span of the field: nothing in the package reads `data-width`,
- * and a Field computes its span from its own prop only. The row says what it does.
- */
-const PROPS = refineProps(textInputProps, {
-  width: {
-    description: 'The kind of value: `short`, `code`, `default` or `long`, reported as `data-width`. It sets a minimum width (64px for `short`, 96px for the others); the columns of the field are its `span`.'
-  }
-});
 
 /** The action's own props: what it inherits from Button is fixed by the field */
 const ACTION_PROPS = textInputActionProps.filter((prop) => prop.from !== 'StrictButtonProps');
@@ -133,11 +123,14 @@ function TextInputPage(): React.ReactNode {
           )}
         >
           <Example of={width} previewClassName={'p-4 sm:p-6'} />
-          <Callout tone={'warning'}>
-            The JSDoc of <InlineCode>width</InlineCode> says it sets the span of the field in a form section. It does not:
-            it sets a minimum width and <InlineCode>data-width</InlineCode>, and nothing reads that attribute. Set the
-            span on the Field.
-          </Callout>
+          <Prose>
+            <p>
+              <InlineCode>width</InlineCode> sets the minimum width of the frame, 16 steps of the spacing scale for{' '}
+              <InlineCode>short</InlineCode> and 24 for the others, and reports itself as{' '}
+              <InlineCode>data-width</InlineCode>. It does not choose the span: that is the{' '}
+              <InlineCode>span</InlineCode> of the Field around it.
+            </p>
+          </Prose>
         </Section>
 
         <Section
@@ -217,7 +210,7 @@ function TextInputPage(): React.ReactNode {
         <Section title={'API'}>
           <SubSection title={'TextInput'} id={'api-text-input'}>
             <PropsTable
-              props={PROPS}
+              props={textInputProps}
               rest={(
                 <React.Fragment>
                   Every other prop goes to the <InlineCode>{'<input>'}</InlineCode>: <InlineCode>value</InlineCode>,{' '}

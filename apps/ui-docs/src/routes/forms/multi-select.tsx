@@ -45,7 +45,7 @@ function MultiSelectPage(): React.ReactNode {
         )}
         imports={tsx`
           import { MultiSelect } from '@proedis/ui/forms/multi-select';
-          import type { MultiSelectLabels } from '@proedis/ui/forms/multi-select';
+          import type { MultiSelectLabels, SelectOption } from '@proedis/ui/forms/multi-select';
         `}
       />
 

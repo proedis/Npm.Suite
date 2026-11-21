@@ -23,7 +23,7 @@ import { pageAt } from '@/nav';
 const PAGE = pageAt('/primitives/spinner');
 
 const PROPS = refineProps(spinnerProps, {
-  size: { default: '\'md\'', description: '12, 16, 20 or 32 pixels.' }
+  size: { description: '12, 16, 20 or 32 pixels.' }
 });
 
 
