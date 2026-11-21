@@ -54,6 +54,12 @@ interface CommonEmptyStateProps extends BaseProps {
   className?: string;
 }
 
+/**
+ * The actions of an empty state, at most two: one to fix it, one to go elsewhere. A tuple, so a third
+ * does not compile; it used to be dropped without a word.
+ */
+export type EmptyStateActions = readonly [] | readonly [EmptyStateAction] | readonly [EmptyStateAction, EmptyStateAction];
+
 type SizedEmptyStateProps =
   | {
     size: 'page';
@@ -65,7 +71,7 @@ type SizedEmptyStateProps =
     description?: React.ReactNode;
 
     /** At most two */
-    actions?: readonly EmptyStateAction[];
+    actions?: EmptyStateActions;
 
     /** The level of the title, which is a heading of the page */
     headingLevel: 2 | 3 | 4;
@@ -74,7 +80,7 @@ type SizedEmptyStateProps =
     size?: 'panel';
     icon: React.ReactNode;
     description?: React.ReactNode;
-    actions?: readonly EmptyStateAction[];
+    actions?: EmptyStateActions;
     headingLevel?: never;
   }
   | {

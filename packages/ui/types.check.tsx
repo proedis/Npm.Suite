@@ -18,6 +18,7 @@ import { Badge, Box, Container, Heading, IconBox, Item, Label, Spinner, Stack, S
 import { AlertDialog } from './src/overlays/alert-dialog';
 import { Button, IconButton } from './src/actions/button';
 import { Dialog } from './src/overlays/dialog';
+import { EmptyState } from './src/feedback/empty-state';
 import { Drawer } from './src/overlays/drawer';
 import { Checkbox, CheckboxGroup } from './src/forms/checkbox';
 import { Combobox } from './src/forms/combobox';
@@ -415,6 +416,14 @@ const neverDirty = <Dialog open onOpenChange={() => undefined} title={'T'} label
 /** @ts-expect-error the same rule in a drawer */
 const drawerDirtyWithoutPrompt = <Drawer open onOpenChange={() => undefined} title={'T'} labels={drawerLabels} dirty={formIsDirty} />;
 
+/* An empty state takes at most two actions: a third used to be dropped without a word */
+const anAction = { role: 'retry' as const, label: 'Retry', onClick: () => undefined };
+
+const twoActions = <EmptyState kind={'error'} title={'T'} icon={null} actions={[ anAction, anAction ]} />;
+
+/** @ts-expect-error a third action */
+const threeActions = <EmptyState kind={'error'} title={'T'} icon={null} actions={[ anAction, anAction, anAction ]} />;
+
 const alertLabels = { busyLoad: 'l', busyAction: 'a', close: 'c', timeout: { title: 't', description: 'd' } };
 
 const namelessConfirm = (
@@ -493,6 +502,6 @@ export const CHECKED = [
   namedToggle, namelessToggle, namedGroup, namelessGroup, chosenView, emptyView, namelessItem,
   formLibraryBox, namedRadioGroup, switchWithTitle, namedTabs, namelessTabs, closedTabs,
   silentIconButton, silentPassword, namelessArrows, namelessConfirm,
-  dirtyWithoutPrompt, dirtyWithPrompt, neverDirty, drawerDirtyWithoutPrompt,
+  dirtyWithoutPrompt, dirtyWithPrompt, neverDirty, drawerDirtyWithoutPrompt, twoActions, threeActions,
   filtersBarRoot, filtersBarChildren, singlePendingEnter, multiplePendingEnter
 ];
