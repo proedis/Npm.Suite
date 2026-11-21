@@ -542,12 +542,15 @@ package:
 
 - **`?example`**: `import x from '@/examples/<section>/<component>/<name>.tsx?example'` gives the
   component and its own source, highlighted by Shiki at build time in two themes at once. The code
-  under a preview is the file that drew it.
+  under a preview is the file that drew it. `?source` gives the highlighted source alone, for a module
+  with nothing to render (fixtures, labels, the module of an entity), so a page never shows a copy.
 - **Tagged snippets**: `` tsx`…` ``, `` css`…` ``, `` bash`…` `` from `@/docs/snippet` are replaced by their
   highlighted result while building. No highlighter reaches the browser.
 - **`virtual:ui-props/<Type>`**: the props of an exported type of the package, read by the
-  TypeScript compiler from its source: type as written, literal values, default (from `@default` or
-  the ``Defaults to `x` `` sentence of the JSDoc), requiredness, JSDoc, declaring interface. Only the
+  TypeScript compiler from its source: type as written, literal values, default (from `@default`,
+  the ``Defaults to `x` `` sentence of the JSDoc, or the `defaultVariants` of a `cva` variant),
+  requiredness, JSDoc, declaring interface. A default that lives only in a destructure is invisible to
+  it: the page states it under the table, and the fix is a JSDoc sentence in the package. Only the
   props the package declares; what comes from a native element or Base UI is one line on the page.
 
 `src/nav.ts` is the one list of pages: sidebar, pager and overview read it, and a page not yet written

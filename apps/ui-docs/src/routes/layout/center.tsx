@@ -72,7 +72,11 @@ function CenterPage(): React.ReactNode {
           lead={(
             <React.Fragment>
               <InlineCode>inline</InlineCode> makes it <InlineCode>inline-flex</InlineCode>, a box that sits in a
-              line of text with its content in the middle: a count in a circle, an initial in an avatar.
+              line of text with its content in the middle: a count in a circle, an initial in an avatar. It still
+              renders a <InlineCode>{'<div>'}</InlineCode>, so inside a paragraph pass{' '}
+              <InlineCode>{'as={\'span\'}'}</InlineCode> too: a block element in a <InlineCode>{'<p>'}</InlineCode>{' '}
+              is invalid HTML: React warns about it, and a page rendered on the server comes back with the
+              paragraph closed before the box.
             </React.Fragment>
           )}
         >
