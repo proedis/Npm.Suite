@@ -10,22 +10,24 @@ const TONES = [ 'primary', 'secondary', 'muted', 'destructive', 'success', 'warn
 
 /** What each group of variables is, as the title of its table */
 export const GROUP_TITLES: Readonly<Record<ThemeVariableGroup, string>> = {
-  Default: 'Defaults',
-  Spacing: 'Spacing scale',
-  Size   : 'Sizes',
-  Shape  : 'Shape',
-  Colour : 'Colours',
-  Layer  : 'Layers'
+  Default   : 'Defaults',
+  Spacing   : 'Spacing scale',
+  Size      : 'Sizes',
+  Typography: 'Typography',
+  Shape     : 'Shape',
+  Colour    : 'Colours',
+  Layer     : 'Layers'
 };
 
 /** One sentence per group, under its title */
 export const GROUP_LEADS: Readonly<Record<ThemeVariableGroup, string>> = {
-  Default: 'The value a prop takes when it is not declared. Undeclared, each variable falls back to its step of the scale; declared, it changes that default for every instance that does not set the prop.',
-  Spacing: 'The steps the spacing props take by name. A step moves every gap, padding and inset named after it, in every component.',
-  Size   : 'The heights and the steps of size that are a decision of the product. A control height moves every control of that size at once, under a finger too.',
-  Shape  : 'The corner language: every rounded step is Tailwind’s own value times this number.',
-  Colour : 'The semantic colours the component paints with. Each one is shared with every other component that reads it.',
-  Layer  : 'The stacking order of what floats.'
+  Default   : 'The value a prop takes when it is not declared. Undeclared, each variable falls back to its step of the scale; declared, it changes that default for every instance that does not set the prop.',
+  Spacing   : 'The steps the spacing props take by name. A step moves every gap, padding and inset named after it, in every component.',
+  Size      : 'The heights and the widths that are a decision of the product. A control height moves every control of that size at once, under a finger too.',
+  Typography: 'The families and the weights the component writes with. A family set here changes every component that uses it; a weight changes what that name means, everywhere.',
+  Shape     : 'The corner language: every rounded step is Tailwind’s own value times this number.',
+  Colour    : 'The semantic colours the component paints with. Each one is shared with every other component that reads it.',
+  Layer     : 'The stacking order of what floats.'
 };
 
 /** Every variable that is not part of a tone family, with what it moves */
@@ -48,6 +50,13 @@ const SINGLE: Readonly<Record<string, string>> = {
   '--spacing-control-lg': 'The height of every control of size lg. 2.75rem under a coarse pointer.',
   '--container-8xl'   : 'The widest page, Container size xl: one step past Tailwind’s container scale.',
   '--text-2xs'        : 'The step below text-xs: a description under a label, the smallest eyebrow, a small badge.',
+  '--font-heading'    : 'The family of every title. Undeclared, it is --font-sans.',
+  '--font-sans'       : 'The family of all the text, Tailwind’s own: the body, a control, a label.',
+  '--font-mono'       : 'The family of fixed width text, Tailwind’s own.',
+  '--font-weight-normal': 'What font-normal means: 400.',
+  '--font-weight-medium': 'What font-medium means: 500. A label, a button, a tab.',
+  '--font-weight-semibold': 'What font-semibold means: 600. A title, a value that leads.',
+  '--font-weight-bold': 'What font-bold means: 700. The largest title.',
   '--radius-scale'    : 'A unitless multiplier over every radius step, xs to 4xl: 1 is Tailwind’s scale as documented.',
   '--background'      : 'The canvas. The application paints it; the package reads it only on the hover of the FileUpload drop zone.',
   '--foreground'      : 'The ink of a value.',

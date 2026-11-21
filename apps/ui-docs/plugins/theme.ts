@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 
 import ts from 'typescript';
@@ -10,6 +11,8 @@ import type { ThemeDoc, ThemeVariable, ThemeVariableGroup } from '../src/docs/th
 /* --------
  * Constants Definition
  * -------- */
+
+const require = createRequire(import.meta.url);
 
 const PREFIX = 'virtual:ui-theme/';
 
@@ -38,7 +41,10 @@ const SPACE_STEPS = [ 'xs', 'sm', 'md', 'lg', 'xl', '2xl' ];
 const CONTROL_STEPS = [ 'sm', 'md', 'lg' ];
 
 /** The order the groups are listed in */
-const GROUP_ORDER: readonly ThemeVariableGroup[] = [ 'Default', 'Spacing', 'Size', 'Shape', 'Colour', 'Layer' ];
+const GROUP_ORDER: readonly ThemeVariableGroup[] = [ 'Default', 'Spacing', 'Size', 'Typography', 'Shape', 'Colour', 'Layer' ];
+
+/** A font utility and the variable behind it: the families, and the weights a component writes */
+const FONT_CLASS = /(?:^|[\s:])font-(heading|sans|mono|normal|medium|semibold|bold)(?=$|[\s'"`])/g;
 
 /**
  * Modules a component reaches for its plumbing, whose own strings say nothing about what the
@@ -327,7 +333,7 @@ class ThemeReader {
             const utility = defaultClass[1] === 'gap' ? 'gap' : 'h';
             defaults.set(`${utility}-${defaultClass[2]}`, { variable: read.variable, fallback: read.fallback });
           }
-          else if (!read && !variables.has(name) && /^--(?:spacing-control|container|text)-/.test(name) && !name.includes('--line-height')) {
+          else if (!variables.has(name) && /^--(?:spacing-control|container|text|font)-/.test(name) && !name.includes('--line-height')) {
             variables.set(name, { light: value });
           }
         }
@@ -337,6 +343,17 @@ class ThemeReader {
         const body = blocks(css.slice(match.index), /^@utility\s+[\w-]+\s*\{/)[0] ?? '';
         const read = [ ...new Set([ ...body.matchAll(/var\((--[\w-]+)/g) ].map((m) => m[1].replace(/^--color-/, '--'))) ];
         utilities.set(match[1], read);
+      }
+    }
+
+    /* The fonts and the weights are Tailwind's own variables: their defaults come from its theme */
+    const tailwindTheme = fs.readFileSync(require.resolve('tailwindcss/theme.css'), 'utf8');
+
+    for (const body of blocks(tailwindTheme, /^@theme(?:\s+default)?(?:\s+inline)?(?:\s+reference)?\s*\{/)) {
+      for (const [ name, value ] of declarations(body)) {
+        if (/^--font-(?:sans|mono|weight-(?:normal|medium|semibold|bold))$/.test(name) && !variables.has(name)) {
+          variables.set(name, { light: value });
+        }
       }
     }
 
@@ -403,6 +420,11 @@ class ThemeReader {
         }
       }
 
+      for (const match of text.matchAll(FONT_CLASS)) {
+        const family = [ 'heading', 'sans', 'mono' ].includes(match[1]);
+        add(family ? `--font-${match[1]}` : `--font-weight-${match[1]}`, 'Typography', `font-${match[1]}`);
+      }
+
       if (RADIUS_CLASS.test(text)) {
         add('--radius-scale', 'Shape', 'rounded-*');
       }
@@ -430,7 +452,7 @@ class ThemeReader {
         }
 
         if (bare === 'text-2xs') {
-          add('--text-2xs', 'Size', bare);
+          add('--text-2xs', 'Typography', bare);
         }
 
         if (/^(?:max-|min-)?w-8xl$/.test(bare)) {

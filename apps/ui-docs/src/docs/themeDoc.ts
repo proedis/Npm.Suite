@@ -3,7 +3,7 @@
  * -------- */
 
 /** What a variable of the theme is about, which is also the order the tables list them in */
-export type ThemeVariableGroup = 'Default' | 'Spacing' | 'Size' | 'Shape' | 'Colour' | 'Layer';
+export type ThemeVariableGroup = 'Default' | 'Spacing' | 'Size' | 'Typography' | 'Shape' | 'Colour' | 'Layer';
 
 
 /**

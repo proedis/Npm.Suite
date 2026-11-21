@@ -17,6 +17,8 @@ import retune from '@/examples/foundations/theming/retune.tsx?example';
 import softPalette from '@/examples/foundations/theming/soft-palette.tsx?example';
 import spacing from '@/examples/foundations/theming/spacing.tsx?example';
 import tokens from '@/examples/foundations/theming/tokens.tsx?example';
+import tone from '@/examples/foundations/theming/tone.tsx?example';
+import fonts from '@/examples/foundations/theming/fonts.tsx?example';
 import { pageAt } from '@/nav';
 
 
@@ -34,6 +36,29 @@ const SHEETS: readonly (readonly [ string, string ])[] = [
 ];
 
 const SOURCE_DIRECTIVE = '@source ".";';
+
+/** The four variables of a tone */
+const TONE_ROWS: readonly (readonly [ string, string, string ])[] = [
+  [ '--primary', 'The tone: a solid fill, the ink of a plain fill, the focus of a field of that tone', 'Required' ],
+  [ '--primary-foreground', 'The ink on a solid fill. Pick it for contrast against the tone', 'Required' ],
+  [ '--primary-soft', 'The tinted surface of a soft fill', 'Optional: a tenth of the tone (half of the surface for muted and secondary)' ],
+  [ '--primary-soft-foreground', 'The ink on a soft fill', 'Optional: the tone itself (the foreground for muted and secondary)' ]
+];
+
+/** The three families of text */
+const FONT_ROWS: readonly (readonly [ string, string, string, string ])[] = [
+  [ 'Titles', '--font-heading', '--font-sans', 'Heading.Title, the title of an EmptyState, a Dialog, a Drawer, an AlertDialog, a Popover and an Alert' ],
+  [ 'Text', '--font-sans', 'The system interface font', 'Everything else: the body, every control, every label. Inherited from the page' ],
+  [ 'Fixed width', '--font-mono', 'The system monospace font', 'No component of the package: the code, the identifiers and the figures of the application, with font-mono' ]
+];
+
+/** The weights the package writes */
+const WEIGHT_ROWS: readonly (readonly [ string, string, string ])[] = [
+  [ '400', '--font-weight-normal', 'Body text, a description, a value of a field' ],
+  [ '500', '--font-weight-medium', 'A label, a button, a tab, a badge, an eyebrow' ],
+  [ '600', '--font-weight-semibold', 'Every title, a value that leads' ],
+  [ '700', '--font-weight-bold', 'The largest title, Heading.Title size xl' ]
+];
 
 /** The named steps of the spacing scale */
 const SPACING_ROWS: readonly (readonly [ string, string, string ])[] = [
@@ -340,6 +365,138 @@ function ThemingPage(): React.ReactNode {
               The fallback lives in the mapping, not on <InlineCode>:root</InlineCode>, and that is the point: it is
               resolved where the component is, so a subtree that redefines <InlineCode>--primary</InlineCode> gets soft
               colours derived from its own primary rather than from the page’s.
+            </p>
+          </Prose>
+        </Section>
+
+        <Section
+          title={'Changing a tone'}
+          lead={(
+            <React.Fragment>
+              A tone is four variables, and a product retunes it by redeclaring them on <InlineCode>:root</InlineCode>{' '}
+              after the import, and on <InlineCode>.dark</InlineCode> for the dark values. The value is any CSS colour:
+              a colour of Tailwind’s palette through its variable, <InlineCode>oklch()</InlineCode>,{' '}
+              <InlineCode>rgb()</InlineCode>, a hex. The same holds for the seven tones,{' '}
+              <InlineCode>primary</InlineCode>, <InlineCode>secondary</InlineCode>, <InlineCode>muted</InlineCode>,{' '}
+              <InlineCode>success</InlineCode>, <InlineCode>warning</InlineCode>, <InlineCode>destructive</InlineCode>{' '}
+              and <InlineCode>info</InlineCode>.
+            </React.Fragment>
+          )}
+        >
+          <DocTable
+            head={[ 'Variable', 'What it is', 'Declare it' ]}
+            rows={TONE_ROWS.map(([ variable, what, need ]) => [
+              <code key={'v'} className={'font-mono text-xs whitespace-nowrap text-foreground'}>{variable}</code>,
+              what,
+              need
+            ])}
+          />
+          <CodeBlock
+            title={'app.css'}
+            snippet={css`
+              @import 'tailwindcss';
+              @import '@proedis/ui';
+
+              :root {
+                /* A colour of Tailwind's palette, by its variable */
+                --primary: var(--color-violet-600);
+                --primary-foreground: var(--color-white);
+
+                /* Any CSS colour: oklch, rgb, a hex */
+                --success: oklch(0.55 0.17 160);
+                --success-foreground: oklch(0.99 0 0);
+                --destructive: rgb(217 70 39);
+                --destructive-foreground: #ffffff;
+
+                /* The soft register, only when the derived one does not suit */
+                --destructive-soft: rgb(217 70 39 / 12%);
+                --destructive-soft-foreground: rgb(160 45 20);
+              }
+
+              .dark {
+                --primary: var(--color-violet-400);
+                --primary-foreground: var(--color-zinc-950);
+              }
+            `}
+          />
+          <Example of={tone} />
+          <Prose>
+            <p>
+              <InlineCode>var(--color-violet-600)</InlineCode> works because Tailwind keeps every colour of its palette
+              that something reads as a variable: the reference is the reading. A soft fill derives itself from the tone
+              where the component is, so a retuned primary brings a matching soft fill with no line of its own; declare
+              the soft pair only when the derived tint does not read well, as the third panel does. The foreground is
+              yours to choose for contrast: the package cannot know whether the tone is light or dark.
+            </p>
+          </Prose>
+        </Section>
+
+        <Section
+          title={'Fonts'}
+          lead={(
+            <React.Fragment>
+              Three families, each a variable: the titles, the text, the fixed width. The text is Tailwind’s own{' '}
+              <InlineCode>--font-sans</InlineCode>, inherited from the page by every component; the titles are{' '}
+              <InlineCode>--font-heading</InlineCode>, which is the text family until a product gives them one of
+              their own.
+            </React.Fragment>
+          )}
+        >
+          <DocTable
+            head={[ 'Role', 'Variable', 'Default', 'Read by' ]}
+            rows={FONT_ROWS.map(([ role, variable, fallback, readers ]) => [
+              <span key={'r'} className={'font-medium whitespace-nowrap text-foreground'}>{role}</span>,
+              <code key={'v'} className={'font-mono text-xs whitespace-nowrap text-foreground'}>{variable}</code>,
+              fallback,
+              readers
+            ])}
+          />
+          <SubSection
+            title={'Weights'}
+            lead={(
+              <React.Fragment>
+                The package writes four weights. A font that ships fewer makes the browser synthesise the missing ones,
+                a smeared bold or a medium that reads as regular, so load these four, or one variable font from 400 to
+                700. A weight variable changes what its name means everywhere.
+              </React.Fragment>
+            )}
+          >
+            <DocTable
+              head={[ 'Weight', 'Variable', 'Where the package uses it' ]}
+              rows={WEIGHT_ROWS.map(([ weight, variable, where ]) => [
+                <code key={'w'} className={'font-mono text-xs text-foreground'}>{weight}</code>,
+                <code key={'v'} className={'font-mono text-xs whitespace-nowrap text-foreground'}>{variable}</code>,
+                where
+              ])}
+            />
+          </SubSection>
+          <CodeBlock
+            title={'app.css'}
+            snippet={css`
+              /* A web font is loaded before everything else: an @import of CSS must come first */
+              @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400..700&family=JetBrains+Mono:wght@400;500&display=swap');
+              @import 'tailwindcss';
+              @import '@proedis/ui';
+
+              :root {
+                --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+                --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+                --font-heading: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+                /* Only if the font calls 600 something else */
+                --font-weight-semibold: 650;
+              }
+            `}
+          />
+          <Example of={fonts} />
+          <Prose>
+            <p>
+              Write the families on <InlineCode>:root</InlineCode>: the page reads <InlineCode>--font-sans</InlineCode>{' '}
+              there, and <InlineCode>--font-heading</InlineCode> follows it when it is not declared. The panel above
+              redeclares them on a container, which is why it also sets <InlineCode>font-family</InlineCode> on itself:
+              the text of a region inherits the family of the page, not the variable. Figures in a table or a field are
+              set with <InlineCode>tabular-nums</InlineCode>, so the text font should carry tabular figures, as Inter
+              does: without them the setting does nothing and the columns of a table stop lining up.
             </p>
           </Prose>
         </Section>

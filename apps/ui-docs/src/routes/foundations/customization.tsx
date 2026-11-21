@@ -51,13 +51,14 @@ const LEVELS: readonly (readonly [ string, string, string ])[] = [
 ];
 
 /** What a group of variables is about, in the order the page reads them */
-const GROUPS: readonly ThemeVariableGroup[] = [ 'Default', 'Spacing', 'Size', 'Shape', 'Colour', 'Layer' ];
+const GROUPS: readonly ThemeVariableGroup[] = [ 'Default', 'Spacing', 'Size', 'Typography', 'Shape', 'Colour', 'Layer' ];
 
 /** The ids of the sections that hold the tables, so a title cannot collide with another section */
 const GROUP_IDS: Readonly<Record<ThemeVariableGroup, string>> = {
   Default: 'component-defaults',
   Spacing: 'spacing-scale',
-  Size   : 'sizes',
+  Size      : 'sizes',
+  Typography: 'typography',
   Shape  : 'shape',
   Colour : 'colours',
   Layer  : 'layers'
@@ -273,13 +274,55 @@ function CustomizationPage(): React.ReactNode {
               </Prose>
             )}
             {group === 'Colour' && (
-              <Prose>
-                <p>
-                  What each family is for, and how the soft register derives itself from a tone, is on the Theming
-                  and Tones pages. A colour is shared: <InlineCode>--primary</InlineCode> is the primary of every
-                  component at once, which is the point of a contract.
-                </p>
-              </Prose>
+              <React.Fragment>
+                <CodeBlock
+                  title={'app.css'}
+                  snippet={css`
+                    :root {
+                      --primary: var(--color-violet-600);   /* a colour of Tailwind's palette */
+                      --primary-foreground: var(--color-white);
+                      --success: oklch(0.55 0.17 160);      /* or any CSS colour: oklch, rgb, a hex */
+                      --success-foreground: #ffffff;
+                    }
+                  `}
+                />
+                <Prose>
+                  <p>
+                    A tone is four variables, the tone, its ink, and the optional soft pair. How to retune one with a
+                    colour of the palette, <InlineCode>oklch()</InlineCode> or <InlineCode>rgb()</InlineCode>, with a
+                    live example, is in <Link to={'/foundations/theming'} hash={'changing-a-tone'} className={'font-medium text-foreground underline underline-offset-2'}>Theming, Changing a tone</Link>.
+                    A colour is shared: <InlineCode>--primary</InlineCode> is the primary of every component at once,
+                    which is the point of a contract.
+                  </p>
+                </Prose>
+              </React.Fragment>
+            )}
+            {group === 'Typography' && (
+              <React.Fragment>
+                <CodeBlock
+                  title={'app.css'}
+                  snippet={css`
+                    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400..700&display=swap');
+                    @import 'tailwindcss';
+                    @import '@proedis/ui';
+
+                    :root {
+                      --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;   /* all the text */
+                      --font-heading: 'Inter', ui-sans-serif, system-ui, sans-serif; /* the titles */
+                      --font-mono: ui-monospace, monospace;                          /* fixed width */
+                    }
+                  `}
+                />
+                <Prose>
+                  <p>
+                    Three families: the titles (<InlineCode>--font-heading</InlineCode>, the text family until it is
+                    declared), the text (<InlineCode>--font-sans</InlineCode>, inherited by every component) and the
+                    fixed width (<InlineCode>--font-mono</InlineCode>). The package writes four weights, 400, 500, 600
+                    and 700: a font that ships fewer gets the missing ones synthesised. Which component uses which, and
+                    how to load a web font, is in <Link to={'/foundations/theming'} hash={'fonts'} className={'font-medium text-foreground underline underline-offset-2'}>Theming, Fonts</Link>.
+                  </p>
+                </Prose>
+              </React.Fragment>
             )}
           </Section>
         ))}
