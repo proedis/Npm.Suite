@@ -176,14 +176,14 @@ export const NAV: readonly NavGroup[] = [
     title      : 'Display',
     description: 'What things look like: values, rows, cards, people. Static, renderable from a server component.',
     items      : [
-      { title: 'Badge', to: '/display/badge', subpath: '@proedis/ui/display/badge', description: 'A short state or a category, in a tone.', icon: BadgeCheck, ready: false },
-      { title: 'BadgeCounter', to: '/display/badge-counter', subpath: '@proedis/ui/display/badge-counter', description: 'A count on a control: unread, pending, selected.', icon: Hash, ready: false },
-      { title: 'Heading', to: '/display/heading', subpath: '@proedis/ui/display/heading', description: 'A title with its eyebrow and its description.', icon: Heading, ready: false },
-      { title: 'IconBox', to: '/display/icon-box', subpath: '@proedis/ui/display/icon-box', description: 'An icon in a frame, sized and toned.', icon: Component, ready: false },
-      { title: 'Item', to: '/display/item', subpath: '@proedis/ui/display/item', description: 'A row: media, a title that truncates, actions that stay.', icon: LayoutList, ready: false },
-      { title: 'LabeledContent', to: '/display/labeled-content', subpath: '@proedis/ui/display/labeled-content', description: 'A quiet name over a loud value.', icon: Tags, ready: false },
-      { title: 'Person', to: '/display/person', subpath: '@proedis/ui/display/person', peers: BASE_UI, description: 'Avatar, name and the card on hover; a group of avatars.', icon: CircleUser, ready: false },
-      { title: 'Surface', to: '/display/surface', subpath: '@proedis/ui/display/surface', description: 'The card, with its header, sections, separators and footer.', icon: SquareStack, ready: false }
+      { title: 'Badge', to: '/display/badge', subpath: '@proedis/ui/display/badge', description: 'A short state or a category, in a tone.', icon: BadgeCheck, ready: true },
+      { title: 'BadgeCounter', to: '/display/badge-counter', subpath: '@proedis/ui/display/badge-counter', description: 'A count on a control: unread, pending, selected.', icon: Hash, ready: true },
+      { title: 'Heading', to: '/display/heading', subpath: '@proedis/ui/display/heading', description: 'A title with its eyebrow and its description.', icon: Heading, ready: true },
+      { title: 'IconBox', to: '/display/icon-box', subpath: '@proedis/ui/display/icon-box', description: 'An icon in a frame, sized and toned.', icon: Component, ready: true },
+      { title: 'Item', to: '/display/item', subpath: '@proedis/ui/display/item', description: 'A row: media, a title that truncates, actions that stay.', icon: LayoutList, ready: true },
+      { title: 'LabeledContent', to: '/display/labeled-content', subpath: '@proedis/ui/display/labeled-content', description: 'A quiet name over a loud value.', icon: Tags, ready: true },
+      { title: 'Person', to: '/display/person', subpath: '@proedis/ui/display/person', peers: BASE_UI, description: 'Avatar, name and the card on hover; a group of avatars.', icon: CircleUser, ready: true },
+      { title: 'Surface', to: '/display/surface', subpath: '@proedis/ui/display/surface', description: 'The card, with its header, sections, separators and footer.', icon: SquareStack, ready: true }
     ]
   },
   {

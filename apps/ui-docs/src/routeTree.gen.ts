@@ -11,6 +11,14 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ActionsButtonRouteImport } from './routes/actions/button'
+import { Route as DisplayBadgeRouteImport } from './routes/display/badge'
+import { Route as DisplayBadgeCounterRouteImport } from './routes/display/badge-counter'
+import { Route as DisplayHeadingRouteImport } from './routes/display/heading'
+import { Route as DisplayIconBoxRouteImport } from './routes/display/icon-box'
+import { Route as DisplayItemRouteImport } from './routes/display/item'
+import { Route as DisplayLabeledContentRouteImport } from './routes/display/labeled-content'
+import { Route as DisplayPersonRouteImport } from './routes/display/person'
+import { Route as DisplaySurfaceRouteImport } from './routes/display/surface'
 import { Route as FoundationsPolymorphismRouteImport } from './routes/foundations/polymorphism'
 import { Route as FoundationsResponsiveRouteImport } from './routes/foundations/responsive'
 import { Route as FoundationsSharedPropsRouteImport } from './routes/foundations/shared-props'
@@ -46,6 +54,46 @@ const IndexRoute = IndexRouteImport.update({
 const ActionsButtonRoute = ActionsButtonRouteImport.update({
   id: '/actions/button',
   path: '/actions/button',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DisplayBadgeRoute = DisplayBadgeRouteImport.update({
+  id: '/display/badge',
+  path: '/display/badge',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DisplayBadgeCounterRoute = DisplayBadgeCounterRouteImport.update({
+  id: '/display/badge-counter',
+  path: '/display/badge-counter',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DisplayHeadingRoute = DisplayHeadingRouteImport.update({
+  id: '/display/heading',
+  path: '/display/heading',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DisplayIconBoxRoute = DisplayIconBoxRouteImport.update({
+  id: '/display/icon-box',
+  path: '/display/icon-box',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DisplayItemRoute = DisplayItemRouteImport.update({
+  id: '/display/item',
+  path: '/display/item',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DisplayLabeledContentRoute = DisplayLabeledContentRouteImport.update({
+  id: '/display/labeled-content',
+  path: '/display/labeled-content',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DisplayPersonRoute = DisplayPersonRouteImport.update({
+  id: '/display/person',
+  path: '/display/person',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DisplaySurfaceRoute = DisplaySurfaceRouteImport.update({
+  id: '/display/surface',
+  path: '/display/surface',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FoundationsPolymorphismRoute = FoundationsPolymorphismRouteImport.update({
@@ -183,6 +231,14 @@ const PrimitivesVisuallyHiddenRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/actions/button': typeof ActionsButtonRoute
+  '/display/badge': typeof DisplayBadgeRoute
+  '/display/badge-counter': typeof DisplayBadgeCounterRoute
+  '/display/heading': typeof DisplayHeadingRoute
+  '/display/icon-box': typeof DisplayIconBoxRoute
+  '/display/item': typeof DisplayItemRoute
+  '/display/labeled-content': typeof DisplayLabeledContentRoute
+  '/display/person': typeof DisplayPersonRoute
+  '/display/surface': typeof DisplaySurfaceRoute
   '/foundations/polymorphism': typeof FoundationsPolymorphismRoute
   '/foundations/responsive': typeof FoundationsResponsiveRoute
   '/foundations/shared-props': typeof FoundationsSharedPropsRoute
@@ -213,6 +269,14 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/actions/button': typeof ActionsButtonRoute
+  '/display/badge': typeof DisplayBadgeRoute
+  '/display/badge-counter': typeof DisplayBadgeCounterRoute
+  '/display/heading': typeof DisplayHeadingRoute
+  '/display/icon-box': typeof DisplayIconBoxRoute
+  '/display/item': typeof DisplayItemRoute
+  '/display/labeled-content': typeof DisplayLabeledContentRoute
+  '/display/person': typeof DisplayPersonRoute
+  '/display/surface': typeof DisplaySurfaceRoute
   '/foundations/polymorphism': typeof FoundationsPolymorphismRoute
   '/foundations/responsive': typeof FoundationsResponsiveRoute
   '/foundations/shared-props': typeof FoundationsSharedPropsRoute
@@ -244,6 +308,14 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/actions/button': typeof ActionsButtonRoute
+  '/display/badge': typeof DisplayBadgeRoute
+  '/display/badge-counter': typeof DisplayBadgeCounterRoute
+  '/display/heading': typeof DisplayHeadingRoute
+  '/display/icon-box': typeof DisplayIconBoxRoute
+  '/display/item': typeof DisplayItemRoute
+  '/display/labeled-content': typeof DisplayLabeledContentRoute
+  '/display/person': typeof DisplayPersonRoute
+  '/display/surface': typeof DisplaySurfaceRoute
   '/foundations/polymorphism': typeof FoundationsPolymorphismRoute
   '/foundations/responsive': typeof FoundationsResponsiveRoute
   '/foundations/shared-props': typeof FoundationsSharedPropsRoute
@@ -276,6 +348,14 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/actions/button'
+    | '/display/badge'
+    | '/display/badge-counter'
+    | '/display/heading'
+    | '/display/icon-box'
+    | '/display/item'
+    | '/display/labeled-content'
+    | '/display/person'
+    | '/display/surface'
     | '/foundations/polymorphism'
     | '/foundations/responsive'
     | '/foundations/shared-props'
@@ -306,6 +386,14 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/actions/button'
+    | '/display/badge'
+    | '/display/badge-counter'
+    | '/display/heading'
+    | '/display/icon-box'
+    | '/display/item'
+    | '/display/labeled-content'
+    | '/display/person'
+    | '/display/surface'
     | '/foundations/polymorphism'
     | '/foundations/responsive'
     | '/foundations/shared-props'
@@ -336,6 +424,14 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/actions/button'
+    | '/display/badge'
+    | '/display/badge-counter'
+    | '/display/heading'
+    | '/display/icon-box'
+    | '/display/item'
+    | '/display/labeled-content'
+    | '/display/person'
+    | '/display/surface'
     | '/foundations/polymorphism'
     | '/foundations/responsive'
     | '/foundations/shared-props'
@@ -367,6 +463,14 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ActionsButtonRoute: typeof ActionsButtonRoute
+  DisplayBadgeRoute: typeof DisplayBadgeRoute
+  DisplayBadgeCounterRoute: typeof DisplayBadgeCounterRoute
+  DisplayHeadingRoute: typeof DisplayHeadingRoute
+  DisplayIconBoxRoute: typeof DisplayIconBoxRoute
+  DisplayItemRoute: typeof DisplayItemRoute
+  DisplayLabeledContentRoute: typeof DisplayLabeledContentRoute
+  DisplayPersonRoute: typeof DisplayPersonRoute
+  DisplaySurfaceRoute: typeof DisplaySurfaceRoute
   FoundationsPolymorphismRoute: typeof FoundationsPolymorphismRoute
   FoundationsResponsiveRoute: typeof FoundationsResponsiveRoute
   FoundationsSharedPropsRoute: typeof FoundationsSharedPropsRoute
@@ -409,6 +513,62 @@ declare module '@tanstack/react-router' {
       path: '/actions/button'
       fullPath: '/actions/button'
       preLoaderRoute: typeof ActionsButtonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/display/badge': {
+      id: '/display/badge'
+      path: '/display/badge'
+      fullPath: '/display/badge'
+      preLoaderRoute: typeof DisplayBadgeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/display/badge-counter': {
+      id: '/display/badge-counter'
+      path: '/display/badge-counter'
+      fullPath: '/display/badge-counter'
+      preLoaderRoute: typeof DisplayBadgeCounterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/display/heading': {
+      id: '/display/heading'
+      path: '/display/heading'
+      fullPath: '/display/heading'
+      preLoaderRoute: typeof DisplayHeadingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/display/icon-box': {
+      id: '/display/icon-box'
+      path: '/display/icon-box'
+      fullPath: '/display/icon-box'
+      preLoaderRoute: typeof DisplayIconBoxRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/display/item': {
+      id: '/display/item'
+      path: '/display/item'
+      fullPath: '/display/item'
+      preLoaderRoute: typeof DisplayItemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/display/labeled-content': {
+      id: '/display/labeled-content'
+      path: '/display/labeled-content'
+      fullPath: '/display/labeled-content'
+      preLoaderRoute: typeof DisplayLabeledContentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/display/person': {
+      id: '/display/person'
+      path: '/display/person'
+      fullPath: '/display/person'
+      preLoaderRoute: typeof DisplayPersonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/display/surface': {
+      id: '/display/surface'
+      path: '/display/surface'
+      fullPath: '/display/surface'
+      preLoaderRoute: typeof DisplaySurfaceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/foundations/polymorphism': {
@@ -599,6 +759,14 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ActionsButtonRoute: ActionsButtonRoute,
+  DisplayBadgeRoute: DisplayBadgeRoute,
+  DisplayBadgeCounterRoute: DisplayBadgeCounterRoute,
+  DisplayHeadingRoute: DisplayHeadingRoute,
+  DisplayIconBoxRoute: DisplayIconBoxRoute,
+  DisplayItemRoute: DisplayItemRoute,
+  DisplayLabeledContentRoute: DisplayLabeledContentRoute,
+  DisplayPersonRoute: DisplayPersonRoute,
+  DisplaySurfaceRoute: DisplaySurfaceRoute,
   FoundationsPolymorphismRoute: FoundationsPolymorphismRoute,
   FoundationsResponsiveRoute: FoundationsResponsiveRoute,
   FoundationsSharedPropsRoute: FoundationsSharedPropsRoute,
