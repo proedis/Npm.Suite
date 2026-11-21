@@ -4,6 +4,8 @@ import { splitBaseProps } from '../core/base';
 import { cn } from '../core/cn';
 import { gapClasses } from '../core/responsive';
 
+import { layoutAttributes } from './layoutAttributes';
+
 import type { BaseProps } from '../core/base';
 import type { PolymorphicProps } from '../core/polymorphic';
 import type { Responsive, SpacingValue } from '../core/responsive';
@@ -69,7 +71,7 @@ export function Grid<E extends React.ElementType = 'div'>(props: GridProps<E>): 
   return (
     <Component
       data-slot={'grid'}
-      data-fill={fill}
+      {...layoutAttributes(rest, { 'data-fill': fill })}
       className={cn('grid', gapClasses(gap), baseClasses, className)}
       style={{
         /** `min(px, 100%)` is what keeps the single column from overflowing a very narrow screen */

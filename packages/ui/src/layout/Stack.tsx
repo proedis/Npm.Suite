@@ -11,6 +11,8 @@ import {
   justifyClasses
 } from '../core/responsive';
 
+import { layoutAttributes } from './layoutAttributes';
+
 import type { BaseProps } from '../core/base';
 import type { PolymorphicProps } from '../core/polymorphic';
 import type { Align, ColumnsValue, Direction, Justify, Responsive, SpacingValue } from '../core/responsive';
@@ -113,10 +115,12 @@ export function Stack<E extends React.ElementType = 'div'>(props: StackProps<E>)
   return (
     <Component
       data-slot={'stack'}
-      data-mode={isGrid ? 'grid' : 'flex'}
-      data-divided={divided || undefined}
-      data-inline={inline || undefined}
-      data-wrap={wrap || undefined}
+      {...layoutAttributes(rest, {
+        'data-mode'   : isGrid ? 'grid' : 'flex',
+        'data-divided': divided || undefined,
+        'data-inline' : inline || undefined,
+        'data-wrap'   : wrap || undefined
+      })}
       className={cn(classes, baseClasses, className)}
       {...rest}
     />
