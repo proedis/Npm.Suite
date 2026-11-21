@@ -14,6 +14,15 @@ import { Pager } from './Pager';
 import { Sidebar } from './Sidebar';
 import { ThemeMenu } from './ThemeMenu';
 import { Toc } from './Toc';
+import { useScrollAlong } from './useScrollAlong';
+
+
+/* --------
+ * Constants Definition
+ * -------- */
+
+/** The height of the bar, `h-14`: where the sticky columns stop under it */
+const HEADER_HEIGHT = 56;
 
 
 /* --------
@@ -102,6 +111,17 @@ export function DocsLayout(props: { children: React.ReactNode }): React.ReactNod
 
 
   // ----
+  // Internal Refs
+  // ----
+  const railRef = React.useRef<HTMLDivElement | null>(null);
+  const outlineRef = React.useRef<HTMLElement | null>(null);
+
+  /** Both columns move with the page when taller than the window, never with a scroll of their own */
+  useScrollAlong(railRef, HEADER_HEIGHT);
+  useScrollAlong(outlineRef, HEADER_HEIGHT);
+
+
+  // ----
   // Lifecycle Events
   // ----
 
@@ -126,10 +146,8 @@ export function DocsLayout(props: { children: React.ReactNode }): React.ReactNod
           railWidth={'15rem'}
           gap={{ base: 0, lg: 10 }}
           rail={(
-            <Box hideBelow={'lg'} className={'sticky top-14 -mt-px'}>
-              <ScrollArea maxHeight={'calc(100dvh - 3.5rem)'} className={'py-10 pe-2'}>
-                <Sidebar />
-              </ScrollArea>
+            <Box ref={railRef} hideBelow={'lg'} className={'sticky top-14 -mt-px self-start py-10 pe-2'}>
+              <Sidebar />
             </Box>
           )}
         >
@@ -139,10 +157,8 @@ export function DocsLayout(props: { children: React.ReactNode }): React.ReactNod
               <Pager />
             </Box>
 
-            <Box as={'aside'} hideBelow={'xl'} className={'sticky top-14 w-56 shrink-0'}>
-              <ScrollArea maxHeight={'calc(100dvh - 3.5rem)'} className={'py-10'}>
-                <Toc key={pathname} />
-              </ScrollArea>
+            <Box ref={outlineRef} as={'aside'} hideBelow={'xl'} className={'sticky top-14 w-56 shrink-0 py-10'}>
+              <Toc key={pathname} />
             </Box>
           </Stack>
         </Split>
