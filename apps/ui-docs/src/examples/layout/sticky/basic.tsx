@@ -13,7 +13,7 @@ export default function Example(): React.ReactNode {
       {DAYS.map((day) => (
         <section key={day} aria-label={day}>
           {/* Each day pins to the top until the next one pushes it away */}
-          <Sticky className={'border-b border-border bg-background/90 px-4 py-2 text-sm font-semibold text-foreground backdrop-blur'}>
+          <Sticky className={'border-b border-border bg-background px-4 py-2 text-sm font-semibold text-foreground'}>
             {day}
           </Sticky>
           <Stack gap={0} divided>

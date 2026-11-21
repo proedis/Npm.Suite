@@ -56,8 +56,9 @@ function LabelPage(): React.ReactNode {
           <Example of={emphasis} />
           <Prose>
             <p>
-              <InlineCode>default</InlineCode> and <InlineCode>strong</InlineCode> draw the same today, and that is the point
-              of having both. A label nobody had an opinion about reports <InlineCode>data-emphasis</InlineCode> as{' '}
+              The first rows above are the three values; the two columns under them are the two jobs, a form label over
+              an empty field and a data label over its value. <InlineCode>default</InlineCode> and{' '}
+              <InlineCode>strong</InlineCode> draw the same today, and that is the point of having both. A label nobody had an opinion about reports <InlineCode>data-emphasis</InlineCode> as{' '}
               <InlineCode>default</InlineCode>,
               so a product can restyle exactly that set and leave alone the labels that asked for{' '}
               <InlineCode>strong</InlineCode> on purpose, whatever the package decides the default looks like later.
