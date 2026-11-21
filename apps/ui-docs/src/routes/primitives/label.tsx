@@ -3,7 +3,9 @@ import * as React from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 
 import labelProps from 'virtual:ui-props/StrictLabelProps';
+import themeDoc from 'virtual:ui-theme/primitives/label';
 import { Callout } from '@/docs/Callout';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -93,6 +95,8 @@ function LabelPage(): React.ReactNode {
             </p>
           </Prose>
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
           <SlotsTable

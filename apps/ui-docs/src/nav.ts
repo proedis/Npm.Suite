@@ -48,6 +48,7 @@ import {
   ScrollText,
   Search,
   Shapes,
+  SlidersHorizontal,
   Smartphone,
   SquareCheck,
   SquareDashed,
@@ -133,6 +134,7 @@ export const NAV: readonly NavGroup[] = [
     description: 'The rules every component follows, explained once.',
     items      : [
       { title: 'Theming', to: '/foundations/theming', description: 'The token contract, the two stylesheets, dark mode and what a product overrides.', icon: Palette, ready: true },
+      { title: 'Customization', to: '/foundations/customization', description: 'Every variable of the theme, the default of every spacing prop, and what each component reads.', icon: SlidersHorizontal, ready: true },
       { title: 'Tones', to: '/foundations/tones', description: 'Seven tones, three fills, one table that paints them everywhere.', icon: Contrast, ready: true },
       { title: 'Shared props', to: '/foundations/shared-props', description: 'hideBelow and hideFrom, on every component that renders a root of its own.', icon: Brackets, ready: true },
       { title: 'Responsive values', to: '/foundations/responsive', description: 'One value, or one per breakpoint: how a layout prop changes with the width.', icon: MonitorSmartphone, ready: true },

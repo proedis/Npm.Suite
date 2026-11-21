@@ -9,7 +9,9 @@ import menuProps from 'virtual:ui-props/MenuProps';
 import radioGroupProps from 'virtual:ui-props/MenuRadioGroupProps';
 import radioItemProps from 'virtual:ui-props/MenuRadioItemProps';
 import submenuProps from 'virtual:ui-props/MenuSubmenuProps';
+import themeDoc from 'virtual:ui-theme/actions/menu';
 import { Callout } from '@/docs/Callout';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -207,6 +209,8 @@ function MenuPage(): React.ReactNode {
             ]}
           />
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'} lead={'Every part a stylesheet can reach, and what each one reports.'}>
           <SlotsTable

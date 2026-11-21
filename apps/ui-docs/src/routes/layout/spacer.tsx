@@ -2,7 +2,9 @@ import * as React from 'react';
 
 import { createFileRoute } from '@tanstack/react-router';
 
+import themeDoc from 'virtual:ui-theme/layout/spacer';
 import { CodeBlock } from '@/docs/CodeBlock';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -96,6 +98,8 @@ function SpacerPage(): React.ReactNode {
             </p>
           </Prose>
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
           <SlotsTable rows={[ { slot: 'spacer', part: 'The filler, unless a data-slot is passed' } ]} />

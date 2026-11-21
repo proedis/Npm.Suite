@@ -3,9 +3,11 @@ import * as React from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 import itemProps from 'virtual:ui-props/SegmentedControlItemProps';
 import segmentedProps from 'virtual:ui-props/SegmentedControlProps';
+import themeDoc from 'virtual:ui-theme/actions/segmented-control';
 
 import { Callout } from '@/docs/Callout';
 import { CodeBlock } from '@/docs/CodeBlock';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -178,6 +180,8 @@ function SegmentedControlPage(): React.ReactNode {
             <InlineCode>aria-disabled</InlineCode>: here a disabled item stays in the cycle, to show its reason.
           </Callout>
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'} lead={'Every part a stylesheet can reach, and what each one reports.'}>
           <SlotsTable

@@ -9,6 +9,7 @@ import { defineConfig } from 'vite';
 import { examples } from './plugins/examples.ts';
 import { uiProps } from './plugins/props.ts';
 import { snippets } from './plugins/snippets.ts';
+import { uiTheme } from './plugins/theme.ts';
 
 
 /* --------
@@ -48,6 +49,7 @@ export default defineConfig({
     examples(),
     snippets(),
     uiProps(UI_SOURCE),
+    uiTheme(UI_SOURCE),
     react(),
     tailwindcss()
   ],

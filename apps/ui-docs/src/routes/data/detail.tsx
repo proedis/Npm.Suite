@@ -5,8 +5,10 @@ import itemProps from 'virtual:ui-props/DetailItemProps';
 import labelsProps from 'virtual:ui-props/DetailLabels';
 import detailProps from 'virtual:ui-props/DetailProps';
 import sectionProps from 'virtual:ui-props/DetailSectionProps';
+import themeDoc from 'virtual:ui-theme/data/detail';
 
 import { Callout } from '@/docs/Callout';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -238,6 +240,8 @@ function DetailPage(): React.ReactNode {
             </p>
           </Prose>
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section
           title={'Slots and data attributes'}

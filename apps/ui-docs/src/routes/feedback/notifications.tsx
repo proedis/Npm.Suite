@@ -11,9 +11,11 @@ import providerProps from 'virtual:ui-props/NotificationsProviderProps';
 import outcomeOptions from 'virtual:ui-props/OutcomeOptions';
 import startOptions from 'virtual:ui-props/StartOptions';
 import undoOptions from 'virtual:ui-props/UndoOptions';
+import themeDoc from 'virtual:ui-theme/feedback/notifications';
 
 import { Callout } from '@/docs/Callout';
 import { CodeBlock } from '@/docs/CodeBlock';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -181,6 +183,8 @@ function NotificationsPage(): React.ReactNode {
             Both stand to the left of an open drawer and above dialogs, on the <InlineCode>z-toast</InlineCode> layer.
           </Callout>
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'} lead={'Every part a stylesheet can reach, and what each one reports.'}>
           <SlotsTable

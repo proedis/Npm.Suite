@@ -3,8 +3,10 @@ import * as React from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 
 import multiSelectProps from 'virtual:ui-props/MultiSelectProps';
+import themeDoc from 'virtual:ui-theme/forms/multi-select';
 import { Callout } from '@/docs/Callout';
 import { CodeBlock } from '@/docs/CodeBlock';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -142,6 +144,8 @@ function MultiSelectPage(): React.ReactNode {
             ]}
           />
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
           <SlotsTable

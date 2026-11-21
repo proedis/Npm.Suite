@@ -3,7 +3,9 @@ import * as React from 'react';
 import { createFileRoute, Link } from '@tanstack/react-router';
 
 import fieldShellProps from 'virtual:ui-props/FieldShellProps';
+import themeDoc from 'virtual:ui-theme/forms/field-shell';
 import { Callout } from '@/docs/Callout';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -110,6 +112,8 @@ function FieldShellPage(): React.ReactNode {
             </p>
           </Prose>
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
           <SlotsTable

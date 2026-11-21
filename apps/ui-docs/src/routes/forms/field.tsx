@@ -7,8 +7,10 @@ import fieldProps from 'virtual:ui-props/FieldProps';
 import fieldCounterProps from 'virtual:ui-props/StrictFieldCounterProps';
 import fieldErrorProps from 'virtual:ui-props/StrictFieldErrorProps';
 import fieldLabelProps from 'virtual:ui-props/StrictFieldLabelProps';
+import themeDoc from 'virtual:ui-theme/forms/field';
 import { Callout } from '@/docs/Callout';
 import { CodeBlock } from '@/docs/CodeBlock';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -234,6 +236,8 @@ function FieldPage(): React.ReactNode {
             </p>
           </Prose>
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
           <SlotsTable

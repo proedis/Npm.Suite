@@ -6,8 +6,10 @@ import avatarGroupItemProps from 'virtual:ui-props/AvatarGroupItem';
 import avatarProps from 'virtual:ui-props/AvatarProps';
 import personProps from 'virtual:ui-props/StrictPersonProps';
 import avatarGroupProps from 'virtual:ui-props/StrictAvatarGroupProps';
+import themeDoc from 'virtual:ui-theme/display/person';
 import { Callout } from '@/docs/Callout';
 import { CodeBlock } from '@/docs/CodeBlock';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -202,6 +204,8 @@ function PersonPage(): React.ReactNode {
             ]}
           />
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
           <SlotsTable

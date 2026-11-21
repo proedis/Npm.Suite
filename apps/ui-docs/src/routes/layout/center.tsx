@@ -3,6 +3,8 @@ import * as React from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 
 import centerProps from 'virtual:ui-props/StrictCenterProps';
+import themeDoc from 'virtual:ui-theme/layout/center';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -92,6 +94,8 @@ function CenterPage(): React.ReactNode {
             </p>
           </Prose>
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
           <SlotsTable

@@ -4,11 +4,13 @@ import { createFileRoute } from '@tanstack/react-router';
 
 import drawerLabelsProps from 'virtual:ui-props/DrawerLabels';
 import drawerProps from 'virtual:ui-props/DrawerProps';
+import themeDoc from 'virtual:ui-theme/overlays/drawer';
 import { Callout } from '@/docs/Callout';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { CodeBlock } from '@/docs/CodeBlock';
+import { Customization } from '@/docs/Customization';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
 import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
@@ -187,6 +189,8 @@ function DrawerPage(): React.ReactNode {
             ]}
           />
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section
           title={'Slots and data attributes'}

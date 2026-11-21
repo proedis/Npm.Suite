@@ -5,8 +5,10 @@ import { createFileRoute } from '@tanstack/react-router';
 import dialogLabelsProps from 'virtual:ui-props/DialogLabels';
 import dialogProps from 'virtual:ui-props/DialogProps';
 import sectionProps from 'virtual:ui-props/OverlaySection';
+import themeDoc from 'virtual:ui-theme/overlays/dialog';
 import { Callout } from '@/docs/Callout';
 import { CodeBlock } from '@/docs/CodeBlock';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -337,6 +339,8 @@ function DialogPage(): React.ReactNode {
             ]}
           />
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'} lead={'Every part a stylesheet can reach, and what each one reports.'}>
           <SlotsTable

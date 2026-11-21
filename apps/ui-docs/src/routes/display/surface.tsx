@@ -6,8 +6,10 @@ import surfaceFooterProps from 'virtual:ui-props/StrictSurfaceFooterProps';
 import surfaceProps from 'virtual:ui-props/StrictSurfaceProps';
 import surfaceSectionProps from 'virtual:ui-props/StrictSurfaceSectionProps';
 import surfaceSeparatorProps from 'virtual:ui-props/StrictSurfaceSeparatorProps';
+import themeDoc from 'virtual:ui-theme/display/surface';
 import { Callout } from '@/docs/Callout';
 import { CodeBlock } from '@/docs/CodeBlock';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -179,6 +181,8 @@ function SurfacePage(): React.ReactNode {
             </p>
           </Prose>
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
           <SlotsTable

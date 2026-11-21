@@ -23,3 +23,9 @@ declare module 'virtual:ui-props/*' {
   const props: readonly import('./docs/propDoc').PropDoc[];
   export default props;
 }
+
+/** The variables of the theme a component reads, from its source: see `plugins/theme.ts` */
+declare module 'virtual:ui-theme/*' {
+  const theme: import('./docs/themeDoc').ThemeDoc;
+  export default theme;
+}

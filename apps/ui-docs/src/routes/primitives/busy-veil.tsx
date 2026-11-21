@@ -3,8 +3,10 @@ import * as React from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 
 import busyVeilProps from 'virtual:ui-props/BusyVeilProps';
+import themeDoc from 'virtual:ui-theme/primitives/busy-veil';
 import { Callout } from '@/docs/Callout';
 import { CodeBlock } from '@/docs/CodeBlock';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -114,6 +116,8 @@ function BusyVeilPage(): React.ReactNode {
             </p>
           </Prose>
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
           <SlotsTable

@@ -3,7 +3,9 @@ import * as React from 'react';
 import { createFileRoute, Link } from '@tanstack/react-router';
 
 import passwordInputProps from 'virtual:ui-props/PasswordInputProps';
+import themeDoc from 'virtual:ui-theme/forms/password-input';
 import { CodeBlock } from '@/docs/CodeBlock';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -113,6 +115,8 @@ function PasswordInputPage(): React.ReactNode {
         >
           <Example of={signIn} />
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
           <Prose>

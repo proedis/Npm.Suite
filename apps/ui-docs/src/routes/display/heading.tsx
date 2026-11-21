@@ -6,7 +6,9 @@ import headingDescriptionProps from 'virtual:ui-props/StrictHeadingDescriptionPr
 import headingEyebrowProps from 'virtual:ui-props/StrictHeadingEyebrowProps';
 import headingProps from 'virtual:ui-props/StrictHeadingProps';
 import headingTitleProps from 'virtual:ui-props/StrictHeadingTitleProps';
+import themeDoc from 'virtual:ui-theme/display/heading';
 import { Callout } from '@/docs/Callout';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -143,6 +145,8 @@ function HeadingPage(): React.ReactNode {
             </p>
           </Prose>
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
           <SlotsTable

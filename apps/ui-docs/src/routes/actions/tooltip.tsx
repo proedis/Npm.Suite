@@ -3,8 +3,10 @@ import * as React from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 import providerProps from 'virtual:ui-props/TooltipProviderProps';
 import tooltipProps from 'virtual:ui-props/TooltipProps';
+import themeDoc from 'virtual:ui-theme/actions/tooltip';
 
 import { Callout } from '@/docs/Callout';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -179,6 +181,8 @@ function TooltipPage(): React.ReactNode {
             ]}
           />
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'} lead={'Every part a stylesheet can reach, and what each one reports.'}>
           <SlotsTable

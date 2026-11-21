@@ -2,9 +2,11 @@ import * as React from 'react';
 
 import { createFileRoute } from '@tanstack/react-router';
 import alertProps from 'virtual:ui-props/AlertProps';
+import themeDoc from 'virtual:ui-theme/feedback/alert';
 
 import { Callout } from '@/docs/Callout';
 import { CodeBlock } from '@/docs/CodeBlock';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -170,6 +172,8 @@ function AlertPage(): React.ReactNode {
             ]}
           />
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'} lead={'Every part a stylesheet can reach, and what each one reports.'}>
           <SlotsTable

@@ -3,8 +3,10 @@ import * as React from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 
 import stackProps from 'virtual:ui-props/StrictStackProps';
+import themeDoc from 'virtual:ui-theme/layout/stack';
 import { Callout } from '@/docs/Callout';
 import { CodeBlock } from '@/docs/CodeBlock';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -306,6 +308,8 @@ function StackPage(): React.ReactNode {
             </p>
           </Prose>
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
           <SlotsTable

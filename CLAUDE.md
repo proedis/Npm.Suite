@@ -552,6 +552,12 @@ package:
   requiredness, JSDoc, declaring interface. A default that lives only in a destructure is invisible to
   it: the page states it under the table, and the fix is a JSDoc sentence in the package. Only the
   props the package declares; what comes from a native element or Base UI is one line on the page.
+- **`virtual:ui-theme/<section>/<name>`**: the variables of the theme a component reads, worked out from
+  the classes its modules write (read from the syntax tree, `data-*` values skipped) translated through
+  `ui.css` and `theme.css`, with their light and dark defaults. Every component page renders them in its
+  Customization section, and `virtual:ui-theme/all` feeds the Customization page of Foundations, so a page
+  cannot promise a variable the component does not read. The layout primitives and the class builders are
+  left out of a component's graph: components render them with props of their own.
 
 **A responsive example is judged in a frame, never on the window.** `<Example of={x} resizable />`
 renders the example in a same-origin iframe of the site's own `/preview/<id>` route, whose width the

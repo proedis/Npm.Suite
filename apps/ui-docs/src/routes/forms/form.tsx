@@ -5,8 +5,10 @@ import { createFileRoute, Link } from '@tanstack/react-router';
 import formErrorSummaryProps from 'virtual:ui-props/StrictFormErrorSummaryProps';
 import formHeaderProps from 'virtual:ui-props/StrictFormHeaderProps';
 import formSectionProps from 'virtual:ui-props/StrictFormSectionProps';
+import themeDoc from 'virtual:ui-theme/forms/form';
 import { Callout } from '@/docs/Callout';
 import { CodeBlock } from '@/docs/CodeBlock';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -271,6 +273,8 @@ function FormPage(): React.ReactNode {
             ]}
           />
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
           <SlotsTable

@@ -4,8 +4,10 @@ import { createFileRoute } from '@tanstack/react-router';
 
 import multipleProps from 'virtual:ui-props/StrictMultipleComboboxProps';
 import singleProps from 'virtual:ui-props/StrictSingleComboboxProps';
+import themeDoc from 'virtual:ui-theme/forms/combobox';
 import { Callout } from '@/docs/Callout';
 import { CodeBlock } from '@/docs/CodeBlock';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -232,6 +234,8 @@ function ComboboxPage(): React.ReactNode {
             ]}
           />
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
           <SubSection title={'Single'} id={'slots-single'}>

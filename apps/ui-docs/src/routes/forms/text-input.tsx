@@ -4,7 +4,9 @@ import { createFileRoute, Link } from '@tanstack/react-router';
 
 import textInputActionProps from 'virtual:ui-props/TextInputActionProps';
 import textInputProps from 'virtual:ui-props/TextInputProps';
+import themeDoc from 'virtual:ui-theme/forms/text-input';
 import { Callout } from '@/docs/Callout';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -191,6 +193,8 @@ function TextInputPage(): React.ReactNode {
             ]}
           />
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
           <SlotsTable

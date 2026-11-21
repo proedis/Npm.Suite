@@ -4,6 +4,8 @@ import { createFileRoute } from '@tanstack/react-router';
 
 import checkboxGroupProps from 'virtual:ui-props/CheckboxGroupProps';
 import checkboxProps from 'virtual:ui-props/CheckboxProps';
+import themeDoc from 'virtual:ui-theme/forms/checkbox';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -150,6 +152,8 @@ function CheckboxPage(): React.ReactNode {
             ]}
           />
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
           <SlotsTable

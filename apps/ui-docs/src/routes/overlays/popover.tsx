@@ -4,7 +4,9 @@ import { createFileRoute } from '@tanstack/react-router';
 
 import popoverLabelsProps from 'virtual:ui-props/PopoverLabels';
 import popoverProps from 'virtual:ui-props/PopoverProps';
+import themeDoc from 'virtual:ui-theme/overlays/popover';
 import { Callout } from '@/docs/Callout';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -171,6 +173,8 @@ function PopoverPage(): React.ReactNode {
             ]}
           />
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'} lead={'Every part a stylesheet can reach, and what each one reports.'}>
           <SlotsTable

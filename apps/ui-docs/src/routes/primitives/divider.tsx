@@ -3,6 +3,8 @@ import * as React from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 
 import dividerProps from 'virtual:ui-props/DividerProps';
+import themeDoc from 'virtual:ui-theme/primitives/divider';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -101,6 +103,8 @@ function DividerPage(): React.ReactNode {
             </p>
           </Prose>
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
           <SlotsTable

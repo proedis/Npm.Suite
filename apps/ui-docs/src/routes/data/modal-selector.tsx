@@ -7,9 +7,11 @@ import labelsProps from 'virtual:ui-props/ModalSelectorLabels';
 import multipleProps from 'virtual:ui-props/MultipleModalSelectorProps';
 import singleProps from 'virtual:ui-props/SingleModalSelectorProps';
 import fieldProps from 'virtual:ui-props/StrictModalSelectorFieldProps';
+import themeDoc from 'virtual:ui-theme/data/modal-selector';
 
 import { Callout } from '@/docs/Callout';
 import { CodeBlock } from '@/docs/CodeBlock';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -198,6 +200,8 @@ function ModalSelectorPage(): React.ReactNode {
             ]}
           />
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section
           title={'Slots and data attributes'}

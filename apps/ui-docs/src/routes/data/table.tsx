@@ -7,9 +7,11 @@ import tableProps from 'virtual:ui-props/StrictTableProps';
 import rowActionProps from 'virtual:ui-props/TableRowAction';
 import selectionActionProps from 'virtual:ui-props/TableSelectionAction';
 import viewStateProps from 'virtual:ui-props/TableViewState';
+import themeDoc from 'virtual:ui-theme/data/table';
 
 import { Callout } from '@/docs/Callout';
 import { CodeBlock } from '@/docs/CodeBlock';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -340,6 +342,8 @@ function TablePage(): React.ReactNode {
             control should mark it <InlineCode>data-grid-target</InlineCode> so the grid gives the focus to it.
           </Callout>
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section
           title={'Slots and data attributes'}

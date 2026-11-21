@@ -49,6 +49,7 @@ import { Route as FormsSelectRouteImport } from './routes/forms/select'
 import { Route as FormsSwitchRouteImport } from './routes/forms/switch'
 import { Route as FormsTextInputRouteImport } from './routes/forms/text-input'
 import { Route as FormsTextareaRouteImport } from './routes/forms/textarea'
+import { Route as FoundationsCustomizationRouteImport } from './routes/foundations/customization'
 import { Route as FoundationsPolymorphismRouteImport } from './routes/foundations/polymorphism'
 import { Route as FoundationsResponsiveRouteImport } from './routes/foundations/responsive'
 import { Route as FoundationsSharedPropsRouteImport } from './routes/foundations/shared-props'
@@ -283,6 +284,12 @@ const FormsTextareaRoute = FormsTextareaRouteImport.update({
   path: '/forms/textarea',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FoundationsCustomizationRoute =
+  FoundationsCustomizationRouteImport.update({
+    id: '/foundations/customization',
+    path: '/foundations/customization',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const FoundationsPolymorphismRoute = FoundationsPolymorphismRouteImport.update({
   id: '/foundations/polymorphism',
   path: '/foundations/polymorphism',
@@ -491,6 +498,7 @@ export interface FileRoutesByFullPath {
   '/forms/switch': typeof FormsSwitchRoute
   '/forms/text-input': typeof FormsTextInputRoute
   '/forms/textarea': typeof FormsTextareaRoute
+  '/foundations/customization': typeof FoundationsCustomizationRoute
   '/foundations/polymorphism': typeof FoundationsPolymorphismRoute
   '/foundations/responsive': typeof FoundationsResponsiveRoute
   '/foundations/shared-props': typeof FoundationsSharedPropsRoute
@@ -566,6 +574,7 @@ export interface FileRoutesByTo {
   '/forms/switch': typeof FormsSwitchRoute
   '/forms/text-input': typeof FormsTextInputRoute
   '/forms/textarea': typeof FormsTextareaRoute
+  '/foundations/customization': typeof FoundationsCustomizationRoute
   '/foundations/polymorphism': typeof FoundationsPolymorphismRoute
   '/foundations/responsive': typeof FoundationsResponsiveRoute
   '/foundations/shared-props': typeof FoundationsSharedPropsRoute
@@ -642,6 +651,7 @@ export interface FileRoutesById {
   '/forms/switch': typeof FormsSwitchRoute
   '/forms/text-input': typeof FormsTextInputRoute
   '/forms/textarea': typeof FormsTextareaRoute
+  '/foundations/customization': typeof FoundationsCustomizationRoute
   '/foundations/polymorphism': typeof FoundationsPolymorphismRoute
   '/foundations/responsive': typeof FoundationsResponsiveRoute
   '/foundations/shared-props': typeof FoundationsSharedPropsRoute
@@ -719,6 +729,7 @@ export interface FileRouteTypes {
     | '/forms/switch'
     | '/forms/text-input'
     | '/forms/textarea'
+    | '/foundations/customization'
     | '/foundations/polymorphism'
     | '/foundations/responsive'
     | '/foundations/shared-props'
@@ -794,6 +805,7 @@ export interface FileRouteTypes {
     | '/forms/switch'
     | '/forms/text-input'
     | '/forms/textarea'
+    | '/foundations/customization'
     | '/foundations/polymorphism'
     | '/foundations/responsive'
     | '/foundations/shared-props'
@@ -869,6 +881,7 @@ export interface FileRouteTypes {
     | '/forms/switch'
     | '/forms/text-input'
     | '/forms/textarea'
+    | '/foundations/customization'
     | '/foundations/polymorphism'
     | '/foundations/responsive'
     | '/foundations/shared-props'
@@ -945,6 +958,7 @@ export interface RootRouteChildren {
   FormsSwitchRoute: typeof FormsSwitchRoute
   FormsTextInputRoute: typeof FormsTextInputRoute
   FormsTextareaRoute: typeof FormsTextareaRoute
+  FoundationsCustomizationRoute: typeof FoundationsCustomizationRoute
   FoundationsPolymorphismRoute: typeof FoundationsPolymorphismRoute
   FoundationsResponsiveRoute: typeof FoundationsResponsiveRoute
   FoundationsSharedPropsRoute: typeof FoundationsSharedPropsRoute
@@ -1262,6 +1276,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FormsTextareaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/foundations/customization': {
+      id: '/foundations/customization'
+      path: '/foundations/customization'
+      fullPath: '/foundations/customization'
+      preLoaderRoute: typeof FoundationsCustomizationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/foundations/polymorphism': {
       id: '/foundations/polymorphism'
       path: '/foundations/polymorphism'
@@ -1537,6 +1558,7 @@ const rootRouteChildren: RootRouteChildren = {
   FormsSwitchRoute: FormsSwitchRoute,
   FormsTextInputRoute: FormsTextInputRoute,
   FormsTextareaRoute: FormsTextareaRoute,
+  FoundationsCustomizationRoute: FoundationsCustomizationRoute,
   FoundationsPolymorphismRoute: FoundationsPolymorphismRoute,
   FoundationsResponsiveRoute: FoundationsResponsiveRoute,
   FoundationsSharedPropsRoute: FoundationsSharedPropsRoute,

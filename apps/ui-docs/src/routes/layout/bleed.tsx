@@ -3,7 +3,9 @@ import * as React from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 
 import bleedProps from 'virtual:ui-props/StrictBleedProps';
+import themeDoc from 'virtual:ui-theme/layout/bleed';
 import { Callout } from '@/docs/Callout';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -86,6 +88,8 @@ function BleedPage(): React.ReactNode {
             <p>Layout only, no role. The content keeps its place in the reading order.</p>
           </Prose>
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
           <SlotsTable rows={[ { slot: 'bleed', part: 'The band, unless a data-slot is passed', attributes: [ 'data-inset' ] } ]} />

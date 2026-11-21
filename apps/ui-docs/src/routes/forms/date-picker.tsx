@@ -4,8 +4,10 @@ import { createFileRoute } from '@tanstack/react-router';
 
 import dateModeProps from 'virtual:ui-props/DateModeProps';
 import rangeModeProps from 'virtual:ui-props/RangeModeProps';
+import themeDoc from 'virtual:ui-theme/forms/date-picker';
 import { Callout } from '@/docs/Callout';
 import { CodeBlock } from '@/docs/CodeBlock';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -199,6 +201,8 @@ function DatePickerPage(): React.ReactNode {
             ]}
           />
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
           <SlotsTable

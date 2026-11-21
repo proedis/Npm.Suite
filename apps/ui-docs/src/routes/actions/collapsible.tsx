@@ -3,7 +3,9 @@ import * as React from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 
 import collapsibleProps from 'virtual:ui-props/CollapsibleSectionProps';
+import themeDoc from 'virtual:ui-theme/actions/collapsible';
 import { Callout } from '@/docs/Callout';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -151,6 +153,8 @@ function CollapsibleSectionPage(): React.ReactNode {
             <InlineCode>Collapsible</InlineCode> rather than its <InlineCode>Accordion</InlineCode>.
           </Callout>
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'} lead={'Every part a stylesheet can reach, and what each one reports.'}>
           <SlotsTable

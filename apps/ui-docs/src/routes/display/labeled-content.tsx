@@ -4,6 +4,8 @@ import { createFileRoute } from '@tanstack/react-router';
 
 import labelProps from 'virtual:ui-props/StrictLabelProps';
 import labeledContentProps from 'virtual:ui-props/StrictLabeledContentProps';
+import themeDoc from 'virtual:ui-theme/display/labeled-content';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -96,6 +98,8 @@ function LabeledContentPage(): React.ReactNode {
             </p>
           </Prose>
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
           <SlotsTable

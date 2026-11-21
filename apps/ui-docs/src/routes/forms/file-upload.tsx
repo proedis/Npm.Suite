@@ -4,8 +4,10 @@ import { createFileRoute } from '@tanstack/react-router';
 
 import attachmentListProps from 'virtual:ui-props/AttachmentListProps';
 import fileUploadProps from 'virtual:ui-props/FileUploadProps';
+import themeDoc from 'virtual:ui-theme/forms/file-upload';
 import { Callout } from '@/docs/Callout';
 import { CodeBlock } from '@/docs/CodeBlock';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -158,6 +160,8 @@ function FileUploadPage(): React.ReactNode {
             ]}
           />
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
           <SubSection title={'FileUpload'} id={'slots-file-upload'}>

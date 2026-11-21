@@ -205,6 +205,12 @@ function ThemingPage(): React.ReactNode {
               </React.Fragment>
             )}
           >
+            <Callout tone={'note'} title={'This is how the package is built, not where you write'}>
+              Both kinds of <InlineCode>@theme</InlineCode> are the package’s own machinery. An application writes every
+              value, a colour, a height or a step alike, in plain <InlineCode>:root</InlineCode> after the import, as
+              below. Written in <InlineCode>@theme</InlineCode>, half of them are ignored with no error: the measured
+              table is on the Customization page.
+            </Callout>
             <CodeBlock
               title={'app.css'}
               snippet={css`

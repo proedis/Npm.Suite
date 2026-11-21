@@ -5,8 +5,10 @@ import { createFileRoute } from '@tanstack/react-router';
 import alertDialogLabelsProps from 'virtual:ui-props/AlertDialogLabels';
 import alertDialogProps from 'virtual:ui-props/AlertDialogProps';
 import resultProps from 'virtual:ui-props/AlertDialogResult';
+import themeDoc from 'virtual:ui-theme/overlays/alert-dialog';
 import { Callout } from '@/docs/Callout';
 import { CodeBlock } from '@/docs/CodeBlock';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -189,6 +191,8 @@ function AlertDialogPage(): React.ReactNode {
             ]}
           />
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'} lead={'Every part a stylesheet can reach, and what each one reports.'}>
           <SlotsTable

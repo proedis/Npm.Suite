@@ -2,7 +2,9 @@ import * as React from 'react';
 
 import { createFileRoute, Link } from '@tanstack/react-router';
 
+import themeDoc from 'virtual:ui-theme/layout/box';
 import { Callout } from '@/docs/Callout';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -126,6 +128,8 @@ function BoxPage(): React.ReactNode {
             </p>
           </Prose>
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
           <SlotsTable rows={[ { slot: 'box', part: 'The element itself, unless a data-slot is passed' } ]} />

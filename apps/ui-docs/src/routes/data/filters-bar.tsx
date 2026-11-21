@@ -8,8 +8,10 @@ import multipleProps from 'virtual:ui-props/MultipleListFilter';
 import remoteProps from 'virtual:ui-props/RemoteListFilter';
 import singleProps from 'virtual:ui-props/SingleListFilter';
 import filtersBarProps from 'virtual:ui-props/StrictFiltersBarProps';
+import themeDoc from 'virtual:ui-theme/data/filters-bar';
 
 import { Callout } from '@/docs/Callout';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -214,6 +216,8 @@ function FiltersBarPage(): React.ReactNode {
             ]}
           />
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section
           title={'Slots and data attributes'}

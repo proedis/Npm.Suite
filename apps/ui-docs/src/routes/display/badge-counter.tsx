@@ -3,7 +3,9 @@ import * as React from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 
 import badgeCounterProps from 'virtual:ui-props/BadgeCounterProps';
+import themeDoc from 'virtual:ui-theme/display/badge-counter';
 import { Callout } from '@/docs/Callout';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -86,6 +88,8 @@ function BadgeCounterPage(): React.ReactNode {
             description does not: say “Nothing to look at”, or drop the reference.
           </Callout>
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
           <SlotsTable

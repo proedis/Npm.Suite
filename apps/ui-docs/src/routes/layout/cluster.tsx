@@ -3,12 +3,14 @@ import * as React from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 
 import clusterProps from 'virtual:ui-props/StrictClusterProps';
+import themeDoc from 'virtual:ui-theme/layout/cluster';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
 import { CodeBlock } from '@/docs/CodeBlock';
+import { Customization } from '@/docs/Customization';
 import { PropsTable, SlotsTable } from '@/docs/Tables';
 import basic from '@/examples/layout/cluster/basic.tsx?example';
 import inContext from '@/examples/layout/cluster/in-context.tsx?example';
@@ -117,6 +119,8 @@ function ClusterPage(): React.ReactNode {
             </p>
           </Prose>
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
           <SlotsTable rows={[ { slot: 'cluster', part: 'The row itself, unless a data-slot is passed', attributes: [ 'data-inline' ] } ]} />

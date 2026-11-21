@@ -4,6 +4,8 @@ import { createFileRoute } from '@tanstack/react-router';
 
 import radioGroupProps from 'virtual:ui-props/RadioGroupProps';
 import radioProps from 'virtual:ui-props/RadioProps';
+import themeDoc from 'virtual:ui-theme/forms/radio';
+import { Customization } from '@/docs/Customization';
 import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
@@ -115,6 +117,8 @@ function RadioPage(): React.ReactNode {
             ]}
           />
         </Section>
+
+        <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
           <SlotsTable
