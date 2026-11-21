@@ -189,9 +189,11 @@ const [ DialogCloseContext, useDialogCloseContext ] = optionalContextBuilder<Dia
  * footer points at it.
  *
  * Parts with a slot: `dialog` (with `data-size`), `dialog-backdrop`, `dialog-viewport`,
- * `dialog-header`, `dialog-icon`, `dialog-title`, `dialog-description`, `dialog-close`,
- * `dialog-toolbar`, `dialog-index`, `dialog-body`, `dialog-body-content`, `dialog-error`, `dialog-footer`,
- * `dialog-veil`.
+ * `dialog-content`, `dialog-header`, `dialog-icon`, `dialog-heading`, `dialog-title`,
+ * `dialog-description`, `dialog-header-end`, `dialog-close`, `dialog-toolbar`, `dialog-index`,
+ * `dialog-index-item`, `dialog-index-item-errors`, `dialog-body`, `dialog-scroll`, `dialog-shade`,
+ * `dialog-body-content`, `dialog-error`, `dialog-error-message`, `dialog-footer`, `dialog-footer-start`,
+ * `dialog-footer-actions`, `dialog-veil`, and `overlay-section` on each `Dialog.Section`.
  */
 function DialogRoot(props: DialogProps): React.ReactNode {
 

@@ -2,7 +2,7 @@ import type * as React from 'react';
 
 
 /*
- * Whether a slot holds something, written once. Private to the interactive tier.
+ * Whether a slot holds something, written once. Private to the package.
  */
 
 

@@ -12,7 +12,7 @@ import { Tooltip } from '../../actions/tooltip/Tooltip';
 /*
  * The row of a file, shared by the list under FileUpload and by AttachmentList: a thumbnail or the
  * mark of the kind, the name truncated with its tooltip, a second line, the actions at the end.
- * Private to the interactive tier.
+ * Private to the package.
  */
 
 

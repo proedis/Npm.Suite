@@ -16,7 +16,7 @@ import type { DialogDiscard } from './Dialog';
 /*
  * What Dialog and Drawer both put around a form: the prompt that `dirty` opens before the changes
  * are lost, and the Cancel of the footer that goes through the same gate as the x. Private to the
- * interactive tier: the barrel of `dialog` does not export it.
+ * package: the barrel of `dialog` does not export it.
  */
 
 

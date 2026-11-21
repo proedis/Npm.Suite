@@ -16,7 +16,7 @@ import type { TableColumn, TableColumnWidth } from './tableTypes';
 /*
  * The pieces the Table shares with the ModalSelector: the classes of rows, cells and header, the
  * placeholders of a first load, the shades of a scroller, the one tooltip of the truncated cells.
- * Private to the interactive tier.
+ * Private to the package.
  */
 
 

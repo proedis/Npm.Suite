@@ -12,7 +12,7 @@ import type { Direction, Responsive } from '../../core/responsive';
 
 /*
  * What Checkbox, Radio and Switch share, and what the list panel will draw for its options: the
- * row, the text block, the marks. Private to the interactive tier, reached by relative path.
+ * row, the text block, the marks. Private to the package, reached by relative path.
  */
 
 

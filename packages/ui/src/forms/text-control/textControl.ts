@@ -6,7 +6,7 @@ import type { SpacingValue } from '../../core/responsive';
  * trigger of Select and MultiSelect, the field of Combobox and DatePicker, and `FieldShell`, the same
  * frame offered to a control of the application.
  *
- * Private to the interactive tier: no barrel exports it, and each control reaches it by relative path.
+ * Private to the package: no barrel exports it, and each control reaches it by relative path.
  * With `preserveModules` it is emitted once and shared by every subpath that imports it.
  *
  * The states are read from `data-*` on the element that carries the border, written by the control

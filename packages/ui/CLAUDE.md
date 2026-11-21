@@ -19,15 +19,20 @@ read, so "appearance" genuinely lived elsewhere. Now `IconBox` reads six colour 
 already measured**: the fifteen tokens the reference implementations read are exactly what `ui.css`
 and `theme.css` declare between them, with nothing missing.
 
-So the boundary is now the tier, and the tiers are published subpaths:
+So the boundary is now the section, and the sections are folders of `src`, each one a published
+subpath or a family of them, ordered by what they may depend on (see *Structure*):
 
-- **`core`** — no JSX at all: `cn`, the shared props, the polymorphic props, the responsive machinery.
-- **`layout`** — answers *where things are*: `Box`, `Stack`, `Grid`, `Cluster`, `Center`, `Container`,
+- **`core`**: no JSX at all. `cn`, the shared props, the polymorphic props, the responsive machinery,
+  the tones.
+- **`layout`**: answers *where things are*. `Box`, `Stack`, `Grid`, `Cluster`, `Center`, `Container`,
   `Split`, `Spacer`, `Sticky`, `AspectRatio`, `Bleed`, `SafeArea`. No colour, no opinion.
-- **`components`** — answers *what things look like*: `Divider`, `ScrollArea`, `Label`,
-  `LabeledContent`, `VisuallyHidden`, `IconBox`, `Spinner`, `Heading`, `Badge`, `Item`, `Surface`, and
-  the compounds that come next.
-- **`hooks`** — client-only, `'use client'`.
+- **`primitives`**: the small pieces with a look of their own that the components above share:
+  `BusyVeil`, `Divider`, `Label`, `LoadingBar`, `ScrollArea`, `Skeleton`, `Spinner`, `VisuallyHidden`.
+- **`display`**: answers *what things look like*. `Badge`, `BadgeCounter`, `Heading`, `IconBox`,
+  `Item`, `LabeledContent`, `Surface`, and `Person` on Base UI.
+- **`actions`**, **`feedback`**, **`forms`**, **`overlays`**, **`data`**: the components with behaviour,
+  on Base UI, one subpath each.
+- **`hooks`**: client-only, `'use client'`.
 
 ⚠️ What is still outside, and this is the line that has **not** moved: anything that carries a
 **brand**. A palette, a font choice, a shadow language, a component whose variants only make sense
@@ -41,21 +46,23 @@ tones are the token vocabulary; a `PinCard` is out because it is a product.
 - Icons themselves. `IconBox` frames one and knows how big the glyph should be; it never imports
   one, which is what keeps an icon library out of the dependency tree. `Spinner` exists for the same
   reason: both reference implementations reach for `lucide-react`'s `Loader2` for a rotating ring.
-- A **behavioural** runtime dependency outside `interactive/`. `ScrollArea` is native overflow
-  precisely because the Radix version would put a UI framework into this package. The dependency
-  budget of the root and of the four plain tiers is `clsx`, `tailwind-merge` and `cva`. Anything with
-  a portal, a focus trap or a state machine goes under `interactive/`, on Base UI as an **optional**
-  peer, and nowhere else: that line moved by decision when the interactive components of the Proedis
-  design systems came here, with their logic shared and their look left to each product's skin.
+- A **behavioural** runtime dependency in the sections the root barrel exports. `ScrollArea` is native
+  overflow precisely because the Radix version would put a UI framework into this package. The
+  dependency budget of the root (core, layout, primitives, the static display components) is `clsx`,
+  `tailwind-merge` and `cva`, and `release:verify` fails when the root entry reaches an optional peer.
+  Anything with a portal, a focus trap or a state machine goes in `display/person` or in the sections
+  from `actions` on, on Base UI as an **optional** peer, and nowhere else: that line moved by decision
+  when the interactive components of the Proedis design systems came here, with their logic shared and
+  their look left to each product's skin.
 - Inline styles for anything a class can express. See the invariant below.
 - **A hook or a helper that knows nothing of this package.** It goes to `@proedis/react`, which this
   package depends on: `useMediaQuery`, `usePrefersReducedMotion`, `useDelayedBusy`,
   `useOverflowItems` and `inertValue` moved there, and the tier uses its `useForkRef`, `useSyncedRef`
   and `useEnhancedEffect` instead of writing its own. The test is whether the code would mean the same
   in a product that does not use this package. `useBreakpoint` and `useIsMobile` stay, because they
-  speak the vocabulary of the Tailwind breakpoints this package declares. ⚠️ Only `hooks/` and
-  `interactive/` import `@proedis/react`: the root barrel keeps the budget above, which is why
-  `inertValue` left `core`.
+  speak the vocabulary of the Tailwind breakpoints this package declares. ⚠️ Only `hooks/`,
+  `display/person` and the sections from `actions` on import `@proedis/react`: the root barrel keeps
+  the budget above, which is why `inertValue` left `core`.
 
 ## Structure
 
@@ -63,54 +70,88 @@ tones are the token vocabulary; a `PinCard` is out because it is a product.
 src/
   ui.css             # sources, token contract, defaults, custom utilities
   theme.css          # ui.css + the full semantic vocabulary for the layer above
-  index.ts           # the root barrel: core + layout + components, never hooks
-  core/              # cn, the shared props, the polymorphic props, the responsive machinery
+  index.ts           # the root barrel: core + layout + primitives + the static display components
+  core/              # cn, the shared props, the polymorphic props, the responsive machinery, the tones
   layout/            # the twelve primitives that answer *where*
-  components/        # the ones that answer *what it looks like*
+  primitives/        # the small pieces with a look, shared by everything above
+  internal/          # private: glyphs, presence, focus. Never a subpath
+  display/           # one folder per subpath: what things look like
+  actions/           # one folder per subpath: buttons, menus, tabs, toggles, tooltips
+  feedback/          # one folder per subpath: alert, empty state, notifications
+  forms/             # one folder per subpath: form, field and every control
+  overlays/          # one folder per subpath: dialog, drawer, alert dialog, popover
+  data/              # one folder per subpath: table, filters, selector, detail
   hooks/             # client-only: useBreakpoint and useIsMobile, on @proedis/react's useMediaQuery
-  interactive/       # one folder per published subpath, each a component with behaviour, on Base UI
 types.check.tsx      # the type level test, outside src so nothing publishes it
 ```
 
-**Four published subpaths, and the boundary between them is what each tier is allowed to know.**
+**The order of the sections is the direction of every import**: `core`, `layout`, `primitives`,
+`internal`, `actions`, `display`, `feedback`, `forms`, `overlays`, `data`. A section imports only from
+the ones before it, and `hooks` only from `core`. `display` sits after `actions` because `Person`
+renders a `Tooltip`; the static display components import nothing from actions.
 
 | Subpath | Rule | Test for a new file |
 | --- | --- | --- |
 | `@proedis/ui/core` | **no JSX at all** | is it a type, a helper or a class builder? |
 | `@proedis/ui/layout` | answers *where things are* | would it still make sense with no colours? |
-| `@proedis/ui/components` | answers *what things look like* | does it read the token contract? |
+| `@proedis/ui/primitives` | a piece with a look, no behaviour, shared by the sections above | do two components above need it? |
+| `@proedis/ui/display/<name>` | answers *what things look like*, static but for `person` | does it read the token contract and do nothing? |
+| `@proedis/ui/<section>/<name>` | behaviour on Base UI, `'use client'`, **one subpath per component** | does it need a portal, a focus trap or a state machine? Which of actions, feedback, forms, overlays, data does it belong to? |
 | `@proedis/ui/hooks` | client-only, `'use client'` | does it touch `window`? |
-| `@proedis/ui/interactive/<name>` | behaviour on Base UI, `'use client'`, **one subpath per component** | does it need a portal, a focus trap or a state machine? |
 
-The `interactive` folders are subpaths of their own, never re-exported by the root barrel and with no
-`interactive` barrel above them: each one brings only its own optional peers (`@base-ui/react`,
-dayjs for the date picker, the filters and the selector, `@tanstack/react-table` for the table), and a barrel would make every consumer install all of them. A
-component made of others imports them by relative path (`../button/IconButton`): with
-`preserveModules` a shared module is emitted once and both subpaths reuse it. A context two subpaths
-share lives in the one lower down (`field/fieldContext.ts` is provided by `form`), so the
-dependency goes one way.
+The subpaths above `primitives` have no barrel per section: each one brings only its own optional peers
+(`@base-ui/react`, dayjs for the date picker, the filters and the selector, `@tanstack/react-table` for
+the table), and a barrel would make every consumer install all of them. A component made of others
+imports them by relative path (`../../actions/button/IconButton`): with `preserveModules` a shared module
+is emitted once and both subpaths reuse it. A context two subpaths share lives in the one lower down
+(`forms/field/fieldContext.ts` is provided by `form`), so the dependency goes one way.
 
-The private modules of the tier, shared by relative import and never exported by a barrel:
-`text-control` (the frame and the states of every bordered text control), `choice` (the row, the
-marks and the description of Checkbox, Radio and Switch), `list-panel` (the look of the list under
-Select, MultiSelect, Combobox and the filters of FiltersBar, and what those controls share: the chips
-and their "+N", the tooltip listing hidden values, the messages and the `status` text of a list fed by
-a server, the press on the frame, the "Retry" item), `calendar` (the month grid and the date
-text rules, used by DatePicker and by the date filter of FiltersBar), `menu/menuPanel` and
-`menu/SharedMenu` (the panel of Menu, and one menu for many triggers, used by the rows of Table),
-`table/tableCells` and `table/tableParts` (the renderers of the column kinds, the classes of rows,
-cells and header, the column widths, the placeholder rows of a first load, the scroll shades and the
-one tooltip of the truncated cells,
-shared by Table and ModalSelector), `tone-glyphs` (the four marks of a tone: circle with
-an i, check, triangle, exclamation mark), `roving` (the arrows of a group of buttons, written by hand because
-Base UI's ToggleGroup skips an `aria-disabled` item), `anchor` (closing a floating layer when its
-control leaves the view), `overlay-shell` (container, veil, header, body with scroll shades, footer,
-error box, waiting veil, jolt and nesting level of Dialog, AlertDialog and Drawer), `dialog/dialogParts`
-(the discard prompt that `dirty` opens and the Cancel that goes through the overlay's gate, shared by
-Dialog and Drawer; apart from `overlay-shell` because it renders an AlertDialog, which imports the shell),
-`presence` (`isPresent`: whether a slot renders anything, where the empty string counts as nothing, so
-no part is drawn around it), `focus` (`FOCUSABLE`, the elements that take the focus with Tab). A control marks the element that takes its field's focus with
-`data-field-control`: the frame lights from it, the error summary focuses it.
+**Two rules of the root `eslint.config.mjs` hold the structure**, and they are why it does not erode:
+
+- `suite/ui-sections`: `import/no-restricted-paths` with one zone per section, so an import against
+  the order fails; and one `import/order` for the whole package, with a group per section, so a
+  cross-section dependency is visible at the top of a file. The resolver is told about `.ts` and
+  `.tsx`, or the zones resolve nothing and pass in silence.
+- `suite/ui-layout`: in every section but `layout`, and in `hooks`, a class string holding `flex`,
+  `inline-flex`, `grid`, `inline-grid` or a `gap-*` is an error. **Every container of every component
+  is a layout primitive**: `Stack`, `Cluster` or `Grid`, with their props. A Base UI part takes one
+  through `render={<Stack as={…} … />}`. Every internal container carries a `data-slot` of its own,
+  so no `stack`, `cluster` or `grid` slot reaches the DOM of a component, and a primitive named that
+  way writes no layout attribute (`layout/layoutAttributes.ts`): its `data-mode` or `data-inline`
+  would read like the component's contract. The exceptions are rare and each one says why on an
+  `eslint-disable-next-line`: today twelve, all a layout the primitives cannot express (named grid
+  tracks and subgrids, tracks counted from the data, `gap-x` apart from `gap-y`, a display switched by
+  a container query).
+
+The private modules, shared by relative import and never exported by a barrel:
+
+- `internal/glyphs` (the marks more than one component draws: the four of a tone, the error mark,
+  the tick and the dash, the eye, the lens, the x), `internal/presence` (`isPresent`: whether a slot
+  renders anything, where the empty string counts as nothing, so no part is drawn around it),
+  `internal/focus` (`FOCUSABLE`, the elements that take the focus with Tab, every entry excluding
+  `:disabled`, and `canTakeFocus`, which refuses an element under an `inert` ancestor).
+- `actions/list-panel` (the look of the list under Select, MultiSelect, Combobox and the filters of
+  FiltersBar, the chips and their "+N", the tooltip listing hidden values), `actions/roving` (the
+  arrows of a group of buttons, written by hand because Base UI's ToggleGroup skips an `aria-disabled`
+  item), `actions/anchor` (closing a floating layer when its control leaves the view),
+  `actions/menu/menuPanel` and `actions/menu/SharedMenu` (the panel of Menu, and one menu for many
+  triggers, used by the rows of Table).
+- `forms/text-control` (the frame and the states of every bordered text control), `forms/choice` (the
+  row, the marks and the description of Checkbox, Radio and Switch), `forms/list-field` (what the fields
+  that open a list share beyond its look: the messages and the `status` text of a list fed by a server,
+  the "Retry" item, the press on the frame), `forms/calendar` (the month grid and the date text rules,
+  used by DatePicker and by the date filter of FiltersBar).
+- `overlays/overlay-shell` (container, veil, header, body with scroll shades, footer, error box,
+  waiting veil, jolt, nesting level, and `useFocusOffVeil`, which hands the focus on when a wait ends
+  with the overlay open), `overlays/dialog/dialogParts` (the discard prompt that `dirty` opens and the
+  Cancel that goes through the overlay's gate, shared by Dialog and Drawer; apart from `overlay-shell`
+  because it renders an AlertDialog, which imports the shell).
+- `data/table/tableCells` and `data/table/tableParts` (the renderers of the column kinds, the classes
+  of rows, cells and header, the column widths, the placeholder rows of a first load, the scroll shades
+  and the one tooltip of the truncated cells, shared by Table and ModalSelector).
+
+A control marks the element that takes its field's focus with `data-field-control`: the frame lights
+from it, the error summary focuses it.
 
 Three choices of tranche 3 that look improvable and are not:
 
@@ -170,7 +211,7 @@ Two engines under one look, on purpose: `Select` and `MultiSelect` run on Base U
 `searchThreshold` and on its `Combobox` past it, because a Select cannot hold a search. Never switch
 engine while a list is open.
 
-Three things every interactive component does, on top of "Writing a new component" below:
+Three things every component with behaviour does, on top of "Writing a new component" below:
 
 - **No user-facing string**, not even a default `aria-label`: texts come in as props (`label`,
   `labels`, `loadingLabel`, a `title` function for anything with a count).
@@ -181,7 +222,7 @@ Three things every interactive component does, on top of "Writing a new componen
   `aria-*`, which a closed list of props drops. The same spread is what lets a form library reach
   `onBlur`. The package is React 19 only (`>=19.0.0 <20.0.0`), where `ref` is an ordinary prop: a
   component that spreads its props onto its element forwards the ref with them, and new code takes it
-  that way. The `forwardRef` already in the interactive tier dates from when the range started at 18,
+  that way. The `forwardRef` already in the components with behaviour dates from when the range started at 18,
   where a function component given to `render` received no ref; it still works on 19 and is not
   rewritten for its own sake.
 - **When the root is not the control, the two get different props.** A `Checkbox` is a row (`<label>`)
@@ -230,9 +271,9 @@ Two choices of the responsive pass that look improvable and are not:
   pointer, not of the width: `(pointer: coarse)` raises `--spacing-control-*` one step in the `theme`
   layer of `theme.css`, so a product's own declaration still wins, on every device.
 
-The line between `layout` and `components` is intent, not a token count: `Stack` is in layout even
+The line between `layout` and `primitives` is intent, not a token count: `Stack` is in layout even
 though `divided` reads `--border`, because a hairline is an aid to its geometry; `Divider` is a
-component because a hairline is all it is. When the answer is genuinely unclear, ask which tier a
+primitive because a hairline is all it is. When the answer is genuinely unclear, ask which section a
 consumer would look in.
 
 The root barrel re-exports the first three so `@proedis/ui` alone is enough to start, and
@@ -356,7 +397,7 @@ narrower stylesheet is the one you have to ask for.
 - **The vocabulary lives in `theme.css`, and the token invariant is per file.** `ui.css`
   declares what the `layout` tier reads; `theme.css` declares the rest of the vocabulary, most of
   which now *does* have a reader here — `IconBox` reads six of its colour families, and every
-  component in the `components` tier may read any of them. The four with no reader yet (`popover`,
+  component in `primitives`, `display` and the sections above may read any of them. The four with no reader yet (`popover`,
   `accent`, `input`, `ring`) are the original case: named once so a fourth application does not invent
   them. That is not the invariant loosening, it is the
   two files having different jobs: measured across the three Proedis frontends on Tailwind 4, the same
@@ -679,8 +720,10 @@ The shape is the same in all of them, and every step of it is load-bearing. In o
    `icon-box-halo`), so the inside of a component is reachable from a consumer's stylesheet as well as
    its root.
 
-7. `Thing.displayName = 'Thing';`, then a `export * from './Thing';` in the barrel of its tier
-   (`layout/index.ts` or `components/index.ts`), alphabetical, one blank line between entries.
+7. `Thing.displayName = 'Thing';`, then a `export * from './Thing';` in the barrel of its section
+   (`layout/index.ts` or `primitives/index.ts`), alphabetical, one blank line between entries. A
+   component above the primitives gets a folder of its own with an `index.ts`, and its subpath joins
+   `proedisMetadata.exports`, which the rollup input and the published `exports` map both read.
 
 Then the four things that are easy to forget and fail quietly:
 
@@ -825,6 +868,30 @@ And the chain end to end, with a consumer override in place: `--border` declared
 cascade order (package default → `.dark` → the consumer's, last), `.bg-border` referencing the raw
 variable, `gap-4` arriving from the scan and `lg:gap-6` from the safelist despite being written
 nowhere, `scrollbar-thin` emitted.
+
+What was run during the 2.0 revision (the sections, the layout through the primitives, the fixes the
+documentation site surfaced):
+
+- **The move onto the primitives, section by section.** 232 containers became `Stack`, `Cluster` or
+  `Grid`. Before each section moved, its components were rendered into markup snapshots on the built
+  package (433 scenes in eleven sets, deterministic over two runs) and compared after, ignoring only
+  class and attribute order: zero differences beyond the layout attributes, and no `stack`, `cluster`
+  or `grid` slot leaked into a component.
+- **A jsdom harness over the built package**, one case per behaviour fixed, run in the workspace and
+  against packed tarballs installed outside it under React 19.0.0 and 19.2.5. It lives outside the
+  repository, like the snapshots, and `menuscroll` fails its own precondition there (jsdom lays out
+  nothing). Each fix of the last round was run against the build of the commit before it too, to see
+  the case fail: the focus cases 9 of 14 on the old build, `focusRowId` 2 of 4.
+- **The breakpoint variables**, through Tailwind's own `compile()`: with `md` moved to 50rem, all five
+  `--breakpoint-*` in the output and `--breakpoint-md: 50rem`, against none before.
+- **Every new negative case of `types.check.tsx`** (`dirty` without `discard`, a third `EmptyState`
+  action) made valid for a moment to watch `tsc` fail on it.
+- **The React Compiler** at 201 functions compiled, 0 skipped; `release:verify` green on 14 artifacts,
+  with the root entry reaching no optional peer.
+- **The documentation site** (`apps/ui-docs`) as a consumer of the source: 72 pages, 350 live
+  examples, every slots table compared with the live DOM of its examples, every claim about types
+  proved with a probe in both directions, and a sweep of every page with no console error and no
+  horizontal overflow at 375px.
 
 ## Two defects the build surfaced
 

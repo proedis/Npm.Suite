@@ -198,7 +198,7 @@ function capitalize(text: string): string {
  * The title opens the twelve months, and from there the twelve years; Esc goes back up without
  * closing.
  *
- * Private to the interactive tier for now: the date picker uses it, the filter bar will.
+ * Private to the package: the date picker and the date filter of the filters bar use it.
  */
 export function Calendar(props: CalendarProps): React.ReactNode {
 

@@ -1,5 +1,5 @@
 /*
- * What can take the focus, written once. Private to the interactive tier.
+ * What can take the focus, written once. Private to the package.
  */
 
 
