@@ -138,9 +138,13 @@ const haloVariants = cva('pointer-events-none absolute inset-0 -z-10 rounded-ful
 /* --------
  * Types Definition
  * -------- */
-export type IconBoxFill = 'solid' | 'soft' | 'plain';
+/*
+ * Read off the variants rather than written beside them: `IconBoxSize` was written by hand, and `xs`
+ * reached the variant without reaching the type an application imports.
+ */
+export type IconBoxFill = NonNullable<VariantProps<typeof iconBoxVariants>['fill']>;
 
-export type IconBoxSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+export type IconBoxSize = NonNullable<VariantProps<typeof iconBoxVariants>['size']>;
 
 export type IconBoxShape = 'square' | 'round';
 
