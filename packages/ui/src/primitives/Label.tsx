@@ -3,8 +3,6 @@ import * as React from 'react';
 import { splitBaseProps } from '../core/base';
 import { cn } from '../core/cn';
 
-import { Stack } from '../layout/Stack';
-
 import type { BaseProps } from '../core/base';
 import type { PolymorphicProps } from '../core/polymorphic';
 
@@ -16,44 +14,98 @@ import type { PolymorphicProps } from '../core/polymorphic';
 /**
  * How loud the label is next to what it labels.
  *
- * The two are not a matter of taste, they are opposite emphases for opposite jobs. A **form** label
- * is the prominent element of its pair: the field below it is empty until someone types, so the
- * label carries the meaning. A **data** label is the quiet one: the value next to it is the point,
- * and a label competing with it flattens the hierarchy.
+ * Opposite emphases for opposite jobs. A **form** label (`default`) is the prominent element of its
+ * pair: the field below it is empty until someone types, so the label carries the meaning. A **data**
+ * label (`quiet`) is the quiet one: the value next to it is the point, and a label competing with it
+ * flattens the hierarchy. The text of an **option** (`regular`) sits between the two: a checkbox, a
+ * radio, a switch, where the row is the control and its text is read at the weight of the body.
  */
-export type LabelEmphasis = 'default' | 'quiet' | 'strong';
+export type LabelEmphasis = 'default' | 'quiet' | 'regular' | 'strong';
 
 
 export interface StrictLabelProps extends BaseProps {
-  /** A second line under the label: the unit, the format, where the value comes from */
-  description?: React.ReactNode;
-
   /**
    * Defaults to `default`, which renders the form register.
    *
    * A value of its own rather than the resolved step, so
-   * `[data-slot='label'][data-emphasis='default']` owns every label nobody had an opinion about — and
+   * `[data-slot='label'][data-emphasis='default']` owns every label nobody had an opinion about, and
    * keeps owning them if this package ever changes which register that is.
    */
   emphasis?: LabelEmphasis;
 
+  /**
+   * The asterisk after the name, hidden from assistive technology. Only the mark: the control says
+   * `aria-required` itself, and a `Field` does that for the control inside it
+   */
+  required?: boolean;
+
+  /**
+   * The word after the name of a value that may stay empty, in the language of the page: "optional".
+   * The convention of a form where almost everything is required. Not shown with `required`
+   */
+  optional?: React.ReactNode;
 }
 
-
 export type LabelProps<E extends React.ElementType = 'label'> = PolymorphicProps<E, StrictLabelProps>;
+
+
+export type StrictLabelDescriptionProps = BaseProps;
+
+export type LabelDescriptionProps<E extends React.ElementType = 'span'> = PolymorphicProps<E, StrictLabelDescriptionProps>;
 
 
 /* --------
  * Constants Definition
  * -------- */
+
 /** The house register, in one place, so `default` and the step it equals cannot drift apart */
 const DEFAULT_EMPHASIS_CLASS = 'text-sm font-medium text-foreground';
 
+/** The line height comes AFTER the size: a size carries its own, and tailwind-merge drops whichever of the two comes first */
 const EMPHASIS: Readonly<Record<LabelEmphasis, string>> = {
-  default: DEFAULT_EMPHASIS_CLASS,
-  quiet  : 'text-xs font-medium text-muted-foreground',
-  strong : DEFAULT_EMPHASIS_CLASS
+  default: `${DEFAULT_EMPHASIS_CLASS} leading-snug`,
+  quiet  : 'text-xs font-medium text-muted-foreground leading-snug',
+  /* The line of the body, 20px: the box of a checkbox, a radio, a switch is centred on it (16 on 20) */
+  regular: 'text-sm font-normal text-foreground',
+  strong : `${DEFAULT_EMPHASIS_CLASS} leading-snug`
 };
+
+
+/* --------
+ * Parts
+ * -------- */
+
+/**
+ * The second line of a label: the unit, the format, where the value comes from, what to write.
+ *
+ * A sibling of the `Label`, never inside it: a description inside a `<label>` becomes part of the
+ * name of the control, and a screen reader then reads it at every focus, and once more through
+ * `aria-describedby`. Whoever pairs the two places them, and ties the description to the control.
+ */
+function LabelDescription<E extends React.ElementType = 'span'>(props: LabelDescriptionProps<E>): React.ReactNode {
+
+  // ----
+  // Props Deconstruct
+  // ----
+  const { as: Component = 'span', className, ...others } = props as LabelDescriptionProps<'span'>;
+
+  const { baseClasses, rest } = splitBaseProps(others);
+
+
+  // ----
+  // Component Render
+  // ----
+  return (
+    <Component
+      data-slot={'label-description'}
+      className={cn('text-xs leading-snug text-muted-foreground', baseClasses, className)}
+      {...rest}
+    />
+  );
+
+}
+
+LabelDescription.displayName = 'Label.Description';
 
 
 /* --------
@@ -61,27 +113,27 @@ const EMPHASIS: Readonly<Record<LabelEmphasis, string>> = {
  * -------- */
 
 /**
- * The name of something, with an optional line of detail under it.
+ * The name of something: of a field, of an option, of a value. Every label of the package is this one.
  *
  * ```tsx
- * <Label htmlFor={'email'} description={'We never share it'}>Email</Label>
+ * <Label htmlFor={'email'} required>Email</Label>
+ * <Label.Description id={'email-hint'}>We never share it</Label.Description>
+ *
  * <Label as={'span'} emphasis={'quiet'}>Collected today</Label>
  * ```
  *
  * A `<label>` by default, because the element is the reason this exists rather than a `<span>` with
  * two classes: it is what connects a name to a control, and what makes clicking the name focus the
- * field. `as={'span'}` is for the cases with no control to point at — a summary row, a definition
- * list, `LabeledContent`, which is built on exactly this.
+ * field. `as={'span'}` is for the cases with no control to point at: a summary row, a definition
+ * list, `LabeledContent`.
  *
- * Every element here is phrasing content (`span`, laid out with flex), so the component stays valid
- * inside a `<label>` even with a description: a `<div>` there is not.
+ * It is one element and only the name, with its marks: the asterisk of `required` and the word of
+ * `optional`. The second line is `Label.Description`, a sibling: see there why it is never inside.
  *
- * ⚠️ No `required` prop, and that is a boundary rather than an omission. The asterisk belongs to the
- * form layer: it needs a status colour, and this package declares no status colour because it ships
- * no form control that could read one. A `FormFieldShell` renders its own, next to the error state
- * and the description slot it already owns.
+ * Slots: `label` (with `data-emphasis`, `data-required`, `data-optional`), `label-required`,
+ * `label-optional`, `label-description`.
  */
-export function Label<E extends React.ElementType = 'label'>(props: LabelProps<E>): React.ReactNode {
+function LabelRoot<E extends React.ElementType = 'label'>(props: LabelProps<E>): React.ReactNode {
 
   // ----
   // Props Deconstruct
@@ -90,8 +142,9 @@ export function Label<E extends React.ElementType = 'label'>(props: LabelProps<E
     as: Component = 'label',
     children,
     className,
-    description,
     emphasis = 'default',
+    optional,
+    required = false,
     ...others
   } = props as LabelProps<'label'>;
 
@@ -101,29 +154,34 @@ export function Label<E extends React.ElementType = 'label'>(props: LabelProps<E
   // ----
   // Component Render
   // ----
+  /* `internal/presence` comes after this section, so the test is written here: the empty string counts as nothing */
+  const showOptional = !required && optional !== null && optional !== undefined && optional !== false && optional !== '';
+
   return (
-    <Stack
-      as={Component}
+    <Component
       data-slot={'label'}
       data-emphasis={emphasis}
-      gap={0.5}
-      className={cn('min-w-0', baseClasses, className)}
+      data-required={required || undefined}
+      data-optional={showOptional || undefined}
+      className={cn('min-w-0', EMPHASIS[emphasis], baseClasses, className)}
       {...rest}
     >
-      {/* The line height comes AFTER the emphasis: a size carries its own, and tailwind-merge
-          drops whichever of the two comes first. See the note in Heading. */}
-      <span data-slot={'label-text'} className={cn(EMPHASIS[emphasis], 'leading-snug')}>
-        {children}
-      </span>
+      {children}
 
-      {description !== null && description !== undefined && (
-        <span data-slot={'label-description'} className={'text-2xs text-muted-foreground/70'}>
-          {description}
-        </span>
+      {required && (
+        <span data-slot={'label-required'} aria-hidden={'true'} className={'ms-0.5 text-destructive'}>*</span>
       )}
-    </Stack>
+
+      {showOptional && (
+        <span data-slot={'label-optional'} className={'ms-1.5 text-xs font-normal text-muted-foreground'}>{optional}</span>
+      )}
+    </Component>
   );
 
 }
 
-Label.displayName = 'Label';
+LabelRoot.displayName = 'Label';
+
+export const Label = Object.assign(LabelRoot, {
+  Description: LabelDescription
+});

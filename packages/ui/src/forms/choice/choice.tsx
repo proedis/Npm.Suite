@@ -4,6 +4,8 @@ import { responsiveClasses } from '../../core/responsive';
 
 import { Stack } from '../../layout/Stack';
 
+import { Label } from '../../primitives/Label';
+
 import { isPresent } from '../../internal/presence';
 
 
@@ -133,16 +135,25 @@ export const GROUP_FOCUS_PROPS = {
  * -------- */
 
 interface ChoiceTextProps {
-  /** The prefix of the slots: `checkbox`, `radio`, `switch` */
+  /** The prefix of the slot of the text block: `checkbox`, `radio`, `switch` */
   slot: string;
   label: React.ReactNode;
   description: React.ReactNode;
+
+  /** The id of the label, which the control names itself by: the row would bring the description along */
+  labelId: string;
   descriptionId: string;
   required?: boolean;
 }
 
 /**
- * The label and the description of an option.
+ * The label and the description of an option: a `Label` in the register of an option, and its
+ * description beside it.
+ *
+ * The row around them is a `<label>`, so a press anywhere on it presses the control. That same row
+ * would be the name of the control, description included, read at every focus and once more through
+ * `aria-describedby`: the control is named by the `Label` alone (`aria-labelledby={labelId}`), and
+ * described by the description.
  *
  * Disabled, the label fades with the control and the description does not: it is where the reason
  * is written, and a reason at half opacity is a reason nobody reads.
@@ -152,7 +163,7 @@ export function ChoiceText(props: ChoiceTextProps): React.ReactNode {
   // ----
   // Props Deconstruct
   // ----
-  const { description, descriptionId, label, required = false, slot } = props;
+  const { description, descriptionId, label, labelId, required = false, slot } = props;
 
 
   // ----
@@ -165,18 +176,13 @@ export function ChoiceText(props: ChoiceTextProps): React.ReactNode {
   return (
     <Stack as={'span'} data-slot={`${slot}-text`} gap={0.5} className={'min-w-0'}>
       {isPresent(label) && (
-        <span data-slot={`${slot}-label`} className={'group-data-disabled/choice:opacity-50'}>
+        <Label as={'span'} id={labelId} emphasis={'regular'} required={required} className={'group-data-disabled/choice:opacity-50'}>
           {label}
-          {required && (
-            <span data-slot={'field-required'} aria-hidden={'true'} className={'ms-0.5 text-destructive'}>*</span>
-          )}
-        </span>
+        </Label>
       )}
 
       {isPresent(description) && (
-        <span id={descriptionId} data-slot={`${slot}-description`} className={'text-sm text-muted-foreground'}>
-          {description}
-        </span>
+        <Label.Description id={descriptionId}>{description}</Label.Description>
       )}
     </Stack>
   );

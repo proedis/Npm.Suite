@@ -97,7 +97,7 @@ const THUMB = [
  * position of the thumb and the colour of the track, never by colour alone.
  *
  * Slots: `switch` (the row, with `data-disabled`, `data-readonly`), `switch-track`, `switch-thumb`,
- * `switch-text`, `switch-label`, `switch-description`.
+ * `switch-text`, `label`, `label-description`.
  *
  * The ref and the native props reach the track, the element that takes the focus; `className` and the
  * shared props reach the row.
@@ -109,6 +109,7 @@ export const Switch = React.forwardRef<HTMLSpanElement, SwitchProps>((props, ref
   // ----
   const {
     'aria-describedby': ariaDescribedBy,
+    'aria-labelledby': ariaLabelledBy,
     checked,
     children,
     className,
@@ -129,12 +130,15 @@ export const Switch = React.forwardRef<HTMLSpanElement, SwitchProps>((props, ref
   // Internal Hooks
   // ----
   const descriptionId = React.useId();
+  const labelId = React.useId();
 
 
   // ----
   // Component Render
   // ----
   const hasDescription = isPresent(description);
+  /* Named by its label alone: the row is a `<label>` too, and would bring the description into the name */
+  const labelledBy = ariaLabelledBy ?? (isPresent(children) ? labelId : undefined);
 
   return (
     <Stack
@@ -164,6 +168,7 @@ export const Switch = React.forwardRef<HTMLSpanElement, SwitchProps>((props, ref
         }}
         disabled={disabled}
         readOnly={readOnly}
+        aria-labelledby={labelledBy}
         aria-describedby={[ ariaDescribedBy, hasDescription ? descriptionId : undefined ].filter(Boolean).join(' ') || undefined}
         aria-busy={pending || undefined}
         data-slot={'switch-track'}
@@ -173,7 +178,7 @@ export const Switch = React.forwardRef<HTMLSpanElement, SwitchProps>((props, ref
         <SwitchPrimitive.Thumb data-slot={'switch-thumb'} className={THUMB} />
       </SwitchPrimitive.Root>
 
-      <ChoiceText slot={'switch'} label={children} description={description} descriptionId={descriptionId} />
+      <ChoiceText slot={'switch'} label={children} description={description} labelId={labelId} descriptionId={descriptionId} />
     </Stack>
   );
 

@@ -554,6 +554,19 @@ narrower stylesheet is the one you have to ask for.
   width, and `outline-none` on the same variant counts. It stays a rule of the suite, not of
   `proedis/tailwind`: in an application without `outline-none` a lone width is correct, since
   `--tw-outline-style` starts at `solid`, and the shared block would report it.
+- **Every label of the package is `Label`, and its description is a sibling.** `Field.Label` is a
+  `Label` rendered as Base UI's label, the text of a Checkbox, a Radio and a Switch is a `Label` in the
+  `regular` emphasis, the name in a `Detail` is a quiet `Label` rendered as the `<dt>`, the name of
+  `LabeledContent` a quiet one. One slot, `label`, catches all of them; the context comes from the
+  parent's slot (`[data-slot=field] [data-slot=label]`). The exception, for one phase: `Field.Label`
+  still writes `field-label`, because the grid of `Field` places its parts by slot.
+  ⚠️ The description is `Label.Description`, never a child of the label, and the reason is
+  measured: the old `Label` rendered it inside its `<label>`, and the option rows (a `<label>` around
+  box, text and description) gave a checkbox the name "Weigh at the pick-upThe bins of the round are
+  weighed one by one…", read once more through `aria-describedby`. An option is now named by its
+  `Label` alone (`aria-labelledby`), while the row stays a `<label>`, so a press on the description
+  still presses the box. ⚠️ `regular` keeps the line of its size, 20px, with no `leading-snug`: the box,
+  the circle and the track are centred on that line (`mt-0.5`, 16 on 20), measured at 0px off.
 - **A line height goes AFTER the size, never before it.** A Tailwind size carries a line height of
   its own, so `tailwind-merge` treats `text-base` as conflicting with `leading-*` and keeps only the
   later one. `cva('leading-tight …', { variants: { size: { md: 'text-base' } } })` therefore emits
@@ -1010,6 +1023,20 @@ What was run for the radius of the controls and the finish of the button:
   React Compiler at 202 functions, 0 skipped.
 - **`types.check.tsx`**: `radius={'full'}` compiles, `radius={12}` does not, made valid for a moment to
   watch `tsc` fail.
+
+What was run for the one `Label`:
+
+- **The markup snapshots** against the build before it, with React's ids normalised: every change is
+  a label. The slots moved one for one, 26 `detail-label`, 14 `checkbox-label`, 8 `radio-label`,
+  5 `switch-label` and the `label-text` of `Label` became 55 `label`; the 9 descriptions became
+  `label-description`; `field-required` and `field-optional` became `label-required` and
+  `label-optional`. Nothing else in the 433 scenes, and the jsdom harness at the same 45 of 47.
+- **In the browser**: a checkbox with a description named by its text alone and described by the
+  description, a press on the description still toggling it; every label of the Field, Form, Radio,
+  Switch, Detail and LabeledContent pages rendered as `label` (or `field-label`) with the sizes of
+  before, the Detail name 0.5px taller (it joins the `leading-snug` LabeledContent already had).
+- **`types.check.tsx`**: `description` on a `Label` does not compile, made valid for a moment to watch
+  `tsc` fail.
 
 What was run for the outline of the focus:
 

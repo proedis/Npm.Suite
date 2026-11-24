@@ -12,6 +12,8 @@ import { responsiveClasses, toResponsiveMap } from '../../core/responsive';
 
 import { Stack } from '../../layout/Stack';
 
+import { Label } from '../../primitives/Label';
+
 import { ErrorGlyph } from '../../internal/glyphs';
 import { isPresent } from '../../internal/presence';
 
@@ -312,26 +314,24 @@ function FieldLabel(props: FieldLabelProps): React.ReactNode {
   // ----
   // Component Render
   // ----
+  /*
+   * The `Label` of the package, on Base UI's label so the name stays tied to the control. Its slot is
+   * `field-label` still: the grid of the field places its parts by slot
+   */
   return (
-    <FieldPrimitive.Label
+    <Label
+      as={FieldPrimitive.Label}
       {...rest}
       id={labelId}
       nativeLabel={native}
       render={native ? undefined : <div />}
       data-slot={'field-label'}
-      data-required={required || undefined}
-      data-optional={(!required && isPresent(optional)) || undefined}
-      /* The line height after the size: a size carries its own, and tailwind-merge keeps the last */
-      className={cn('self-end text-sm leading-snug font-medium text-foreground', baseClasses, className)}
+      required={required}
+      optional={optional}
+      className={cn('self-end', baseClasses, className)}
     >
       {children}
-      {required && (
-        <span data-slot={'field-required'} aria-hidden={'true'} className={'ms-0.5 text-destructive'}>*</span>
-      )}
-      {!required && isPresent(optional) && (
-        <span data-slot={'field-optional'} className={'ms-1.5 text-xs font-normal text-muted-foreground'}>{optional}</span>
-      )}
-    </FieldPrimitive.Label>
+    </Label>
   );
 
 }
@@ -528,7 +528,7 @@ FieldCounter.displayName = 'Field.Counter';
  * the caller's, and the browser's bubble would be a second, untranslated message.
  *
  * Slots: `field` (with `data-span`, `data-break-before`, `data-required`), `field-label`,
- * `field-required`, `field-optional`, `field-description`, `field-error`, `field-error-icon-box`,
+ * `label-required`, `label-optional`, `field-description`, `field-error`, `field-error-icon-box`,
  * `field-error-icon`, `field-error-message`, `field-counter`. The root also has `data-orientation`, the one at `base`.
  */
 const FieldRoot = React.forwardRef<HTMLDivElement, FieldProps>((props, ref) => {

@@ -299,7 +299,7 @@ for when the count per breakpoint *is* the design.
 | `Badge` | a compact label: `fill × tone × size`, plus a leading `dot` |
 | `IconBox` | the frame around a single icon: `fill × tone × size`, plus `shape` and a `halo` |
 | `Spinner` | a CSS ring, no icon library. `label` makes it announced, its absence makes it decorative |
-| `Label` | the name of something, with an optional line of detail. Two emphases, `strong` and `quiet` |
+| `Label` | the name of anything, of a field, an option or a value, and every label of the package: the asterisk of `required`, the word of `optional`, four emphases (`default`, `strong`, `regular` for the text of an option, `quiet` over data). Its second line is `Label.Description`, a sibling and never a child, so it cannot join the name of a control |
 | `LabeledContent` | a value with a quiet label: `LabeledContent.Label` and `.Value` |
 
 For a rule *between* the children of a stack use `<Stack divided>`, not `Divider`: it draws with
@@ -1089,7 +1089,7 @@ Three colour families and one line colour:
 | `--radius-scale` | a unitless multiplier over the whole `--radius-*` scale |
 | `--space-xs` … `--space-2xl` | the spacing scale by name: every `gap`, `space`, `inset` and `offset` named, and the `gap-md`, `p-md`, `-mx-md`, `top-md`, `h-md` classes |
 | `--container-8xl` | the width of `Container size='xl'`, one step past Tailwind's own scale |
-| `--text-2xs` | the step below `text-xs`: the description line of `Label`, the smallest `Heading.Eyebrow` and `Heading.Description`, a `sm` `Badge` |
+| `--text-2xs` | the step below `text-xs`: the smallest `Heading.Eyebrow` and `Heading.Description`, a `sm` `Badge` |
 | `--font-heading` | the family of every title (`Heading.Title`, the titles of `EmptyState`, `Dialog`, `Drawer`, `AlertDialog`, `Popover`, `Alert`). Undeclared, it is `--font-sans`. The text is Tailwind's `--font-sans`, the fixed width `--font-mono`, and the package writes four weights, 400, 500, 600, 700 (`--font-weight-*`): load them all, or a variable font |
 
 The last four are a **configuration** rather than a colour a component reads: they exist to be
@@ -1189,6 +1189,8 @@ another package. A recessed surface is `--muted`.
 | `combobox-footer` on the "too many results" line of the single `Combobox` | `combobox-too-many`, as on the multiple one; `combobox-footer` is now only the footer of actions of the multiple field |
 | `resultsFor`, `onFlush` on a multiple `Combobox` | single field only: they never did anything on the multiple one |
 | `buttonVariants`, `alertVariants`, `textInputVariants` | no longer exported: the components lay themselves out through `Stack`, and a recipe on an element of your own would carry a layout no primitive gives it. A link drawn as a button is `<Button to={…}>`; any other element is `<Button render={<YourElement />}>`, which keeps the layout |
+| `<Label description={…}>` | `<Label.Description>` beside the `Label`, with an `id` the control points at through `aria-describedby`: inside a `<label>` the description became part of the name of the control. `LabeledContent.Label` keeps its `description` prop |
+| the slots `label-text`, `checkbox-label`, `radio-label`, `switch-label`, `detail-label` | `label`, on every label of the package; `checkbox-description`, `radio-description`, `switch-description` are `label-description`; `field-required` and `field-optional` are `label-required` and `label-optional`. A description is `text-xs` everywhere, where an option wrote `text-sm` |
 | `useMediaQuery`, `usePrefersReducedMotion` from `@proedis/ui/hooks` | from `@proedis/react`, same signatures; `@proedis/ui/hooks` keeps `useBreakpoint` and `useIsMobile` |
 | `tailwindcss` `^4.0.0` | `^4.1.5`, see Compatibility |
 | a `Badge` with text renders the text as its child | the text is wrapped in `badge-label` and truncates with an ellipsis when the badge is too narrow |

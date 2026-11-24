@@ -10,6 +10,8 @@ import { responsiveClasses, toResponsiveMap } from '../../core/responsive';
 
 import { Stack } from '../../layout/Stack';
 
+import { Label } from '../../primitives/Label';
+
 import { isPresent } from '../../internal/presence';
 
 import { Button } from '../../actions/button/Button';
@@ -386,7 +388,7 @@ DetailGrid.displayName = 'Detail.Grid';
  * a label wraps.
  *
  * Slots: `detail-item` (with `data-type`, `data-span`, `data-break-before`, `data-empty`,
- * `data-label-hidden`, `data-copyable`), `detail-label`, `detail-value`, `detail-value-text`, `detail-empty`,
+ * `data-label-hidden`, `data-copyable`), `label`, `detail-value`, `detail-value-text`, `detail-empty`,
  * `detail-copy`, `detail-skeleton`.
  */
 const DetailItem = React.forwardRef<HTMLDivElement, DetailItemProps>((props, ref) => {
@@ -543,12 +545,9 @@ const DetailItem = React.forwardRef<HTMLDivElement, DetailItemProps>((props, ref
         className
       )}
     >
-      <dt
-        data-slot={'detail-label'}
-        className={cn('self-end text-xs font-medium text-muted-foreground', hideLabel && 'sr-only')}
-      >
+      <Label as={'dt'} emphasis={'quiet'} className={cn('self-end', hideLabel && 'sr-only')}>
         {label}
-      </dt>
+      </Label>
 
       <Stack
         as={'dd'}

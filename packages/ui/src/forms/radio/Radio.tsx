@@ -164,7 +164,7 @@ const CARD = [
  *
  * Slots: `radio-group` (with `data-variant`, `data-orientation`, `data-disabled`, `data-readonly`,
  * `data-invalid`), `radio` (the row or card),
- * `radio-circle`, `radio-dot`, `radio-text`, `radio-label`, `radio-description`.
+ * `radio-circle`, `radio-dot`, `radio-text`, `label`, `label-description`.
  */
 export const RadioGroup = React.forwardRef<HTMLDivElement, RadioGroupProps>((props, ref) => {
 
@@ -265,7 +265,16 @@ export const Radio = React.forwardRef<HTMLSpanElement, RadioProps>((props, ref) 
   // ----
   // Props Deconstruct
   // ----
-  const { 'aria-describedby': ariaDescribedBy, children, className, description, disabled = false, value, ...others } = props;
+  const {
+    'aria-describedby': ariaDescribedBy,
+    'aria-labelledby': ariaLabelledBy,
+    children,
+    className,
+    description,
+    disabled = false,
+    value,
+    ...others
+  } = props;
 
   const { baseClasses, rest } = splitBaseProps(others);
 
@@ -277,6 +286,7 @@ export const Radio = React.forwardRef<HTMLSpanElement, RadioProps>((props, ref) 
   const field = useFieldControl();
   const registry = useFieldRegistryContext();
   const descriptionId = React.useId();
+  const labelId = React.useId();
 
 
   // ----
@@ -284,6 +294,8 @@ export const Radio = React.forwardRef<HTMLSpanElement, RadioProps>((props, ref) 
   // ----
   const isDisabled = disabled || field.disabled;
   const hasDescription = isPresent(description);
+  /* Named by its label alone: the row is a `<label>` too, and would bring the description into the name */
+  const labelledBy = ariaLabelledBy ?? (isPresent(children) ? labelId : undefined);
 
   const row = (
     <Stack
@@ -303,6 +315,7 @@ export const Radio = React.forwardRef<HTMLSpanElement, RadioProps>((props, ref) 
         ref={ref}
         value={value}
         disabled={isDisabled}
+        aria-labelledby={labelledBy}
         aria-describedby={[ ariaDescribedBy, hasDescription ? descriptionId : undefined ].filter(Boolean).join(' ') || undefined}
         data-invalid={group.invalid || undefined}
         data-slot={'radio-circle'}
@@ -312,7 +325,7 @@ export const Radio = React.forwardRef<HTMLSpanElement, RadioProps>((props, ref) 
         <RadioPrimitive.Indicator data-slot={'radio-dot'} className={DOT} />
       </RadioPrimitive.Root>
 
-      <ChoiceText slot={'radio'} label={children} description={description} descriptionId={descriptionId} />
+      <ChoiceText slot={'radio'} label={children} description={description} labelId={labelId} descriptionId={descriptionId} />
     </Stack>
   );
 

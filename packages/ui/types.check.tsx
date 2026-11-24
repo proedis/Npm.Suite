@@ -108,7 +108,12 @@ const asAWrapper: (props: StackProps) => React.ReactNode = (props) => <Stack {..
 /** The element defaults per component, not globally: a Label is a `label`, a VisuallyHidden a `span` */
 const labelDefault = <Label htmlFor={'email'}>Email</Label>;
 
-const quietLabel = <Label as={'span'} emphasis={'quiet'} description={'kg'}>Total</Label>;
+const quietLabel = <Label as={'span'} emphasis={'quiet'} optional={'optional'}>Total</Label>;
+
+const labelWithItsLine = <Label.Description id={'email-hint'}>We never share it</Label.Description>;
+
+/** @ts-expect-error the description is a sibling, `Label.Description`: inside a label it joins the name */
+const descriptionInside = <Label htmlFor={'email'} description={'We never share it'}>Email</Label>;
 
 /** @ts-expect-error 'htmlFor' belongs to a label, and this one renders a span */
 const spanWithHtmlFor = <Label as={'span'} htmlFor={'email'}>no</Label>;
@@ -530,7 +535,8 @@ export const CHECKED = [
   softMuted, solidDestructive, emptyState, wrongToneName, wrongFill, spinner, wrongSpinnerLabel,
   anchorStack, sectionStack, plainStack, wrongAttribute, wrongAttributeToo,
   scaleRespected, outsideTheScale, outsideTheColumns, outsideTheScaleResponsive,
-  baseIsNotABreakpoint, unknownBreakpoint, asAWrapper, labelDefault, quietLabel, spanWithHtmlFor,
+  baseIsNotABreakpoint, unknownBreakpoint, asAWrapper, labelDefault, quietLabel, labelWithItsLine,
+  descriptionInside, spanWithHtmlFor,
   skipLink, contradictoryProps, throughAComponent, missingComponentProp,
   responsiveSpan, singleSpan, wrongSpan, detailResponsiveSpan, detailWrongSpan, detailRefs,
   responsiveGroups, wrongOrientation, responsiveBlock, wrongHide, pillButton, radiusInPixels,

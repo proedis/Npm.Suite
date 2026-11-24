@@ -296,7 +296,7 @@ CheckboxGroup.displayName = 'CheckboxGroup';
  * of the Tab order. The description says why.
  *
  * Slots: `checkbox` (the row, with `data-disabled`, `data-readonly`, `data-invalid`, `data-parent`),
- * `checkbox-box`, `checkbox-indicator`, `checkbox-text`, `checkbox-label`, `checkbox-description`.
+ * `checkbox-box`, `checkbox-indicator`, `checkbox-text`, `label`, `label-required`, `label-description`.
  *
  * The ref and the native props reach the box, the element that takes the focus, so a checkbox can be
  * the trigger of a tooltip or the target of a form library; `className` and the shared props reach the row.
@@ -308,6 +308,7 @@ export const Checkbox = React.forwardRef<HTMLSpanElement, CheckboxProps>((props,
   // ----
   const {
     'aria-describedby': ariaDescribedBy,
+    'aria-labelledby': ariaLabelledBy,
     checked,
     children,
     className,
@@ -335,6 +336,7 @@ export const Checkbox = React.forwardRef<HTMLSpanElement, CheckboxProps>((props,
   const registry = useFieldRegistryContext();
   const group = useCheckboxGroupContext();
   const descriptionId = React.useId();
+  const labelId = React.useId();
   const childId = React.useId();
 
 
@@ -398,6 +400,8 @@ export const Checkbox = React.forwardRef<HTMLSpanElement, CheckboxProps>((props,
   const describedBy = [ ariaDescribedBy, hasDescription ? descriptionId : undefined ].filter(Boolean).join(' ') || undefined;
   const isIndeterminate = parentState ? parentState.indeterminate : indeterminate;
   const showRequired = required && !group;
+  /* Named by its label alone: the row is a `<label>` too, and would bring the description into the name */
+  const labelledBy = ariaLabelledBy ?? (isPresent(children) ? labelId : undefined);
 
   const box = (
     <CheckboxPrimitive.Root
@@ -423,6 +427,7 @@ export const Checkbox = React.forwardRef<HTMLSpanElement, CheckboxProps>((props,
       }}
       disabled={isDisabled}
       readOnly={isReadOnly}
+      aria-labelledby={labelledBy}
       aria-describedby={describedBy}
       aria-required={showRequired || undefined}
       aria-invalid={isInvalid || undefined}
@@ -459,6 +464,7 @@ export const Checkbox = React.forwardRef<HTMLSpanElement, CheckboxProps>((props,
         slot={'checkbox'}
         label={children}
         description={description}
+        labelId={labelId}
         descriptionId={descriptionId}
         required={showRequired}
       />
