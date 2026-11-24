@@ -8,14 +8,13 @@ import { Label } from '@proedis/ui/primitives';
 export default function Example(): React.ReactNode {
   return (
     <Stack gap={2} className={'w-full max-w-xs'}>
-      <Stack gap={0.5}>
-        {/* A <label> by default: clicking the name focuses the field */}
-        <Label htmlFor={'plate'} required>Plate number</Label>
+      {/* htmlFor makes the name a <label>: clicking it focuses the field */}
+      <Label htmlFor={'plate'} textId={'plate-label'} description={'As printed on the registration'} required>
+        Plate number
+      </Label>
 
-        {/* A sibling, never inside: the control points at it */}
-        <Label.Description id={'plate-description'}>As printed on the registration</Label.Description>
-      </Stack>
-      <TextInput id={'plate'} aria-describedby={'plate-description'} aria-required placeholder={'FT-234-KL'} />
+      {/* The description is beside the name, never inside it: the control points at it */}
+      <TextInput id={'plate'} aria-describedby={'plate-label-description'} aria-required placeholder={'FT-234-KL'} />
     </Stack>
   );
 }

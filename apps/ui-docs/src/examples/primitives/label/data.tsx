@@ -13,10 +13,7 @@ export default function Example(): React.ReactNode {
         <span className={'text-lg font-semibold text-foreground'}>1,204 kg</span>
       </Stack>
       <Stack gap={1}>
-        <Stack gap={0.5}>
-          <Label as={'span'} emphasis={'quiet'}>Stops done</Label>
-          <Label.Description>Of the 38 planned</Label.Description>
-        </Stack>
+        <Label emphasis={'quiet'} description={'Of the 38 planned'}>Stops done</Label>
         <span className={'text-lg font-semibold text-foreground'}>29</span>
       </Stack>
       <Stack gap={1}>

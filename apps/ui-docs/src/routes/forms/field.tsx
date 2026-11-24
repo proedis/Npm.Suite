@@ -244,7 +244,8 @@ function FieldPage(): React.ReactNode {
           <SlotsInspector of={error}
             rows={[
               { slot: 'field', part: 'The root, a grid of named tracks', attributes: [ 'data-span', 'data-break-before', 'data-required', 'data-orientation', 'data-invalid', 'data-disabled' ] },
-              { slot: 'field-label', part: 'The label', attributes: [ 'data-required', 'data-optional' ] },
+              { slot: 'field-label', part: 'The label: a Label, with the slot the grid places', attributes: [ 'data-required', 'data-optional' ] },
+              { slot: 'label-text', part: 'The name, the <label> tied to the control' },
               { slot: 'label-required', part: 'The asterisk' },
               { slot: 'label-optional', part: 'The optional word' },
               { slot: 'field-description', part: 'The description' },

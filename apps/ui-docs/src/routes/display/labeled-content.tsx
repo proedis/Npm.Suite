@@ -106,9 +106,9 @@ function LabeledContentPage(): React.ReactNode {
           <SlotsInspector of={summary}
             rows={[
               { slot: 'labeled-content', part: 'The pair', attributes: [ 'data-inline' ] },
-              { slot: 'labeled-content-label', part: 'The label part: the name and its description' },
-              { slot: 'label', part: 'The name, a Label in its quiet emphasis', attributes: [ 'data-emphasis' ] },
-              { slot: 'label-description', part: 'The second line of the label, with description' },
+              { slot: 'labeled-content-label', part: 'The label: a Label in its quiet emphasis', attributes: [ 'data-emphasis' ] },
+              { slot: 'label-text', part: 'The name' },
+              { slot: 'label-description', part: 'The second line, with description' },
               { slot: 'labeled-content-value', part: 'The value' }
             ]}
           />

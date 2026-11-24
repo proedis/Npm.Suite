@@ -16,6 +16,7 @@ import { PropsTable } from '@/docs/Tables';
 import basic from '@/examples/primitives/label/basic.tsx?example';
 import data from '@/examples/primitives/label/data.tsx?example';
 import emphasis from '@/examples/primitives/label/emphasis.tsx?example';
+import leading from '@/examples/primitives/label/leading.tsx?example';
 import marks from '@/examples/primitives/label/marks.tsx?example';
 import { pageAt } from '@/nav';
 
@@ -33,9 +34,10 @@ function LabelPage(): React.ReactNode {
         page={PAGE}
         lead={(
           <React.Fragment>
-            The name of something: of a field, of an option, of a value. Every label of the package is this one, the
-            label of a Field, the text of a checkbox, the name in a Detail. A <InlineCode>{'<label>'}</InlineCode> by
-            default, because that element is what ties a name to a control: clicking the name focuses the field.
+            The name of something, of a field, an option or a value, with an optional line under it. Every label of the
+            package is this one: the label of a Field, the text of a checkbox, the name in a Detail. With{' '}
+            <InlineCode>htmlFor</InlineCode> the name is a <InlineCode>{'<label>'}</InlineCode>, the element that ties it
+            to a control: clicking the name focuses the field.
           </React.Fragment>
         )}
         imports={tsx`
@@ -85,11 +87,24 @@ function LabelPage(): React.ReactNode {
         </Section>
 
         <Section
+          title={'A glyph before the name'}
+          lead={(
+            <React.Fragment>
+              <InlineCode>leading</InlineCode> takes a glyph as tall as the text, centred on its first line; the
+              description lines up under the name, not under the glyph. It follows the size of the emphasis. A framed
+              icon beside a name and a line is a row, and that is <InlineCode>Item</InlineCode>.
+            </React.Fragment>
+          )}
+        >
+          <Example of={leading} />
+        </Section>
+
+        <Section
           title={'Without a control'}
           lead={(
             <React.Fragment>
               With nothing to point at, render a <InlineCode>span</InlineCode>: a summary, a key figure, a definition.{' '}
-              <InlineCode>Label.Description</InlineCode> adds the unit, the format or the source on a second line.
+              <InlineCode>description</InlineCode> adds the unit, the format or the source on a second line.
             </React.Fragment>
           )}
         >
@@ -104,9 +119,11 @@ function LabelPage(): React.ReactNode {
           <Prose>
             <p>
               Rendered as a <InlineCode>{'<label>'}</InlineCode> with <InlineCode>htmlFor</InlineCode>, the text becomes the
-              accessible name of the control. The description is a sibling and never a child: inside a label it would
-              join the name, and a screen reader would read it at every focus, then once more as the description. Give
-              it an <InlineCode>id</InlineCode> and point the control at it with <InlineCode>aria-describedby</InlineCode>.
+              accessible name of the control. The component is two elements for that reason: the root, and the name
+              inside it. The description sits beside the name and never inside it, where it would join the name and a
+              screen reader would read it at every focus, then once more as the description. Its id is{' '}
+              <InlineCode>{'<textId>-description'}</InlineCode>, or <InlineCode>descriptionId</InlineCode>: point the
+              control at it with <InlineCode>aria-describedby</InlineCode>. Inside a Field the field does it.
             </p>
             <p>
               The asterisk is hidden from a screen reader, which hears <InlineCode>required</InlineCode> from the control
@@ -120,10 +137,13 @@ function LabelPage(): React.ReactNode {
         <Section title={'Slots and data attributes'}>
           <SlotsInspector of={basic}
             rows={[
-              { slot: 'label', part: 'The label, or the element given with as', attributes: [ 'data-emphasis', 'data-required', 'data-optional' ] },
+              { slot: 'label', part: 'The root, a span or the element given with as', attributes: [ 'data-emphasis', 'data-required', 'data-optional', 'data-leading' ] },
+              { slot: 'label-leading', part: 'The glyph before the name' },
+              { slot: 'label-body', part: 'The name and the description, beside a glyph' },
+              { slot: 'label-text', part: 'The name: a <label> with htmlFor, a <span> without' },
               { slot: 'label-required', part: 'The asterisk' },
               { slot: 'label-optional', part: 'The optional word' },
-              { slot: 'label-description', part: 'Label.Description, the second line' }
+              { slot: 'label-description', part: 'The second line, beside the name and never inside it' }
             ]}
           />
         </Section>
