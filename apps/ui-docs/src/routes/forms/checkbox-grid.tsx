@@ -11,7 +11,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import basic from '@/examples/forms/checkbox-grid/basic.tsx?example';
 import labels from '@/examples/forms/checkbox-grid/labels.ts?source';
 import permissions from '@/examples/forms/checkbox-grid/permissions.ts?source';
@@ -181,7 +182,7 @@ function CheckboxGridPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable
+          <SlotsInspector of={basic}
             rows={[
               { slot: 'checkbox-grid', part: 'The grid', attributes: [ 'data-read-only', 'data-searching' ] },
               { slot: 'checkbox-grid-header', part: 'The header of the columns, which stays put while the grid scrolls' },

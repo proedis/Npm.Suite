@@ -12,7 +12,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import basic from '@/examples/layout/safe-area/basic.tsx?example';
 import { pageAt } from '@/nav';
 
@@ -108,7 +109,7 @@ function SafeAreaPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable rows={[ { slot: 'safe-area', part: 'The padded element, unless a data-slot is passed', attributes: [ 'data-sides' ] } ]} />
+          <SlotsInspector of={basic} rows={[ { slot: 'safe-area', part: 'The padded element, unless a data-slot is passed', attributes: [ 'data-sides' ] } ]} />
         </Section>
 
         <Section title={'API'}>

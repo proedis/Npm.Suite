@@ -12,7 +12,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import basic from '@/examples/feedback/empty-state/basic.tsx?example';
 import focus from '@/examples/feedback/empty-state/focus.tsx?example';
 import inContext from '@/examples/feedback/empty-state/in-context.tsx?example';
@@ -173,7 +174,7 @@ function EmptyStatePage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'} lead={'Every part a stylesheet can reach, and what each one reports.'}>
-          <SlotsTable
+          <SlotsInspector of={basic}
             rows={[
               { slot: 'empty-state', part: 'The root', attributes: [ 'data-size', 'data-kind' ] },
               { slot: 'empty-state-icon', part: 'The box of the icon', attributes: [ 'data-tone', 'data-fill', 'data-size' ] },

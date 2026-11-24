@@ -21,7 +21,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import confirmation from '@/examples/feedback/notifications/confirmation.tsx?example';
 import jobsButton from '@/examples/feedback/notifications/jobs-button.tsx?example';
 import jobs from '@/examples/feedback/notifications/jobs.tsx?example';
@@ -187,7 +188,7 @@ function NotificationsPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'} lead={'Every part a stylesheet can reach, and what each one reports.'}>
-          <SlotsTable
+          <SlotsInspector of={jobsButton}
             rows={[
               { slot: 'toast-viewport', part: 'The region of the confirmation' },
               { slot: 'toast-confirmation', part: 'The confirmation' },

@@ -12,7 +12,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import basic from '@/examples/forms/select/basic.tsx?example';
 import controlled from '@/examples/forms/select/controlled.tsx?example';
 import disabledOptions from '@/examples/forms/select/disabled-options.tsx?example';
@@ -222,7 +223,7 @@ function SelectPage(): React.ReactNode {
           title={'Slots and data attributes'}
           lead={'The frame is the one of every text control; the list is the panel Menu and MultiSelect share.'}
         >
-          <SlotsTable
+          <SlotsInspector of={controlled}
             rows={[
               { slot: 'select', part: 'The frame', attributes: [ 'data-size', 'data-loading', 'data-invalid', 'data-readonly', 'data-disabled' ] },
               { slot: 'select-trigger', part: 'The button that opens the list, which takes the focus', attributes: [ 'data-field-control', 'data-popup-open' ] },

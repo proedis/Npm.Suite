@@ -13,7 +13,8 @@ import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section } from '@/docs/Page';
 import { refineProps } from '@/docs/refineProps';
 import { css, tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import basic from '@/examples/display/icon-box/basic.tsx?example';
 import halo from '@/examples/display/icon-box/halo.tsx?example';
 import rows from '@/examples/display/icon-box/rows.tsx?example';
@@ -162,7 +163,7 @@ function IconBoxPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable
+          <SlotsInspector of={halo}
             rows={[
               { slot: 'icon-box', part: 'The box', attributes: [ 'data-fill', 'data-tone', 'data-size', 'data-shape' ] },
               { slot: 'icon-box-halo', part: 'Each of the two rings, with halo' }

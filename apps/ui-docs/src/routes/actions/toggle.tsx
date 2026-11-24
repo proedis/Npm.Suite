@@ -13,7 +13,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import basic from '@/examples/actions/toggle/basic.tsx?example';
 import groupStates from '@/examples/actions/toggle/group-states.tsx?example';
 import group from '@/examples/actions/toggle/group.tsx?example';
@@ -193,7 +194,7 @@ function TogglePage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'} lead={'Every part a stylesheet can reach, and what each one reports.'}>
-          <SlotsTable
+          <SlotsInspector of={groupStates}
             rows={[
               { slot: 'toggle', part: 'The toggle', attributes: [ 'data-size', 'data-pressed', 'data-disabled', 'data-pending', 'data-icon-only' ] },
               { slot: 'toggle-content', part: 'The icon and the label, on one line' },

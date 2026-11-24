@@ -12,7 +12,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import action from '@/examples/forms/text-input/action.tsx?example';
 import adornments from '@/examples/forms/text-input/adornments.tsx?example';
 import basic from '@/examples/forms/text-input/basic.tsx?example';
@@ -197,7 +198,7 @@ function TextInputPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable
+          <SlotsInspector of={adornments}
             rows={[
               { slot: 'text-input', part: 'The frame', attributes: [ 'data-size', 'data-width', 'data-loading', 'data-invalid', 'data-readonly', 'data-disabled' ] },
               { slot: 'text-input-control', part: 'The input', attributes: [ 'data-field-control' ] },

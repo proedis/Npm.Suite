@@ -11,7 +11,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { PropsTable } from '@/docs/Tables';
 import basic from '@/examples/layout/grid/basic.tsx?example';
 import fill from '@/examples/layout/grid/fill.tsx?example';
 import inContext from '@/examples/layout/grid/in-context.tsx?example';
@@ -109,7 +110,7 @@ function GridPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable rows={[ { slot: 'grid', part: 'The grid itself, unless a data-slot is passed', attributes: [ 'data-fill' ] } ]} />
+          <SlotsInspector of={basic} rows={[ { slot: 'grid', part: 'The grid itself, unless a data-slot is passed', attributes: [ 'data-fill' ] } ]} />
         </Section>
 
         <Section title={'API'}>

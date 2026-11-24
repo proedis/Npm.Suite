@@ -13,7 +13,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import basic from '@/examples/forms/combobox/basic.tsx?example';
 import inContext from '@/examples/forms/combobox/in-context.tsx?example';
 import labelsMultiple from '@/examples/forms/combobox/labels-multiple.ts?source';
@@ -239,7 +240,7 @@ function ComboboxPage(): React.ReactNode {
 
         <Section title={'Slots and data attributes'}>
           <SubSection title={'Single'} id={'slots-single'}>
-            <SlotsTable
+            <SlotsInspector of={required}
               rows={[
                 { slot: 'combobox', part: 'The frame', attributes: [ 'data-size', 'data-invalid', 'data-readonly', 'data-disabled' ] },
                 { slot: 'combobox-input', part: 'The text, which takes the focus', attributes: [ 'data-field-control' ] },
@@ -258,7 +259,7 @@ function ComboboxPage(): React.ReactNode {
             />
           </SubSection>
           <SubSection title={'Multiple'} id={'slots-multiple'}>
-            <SlotsTable
+            <SlotsInspector of={multiple}
               rows={[
                 { slot: 'combobox-trigger', part: 'The button under the chips, which takes the focus' },
                 { slot: 'combobox-chips', part: 'The row of chips' },

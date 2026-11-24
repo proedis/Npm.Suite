@@ -12,7 +12,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import busy from '@/examples/overlays/popover/busy.tsx?example';
 import form from '@/examples/overlays/popover/form.tsx?example';
 import help from '@/examples/overlays/popover/help.tsx?example';
@@ -177,7 +178,7 @@ function PopoverPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'} lead={'Every part a stylesheet can reach, and what each one reports.'}>
-          <SlotsTable
+          <SlotsInspector of={help}
             rows={[
               { slot: 'popover', part: 'The popup', attributes: [ 'data-width', 'data-side', 'data-align', 'data-open', 'data-busy' ] },
               { slot: 'popover-arrow', part: 'The arrow pointing at the trigger', attributes: [ 'data-side' ] },

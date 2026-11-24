@@ -14,7 +14,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import basic from '@/examples/overlays/dialog/basic.tsx?example';
 import detail from '@/examples/overlays/dialog/detail.tsx?example';
 import dirty from '@/examples/overlays/dialog/dirty.tsx?example';
@@ -343,7 +344,7 @@ function DialogPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'} lead={'Every part a stylesheet can reach, and what each one reports.'}>
-          <SlotsTable
+          <SlotsInspector modal of={basic}
             rows={[
               { slot: 'dialog', part: 'The panel', attributes: [ 'data-size', 'data-open', 'data-nested' ] },
               { slot: 'dialog-backdrop', part: 'The veil behind it' },

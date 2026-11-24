@@ -11,7 +11,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section } from '@/docs/Page';
 import { css, tsx } from '@/docs/snippet';
-import { PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { PropsTable } from '@/docs/Tables';
 import basic from '@/examples/primitives/loading-bar/basic.tsx?example';
 import line from '@/examples/primitives/loading-bar/line.tsx?example';
 import updating from '@/examples/primitives/loading-bar/updating.tsx?example';
@@ -124,7 +125,7 @@ function LoadingBarPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable
+          <SlotsInspector of={basic}
             rows={[
               { slot: 'loading-bar', part: 'The track', attributes: [ 'data-line-tone', 'data-line-width' ] },
               { slot: 'loading-bar-segment', part: 'The running segment' }

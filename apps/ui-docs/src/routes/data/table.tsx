@@ -17,7 +17,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import FormatsShell from '@/examples/data/FormatsShell';
 import formatsShell from '@/examples/data/FormatsShell.tsx?example';
 import basic from '@/examples/data/table/basic.tsx?example';
@@ -349,7 +350,7 @@ function TablePage(): React.ReactNode {
           title={'Slots and data attributes'}
           lead={'Every part a stylesheet can reach, and what each one reports.'}
         >
-          <SlotsTable
+          <SlotsInspector of={selection}
             rows={[
               { slot: 'table', part: 'The root, around the toolbar, the card and the footer', attributes: [ 'data-mode', 'data-status' ] },
               { slot: 'table-toolbar', part: 'The row above the table' },

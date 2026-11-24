@@ -11,7 +11,8 @@ import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section } from '@/docs/Page';
 import { refineProps } from '@/docs/refineProps';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import colour from '@/examples/primitives/spinner/colour.tsx?example';
 import label from '@/examples/primitives/spinner/label.tsx?example';
 import sizes from '@/examples/primitives/spinner/sizes.tsx?example';
@@ -106,7 +107,7 @@ function SpinnerPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable
+          <SlotsInspector of={sizes}
             rows={[
               { slot: 'spinner', part: 'The ring', attributes: [ 'data-size' ] }
             ]}

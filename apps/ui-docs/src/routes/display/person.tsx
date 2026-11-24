@@ -16,7 +16,8 @@ import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
 import { refineProps } from '@/docs/refineProps';
 import { css, tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import avatars from '@/examples/display/person/avatars.tsx?example';
 import group from '@/examples/display/person/group.tsx?example';
 import person from '@/examples/display/person/person.tsx?example';
@@ -208,7 +209,7 @@ function PersonPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable
+          <SlotsInspector of={stacked}
             rows={[
               { slot: 'avatar', part: 'The circle', attributes: [ 'data-kind', 'data-size', 'data-current', 'data-inactive', 'data-decorative' ] },
               { slot: 'avatar-image', part: 'The photo' },

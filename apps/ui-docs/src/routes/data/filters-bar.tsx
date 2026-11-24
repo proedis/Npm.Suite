@@ -17,7 +17,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import FormatsShell from '@/examples/data/FormatsShell';
 import basic from '@/examples/data/filters-bar/basic.tsx?example';
 import dates from '@/examples/data/filters-bar/dates.tsx?example';
@@ -223,7 +224,7 @@ function FiltersBarPage(): React.ReactNode {
           title={'Slots and data attributes'}
           lead={'Every part a stylesheet can reach. The panels are rendered in a portal, so open one to find them.'}
         >
-          <SlotsTable
+          <SlotsInspector of={lists}
             rows={[
               { slot: 'filters-bar', part: 'The root', attributes: [ 'data-narrow', 'data-active' ] },
               { slot: 'filter', part: 'A filter of the row', attributes: [ 'data-kind', 'data-active', 'data-open', 'data-disabled', 'data-loading' ] },

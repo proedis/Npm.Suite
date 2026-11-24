@@ -12,7 +12,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import actions from '@/examples/feedback/alert/actions.tsx?example';
 import basic from '@/examples/feedback/alert/basic.tsx?example';
 import dismiss from '@/examples/feedback/alert/dismiss.tsx?example';
@@ -176,7 +177,7 @@ function AlertPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'} lead={'Every part a stylesheet can reach, and what each one reports.'}>
-          <SlotsTable
+          <SlotsInspector of={actions}
             rows={[
               { slot: 'alert', part: 'The card', attributes: [ 'data-tone', 'data-size' ] },
               { slot: 'alert-icon', part: 'The coloured box of the icon', attributes: [ 'data-tone', 'data-fill', 'data-size' ] },

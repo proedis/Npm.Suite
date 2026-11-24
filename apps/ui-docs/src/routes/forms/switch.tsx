@@ -10,7 +10,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import basic from '@/examples/forms/switch/basic.tsx?example';
 import description from '@/examples/forms/switch/description.tsx?example';
 import inContext from '@/examples/forms/switch/in-context.tsx?example';
@@ -105,7 +106,7 @@ function SwitchPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable
+          <SlotsInspector of={description}
             rows={[
               { slot: 'switch', part: 'The row', attributes: [ 'data-disabled', 'data-readonly' ] },
               { slot: 'switch-track', part: 'The track, which takes the focus', attributes: [ 'data-checked', 'data-unchecked' ] },

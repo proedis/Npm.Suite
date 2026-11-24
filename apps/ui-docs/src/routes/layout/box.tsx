@@ -10,7 +10,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { DocTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable } from '@/docs/Tables';
 import asElement from '@/examples/layout/box/as.tsx?example';
 import contents from '@/examples/layout/box/contents.tsx?example';
 import hide from '@/examples/layout/box/hide.tsx?example';
@@ -132,7 +133,7 @@ function BoxPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable rows={[ { slot: 'box', part: 'The element itself, unless a data-slot is passed' } ]} />
+          <SlotsInspector of={hide} rows={[ { slot: 'box', part: 'The element itself, unless a data-slot is passed' } ]} />
         </Section>
 
         <Section title={'API'}>

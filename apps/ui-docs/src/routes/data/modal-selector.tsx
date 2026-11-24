@@ -18,7 +18,8 @@ import { InlineCode } from '@/docs/InlineCode';
 import customersSource from '@/examples/data/modal-selector/customers.ts?source';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import FormatsShell from '@/examples/data/FormatsShell';
 import multiple from '@/examples/data/modal-selector/multiple.tsx?example';
 import server from '@/examples/data/modal-selector/server.tsx?example';
@@ -213,7 +214,7 @@ function ModalSelectorPage(): React.ReactNode {
           )}
         >
           <SubSection title={'ModalSelector'} id={'slots-modal-selector'}>
-            <SlotsTable
+            <SlotsInspector modal of={single}
               rows={[
                 { slot: 'modal-selector-toolbar', part: 'The search, the filters and the count line' },
                 { slot: 'modal-selector-toolbar-row', part: 'A row of the toolbar' },
@@ -235,7 +236,7 @@ function ModalSelectorPage(): React.ReactNode {
           </SubSection>
 
           <SubSection title={'ModalSelectorField'} id={'slots-modal-selector-field'}>
-            <SlotsTable
+            <SlotsInspector modal of={multiple}
               rows={[
                 { slot: 'modal-selector-field', part: 'The frame', attributes: [ 'data-size', 'data-invalid', 'data-disabled', 'data-readonly' ] },
                 { slot: 'modal-selector-field-button', part: 'The button that opens the selector' },

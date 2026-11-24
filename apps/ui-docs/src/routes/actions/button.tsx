@@ -349,9 +349,8 @@ function ButtonPage(): React.ReactNode {
           title={'Slots and data attributes'}
           lead={(
             <React.Fragment>
-              Every part a stylesheet can reach, and what each one reports. Hover or focus a row to outline its part
-              in the example; the attributes are read from the example as it is now, so turn on Loading or Disabled
-              and watch them change. Below the table, a rule you write is applied to this example alone.
+              Every part a stylesheet can reach, and what each one reports. Turn on Loading or Disabled in the example
+              and watch the attributes change; below the table, a rule you write is applied to this example alone.
             </React.Fragment>
           )}
         >

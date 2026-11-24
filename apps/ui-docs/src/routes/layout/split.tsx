@@ -11,7 +11,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { PropsTable } from '@/docs/Tables';
 import basic from '@/examples/layout/split/basic.tsx?example';
 import collapse from '@/examples/layout/split/collapse.tsx?example';
 import railHide from '@/examples/layout/split/rail-hide.tsx?example';
@@ -159,7 +160,7 @@ function SplitPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable
+          <SlotsInspector of={basic}
             rows={[
               { slot: 'split', part: 'The frame, unless a data-slot is passed', attributes: [ 'data-side', 'data-collapse-below' ] },
               { slot: 'split-rail', part: 'The wrapper of the rail, only with railHide', attributes: [] }

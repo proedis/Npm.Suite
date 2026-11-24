@@ -16,7 +16,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import basic from '@/examples/forms/field/basic.tsx?example';
 import customControl from '@/examples/forms/field/custom-control.tsx?example';
 import disabled from '@/examples/forms/field/disabled.tsx?example';
@@ -240,7 +241,7 @@ function FieldPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable
+          <SlotsInspector of={error}
             rows={[
               { slot: 'field', part: 'The root, a grid of named tracks', attributes: [ 'data-span', 'data-break-before', 'data-required', 'data-orientation', 'data-invalid', 'data-disabled' ] },
               { slot: 'field-label', part: 'The label', attributes: [ 'data-required', 'data-optional' ] },

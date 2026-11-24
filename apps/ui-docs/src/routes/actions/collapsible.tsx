@@ -11,7 +11,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import basic from '@/examples/actions/collapsible/basic.tsx?example';
 import controlled from '@/examples/actions/collapsible/controlled.tsx?example';
 import inContext from '@/examples/actions/collapsible/in-context.tsx?example';
@@ -157,7 +158,7 @@ function CollapsibleSectionPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'} lead={'Every part a stylesheet can reach, and what each one reports.'}>
-          <SlotsTable
+          <SlotsInspector of={parts}
             rows={[
               { slot: 'collapsible-section', part: 'The section', attributes: [ 'data-heading-level', 'data-open', 'data-closed', 'data-inset' ] },
               { slot: 'collapsible-section-header', part: 'The row of the heading and the actions' },

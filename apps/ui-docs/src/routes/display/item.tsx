@@ -12,7 +12,8 @@ import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
 import { refineProps } from '@/docs/refineProps';
 import { tsx } from '@/docs/snippet';
-import { PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { PropsTable } from '@/docs/Tables';
 import basic from '@/examples/display/item/basic.tsx?example';
 import link from '@/examples/display/item/link.tsx?example';
 import list from '@/examples/display/item/list.tsx?example';
@@ -166,7 +167,7 @@ function ItemPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable
+          <SlotsInspector of={basic}
             rows={[
               { slot: 'item', part: 'The row', attributes: [ 'data-inset', 'data-interactive' ] },
               { slot: 'item-actions', part: 'The controls at the end' },

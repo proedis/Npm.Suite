@@ -15,7 +15,8 @@ import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
 import { refineProps } from '@/docs/refineProps';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import basic from '@/examples/display/heading/basic.tsx?example';
 import emptyState from '@/examples/display/heading/empty-state.tsx?example';
 import lines from '@/examples/display/heading/lines.tsx?example';
@@ -149,7 +150,7 @@ function HeadingPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable
+          <SlotsInspector of={basic}
             rows={[
               { slot: 'heading', part: 'The block', attributes: [ 'data-gap' ] },
               { slot: 'heading-eyebrow', part: 'The line above the title', attributes: [ 'data-size', 'data-lines' ] },

@@ -17,7 +17,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import actions from '@/examples/actions/menu/actions.tsx?example';
 import basic from '@/examples/actions/menu/basic.tsx?example';
 import choices from '@/examples/actions/menu/choices.tsx?example';
@@ -213,7 +214,7 @@ function MenuPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'} lead={'Every part a stylesheet can reach, and what each one reports.'}>
-          <SlotsTable
+          <SlotsInspector of={basic}
             rows={[
               { slot: 'menu', part: 'The panel', attributes: [ 'data-open', 'data-side', 'data-align' ] },
               { slot: 'menu-item', part: 'An action or a link', attributes: [ 'data-tone', 'data-highlighted', 'data-disabled' ] },

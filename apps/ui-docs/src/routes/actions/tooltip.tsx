@@ -12,7 +12,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import basic from '@/examples/actions/tooltip/basic.tsx?example';
 import description from '@/examples/actions/tooltip/description.tsx?example';
 import list from '@/examples/actions/tooltip/list.tsx?example';
@@ -185,7 +186,7 @@ function TooltipPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'} lead={'Every part a stylesheet can reach, and what each one reports.'}>
-          <SlotsTable
+          <SlotsInspector of={basic}
             rows={[
               { slot: 'tooltip', part: 'The popup', attributes: [ 'data-side', 'data-align', 'data-open', 'data-instant' ] },
               { slot: 'tooltip-description', part: 'Its second line' }

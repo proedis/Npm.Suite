@@ -12,7 +12,8 @@ import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section } from '@/docs/Page';
 import { refineProps } from '@/docs/refineProps';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import basic from '@/examples/forms/number-input/basic.tsx?example';
 import locales from '@/examples/forms/number-input/locales.tsx?example';
 import range from '@/examples/forms/number-input/range.tsx?example';
@@ -180,7 +181,7 @@ function NumberInputPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable
+          <SlotsInspector of={states}
             rows={[
               { slot: 'number-input', part: 'The frame', attributes: [ 'data-size', 'data-loading', 'data-invalid', 'data-readonly', 'data-disabled' ] },
               { slot: 'number-input-control', part: 'The text', attributes: [ 'data-field-control' ] },

@@ -11,7 +11,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import basic from '@/examples/forms/radio/basic.tsx?example';
 import cards from '@/examples/forms/radio/cards.tsx?example';
 import controlled from '@/examples/forms/radio/controlled.tsx?example';
@@ -121,7 +122,7 @@ function RadioPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable
+          <SlotsInspector of={basic}
             rows={[
               { slot: 'radio-group', part: 'The group', attributes: [ 'data-variant', 'data-orientation', 'data-disabled', 'data-readonly', 'data-invalid' ] },
               { slot: 'radio', part: 'The row, or the card', attributes: [ 'data-variant', 'data-disabled', 'data-readonly', 'data-invalid' ] },

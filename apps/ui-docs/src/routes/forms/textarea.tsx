@@ -12,7 +12,8 @@ import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section } from '@/docs/Page';
 import { refineProps } from '@/docs/refineProps';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import basic from '@/examples/forms/textarea/basic.tsx?example';
 import counter from '@/examples/forms/textarea/counter.tsx?example';
 import rows from '@/examples/forms/textarea/rows.tsx?example';
@@ -119,7 +120,7 @@ function TextareaPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable
+          <SlotsInspector of={basic}
             rows={[
               { slot: 'textarea', part: 'The textarea, frame and control in one', attributes: [ 'data-field-control', 'data-invalid', 'data-readonly', 'data-disabled' ] }
             ]}

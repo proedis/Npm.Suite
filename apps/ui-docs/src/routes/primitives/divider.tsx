@@ -11,7 +11,8 @@ import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section } from '@/docs/Page';
 import { refineProps } from '@/docs/refineProps';
 import { tsx } from '@/docs/snippet';
-import { PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { PropsTable } from '@/docs/Tables';
 import basic from '@/examples/primitives/divider/basic.tsx?example';
 import label from '@/examples/primitives/divider/label.tsx?example';
 import line from '@/examples/primitives/divider/line.tsx?example';
@@ -137,7 +138,7 @@ function DividerPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable
+          <SlotsInspector of={basic}
             rows={[
               { slot: 'divider', part: 'The rule, or the row holding the two rules and the caption', attributes: [ 'data-orientation', 'data-labelled', 'data-line-tone', 'data-line-width', 'data-line-style' ] }
             ]}

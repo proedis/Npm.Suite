@@ -11,7 +11,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { PropsTable } from '@/docs/Tables';
 import basic from '@/examples/display/labeled-content/basic.tsx?example';
 import inItem from '@/examples/display/labeled-content/in-item.tsx?example';
 import inline from '@/examples/display/labeled-content/inline.tsx?example';
@@ -102,7 +103,7 @@ function LabeledContentPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable
+          <SlotsInspector of={summary}
             rows={[
               { slot: 'labeled-content', part: 'The pair', attributes: [ 'data-inline' ] },
               { slot: 'labeled-content-label', part: 'The label, a Label in its quiet emphasis', attributes: [ 'data-emphasis' ] },

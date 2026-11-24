@@ -12,7 +12,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { PropsTable } from '@/docs/Tables';
 import basic from '@/examples/primitives/busy-veil/basic.tsx?example';
 import timing from '@/examples/primitives/busy-veil/timing.tsx?example';
 import visible from '@/examples/primitives/busy-veil/visible.tsx?example';
@@ -120,7 +121,7 @@ function BusyVeilPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable
+          <SlotsInspector of={basic}
             rows={[
               { slot: 'busy-veil', part: 'The layer over the container', attributes: [ 'data-visible' ] },
               { slot: 'busy-veil-label', part: 'The status region with the label' }

@@ -13,7 +13,8 @@ import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section } from '@/docs/Page';
 import { refineProps } from '@/docs/refineProps';
 import { css, tsx } from '@/docs/snippet';
-import { PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { PropsTable } from '@/docs/Tables';
 import basic from '@/examples/display/badge/basic.tsx?example';
 import content from '@/examples/display/badge/content.tsx?example';
 import link from '@/examples/display/badge/link.tsx?example';
@@ -168,7 +169,7 @@ function BadgePage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable
+          <SlotsInspector of={basic}
             rows={[
               { slot: 'badge', part: 'The badge', attributes: [ 'data-fill', 'data-tone', 'data-size', 'data-dot' ] },
               { slot: 'badge-dot', part: 'The dot before the label' },

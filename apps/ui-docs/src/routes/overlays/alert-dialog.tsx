@@ -14,7 +14,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import basic from '@/examples/overlays/alert-dialog/basic.tsx?example';
 import confirmText from '@/examples/overlays/alert-dialog/confirm-text.tsx?example';
 import consequences from '@/examples/overlays/alert-dialog/consequences.tsx?example';
@@ -195,7 +196,7 @@ function AlertDialogPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'} lead={'Every part a stylesheet can reach, and what each one reports.'}>
-          <SlotsTable
+          <SlotsInspector modal of={basic}
             rows={[
               { slot: 'alert-dialog', part: 'The panel', attributes: [ 'data-tone', 'data-size', 'data-open' ] },
               { slot: 'alert-dialog-backdrop', part: 'The veil behind it' },

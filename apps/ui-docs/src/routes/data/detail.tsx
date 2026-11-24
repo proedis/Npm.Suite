@@ -14,7 +14,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import aligned from '@/examples/data/detail/aligned.tsx?example';
 import basic from '@/examples/data/detail/basic.tsx?example';
 import inContext from '@/examples/data/detail/in-context.tsx?example';
@@ -247,7 +248,7 @@ function DetailPage(): React.ReactNode {
           title={'Slots and data attributes'}
           lead={'Every part a stylesheet can reach, and what each one reports.'}
         >
-          <SlotsTable
+          <SlotsInspector of={sections}
             rows={[
               { slot: 'detail', part: 'The root' },
               { slot: 'detail-status', part: 'The status region that announces a copy' },

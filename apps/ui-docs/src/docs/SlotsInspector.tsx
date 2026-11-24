@@ -24,6 +24,12 @@ interface SlotsInspectorProps {
 
   /** The parts, as the slots table of the page lists them */
   rows: readonly SlotRow[];
+
+  /**
+   * The example opens something modal (a dialog, a drawer): while it is open the page behind it is
+   * inert, so the reader is told to set the rule first and open it after
+   */
+  modal?: boolean;
 }
 
 /** The `data-*` attributes found on the elements of one slot right now, each with the values seen */
@@ -128,12 +134,20 @@ function useLiveSlots(preview: React.RefObject<HTMLElement | null>, slotsKey: st
 
     const slots = slotsKey.split(' ');
     let frame = 0;
+    let last = '';
 
+    /** Read again, and set only what changed: the outline of the inspector moves on every frame too */
     const read = (): void => {
-      setLive(new Map(slots.map((slot) => {
+      const next = new Map(slots.map((slot) => {
         const parts = partsOf(element, slot);
-        return [ slot, { count: parts.length, attributes: liveAttributesOf(parts) } ];
-      })));
+        return [ slot, { count: parts.length, attributes: liveAttributesOf(parts) } ] as const;
+      }));
+      const signature = JSON.stringify([ ...next ].map(([ slot, value ]) => [ slot, value.count, [ ...value.attributes ] ]));
+
+      if (signature !== last) {
+        last = signature;
+        setLive(next);
+      }
     };
 
     const schedule = (): void => {
@@ -141,9 +155,13 @@ function useLiveSlots(preview: React.RefObject<HTMLElement | null>, slotsKey: st
       frame = requestAnimationFrame(read);
     };
 
+    /*
+     * The preview, and the whole body for what the example opens in a portal (a menu, a dialog): its
+     * attributes change inside the portal, not on the body. One read per frame at most.
+     */
     const observer = new MutationObserver(schedule);
     observer.observe(element, { subtree: true, attributes: true, childList: true });
-    observer.observe(document.body, { childList: true });
+    observer.observe(document.body, { subtree: true, attributes: true, childList: true });
     schedule();
 
     return () => {
@@ -200,7 +218,7 @@ export function SlotsInspector(props: SlotsInspectorProps): React.ReactNode {
   // ----
   // Props Deconstruct
   // ----
-  const { of, rows } = props;
+  const { modal = false, of, rows } = props;
   const { Component } = of;
 
 
@@ -248,7 +266,11 @@ export function SlotsInspector(props: SlotsInspectorProps): React.ReactNode {
   }, [ live, ruleRow, ruleSlot ]);
 
   const selector = selectorOf(ruleSlot, ruleAttribute);
-  const style = `[data-inspector='${scope}'] ${selector} { ${cleanDeclarations(declarations)} }`;
+  /*
+   * The rule reaches the preview, and what the preview opens in a portal outside the app root: a dialog
+   * or a menu of the example is drawn there, not inside the preview
+   */
+  const style = `[data-inspector='${scope}'] ${selector}, body > :not(#${APP_ROOT}) ${selector} { ${cleanDeclarations(declarations)} }`;
 
 
   // ----
@@ -290,11 +312,16 @@ export function SlotsInspector(props: SlotsInspectorProps): React.ReactNode {
       </div>
 
       <Stack gap={'sm'}>
-        <Cluster justify={'end'}>
-          <Button size={'sm'} fill={'plain'} tone={'muted'} aria-expanded={showCode} onClick={() => setShowCode((value) => !value)}>
+        <Stack direction={'horizontal'} justify={'between'} align={'start'}>
+          <span className={'text-sm text-muted-foreground'}>
+            Hover or focus a row to outline its part. The attributes are read from the example as it is now: use
+            it, and a part that is not in the DOM appears once the example opens it.
+            {modal && ' While it is open the page behind is inert: pick the part and write the rule first, then open it.'}
+          </span>
+          <Button size={'sm'} fill={'plain'} tone={'muted'} className={'shrink-0'} aria-expanded={showCode} onClick={() => setShowCode((value) => !value)}>
             {showCode ? 'Hide the code' : 'Show the code'}
           </Button>
-        </Cluster>
+        </Stack>
         {showCode && <CodeBlock snippet={of} title={of.file} maxHeight={320} />}
       </Stack>
 

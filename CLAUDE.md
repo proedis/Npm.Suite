@@ -562,6 +562,14 @@ package:
   cannot promise a variable the component does not read. The layout primitives and the class builders are
   left out of a component's graph: components render them with props of their own.
 
+**The slots of a component are inspected on a live example, never listed from memory.** Every slots
+section is a `SlotsInspector` (`src/docs/SlotsInspector.tsx`) over the example that shows the most of
+its parts, measured page by page: hovering or focusing a row outlines the elements of that `data-slot`,
+each row shows the `data-*` they carry right now (a `MutationObserver` on the preview and on the body,
+for what a menu or a dialog draws in a portal), and a rule tried below is applied to that preview and
+its portals alone. The preview sticks under the bar while the table scrolls. A modal overlay makes the
+page inert while open, which its inspector says (`modal`): set the rule first, then open it.
+
 **A responsive example is judged in a frame, never on the window.** `<Example of={x} resizable />`
 renders the example in a same-origin iframe of the site's own `/preview/<id>` route, whose width the
 reader drags from a handle or picks from a preset per breakpoint: Tailwind's breakpoints are media

@@ -11,7 +11,8 @@ import { PageBody, PageHeader, Prose, Section } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
 import { CodeBlock } from '@/docs/CodeBlock';
 import { Customization } from '@/docs/Customization';
-import { PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { PropsTable } from '@/docs/Tables';
 import basic from '@/examples/layout/cluster/basic.tsx?example';
 import inContext from '@/examples/layout/cluster/in-context.tsx?example';
 import inline from '@/examples/layout/cluster/inline.tsx?example';
@@ -123,7 +124,7 @@ function ClusterPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable rows={[ { slot: 'cluster', part: 'The row itself, unless a data-slot is passed', attributes: [ 'data-inline' ] } ]} />
+          <SlotsInspector of={basic} rows={[ { slot: 'cluster', part: 'The row itself, unless a data-slot is passed', attributes: [ 'data-inline' ] } ]} />
         </Section>
 
         <Section title={'API'}>

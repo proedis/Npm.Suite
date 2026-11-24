@@ -10,7 +10,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { PropsTable } from '@/docs/Tables';
 import basic from '@/examples/layout/aspect-ratio/basic.tsx?example';
 import media from '@/examples/layout/aspect-ratio/media.tsx?example';
 import { pageAt } from '@/nav';
@@ -84,7 +85,7 @@ function AspectRatioPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable rows={[ { slot: 'aspect-ratio', part: 'The outer box that holds the ratio' } ]} />
+          <SlotsInspector of={basic} rows={[ { slot: 'aspect-ratio', part: 'The outer box that holds the ratio' } ]} />
           <Prose>
             <p>The inner layer around the child has no slot.</p>
           </Prose>

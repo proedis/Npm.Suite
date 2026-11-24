@@ -12,7 +12,8 @@ import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section } from '@/docs/Page';
 import { refineProps } from '@/docs/refineProps';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import both from '@/examples/primitives/scroll-area/both.tsx?example';
 import flexParent from '@/examples/primitives/scroll-area/flex-parent.tsx?example';
 import horizontal from '@/examples/primitives/scroll-area/horizontal.tsx?example';
@@ -150,7 +151,7 @@ function ScrollAreaPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable
+          <SlotsInspector of={vertical}
             rows={[
               { slot: 'scroll-area', part: 'The scrolling box', attributes: [ 'data-orientation', 'data-scrollbar' ] }
             ]}

@@ -13,7 +13,8 @@ import { CodeBlock } from '@/docs/CodeBlock';
 import { Customization } from '@/docs/Customization';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import basic from '@/examples/overlays/drawer/basic.tsx?example';
 import create from '@/examples/overlays/drawer/create.tsx?example';
 import edit from '@/examples/overlays/drawer/edit.tsx?example';
@@ -200,7 +201,7 @@ function DrawerPage(): React.ReactNode {
             </React.Fragment>
           )}
         >
-          <SlotsTable
+          <SlotsInspector modal of={basic}
             rows={[
               { slot: 'drawer', part: 'The panel', attributes: [ 'data-size', 'data-mode', 'data-open' ] },
               { slot: 'drawer-backdrop', part: 'The veil behind it' },

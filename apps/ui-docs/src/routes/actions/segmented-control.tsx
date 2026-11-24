@@ -13,7 +13,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import basic from '@/examples/actions/segmented-control/basic.tsx?example';
 import disabled from '@/examples/actions/segmented-control/disabled.tsx?example';
 import icons from '@/examples/actions/segmented-control/icons.tsx?example';
@@ -184,7 +185,7 @@ function SegmentedControlPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'} lead={'Every part a stylesheet can reach, and what each one reports.'}>
-          <SlotsTable
+          <SlotsInspector of={icons}
             rows={[
               { slot: 'segmented-control', part: 'The rail', attributes: [ 'data-size', 'data-disabled' ] },
               { slot: 'segmented-control-indicator', part: 'The fill that slides under the chosen item', attributes: [ 'data-disabled' ] },

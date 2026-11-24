@@ -13,7 +13,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import attachments from '@/examples/forms/file-upload/attachments.tsx?example';
 import basic from '@/examples/forms/file-upload/basic.tsx?example';
 import labels from '@/examples/forms/file-upload/labels.ts?source';
@@ -165,7 +166,7 @@ function FileUploadPage(): React.ReactNode {
 
         <Section title={'Slots and data attributes'}>
           <SubSection title={'FileUpload'} id={'slots-file-upload'}>
-            <SlotsTable
+            <SlotsInspector of={rejected}
               rows={[
                 { slot: 'file-upload', part: 'The field', attributes: [ 'data-disabled', 'data-readonly', 'data-invalid', 'data-single' ] },
                 { slot: 'file-upload-box', part: 'The box that takes a drag', attributes: [ 'data-drag', 'data-full', 'data-invalid' ] },
@@ -183,7 +184,7 @@ function FileUploadPage(): React.ReactNode {
             />
           </SubSection>
           <SubSection title={'AttachmentList'} id={'slots-attachment-list'}>
-            <SlotsTable
+            <SlotsInspector of={attachments}
               rows={[
                 { slot: 'attachment-list', part: 'The list' },
                 { slot: 'attachment-row', part: 'A file', attributes: [ 'data-status' ] },

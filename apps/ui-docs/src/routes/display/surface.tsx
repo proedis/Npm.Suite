@@ -16,7 +16,8 @@ import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
 import { refineProps } from '@/docs/refineProps';
 import { css, tsx } from '@/docs/snippet';
-import { PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { PropsTable } from '@/docs/Tables';
 import basic from '@/examples/display/surface/basic.tsx?example';
 import chrome from '@/examples/display/surface/chrome.tsx?example';
 import flush from '@/examples/display/surface/flush.tsx?example';
@@ -185,7 +186,7 @@ function SurfacePage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable
+          <SlotsInspector of={basic}
             rows={[
               { slot: 'surface', part: 'The card', attributes: [ 'data-elevation', 'data-radius', 'data-loading' ] },
               { slot: 'surface-body', part: 'The column holding the parts, dimmed while loading' },

@@ -10,7 +10,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { PropsTable } from '@/docs/Tables';
 import basic from '@/examples/layout/center/basic.tsx?example';
 import inline from '@/examples/layout/center/inline.tsx?example';
 import { pageAt } from '@/nav';
@@ -98,7 +99,7 @@ function CenterPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable
+          <SlotsInspector of={basic}
             rows={[
               { slot: 'center', part: 'The box, unless a data-slot is passed', attributes: [ 'data-inline' ] },
               { slot: 'center-content', part: 'The column around the children, only with maxWidth' }

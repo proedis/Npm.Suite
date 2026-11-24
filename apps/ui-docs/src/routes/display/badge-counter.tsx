@@ -11,7 +11,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { PropsTable } from '@/docs/Tables';
 import basic from '@/examples/display/badge-counter/basic.tsx?example';
 import live from '@/examples/display/badge-counter/live.tsx?example';
 import tones from '@/examples/display/badge-counter/tones.tsx?example';
@@ -92,7 +93,7 @@ function BadgeCounterPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable
+          <SlotsInspector of={basic}
             rows={[
               { slot: 'badge-counter', part: 'The pill', attributes: [ 'data-tone' ] }
             ]}

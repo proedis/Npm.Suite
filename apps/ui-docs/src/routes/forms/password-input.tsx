@@ -11,7 +11,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { PropsTable } from '@/docs/Tables';
 import basic from '@/examples/forms/password-input/basic.tsx?example';
 import newPassword from '@/examples/forms/password-input/new-password.tsx?example';
 import signIn from '@/examples/forms/password-input/sign-in.tsx?example';
@@ -125,7 +126,7 @@ function PasswordInputPage(): React.ReactNode {
               <InlineCode>text-input-action</InlineCode>.
             </p>
           </Prose>
-          <SlotsTable
+          <SlotsInspector of={basic}
             rows={[
               { slot: 'text-input', part: 'The frame', attributes: [ 'data-size', 'data-invalid', 'data-readonly', 'data-disabled' ] },
               { slot: 'text-input-control', part: 'The input, of type password or text' },

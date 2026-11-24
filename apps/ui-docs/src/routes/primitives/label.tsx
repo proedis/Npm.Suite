@@ -11,7 +11,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { PropsTable } from '@/docs/Tables';
 import basic from '@/examples/primitives/label/basic.tsx?example';
 import data from '@/examples/primitives/label/data.tsx?example';
 import emphasis from '@/examples/primitives/label/emphasis.tsx?example';
@@ -100,7 +101,7 @@ function LabelPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable
+          <SlotsInspector of={basic}
             rows={[
               { slot: 'label', part: 'The label, or the element given with as', attributes: [ 'data-emphasis' ] },
               { slot: 'label-text', part: 'The name' },

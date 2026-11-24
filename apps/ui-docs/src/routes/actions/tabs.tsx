@@ -14,7 +14,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import basic from '@/examples/actions/tabs/basic.tsx?example';
 import counts from '@/examples/actions/tabs/counts.tsx?example';
 import disabled from '@/examples/actions/tabs/disabled.tsx?example';
@@ -212,7 +213,7 @@ function TabsPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'} lead={'Every part a stylesheet can reach, and what each one reports.'}>
-          <SlotsTable
+          <SlotsInspector of={counts}
             rows={[
               { slot: 'tabs', part: 'The root, where className lands' },
               { slot: 'tabs-row', part: 'The row that measures what fits' },

@@ -10,7 +10,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import card from '@/examples/primitives/skeleton/card.tsx?example';
 import loading from '@/examples/primitives/skeleton/loading.tsx?example';
 import shapes from '@/examples/primitives/skeleton/shapes.tsx?example';
@@ -128,7 +129,7 @@ function SkeletonPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable
+          <SlotsInspector of={shapes}
             rows={[
               { slot: 'skeleton', part: 'One shape, or one line of text', attributes: [ 'data-shape', 'data-size' ] },
               { slot: 'skeleton-bar', part: 'The bar inside a line of text' },

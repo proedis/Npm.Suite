@@ -14,7 +14,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import basic from '@/examples/forms/form/basic.tsx?example';
 import errorSummary from '@/examples/forms/form/error-summary.tsx?example';
 import header from '@/examples/forms/form/header.tsx?example';
@@ -277,7 +278,7 @@ function FormPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable
+          <SlotsInspector of={inContext}
             rows={[
               { slot: 'form', part: 'The form element' },
               { slot: 'form-header', part: 'The header of a form in a page' },

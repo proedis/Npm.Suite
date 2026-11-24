@@ -11,7 +11,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { PropsTable } from '@/docs/Tables';
 import basic from '@/examples/layout/bleed/basic.tsx?example';
 import inset from '@/examples/layout/bleed/inset.tsx?example';
 import { pageAt } from '@/nav';
@@ -92,7 +93,7 @@ function BleedPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable rows={[ { slot: 'bleed', part: 'The band, unless a data-slot is passed', attributes: [ 'data-inset' ] } ]} />
+          <SlotsInspector of={basic} rows={[ { slot: 'bleed', part: 'The band, unless a data-slot is passed', attributes: [ 'data-inset' ] } ]} />
           <Prose>
             <p>
               <InlineCode>data-inset</InlineCode> carries the step when <InlineCode>inset</InlineCode> is given, and is

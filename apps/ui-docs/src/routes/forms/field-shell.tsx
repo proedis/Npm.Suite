@@ -11,7 +11,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { PropsTable } from '@/docs/Tables';
 import plateTags from '@/examples/forms/field-shell/plate-tags.tsx?example';
 import sizes from '@/examples/forms/field-shell/sizes.tsx?example';
 import states from '@/examples/forms/field-shell/states.tsx?example';
@@ -116,7 +117,7 @@ function FieldShellPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable
+          <SlotsInspector of={sizes}
             rows={[
               { slot: 'field-shell', part: 'The frame', attributes: [ 'data-size', 'data-invalid', 'data-readonly', 'data-disabled' ] },
               { slot: 'field-shell-leading', part: 'The icon before the content' },

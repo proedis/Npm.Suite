@@ -11,7 +11,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import basic from '@/examples/forms/checkbox/basic.tsx?example';
 import description from '@/examples/forms/checkbox/description.tsx?example';
 import group from '@/examples/forms/checkbox/group.tsx?example';
@@ -156,7 +157,7 @@ function CheckboxPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable
+          <SlotsInspector of={locked}
             rows={[
               { slot: 'checkbox', part: 'The row: a label around the box and its text', attributes: [ 'data-disabled', 'data-readonly', 'data-invalid', 'data-parent' ] },
               { slot: 'checkbox-box', part: 'The box, which takes the focus', attributes: [ 'data-checked', 'data-unchecked', 'data-indeterminate' ] },

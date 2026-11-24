@@ -11,7 +11,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { PropsTable } from '@/docs/Tables';
 import basic from '@/examples/layout/sticky/basic.tsx?example';
 import bottom from '@/examples/layout/sticky/bottom.tsx?example';
 import { pageAt } from '@/nav';
@@ -99,7 +100,7 @@ function StickyPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable rows={[ { slot: 'sticky', part: 'The pinned element, unless a data-slot is passed', attributes: [ 'data-position' ] } ]} />
+          <SlotsInspector of={basic} rows={[ { slot: 'sticky', part: 'The pinned element, unless a data-slot is passed', attributes: [ 'data-position' ] } ]} />
         </Section>
 
         <Section title={'API'}>

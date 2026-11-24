@@ -10,7 +10,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section } from '@/docs/Page';
 import { tsx } from '@/docs/snippet';
-import { DocTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable } from '@/docs/Tables';
 import basic from '@/examples/layout/spacer/basic.tsx?example';
 import vertical from '@/examples/layout/spacer/vertical.tsx?example';
 import { pageAt } from '@/nav';
@@ -102,7 +103,7 @@ function SpacerPage(): React.ReactNode {
         <Customization theme={themeDoc} name={PAGE.title} />
 
         <Section title={'Slots and data attributes'}>
-          <SlotsTable rows={[ { slot: 'spacer', part: 'The filler, unless a data-slot is passed' } ]} />
+          <SlotsInspector of={basic} rows={[ { slot: 'spacer', part: 'The filler, unless a data-slot is passed' } ]} />
         </Section>
 
         <Section title={'API'}>
