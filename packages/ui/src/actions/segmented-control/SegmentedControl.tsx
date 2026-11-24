@@ -135,7 +135,7 @@ const RAIL_SIZES: Readonly<Record<SegmentedControlSize, string>> = {
  * flows into implicit columns (`grid-flow-col auto-cols-fr`), which `columns` cannot say
  */
 // eslint-disable-next-line no-restricted-syntax -- implicit columns from the items, not a column count
-const RAIL = 'relative inline-grid shrink-0 grid-flow-col auto-cols-fr items-stretch rounded-md bg-muted inset-ring inset-ring-border';
+const RAIL = 'relative inline-grid shrink-0 grid-flow-col auto-cols-fr items-stretch rounded-control bg-muted inset-ring inset-ring-border';
 
 /** The item, and an active area reaching half the gap and the rail's edge: a click between two never misses */
 const ITEM_SIZES: Readonly<Record<SegmentedControlSize, string>> = {
@@ -159,7 +159,7 @@ const ITEM_ON = 'data-pressed:text-primary-foreground forced-colors:data-pressed
 
 const INDICATOR = [
   'pointer-events-none absolute top-(--indicator-top) left-(--indicator-left) h-(--indicator-height) w-(--indicator-width)',
-  'rounded-sm bg-primary data-disabled:bg-primary/50',
+  'rounded-control-inner bg-primary data-disabled:bg-primary/50',
   'transition-all duration-200 ease-out motion-reduce:transition-none forced-colors:hidden'
 ].join(' ');
 
@@ -269,7 +269,7 @@ function SegmentedControlItem(props: SegmentedControlItemProps, ref: React.Forwa
         PRESSABLE_OFF,
         ITEM_ON,
         ITEM_SIZES[size],
-        'h-full rounded-sm after:absolute',
+        'h-full rounded-control-inner after:absolute',
         FOCUS_INSIDE,
         'data-pressed:cursor-default data-pressed:focus-visible:outline-offset-1',
         className

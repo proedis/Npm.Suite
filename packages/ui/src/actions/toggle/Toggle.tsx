@@ -129,9 +129,9 @@ interface ToggleGroupContextValue {
 
 /** The button's own sizes, with the side of the icon 2px closer to the edge */
 const SIZES: Readonly<Record<ToggleSize, string>> = {
-  sm: `${CONTROL_HEIGHT.sm} rounded-md px-2.5 text-xs has-[[data-slot=toggle-leading]]:ps-2 [&_svg]:size-3.5`,
-  md: `${CONTROL_HEIGHT.md} rounded-md px-3 text-sm has-[[data-slot=toggle-leading]]:ps-2.5 [&_svg]:size-4`,
-  lg: `${CONTROL_HEIGHT.lg} rounded-md px-4 text-sm has-[[data-slot=toggle-leading]]:ps-3 [&_svg]:size-4`
+  sm: `${CONTROL_HEIGHT.sm} rounded-control px-2.5 text-xs has-[[data-slot=toggle-leading]]:ps-2 [&_svg]:size-3.5`,
+  md: `${CONTROL_HEIGHT.md} rounded-control px-3 text-sm has-[[data-slot=toggle-leading]]:ps-2.5 [&_svg]:size-4`,
+  lg: `${CONTROL_HEIGHT.lg} rounded-control px-4 text-sm has-[[data-slot=toggle-leading]]:ps-3 [&_svg]:size-4`
 };
 
 const CONTENT_GAP: Readonly<Record<ToggleSize, SpacingValue>> = {

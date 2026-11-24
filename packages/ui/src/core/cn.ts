@@ -16,7 +16,8 @@ const twMerge = extendTailwindMerge<'scrollbar'>({
   extend: {
     theme: {
       spacing: [ 'control-sm', 'control-md', 'control-lg', 'xs', 'sm', 'md', 'lg', 'xl', '2xl' ],
-      font   : [ 'heading' ]
+      font   : [ 'heading' ],
+      radius : [ 'control', 'control-inner', 'button' ]
     },
     classGroups: {
       'grid-cols': [ { 'grid-cols': [ 'field', 'field-horizontal' ] } ],

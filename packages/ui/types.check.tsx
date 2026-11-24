@@ -348,6 +348,11 @@ const responsiveBlock = <Button block={{ base: true, md: false }} hideBelow={'sm
 /** @ts-expect-error `base` takes no hide: below the narrowest breakpoint there is nothing to hide */
 const wrongHide = <Button hideBelow={'base'}>no</Button>;
 
+const pillButton = <Button radius={'full'}>ok</Button>;
+
+/** @ts-expect-error a radius is a step of the scale by name, not a length */
+const radiusInPixels = <Button radius={12}>no</Button>;
+
 const besideOnDesktop = (
   <Field orientation={{ base: 'vertical', md: 'horizontal' }}>
     <Field.Label optional={'optional'}>Notes</Field.Label>
@@ -528,7 +533,7 @@ export const CHECKED = [
   baseIsNotABreakpoint, unknownBreakpoint, asAWrapper, labelDefault, quietLabel, spanWithHtmlFor,
   skipLink, contradictoryProps, throughAComponent, missingComponentProp,
   responsiveSpan, singleSpan, wrongSpan, detailResponsiveSpan, detailWrongSpan, detailRefs,
-  responsiveGroups, wrongOrientation, responsiveBlock, wrongHide,
+  responsiveGroups, wrongOrientation, responsiveBlock, wrongHide, pillButton, radiusInPixels,
   besideOnDesktop, wrongFieldOrientation, ownControl, wrongShellSize,
   namedToggle, namelessToggle, namedGroup, namelessGroup, chosenView, emptyView, namelessItem,
   formLibraryBox, namedRadioGroup, switchWithTitle, namedTabs, namelessTabs, closedTabs,

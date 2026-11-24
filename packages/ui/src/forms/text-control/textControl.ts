@@ -28,7 +28,7 @@ import type { SpacingValue } from '../../core/responsive';
 
 /** Border, surface, text, and every state that is not the focus */
 const BASE = [
-  'rounded-md border border-input bg-card text-sm text-foreground',
+  'rounded-control border border-input bg-card text-sm text-foreground',
   'transition-colors duration-100 motion-reduce:transition-none',
   'not-data-invalid:not-data-readonly:not-data-disabled:hover:border-input-hover',
 

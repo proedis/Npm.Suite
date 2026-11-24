@@ -30,6 +30,12 @@ import type { Tone, ToneFill } from '../../core/tone';
 
 export type ButtonSize = ControlSize;
 
+/**
+ * The corner of a button: `default`, the theme's (`--button-radius`, which falls back to the corner of
+ * every control), or a step of the radius scale
+ */
+export type ButtonRadius = 'default' | 'none' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | 'full';
+
 export interface StrictButtonProps extends BaseProps {
   /**
    * How the tone is painted: `solid` the action you want taken, `soft` the one beside it, `plain` the
@@ -42,6 +48,13 @@ export interface StrictButtonProps extends BaseProps {
 
   /** `sm` in a table row or a filter bar, `md` in forms and bars, `lg` for sign-in and empty states. Defaults to `md` */
   size?: ButtonSize;
+
+  /**
+   * The corner. `default` is the theme's: `--button-radius`, or `--control-radius` when only that is
+   * declared, so a button keeps the shape of the fields beside it. A step of the radius scale, or
+   * `full` for a pill, sets this one button. Defaults to `default`
+   */
+  radius?: ButtonRadius;
 
   /** An icon before the label, as a node: this package imports no icon library */
   leading?: React.ReactNode;
@@ -91,10 +104,11 @@ export type ButtonProps = StrictButtonProps & ButtonLoadingProps & Omit<
 const ROOT_LAYOUT = { inline: true, direction: 'horizontal', align: 'center', justify: 'center' } as const;
 
 const DEFAULT_VARIANTS = {
-  block: false,
-  fill : 'solid',
-  size : 'md',
-  tone : 'primary'
+  block : false,
+  fill  : 'solid',
+  radius: 'default',
+  size  : 'md',
+  tone  : 'primary'
 } as const;
 
 /** The five tones that are colours rather than surfaces: their solid fill takes the state veil */
@@ -145,8 +159,8 @@ const LAYER_COMPOUNDS = ([ 'solid', 'soft', 'plain' ] as const).flatMap((fill) =
  */
 const buttonVariants = cva(
   [
-    'relative shrink-0 cursor-pointer rounded-md',
-    'border border-transparent font-medium whitespace-nowrap select-none',
+    'relative shrink-0 cursor-pointer',
+    'border font-medium whitespace-nowrap select-none',
     'transition-colors duration-100 motion-reduce:transition-none',
 
     /* A 2px outline 2px away, and a halo of the same colour reaching 3px past it. Keyboard only */
@@ -185,21 +199,41 @@ const buttonVariants = cva(
         false: ''
       },
 
-      fill: { solid: '', soft: '', plain: '' },
+      radius: {
+        default: 'rounded-button',
+        none   : 'rounded-none',
+        sm     : 'rounded-sm',
+        md     : 'rounded-md',
+        lg     : 'rounded-lg',
+        xl     : 'rounded-xl',
+        '2xl'  : 'rounded-2xl',
+        '3xl'  : 'rounded-3xl',
+        full   : 'rounded-full'
+      },
 
-      /** The focus follows the tone; amber on white is 2:1, so warning uses its darker ink */
+      /**
+       * The quiet fills have no border to show. The solid one takes its colour from `button-finish`,
+       * the tone itself unless a theme shades it: a `border-transparent` there would beat the finish
+       */
+      fill: { solid: '', soft: 'border-transparent', plain: 'border-transparent' },
+
+      /**
+       * The focus follows the tone; amber on white is 2:1, so warning uses its darker ink. `tone-*` sets
+       * `--tone`, the colour a theme derives the finish from
+       */
       tone: {
-        muted      : 'focus-visible:outline-ring focus-visible:ring-ring/20 not-data-disabled:hover:text-foreground',
-        secondary  : 'focus-visible:outline-ring focus-visible:ring-ring/20',
-        primary    : 'focus-visible:outline-ring focus-visible:ring-ring/20',
-        success    : 'focus-visible:outline-success focus-visible:ring-success/20',
-        warning    : 'focus-visible:outline-warning-soft-foreground focus-visible:ring-warning-soft-foreground/20',
-        destructive: 'focus-visible:outline-destructive focus-visible:ring-destructive/20',
-        info       : 'focus-visible:outline-info focus-visible:ring-info/20'
+        muted      : 'tone-muted focus-visible:outline-ring focus-visible:ring-ring/20 not-data-disabled:hover:text-foreground',
+        secondary  : 'tone-secondary focus-visible:outline-ring focus-visible:ring-ring/20',
+        primary    : 'tone-primary focus-visible:outline-ring focus-visible:ring-ring/20',
+        success    : 'tone-success focus-visible:outline-success focus-visible:ring-success/20',
+        warning    : 'tone-warning focus-visible:outline-warning-soft-foreground focus-visible:ring-warning-soft-foreground/20',
+        destructive: 'tone-destructive focus-visible:outline-destructive focus-visible:ring-destructive/20',
+        info       : 'tone-info focus-visible:outline-info focus-visible:ring-info/20'
       }
     },
 
-    compoundVariants: [ ...TONE_COMPOUNDS, ...LAYER_COMPOUNDS ],
+    /** The finish of the theme (gradient, border, highlight, glow) reaches the solid fill only: all zero by default */
+    compoundVariants: [ ...TONE_COMPOUNDS, ...LAYER_COMPOUNDS, { fill: 'solid', class: 'button-finish' } ],
 
     defaultVariants: DEFAULT_VARIANTS
   }
@@ -211,7 +245,11 @@ const buttonVariants = cva(
  * -------- */
 
 /**
- * The button: three fills, seven tones, three sizes, flat and borderless.
+ * The button: three fills, seven tones, three sizes, a corner of the theme's or of its own.
+ *
+ * Flat by default. A theme can give the solid fill a finish from `:root` (`--button-gradient`,
+ * `--button-border-shade`, `--button-highlight`, `--button-glow`), each derived from `--tone`, the
+ * colour of the button's tone, which the button sets on itself.
  *
  * ```tsx
  * <Button leading={<Plus />}>New signal</Button>
@@ -227,7 +265,7 @@ const buttonVariants = cva(
  *
  * `type` defaults to `button`, as in Base UI: a submit is said out loud.
  *
- * Parts with a slot: `button` (with `data-fill`, `data-tone`, `data-size`, `data-block`,
+ * Parts with a slot: `button` (with `data-fill`, `data-tone`, `data-size`, `data-radius`, `data-block`,
  * `data-loading`), `button-content`, `button-leading`, `button-trailing`, `button-spinner`.
  *
  * Not the suite's to enforce, and kept in review by each design system: which fill and tone go where,
@@ -248,6 +286,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, r
     leading,
     loading = false,
     loadingLabel,
+    radius = DEFAULT_VARIANTS.radius,
     size = DEFAULT_VARIANTS.size,
     to,
     tone = DEFAULT_VARIANTS.tone,
@@ -266,7 +305,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, r
   const blockBase = responsiveBlock ? (toResponsiveMap(block).base ?? false) : block;
 
   const classes = cn(
-    buttonVariants({ block: responsiveBlock ? false : block, fill, size, tone }),
+    buttonVariants({ block: responsiveBlock ? false : block, fill, radius, size, tone }),
     responsiveBlock && responsiveClasses(block, (value) => (value ? 'w-full' : 'w-auto')),
     baseClasses,
     className
@@ -280,6 +319,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, r
     'data-fill'   : fill,
     'data-tone'   : tone,
     'data-size'   : size,
+    'data-radius' : radius,
     'data-block'  : blockBase || undefined,
     'data-loading': loading || undefined
   };

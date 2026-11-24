@@ -570,7 +570,8 @@ narrower stylesheet is the one you have to ask for.
   2. Would an application plausibly write a rule for **the unspecified case**?
   3. Would that rule survive this package changing its mind about which option the default is?
 
-  The four that pass: `Surface.elevation`, `Surface.radius`, `Container.size`, `Label.emphasis`.
+  The five that pass: `Surface.elevation`, `Surface.radius`, `Container.size`, `Label.emphasis`, and
+  `Button.radius`, whose `default` is not a step at all but the theme's corner (`rounded-button`).
 
   What fails, and why it is worth knowing rather than re-deriving: `IconBox`'s `fill` / `tone` / `size`
   / `shape` and `Spinner.size` and every `Heading` size are **steps**, so they fail (1) and
@@ -609,6 +610,24 @@ narrower stylesheet is the one you have to ask for.
   invisible to the scanner, so a missing safelist entry is a silently absent style. Before adding
   one, check whether the consumer could write it literally in `className` instead, where `@source "."`
   finds it for free.
+- **A control's corner is a variable, and a button's falls back to it.** `rounded-control` is
+  `var(--control-radius, var(--radius-md))`, `rounded-button` is `var(--button-radius, <the control's>)`,
+  both in an `@theme inline` block of `theme.css` so the fallback is resolved where the control is. The
+  insides of a rail (the segmented items and indicator) read `rounded-control-inner`, the control's corner
+  less the 2px of the rail's padding, so the two stay concentric whatever the theme declares. At the
+  defaults every value is the one it replaced: 6px and 4px, measured. `cn` knows the three names
+  (`radius` in its twMerge theme), or a `rounded-full` in a `className` would not replace them.
+- **The finish of a solid button is four numbers at zero, derived from `--tone`.** Each `tone-*`
+  utility sets `--tone` to its colour; `button-finish`, on the solid fill only, reads it for the border
+  (`color-mix` with black by `--button-border-shade`), the glow (`--button-glow` of the tone in a
+  shadow) and, with `--button-highlight` and `--button-gradient`, an inset line and a `::before` gradient
+  that do not need it. All zero, the button renders as it did. ⚠️ Two things are load-bearing. The
+  border colour comes from `button-finish`, so the solid fill must **not** carry `border-transparent`:
+  it is set on `soft` and `plain` only, because a plain utility and a custom one have no order you
+  can rely on, and the first version had the border shade silently doing nothing. And the shadows are
+  written through `--tw-inset-shadow` and `--tw-shadow` into the same `box-shadow` list Tailwind
+  composes, so `focus-visible:ring-*` still draws on top of the glow instead of replacing it.
+  A size past `lg` is deliberately absent: a hero CTA is a `className`, not a control height.
 - **One table paints every tone, in `core/tone.ts`.** `TONE_CLASSES` and the `TONE_COMPOUNDS` built
   from it are what every `fill × tone` component reads, so a `success` badge and a `success` icon box
   are the same green at the same strength. Two hand-maintained 21-row tables is the shape of the
@@ -955,6 +974,25 @@ What was run for the spacing scale by name and the control heights:
   watch `tsc` fail.
 - **The lint rule** run on a probe file: `h-control-md` in a string and in a template is reported,
   `min-h-control-md` is not.
+
+What was run for the radius of the controls and the finish of the button:
+
+- **The markup snapshots** (433 scenes) on the build of the commit before and on this one, compared by
+  class token and attribute: `rounded-md` became `rounded-button` (662) or `rounded-control` (173),
+  `rounded-sm` became `rounded-control-inner` (18), every button gained its `tone-*` (757) and
+  `data-radius` (757), every solid one `button-finish` in place of `border-transparent` (198). Nothing
+  else moved. The jsdom harness: 45 of 47 green, the same two as the run before (`menuscroll`'s
+  precondition, and a hand-written copy in `overflowlist` that predates the `gap-0` of the structural
+  Stacks).
+- **Tailwind's compiler** on the built `theme.css`: the three radius utilities, `button-finish` and the
+  seven `tone-*` emitted, with their fallbacks; `rounded-full` after `rounded-button`.
+- **In the browser**: the controls at 6px, the segmented items and indicator at 4px, every `radius`
+  step at its scale value; with the finish declared, a 16px corner, the border at 22% black, the inset
+  line, the gradient and a glow per tone; with it undeclared, the border the colour of the fill and
+  every part transparent; the keyboard focus adding its 7px halo to the list with the glow still in it.
+  React Compiler at 202 functions, 0 skipped.
+- **`types.check.tsx`**: `radius={'full'}` compiles, `radius={12}` does not, made valid for a moment to
+  watch `tsc` fail.
 
 ## Two defects the build surfaced
 

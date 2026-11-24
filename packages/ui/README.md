@@ -792,6 +792,23 @@ What is worth knowing before using them:
   function of `Form.ErrorSummary`.
 - **An icon-only button always has a tooltip.** `IconButton` takes one required `label`, which is both
   its accessible name and its tooltip, so the two cannot disagree.
+- **A button takes its corner from the theme.** `radius` sets one (`none`, `sm` … `3xl`, `full`); left at
+  `default` the button reads `--button-radius`, which falls back to `--control-radius`, the corner every
+  field, select and toggle shares. Four numbers give the solid fill some depth, all zero by default, so
+  an untouched theme keeps the flat button:
+
+  ```css
+  :root {
+    --button-radius: var(--radius-2xl);
+    --button-gradient: 0.12;      /* 0 to 1: a light top and a darker bottom */
+    --button-border-shade: 22%;   /* a border of the tone mixed with this much black */
+    --button-highlight: 0.3;      /* 0 to 1: a light line inside the top edge */
+    --button-glow: 0.5;           /* 0 to 1: a shadow in the colour of the tone */
+  }
+  ```
+
+  Every part is derived from the tone, so one theme serves a `primary`, a `success` and a
+  `destructive` button alike, and the focus ring still draws over the glow.
 - **A button that leads somewhere is a link.** `to` takes a `LinkTarget` from `@proedis/ui/core`
   (`{ href, go() }`): the button renders an `<a href>`, a plain click calls `go()`, the middle click and
   a new tab still work. No router and no provider in the package.
@@ -1130,7 +1147,8 @@ prevented it. So the vocabulary is named once, in a second stylesheet:
 | Raised surfaces | `--card`, `--popover`, each with its `-foreground` |
 | Action | `--primary`, `--secondary`, `--accent`, each with its `-foreground` |
 | States | `--destructive`, `--success`, `--warning`, `--info`, each with its `-foreground` |
-| Controls | `--input` (the **border** of a form control), `--input-hover`, `--placeholder`, `--ring` (the focus ring), the heights `--spacing-control-sm`, `-md`, `-lg` |
+| Controls | `--input` (the **border** of a form control), `--input-hover`, `--placeholder`, `--ring` (the focus ring), the heights `--spacing-control-sm`, `-md`, `-lg`, and `--control-radius`, the corner of every control (**optional**: undeclared it is `--radius-md`) |
+| Buttons | `--button-radius`, the corner of a button that declares none (undeclared, `--control-radius`), and the finish of the solid fill: `--button-gradient`, `--button-border-shade`, `--button-highlight`, `--button-glow`, all **optional** and all zero by default. Each part is derived from `--tone`, which a button sets to the colour of its own tone |
 | Soft register | `--{tone}-soft` and `--{tone}-soft-foreground` for the seven tones. **Optional**: undeclared, they fall back to a tenth of the tone (half of the surface for `muted` and `secondary`) with the tone as ink, resolved where they are used, so a subtree that redefines a tone is followed |
 | Layers | `--state-hover`, `--state-pressed`: the veil over a solid coloured fill |
 | Tooltip | `--tooltip`, `--tooltip-foreground`, `--tooltip-muted-foreground` |

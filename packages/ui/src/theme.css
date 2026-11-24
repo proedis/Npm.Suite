@@ -270,6 +270,26 @@
  * in its own `:root` wins on every device, and redeclares them in its own
  * `@media (pointer: coarse)` to keep a different step for touch.
  */
+/*
+ * The corners of the controls, a decision of the product like their heights. `--control-radius` is the
+ * corner of every control (a field, a select, a date picker, a toggle, a segmented control, a button),
+ * so a row of them keeps one shape; `--button-radius` lets the buttons alone differ, and falls back to
+ * it. `control-inner` is the corner of what sits inside a control's padding (the items of a segmented
+ * control): the same curve, 2px tighter, which is `rounded-sm` inside the default `rounded-md`.
+ *
+ * `inline`, with the fallback in the class, so it is resolved where the control is: undeclared, the
+ * corner is a step of the radius scale and follows `--radius-scale`. Declared on `:root` like every
+ * variable of the package:
+ *
+ *   :root { --control-radius: var(--radius-full); }   every control a pill
+ *   :root { --button-radius: var(--radius-2xl); }     the buttons only
+ */
+@theme inline {
+  --radius-control: var(--control-radius, var(--radius-md));
+  --radius-control-inner: max(0px, calc(var(--control-radius, var(--radius-md)) - 2px));
+  --radius-button: var(--button-radius, var(--control-radius, var(--radius-md)));
+}
+
 @layer theme {
   @media (pointer: coarse) {
     :root,
@@ -278,6 +298,71 @@
       --spacing-control-md: 2.5rem;
       --spacing-control-lg: 2.75rem;
     }
+  }
+}
+
+/*
+ * The colour of a tone as a variable, `--tone`, on a component that paints with it: a solid fill of that
+ * tone is `var(--tone)`. It is what lets a theme derive a border, a shadow or a glow from whatever tone
+ * a button has, with one rule for all seven. Set by `Button`.
+ */
+@utility tone-muted {
+  --tone: var(--muted);
+}
+
+@utility tone-secondary {
+  --tone: var(--secondary);
+}
+
+@utility tone-primary {
+  --tone: var(--primary);
+}
+
+@utility tone-success {
+  --tone: var(--success);
+}
+
+@utility tone-warning {
+  --tone: var(--warning);
+}
+
+@utility tone-destructive {
+  --tone: var(--destructive);
+}
+
+@utility tone-info {
+  --tone: var(--info);
+}
+
+/*
+ * The finish of a solid button, every part of it off by default: the flat button stays the default,
+ * and a product turns the parts on from `:root`, each one a number, each one derived from the tone:
+ *
+ *   --button-gradient      0 to 1  a light top and a darker bottom over the fill
+ *   --button-border-shade  0% up   the border, the tone mixed with this much black
+ *   --button-highlight     0 to 1  a light line inside the top edge
+ *   --button-glow          0 to 1  a shadow in the colour of the tone, under the button
+ *
+ * The shadows go through Tailwind's own shadow variables (`--tw-inset-shadow`, `--tw-shadow`), so the
+ * focus ring, which is a shadow too, still composes with them. The gradient is a `::before` behind the
+ * content (the button isolates its stacking context), because the hover and pressed veils are the
+ * button's own background image and would replace a gradient written there.
+ */
+@utility button-finish {
+  isolation: isolate;
+  border-color: color-mix(in oklab, var(--tone), black var(--button-border-shade, 0%));
+  --tw-inset-shadow: inset 0 1px 0 rgb(255 255 255 / var(--button-highlight, 0));
+  --tw-shadow: 0 8px 20px -6px color-mix(in oklab, var(--tone) calc(var(--button-glow, 0) * 100%), transparent);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow, 0 0 #0000), var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    background-image: linear-gradient(to bottom, rgb(255 255 255 / var(--button-gradient, 0)), rgb(0 0 0 / calc(var(--button-gradient, 0) / 2)));
   }
 }
 
