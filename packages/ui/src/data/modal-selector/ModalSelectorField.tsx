@@ -16,7 +16,7 @@ import { OverflowTooltipList } from '../../actions/list-panel/listPanel';
 import { Tooltip } from '../../actions/tooltip/Tooltip';
 
 import { useFieldControl, useNonNativeFieldLabel } from '../../forms/field/fieldContext';
-import { TEXT_CONTROL_FRAME, TEXT_CONTROL_GAP, TEXT_CONTROL_SIZES, textControlState } from '../../forms/text-control/textControl';
+import { FieldShell } from '../../forms/field-shell/FieldShell';
 
 import type { BaseProps } from '../../core/base';
 
@@ -276,16 +276,13 @@ export function ModalSelectorField<TData>(props: ModalSelectorFieldProps<TData>)
   const canClear = !isRequired && !inert && named.length > 0 && onClear !== undefined;
 
   return (
-    <Stack
+    <FieldShell
       data-slot={'modal-selector-field'}
-      data-size={size}
-      {...textControlState({ invalid: invalid || field.invalid, readOnly, disabled: isDisabled })}
-      direction={'horizontal'}
-      align={'center'}
-      gap={TEXT_CONTROL_GAP[size]}
+      size={size}
+      invalid={invalid || field.invalid}
+      readOnly={readOnly}
+      disabled={isDisabled}
       className={cn(
-        TEXT_CONTROL_FRAME,
-        TEXT_CONTROL_SIZES[size],
         'relative w-full min-w-60',
         '[&_svg]:shrink-0 [&_svg]:text-muted-foreground',
         baseClasses,
@@ -364,7 +361,7 @@ export function ModalSelectorField<TData>(props: ModalSelectorFieldProps<TData>)
           <ListGlyph />
         </Stack>
       </Stack>
-    </Stack>
+    </FieldShell>
   );
 
 }

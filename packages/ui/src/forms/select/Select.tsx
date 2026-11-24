@@ -33,8 +33,9 @@ import {
 } from '../../actions/list-panel/listPanel';
 
 import { useFieldControl, useNonNativeFieldLabel } from '../field/fieldContext';
+import { FieldShell } from '../field-shell/FieldShell';
 import { LIST_ITEM_LAYOUT, LIST_PANEL_LAYOUT, toggleFromFrame } from '../list-field/listField';
-import { TEXT_CONTROL_FRAME, TEXT_CONTROL_GAP, TEXT_CONTROL_SIZES, TEXT_CONTROL_TEXT, textControlState } from '../text-control/textControl';
+import { TEXT_CONTROL_TEXT } from '../text-control/textControl';
 
 import type { BaseProps } from '../../core/base';
 
@@ -326,22 +327,20 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>((props, f
   // ----
 
   const frameClasses = cn(
-    TEXT_CONTROL_FRAME,
-    TEXT_CONTROL_SIZES[size],
     'group/list-field w-full min-w-0',
     '[&_svg]:shrink-0 [&_svg]:text-muted-foreground',
     baseClasses,
     className
   );
 
-  /** The frame is a row: its parts are the trigger, the clear button and the arrow */
-  const frameLayout = { direction: 'horizontal', align: 'center', gap: TEXT_CONTROL_GAP[size] } as const;
 
   const frameAttributes = {
     'data-slot': 'select',
-    'data-size': size,
+    size,
     'data-loading': loading || undefined,
-    ...textControlState({ invalid: isInvalid, readOnly, disabled: isDisabled })
+    invalid : isInvalid,
+    readOnly,
+    disabled: isDisabled
   };
 
   const spinner = (
@@ -375,7 +374,7 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>((props, f
   /* Read only: the text is selectable and the value is submitted, and nothing opens */
   if (readOnly) {
     return (
-      <Stack {...frameAttributes} {...frameLayout} className={frameClasses}>
+      <FieldShell {...frameAttributes} className={frameClasses}>
         <Input
           id={rest.id}
           aria-label={rest['aria-label']}
@@ -388,7 +387,7 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>((props, f
           className={cn('h-full min-w-0 flex-1 truncate bg-transparent outline-none', TEXT_CONTROL_TEXT)}
         />
         {name && <input type={'hidden'} name={name} value={current ?? ''} />}
-      </Stack>
+      </FieldShell>
     );
   }
 
@@ -414,7 +413,7 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>((props, f
         disabled={isDisabled}
         name={name}
       >
-        <Stack ref={frameRef} {...frameAttributes} {...frameLayout} className={frameClasses} onMouseDown={handleFrameMouseDown}>
+        <FieldShell ref={frameRef} {...frameAttributes} className={frameClasses} onMouseDown={handleFrameMouseDown}>
           <SelectPrimitive.Trigger
             ref={handleTriggerRef}
             {...triggerAttributes}
@@ -426,7 +425,7 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>((props, f
           </SelectPrimitive.Trigger>
 
           <ListFieldEnd loading={loading} spinner={spinner}>{clearButton}</ListFieldEnd>
-        </Stack>
+        </FieldShell>
 
         <SelectPrimitive.Portal>
           <SelectPrimitive.Positioner
@@ -480,7 +479,7 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>((props, f
       disabled={isDisabled}
       name={name}
     >
-      <Stack ref={frameRef} {...frameAttributes} {...frameLayout} className={frameClasses} onMouseDown={handleFrameMouseDown}>
+      <FieldShell ref={frameRef} {...frameAttributes} className={frameClasses} onMouseDown={handleFrameMouseDown}>
         <ComboboxPrimitive.Trigger
           ref={handleTriggerRef}
           {...triggerAttributes}
@@ -498,7 +497,7 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>((props, f
         </ComboboxPrimitive.Trigger>
 
         <ListFieldEnd loading={loading} spinner={spinner}>{clearButton}</ListFieldEnd>
-      </Stack>
+      </FieldShell>
 
       <ComboboxPrimitive.Portal>
         <ComboboxPrimitive.Positioner anchor={frameRef} sideOffset={LIST_SIDE_OFFSET} className={LIST_POSITIONER}>

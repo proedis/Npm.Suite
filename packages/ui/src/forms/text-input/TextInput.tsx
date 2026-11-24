@@ -5,12 +5,10 @@ import * as React from 'react';
 import { Input } from '@base-ui/react/input';
 import { cva } from 'class-variance-authority';
 
-import { optionalContextBuilder, useForkRef } from '@proedis/react';
+import { optionalContextBuilder } from '@proedis/react';
 
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
-
-import { Stack } from '../../layout/Stack';
 
 import { Spinner } from '../../primitives/Spinner';
 
@@ -19,7 +17,8 @@ import { isPresent } from '../../internal/presence';
 import { IconButton } from '../../actions/button/IconButton';
 
 import { useFieldControl } from '../field/fieldContext';
-import { TEXT_CONTROL_FRAME, TEXT_CONTROL_GAP, TEXT_CONTROL_SIZES, TEXT_CONTROL_TEXT, textControlState } from '../text-control/textControl';
+import { FieldShell } from '../field-shell/FieldShell';
+import { TEXT_CONTROL_TEXT } from '../text-control/textControl';
 
 import type { BaseProps } from '../../core/base';
 
@@ -117,20 +116,16 @@ const [ TextInputContext, useTextInputContext ] = optionalContextBuilder<TextInp
  * -------- */
 
 /**
- * The look of the frame and its states are the shared text-control classes: TextInput, Textarea,
- * NumberInput and the triggers of the lists read the same ones.
+ * The frame is `FieldShell`, the one every bordered control is: this adds what a text field does on
+ * top of it, the text cursor, icons that let a press through, and the minimum width of its kind.
  */
 const textInputVariants = cva(
   [
-    TEXT_CONTROL_FRAME,
-
-    'w-full cursor-text',
+    'cursor-text',
     '[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:text-muted-foreground'
   ],
   {
     variants: {
-      size: TEXT_CONTROL_SIZES,
-
       width: {
         short  : 'min-w-16',
         code   : 'min-w-24',
@@ -139,7 +134,7 @@ const textInputVariants = cva(
       }
     },
 
-    defaultVariants: DEFAULT_VARIANTS
+    defaultVariants: { width: DEFAULT_VARIANTS.width }
   }
 );
 
@@ -241,8 +236,6 @@ const TextInputBase = React.forwardRef<HTMLInputElement, TextInputProps>((props,
   // ----
   const field = useFieldControl();
 
-  const inputRef = React.useRef<HTMLInputElement | null>(null);
-
 
   // ----
   // Memoized Data
@@ -259,49 +252,34 @@ const TextInputBase = React.forwardRef<HTMLInputElement, TextInputProps>((props,
   // ----
   // Handlers
   // ----
-  const setRefs = useForkRef(inputRef, ref);
-
-  /** A click on any part that is not the text or an action lands in the text */
-  const handleFrameMouseDown = (event: React.MouseEvent<HTMLDivElement>): void => {
-    const target = event.target as Element;
-
-    if (target === inputRef.current || target.closest('button, a, input') !== null) {
-      return;
-    }
-
-    event.preventDefault();
-    inputRef.current?.focus();
-  };
 
 
   // ----
   // Component Render
   // ----
+  /* A press anywhere on the frame lands in the text: the frame's own, `FieldShell` */
   return (
-    <Stack
-      data-slot={'text-input'}
-      direction={'horizontal'}
-      align={'center'}
-      gap={TEXT_CONTROL_GAP[size]}
-      data-size={size}
-      data-width={width}
-      data-loading={loading || undefined}
-      {...textControlState({ invalid: isInvalid, readOnly, disabled: isDisabled })}
-      className={cn(textInputVariants({ size, width }), baseClasses, className)}
-      onMouseDown={handleFrameMouseDown}
-    >
-      <TextInputContext.Provider value={state}>
-        {isPresent(leading) && (
-          <Stack gap={0} as={'span'} data-slot={'text-input-leading'} direction={'horizontal'} align={'center'} className={'shrink-0'}>{leading}</Stack>
-        )}
-
+    /* Around the frame, not inside it: the trailing slot, where an action sits, is the frame's */
+    <TextInputContext.Provider value={state}>
+      <FieldShell
+        data-slot={'text-input'}
+        size={size}
+        data-width={width}
+        data-loading={loading || undefined}
+        invalid={isInvalid}
+        readOnly={readOnly}
+        disabled={isDisabled}
+        leading={leading}
+        trailing={loading ? undefined : trailing}
+        className={cn(textInputVariants({ width }), baseClasses, className)}
+      >
         {isPresent(prefix) && (
           <span data-slot={'text-input-prefix'} className={'shrink-0 text-muted-foreground'}>{prefix}</span>
         )}
 
         <Input
           {...rest}
-          ref={setRefs}
+          ref={ref}
           data-slot={'text-input-control'}
           data-field-control={''}
           disabled={isDisabled}
@@ -319,13 +297,11 @@ const TextInputBase = React.forwardRef<HTMLInputElement, TextInputProps>((props,
           <span data-slot={'text-input-suffix'} className={'shrink-0 text-muted-foreground'}>{suffix}</span>
         )}
 
-        {loading
-          ? <Spinner data-slot={'text-input-spinner'} size={'sm'} className={size === 'sm' ? 'size-3.5' : undefined} label={loadingLabel} />
-          : isPresent(trailing) && (
-            <Stack gap={0} as={'span'} data-slot={'text-input-trailing'} direction={'horizontal'} align={'center'} className={'shrink-0'}>{trailing}</Stack>
-          )}
-      </TextInputContext.Provider>
-    </Stack>
+        {loading && (
+          <Spinner data-slot={'text-input-spinner'} size={'sm'} className={size === 'sm' ? 'size-3.5' : undefined} label={loadingLabel} />
+        )}
+      </FieldShell>
+    </TextInputContext.Provider>
   );
 
 });

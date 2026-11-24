@@ -32,8 +32,8 @@ import {
 } from '../../actions/list-panel/listPanel';
 
 import { useFieldControl, useNonNativeFieldLabel } from '../field/fieldContext';
+import { FieldShell } from '../field-shell/FieldShell';
 import { LIST_ITEM_LAYOUT, LIST_PANEL_LAYOUT, LIST_RETRY, ListChips, remoteListMessages, toggleFromFrame } from '../list-field/listField';
-import { TEXT_CONTROL_FRAME, TEXT_CONTROL_GAP, TEXT_CONTROL_SIZES, textControlState } from '../text-control/textControl';
 
 import type { ComboboxItem, MultipleComboboxProps } from './comboboxTypes';
 
@@ -178,19 +178,17 @@ export const MultipleCombobox = React.forwardRef<HTMLButtonElement, MultipleComb
     />
   );
 
-  /** The frame is a row: the chips, then the arrow, over a trigger as large as the frame */
-  const frameLayout = { direction: 'horizontal', align: 'center', gap: TEXT_CONTROL_GAP[size] } as const;
 
   const frameAttributes = {
     'data-slot': 'combobox',
-    'data-size': size,
+    size,
     'data-multiple': '',
-    ...textControlState({ invalid: isInvalid, readOnly, disabled: isDisabled })
+    invalid : isInvalid,
+    readOnly,
+    disabled: isDisabled
   };
 
   const frameClasses = cn(
-    TEXT_CONTROL_FRAME,
-    TEXT_CONTROL_SIZES[size],
     'group/list-field relative w-full min-w-60',
     readOnly && 'h-auto min-h-control-md',
     '[&_svg]:shrink-0 [&_svg]:text-muted-foreground',
@@ -202,7 +200,7 @@ export const MultipleCombobox = React.forwardRef<HTMLButtonElement, MultipleComb
 
   if (readOnly) {
     return (
-      <Stack {...frameAttributes} {...frameLayout} className={frameClasses}>
+      <FieldShell {...frameAttributes} className={frameClasses}>
         <input
           id={rest.id}
           aria-label={rest['aria-label']}
@@ -214,7 +212,7 @@ export const MultipleCombobox = React.forwardRef<HTMLButtonElement, MultipleComb
         />
         {chips}
         {name && chosen.map((item) => <input key={item.value} type={'hidden'} name={name} value={item.value} />)}
-      </Stack>
+      </FieldShell>
     );
   }
 
@@ -252,7 +250,7 @@ export const MultipleCombobox = React.forwardRef<HTMLButtonElement, MultipleComb
       disabled={isDisabled}
       name={name}
     >
-      <Stack ref={frameRef} {...frameAttributes} {...frameLayout} className={frameClasses} onMouseDown={handleFrameMouseDown}>
+      <FieldShell ref={frameRef} {...frameAttributes} className={frameClasses} onMouseDown={handleFrameMouseDown}>
         <ComboboxPrimitive.Trigger
           {...rest}
           ref={handleTriggerRef}
@@ -271,7 +269,7 @@ export const MultipleCombobox = React.forwardRef<HTMLButtonElement, MultipleComb
           spinner={null}
           className={'pointer-events-none relative z-10'}
         />
-      </Stack>
+      </FieldShell>
 
       <ComboboxPrimitive.Status className={'sr-only'}>{status}</ComboboxPrimitive.Status>
 

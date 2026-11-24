@@ -742,7 +742,7 @@ its own peers; none of them is re-exported by the root barrel. Every module is c
 | `feedback/notifications` | `createNotifications`, `NotificationsProvider`, `JobsButton` |
 | `forms/form` | `Form` (`.Header`, `.ErrorSummary`, `.Section`, `.Footer`), `FormSubmit` |
 | `forms/field` | `Field` (`.Label`, `.Description`, `.Error`, `.Counter`), `FIELD_SPAN`, `useFieldControl` |
-| `forms/field-shell` | `FieldShell`, the frame of every text control, for a control of your own |
+| `forms/field-shell` | `FieldShell`, the frame of every bordered control, the package's and yours |
 | `forms/text-input` | `TextInput` (`.Action`) |
 | `forms/password-input` | `PasswordInput` |
 | `forms/search-input` | `SearchInput` |
@@ -820,15 +820,20 @@ What is worth knowing before using them:
   Out of a section, `orientation={{ base: 'vertical', md: 'horizontal' }}` puts the label beside the
   control, on a third of the width, with the messages under the control. `Field.Label optional={t('…')}`
   writes the word after the name of a field that may stay empty: the package writes no text.
-- **A control of your own wears `FieldShell`**: the border, the surface, the three heights, the states
-  and the focus of a TextInput, with `leading` and `trailing`. Mark its focusable element
-  `data-field-control`: the frame lights when that element has the focus, a press on the frame gives
-  it the focus, and the error summary of a `Form` focuses it.
+- **A control of your own wears `FieldShell`**, the frame every bordered control of the package is:
+  TextInput, NumberInput, Select, MultiSelect, Combobox, DatePicker and the field of ModalSelector each
+  render it around their own content. The border, the surface, the three heights, the states and the
+  focus, with `leading` and `trailing`. The children sit in the row as they are: the control fills it
+  with `flex-1` and marks its focusable element `data-field-control`, so the frame lights when that
+  element has the focus, a press on the frame gives it the focus, and the error summary of a `Form`
+  focuses it. Given a `data-slot` of its own, the frame names its slots after it.
 
   ```tsx
   <Field>
     <Field.Label>Opening hours</Field.Label>
-    <FieldShell leading={<Clock />}><TimeSlots data-field-control … /></FieldShell>
+    <FieldShell data-slot={'time-slots'} leading={<Clock />}>
+      <TimeSlots data-field-control className={'flex-1'} … />
+    </FieldShell>
   </Field>
   ```
 - **Mount `TooltipProvider` once**: it groups the tooltips, so a row of icon buttons is one gesture.

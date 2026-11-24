@@ -22,7 +22,8 @@ import { LIST_POSITIONER, LIST_SIDE_OFFSET } from '../../actions/list-panel/list
 import { Calendar } from '../calendar/Calendar';
 import { dateOrderOf, maskDate, maskRange, RANGE_SEPARATOR, readDate, readPastedDates, readRange, writeDate, writeRange } from '../calendar/dateText';
 import { useFieldControl, useNonNativeFieldLabel } from '../field/fieldContext';
-import { TEXT_CONTROL_FRAME, TEXT_CONTROL_GAP, TEXT_CONTROL_SIZES, TEXT_CONTROL_TEXT, textControlState } from '../text-control/textControl';
+import { FieldShell } from '../field-shell/FieldShell';
+import { TEXT_CONTROL_TEXT } from '../text-control/textControl';
 
 import type { BaseProps } from '../../core/base';
 import type { ControlSize } from '../../core/control';
@@ -582,15 +583,15 @@ export const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>((p
         /* The mode of the picker: a part named by its slot carries no layout attribute of the stack */
         data-mode={isRange ? 'range' : 'date'}
       >
-        <Stack
+        {/* The frame is `FieldShell`, as wide as the date it holds rather than its row */}
+        <FieldShell
           ref={anchorRef}
           data-slot={'date-picker-field'}
-          data-size={size}
-          {...textControlState({ invalid: isInvalid, readOnly, disabled: isDisabled })}
-          direction={'horizontal'}
-          align={'center'}
-          gap={TEXT_CONTROL_GAP[size]}
-          className={cn(TEXT_CONTROL_FRAME, TEXT_CONTROL_SIZES[size], 'group/list-field')}
+          size={size}
+          invalid={isInvalid}
+          readOnly={readOnly}
+          disabled={isDisabled}
+          className={'group/list-field w-auto min-w-auto'}
         >
           <Input
             {...rest}
@@ -670,7 +671,7 @@ export const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>((p
               />
             </Stack>
           )}
-        </Stack>
+        </FieldShell>
 
         {isRange && name && (
           <React.Fragment>

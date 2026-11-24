@@ -34,8 +34,8 @@ import {
 } from '../../actions/list-panel/listPanel';
 
 import { useFieldControl, useNonNativeFieldLabel } from '../field/fieldContext';
+import { FieldShell } from '../field-shell/FieldShell';
 import { LIST_ITEM_LAYOUT, LIST_PANEL_LAYOUT, ListChips, toggleFromFrame } from '../list-field/listField';
-import { TEXT_CONTROL_FRAME, TEXT_CONTROL_GAP, TEXT_CONTROL_SIZES, textControlState } from '../text-control/textControl';
 
 import type { BaseProps } from '../../core/base';
 
@@ -283,8 +283,6 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
   );
 
   const frameClasses = cn(
-    TEXT_CONTROL_FRAME,
-    TEXT_CONTROL_SIZES[size],
     'group/list-field relative w-full min-w-60',
     readOnly && 'h-auto min-h-control-md',
     '[&_svg]:shrink-0 [&_svg]:text-muted-foreground',
@@ -292,14 +290,14 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
     className
   );
 
-  /** The frame is a row: the chips, then the arrow, over a trigger as large as the frame */
-  const frameLayout = { direction: 'horizontal', align: 'center', gap: TEXT_CONTROL_GAP[size] } as const;
 
   const frameAttributes = {
     'data-slot': 'multi-select',
-    'data-size': size,
+    size,
     'data-loading': loading || undefined,
-    ...textControlState({ invalid: isInvalid, readOnly, disabled: isDisabled })
+    invalid : isInvalid,
+    readOnly,
+    disabled: isDisabled
   };
 
   const spinner = <Spinner size={'sm'} className={size === 'sm' ? 'size-3.5' : undefined} label={loadingLabel} />;
@@ -322,7 +320,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
 
   if (readOnly) {
     return (
-      <Stack {...frameAttributes} {...frameLayout} className={frameClasses}>
+      <FieldShell {...frameAttributes} className={frameClasses}>
         <input
           id={rest.id}
           aria-label={rest['aria-label']}
@@ -334,7 +332,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
         />
         {chips}
         {name && current.map((item) => <input key={item} type={'hidden'} name={name} value={item} />)}
-      </Stack>
+      </FieldShell>
     );
   }
 
@@ -381,11 +379,11 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
         disabled={isDisabled}
         name={name}
       >
-        <Stack ref={frameRef} {...frameAttributes} {...frameLayout} className={frameClasses} onMouseDown={handleFrameMouseDown}>
+        <FieldShell ref={frameRef} {...frameAttributes} className={frameClasses} onMouseDown={handleFrameMouseDown}>
           <SelectPrimitive.Trigger {...triggerProps}>{summary}</SelectPrimitive.Trigger>
           {chips}
           <ListFieldEnd loading={loading} spinner={spinner} className={'pointer-events-none relative z-10'} />
-        </Stack>
+        </FieldShell>
 
         <SelectPrimitive.Portal>
           <SelectPrimitive.Positioner
@@ -437,11 +435,11 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
       disabled={isDisabled}
       name={name}
     >
-      <Stack ref={frameRef} {...frameAttributes} {...frameLayout} className={frameClasses} onMouseDown={handleFrameMouseDown}>
+      <FieldShell ref={frameRef} {...frameAttributes} className={frameClasses} onMouseDown={handleFrameMouseDown}>
         <ComboboxPrimitive.Trigger {...triggerProps}>{summary}</ComboboxPrimitive.Trigger>
         {chips}
         <ListFieldEnd loading={loading} spinner={spinner} className={'pointer-events-none relative z-10'} />
-      </Stack>
+      </FieldShell>
 
       <ComboboxPrimitive.Portal>
         <ComboboxPrimitive.Positioner anchor={frameRef} sideOffset={LIST_SIDE_OFFSET} className={LIST_POSITIONER}>

@@ -260,10 +260,21 @@ Three things every component with behaviour does, on top of "Writing a new compo
 Three things taken from the `form-control` of PinTips, shaped to this package (the rest of it was
 weighed and left out: shortcut props, a `role="alert"` error, a state icon on the border):
 
-- **`FieldShell` is the private frame of `text-control`, made public**, so an application can build a
-  control that looks like the others. The focus stays a matter of CSS (`data-field-control`), never a
-  `focused` prop; `invalid` and `disabled` add to the field and never take it away. The eight controls
-  still write the frame themselves: moving them onto it is a change of its own.
+- **`FieldShell` is the one frame**, the package's and an application's. TextInput, NumberInput,
+  Select, MultiSelect, the two Combobox, DatePicker and the field of ModalSelector render it with a slot
+  of their own (`data-slot`, which also names `<slot>-leading` and `<slot>-trailing`), and the suite
+  rule `suite/ui-field-shell` keeps it so: the classes, sizes, gap and states of `text-control` may be
+  imported by `field-shell` and by `textarea` alone. Textarea is the one control that is its own frame,
+  because the handle that resizes it belongs to the textarea. The focus stays a matter of CSS
+  (`data-field-control`), never a `focused` prop; `invalid` and `disabled` add to the field and never
+  take it away. ⚠️ Three things measured while moving the controls onto it. The children sit in the row
+  directly, with no content wrapper, so a control keeps the markup it had; the icons of the two slots are
+  quiet, the rest keeps its colours. The states are written after the props it is handed, because
+  NumberInput renders it through Base UI's `render`, whose own `data-readonly=""` would otherwise replace
+  ours. And a control whose context reaches into the slots wraps the frame, not its children:
+  `TextInput.Action` sits in `trailing`, and inside the frame it read the default context, an `sm` field
+  drawing an `md` action and a disabled one showing it. The frame fills its row; DatePicker and
+  NumberInput say `w-auto` / `min-w-auto`.
 - **`Field.Label optional`** takes its word from the caller, and is not shown with `required`.
 - **`Field` `orientation`** is ignored in a `Form.Section` (`FormSectionContext`), whose rows of
   three tracks keep the labels aligned. Out of one, the label takes a third of the field
@@ -1033,6 +1044,20 @@ What was run for the radius of the controls and the finish of the button:
   React Compiler at 202 functions, 0 skipped.
 - **`types.check.tsx`**: `radius={'full'}` compiles, `radius={12}` does not, made valid for a moment to
   watch `tsc` fail.
+
+What was run for the one `FieldShell`:
+
+- **The markup snapshots**, compared scene by scene, element by element, attributes and classes as
+  sets with React's ids normalised: the controls kept their markup. What moved: the public `FieldShell`
+  lost `field-shell-content`; the `leading` / `trailing` of TextInput gained the quiet icon classes;
+  DatePicker and NumberInput carry `w-auto` / `min-w-auto`, their computed defaults. The first pass
+  showed the two defects named in the invariant (the action of `TextInput`, the states under Base UI),
+  both fixed before the commit. The jsdom harness at 45 of 47, the same two.
+- **In the browser**: 32, 36 and 40px for every frame of every size, 56 only for a read only
+  MultiSelect whose chips wrap; a press on the padding of TextInput, NumberInput, Combobox and DatePicker
+  focusing the control (new on the last three, which had no press handler), and on Select and
+  MultiSelect still opening the list; the frame lit on the focus of its input.
+- **The lint rule** on a probe importing `TEXT_CONTROL_FRAME` outside `field-shell`: reported.
 
 What was run for the one `Label`:
 

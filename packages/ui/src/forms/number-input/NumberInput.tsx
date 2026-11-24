@@ -9,14 +9,13 @@ import { useForkRef } from '@proedis/react';
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
 
-import { Stack } from '../../layout/Stack';
-
 import { Spinner } from '../../primitives/Spinner';
 
 import { isPresent } from '../../internal/presence';
 
 import { useFieldControl } from '../field/fieldContext';
-import { TEXT_CONTROL_FRAME, TEXT_CONTROL_GAP, TEXT_CONTROL_SIZES, TEXT_CONTROL_TEXT, textControlState } from '../text-control/textControl';
+import { FieldShell } from '../field-shell/FieldShell';
+import { TEXT_CONTROL_TEXT } from '../text-control/textControl';
 
 import { acceptsTyping, cleanPaste, separatorsOf, widthClass } from './numberText';
 
@@ -291,15 +290,12 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
       allowWheelScrub={false}
       disabled={isDisabled}
       readOnly={readOnly}
-      render={<Stack direction={'horizontal'} align={'center'} gap={TEXT_CONTROL_GAP[size]} />}
+      /* The frame is `FieldShell`, sized by the longest value rather than by its row */
+      render={<FieldShell size={size} invalid={isInvalid} readOnly={readOnly} disabled={isDisabled} />}
       data-slot={'number-input'}
-      data-size={size}
       data-loading={loading || undefined}
-      {...textControlState({ invalid: isInvalid, readOnly, disabled: isDisabled })}
       className={cn(
-        TEXT_CONTROL_FRAME,
-        TEXT_CONTROL_SIZES[size],
-        'cursor-text',
+        'min-w-auto cursor-text',
         widthClass(max, decimals, locale, typeof unitText === 'string' && unitText.length > 2),
         baseClasses,
         className

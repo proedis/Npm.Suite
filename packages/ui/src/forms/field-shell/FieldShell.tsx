@@ -33,7 +33,7 @@ export interface StrictFieldShellProps extends BaseProps {
   /** An icon or a quiet action after the content */
   trailing?: React.ReactNode;
 
-  /** The error border. Inside a field with a `Field.Error` it is on already */
+  /** The error border. Inside a field with an error it is on already */
   invalid?: boolean;
 
   /** The surface of a value that cannot change */
@@ -42,7 +42,10 @@ export interface StrictFieldShellProps extends BaseProps {
   /** Inside a disabled `Field` it is on already */
   disabled?: boolean;
 
-  /** The control: its focusable element carries `data-field-control` */
+  /**
+   * The control and whatever sits beside it, laid in the row as they are: the control fills it with
+   * `flex-1`, and carries `data-field-control` on the element that takes the focus
+   */
   children?: React.ReactNode;
 }
 
@@ -50,12 +53,15 @@ export type FieldShellProps = StrictFieldShellProps & Omit<React.ComponentProps<
 
 
 /* --------
- * Helpers
+ * Constants Definition
  * -------- */
 
 /** What a press on the frame gives the focus to: the element the control marks, never a button or a link */
 const FIELD_CONTROL = '[data-field-control]';
 const OWN_TARGET = 'button, a, input, textarea, select, [data-field-control]';
+
+/** The icon of a slot is quiet and keeps its size */
+const SLOT = 'shrink-0 text-muted-foreground [&_svg]:shrink-0';
 
 
 /* --------
@@ -63,28 +69,34 @@ const OWN_TARGET = 'button, a, input, textarea, select, [data-field-control]';
  * -------- */
 
 /**
- * The frame of every text control, for a control of your own: the border, the surface, the three
- * heights, the states and the focus of a TextInput, around whatever you put in it.
+ * The frame of every bordered control: the border, the surface, the three heights, the states and the
+ * focus. TextInput, NumberInput, Select, MultiSelect, Combobox, DatePicker and the field of
+ * ModalSelector are each this frame around their own content, and a control of your own is too.
  *
  * ```tsx
  * <Field>
  *   <Field.Label>Opening hours</Field.Label>
  *   <FieldShell leading={<Clock />} trailing={<span>24h</span>}>
- *     <TimeSlots data-field-control … />
+ *     <TimeSlots data-field-control className={'flex-1'} … />
  *   </FieldShell>
  * </Field>
  * ```
  *
- * The focus is drawn by CSS, never by a prop: the frame lights when the element inside it that
- * carries `data-field-control` has the focus, and not when an action inside the frame has it. That
- * same attribute is what the error summary of a `Form` focuses. A press on the frame outside the
- * control moves the focus to it.
+ * The focus is drawn by CSS, never by a prop: the frame lights when the element inside it that carries
+ * `data-field-control` has the focus, and not when an action inside the frame has it. That same
+ * attribute is what the error summary of a `Form` focuses. A press on the frame outside the control,
+ * a button or a link moves the focus to the control; an `onMouseDown` that calls `preventDefault`
+ * keeps the press for itself.
  *
  * `invalid` and `disabled` add to what the field says, they never take it away: a disabled field
- * disables what is in it.
+ * disables what is in it. The frame fills its row (`w-full min-w-0`); a control sized by its content
+ * says so in `className` (`w-auto min-w-auto`).
+ *
+ * The slots follow the slot of the frame, `field-shell` unless a control names it: a `TextInput` is a
+ * `text-input` with `text-input-leading` and `text-input-trailing`.
  *
  * Slots: `field-shell` (with `data-size`, `data-invalid`, `data-readonly`, `data-disabled`),
- * `field-shell-leading`, `field-shell-content`, `field-shell-trailing`.
+ * `field-shell-leading`, `field-shell-trailing`.
  */
 export const FieldShell = React.forwardRef<HTMLDivElement, FieldShellProps>((props, ref) => {
 
@@ -105,6 +117,8 @@ export const FieldShell = React.forwardRef<HTMLDivElement, FieldShellProps>((pro
   } = props;
 
   const { baseClasses, rest } = splitBaseProps(others);
+
+  const slot = (rest as { 'data-slot'?: string })['data-slot'] ?? 'field-shell';
 
 
   // ----
@@ -140,32 +154,30 @@ export const FieldShell = React.forwardRef<HTMLDivElement, FieldShellProps>((pro
   // ----
   return (
     <Stack
-      {...rest}
-      ref={ref}
       data-slot={'field-shell'}
+      {...rest}
+      /* The states after the rest: a control rendered by a library (Base UI's NumberField) hands in its own */
       data-size={size}
       {...textControlState({ invalid: isInvalid, readOnly, disabled: isDisabled })}
+      ref={ref}
       direction={'horizontal'}
       align={'center'}
       gap={TEXT_CONTROL_GAP[size]}
-      className={cn(
-        TEXT_CONTROL_FRAME,
-        TEXT_CONTROL_SIZES[size],
-        'w-full min-w-0',
-        '[&_svg]:shrink-0 [&_svg]:text-muted-foreground',
-        baseClasses,
-        className
-      )}
+      className={cn(TEXT_CONTROL_FRAME, TEXT_CONTROL_SIZES[size], 'w-full min-w-0', baseClasses, className)}
       onMouseDown={handleMouseDown}
     >
       {isPresent(leading) && (
-        <Stack gap={0} as={'span'} data-slot={'field-shell-leading'} direction={'horizontal'} align={'center'} className={'shrink-0'}>{leading}</Stack>
+        <Stack as={'span'} data-slot={`${slot}-leading`} direction={'horizontal'} align={'center'} gap={0} className={SLOT}>
+          {leading}
+        </Stack>
       )}
 
-      <Stack gap={0} data-slot={'field-shell-content'} direction={'horizontal'} align={'center'} className={'h-full min-w-0 flex-1'}>{children}</Stack>
+      {children}
 
       {isPresent(trailing) && (
-        <Stack gap={0} as={'span'} data-slot={'field-shell-trailing'} direction={'horizontal'} align={'center'} className={'shrink-0'}>{trailing}</Stack>
+        <Stack as={'span'} data-slot={`${slot}-trailing`} direction={'horizontal'} align={'center'} gap={0} className={SLOT}>
+          {trailing}
+        </Stack>
       )}
     </Stack>
   );

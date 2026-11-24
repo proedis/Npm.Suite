@@ -196,6 +196,26 @@ export default proedis.defineConfig(
   } ] : []),
 
   {
+    /**
+     * One frame for every bordered control: the classes of the frame, its sizes, its gap and its states
+     * are read by `FieldShell` alone, and Textarea, the one control that is its own frame, reads the
+     * states. A control that wrote them itself would be a second frame, a step off the others.
+     */
+    name   : 'suite/ui-field-shell',
+    files  : [ `${UI}/**/*.{ts,tsx}` ],
+    ignores: [ `${UI}/forms/field-shell/**`, `${UI}/forms/textarea/**`, `${UI}/forms/text-control/**` ],
+    rules  : {
+      'no-restricted-imports': [ 'error', {
+        patterns: [ {
+          group      : [ '**/text-control/textControl' ],
+          importNames: [ 'TEXT_CONTROL_FRAME', 'TEXT_CONTROL_SELF', 'TEXT_CONTROL_SIZES', 'TEXT_CONTROL_GAP', 'textControlState' ],
+          message    : 'The frame of a control is FieldShell: render it, with the slot of the control, instead of its classes.'
+        } ]
+      } ]
+    }
+  },
+
+  {
     /** The layout section writes its own layout classes, but its outlines follow the rule of the package */
     name : 'suite/ui-outline',
     files: [ `${UI}/layout/**/*.{ts,tsx}` ],

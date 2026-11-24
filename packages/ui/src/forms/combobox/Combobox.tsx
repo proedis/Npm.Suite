@@ -29,8 +29,9 @@ import {
 } from '../../actions/list-panel/listPanel';
 
 import { useFieldControl } from '../field/fieldContext';
+import { FieldShell } from '../field-shell/FieldShell';
 import { LIST_ITEM_LAYOUT, LIST_PANEL_LAYOUT, LIST_RETRY, remoteListMessages } from '../list-field/listField';
-import { TEXT_CONTROL_FRAME, TEXT_CONTROL_GAP, TEXT_CONTROL_SIZES, TEXT_CONTROL_TEXT, textControlState } from '../text-control/textControl';
+import { TEXT_CONTROL_TEXT } from '../text-control/textControl';
 
 import { MultipleCombobox } from './MultipleCombobox';
 
@@ -321,18 +322,16 @@ const SingleCombobox = React.forwardRef<HTMLInputElement, SingleComboboxProps>((
     }, labels)
     : { message: selected ? null : labels.minChars, status: '' };
 
-  /** The frame is a row: the glass, the text, the code, then the end */
-  const frameLayout = { direction: 'horizontal', align: 'center', gap: TEXT_CONTROL_GAP[size] } as const;
 
   const frameAttributes = {
     'data-slot': 'combobox',
-    'data-size': size,
-    ...textControlState({ invalid: isInvalid, readOnly, disabled: isDisabled })
+    size,
+    invalid : isInvalid,
+    readOnly,
+    disabled: isDisabled
   };
 
   const frameClasses = cn(
-    TEXT_CONTROL_FRAME,
-    TEXT_CONTROL_SIZES[size],
     'group/list-field w-full min-w-0 cursor-text',
     '[&_svg]:shrink-0 [&_svg]:text-muted-foreground',
     baseClasses,
@@ -341,7 +340,7 @@ const SingleCombobox = React.forwardRef<HTMLInputElement, SingleComboboxProps>((
 
   if (readOnly) {
     return (
-      <Stack {...frameAttributes} {...frameLayout} className={frameClasses}>
+      <FieldShell {...frameAttributes} className={frameClasses}>
         <Input
           {...rest}
           readOnly
@@ -352,7 +351,7 @@ const SingleCombobox = React.forwardRef<HTMLInputElement, SingleComboboxProps>((
         />
         {selected?.code && <span data-slot={'combobox-code'} className={CODE}>{selected.code}</span>}
         {name && <input type={'hidden'} name={name} value={selected?.value ?? ''} />}
-      </Stack>
+      </FieldShell>
     );
   }
 
@@ -413,7 +412,7 @@ const SingleCombobox = React.forwardRef<HTMLInputElement, SingleComboboxProps>((
       disabled={isDisabled}
       name={name}
     >
-      <Stack ref={frameRef} {...frameAttributes} {...frameLayout} className={frameClasses}>
+      <FieldShell ref={frameRef} {...frameAttributes} className={frameClasses}>
         <SearchGlyph />
 
         <ComboboxPrimitive.Input
@@ -469,7 +468,7 @@ const SingleCombobox = React.forwardRef<HTMLInputElement, SingleComboboxProps>((
               </ComboboxPrimitive.Trigger>
             )}
         </Stack>
-      </Stack>
+      </FieldShell>
 
       <ComboboxPrimitive.Status data-slot={'combobox-status'} className={'sr-only'}>{status}</ComboboxPrimitive.Status>
 
