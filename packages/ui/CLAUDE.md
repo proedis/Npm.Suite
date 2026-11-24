@@ -554,19 +554,29 @@ narrower stylesheet is the one you have to ask for.
   width, and `outline-none` on the same variant counts. It stays a rule of the suite, not of
   `proedis/tailwind`: in an application without `outline-none` a lone width is correct, since
   `--tw-outline-style` starts at `solid`, and the shared block would report it.
-- **Every label of the package is `Label`, and its description is a sibling.** `Field.Label` is a
-  `Label` rendered as Base UI's label, the text of a Checkbox, a Radio and a Switch is a `Label` in the
-  `regular` emphasis, the name in a `Detail` is a quiet `Label` rendered as the `<dt>`, the name of
-  `LabeledContent` a quiet one. One slot, `label`, catches all of them; the context comes from the
-  parent's slot (`[data-slot=field] [data-slot=label]`). The exception, for one phase: `Field.Label`
-  still writes `field-label`, because the grid of `Field` places its parts by slot.
-  ⚠️ The description is `Label.Description`, never a child of the label, and the reason is
-  measured: the old `Label` rendered it inside its `<label>`, and the option rows (a `<label>` around
-  box, text and description) gave a checkbox the name "Weigh at the pick-upThe bins of the round are
-  weighed one by one…", read once more through `aria-describedby`. An option is now named by its
-  `Label` alone (`aria-labelledby`), while the row stays a `<label>`, so a press on the description
-  still presses the box. ⚠️ `regular` keeps the line of its size, 20px, with no `leading-snug`: the box,
-  the circle and the track are centred on that line (`mt-0.5`, 16 on 20), measured at 0px off.
+- **Every label of the package is `Label`: a root, and the name inside it.** `Field.Label`, the text of
+  a Checkbox, a Radio and a Switch (`regular` emphasis), the name in a `Detail` (a quiet one, rendered as
+  the `<dt>`) and the label of `LabeledContent` are all one component, so one slot, `label`, catches all
+  of them, and the context comes from the parent (`[data-slot=checkbox] [data-slot=label]`). Two parts
+  keep a slot of their own because a parent places them by it: `field-label` (the grid of `Field`) and
+  `labeled-content-label`; both are the root of a `Label`, with its `label-text` inside.
+  ⚠️ Two elements, and the reason is measured. The root carries `className`, `as` and the shared props;
+  the name is `label-text`, a `<label>` when `htmlFor` points it at a control (or `textAs`, which is how
+  `Field` puts Base UI's label there), a `<span>` otherwise. The `description` prop renders beside the
+  name and never inside it: the old `Label` was a `<label>` with the description as a child, and the
+  option rows (a `<label>` around box, text and description) gave a checkbox the name "Weigh at the
+  pick-upThe bins of the round are weighed one by one…", read once more through `aria-describedby`. An
+  option is now named by its name alone (`aria-labelledby`, from `textId`), while the row stays a
+  `<label>`, so a press on the description still presses the box. A `Label.Description` part was tried
+  for one commit and removed: one component with a `description` prop is the shape every caller wants,
+  and the two elements make it safe anyway.
+  ⚠️ `regular` keeps the line of its size, 20px, with no `leading-snug`: the box, the circle and the
+  track are centred on that line (`mt-0.5`, 16 on 20), measured at 0px off. The emphasis classes sit on
+  the root, so `leading`, a glyph in a box of `h-lh`, reads the size and the line of the name: measured
+  centred on the first line, 16px at `default` and `regular`, 14px at `quiet`, with the description
+  lined up under the name. The root of a `Field` label is a column, so the orientations move it with
+  `justify-*`, never with `items-*` or a `display`: `items-center` on a column centres across, and
+  `block` would put the description on the line of the name.
 - **A line height goes AFTER the size, never before it.** A Tailwind size carries a line height of
   its own, so `tailwind-merge` treats `text-base` as conflicting with `leading-*` and keeps only the
   later one. `cva('leading-tight …', { variants: { size: { md: 'text-base' } } })` therefore emits
@@ -1037,6 +1047,19 @@ What was run for the one `Label`:
   before, the Detail name 0.5px taller (it joins the `leading-snug` LabeledContent already had).
 - **`types.check.tsx`**: `description` on a `Label` does not compile, made valid for a moment to watch
   `tsc` fail.
+
+What was run when `Label` took its description back as a prop, with a leading glyph:
+
+- **The markup snapshots** against the build of the first pass: `checkbox-text`, `radio-text`,
+  `switch-text` gone (the `Label` root is the text block), 69 `label-text`, one more `label-description`
+  (the harness case that passes `description` to a `Label`, ignored by the first pass). Nothing else;
+  the jsdom harness at 45 of 47, the same two.
+- **In the browser**: an option named by its name alone, described by its description, toggled by a
+  press on the description, the box 0px off the centre of the 20px line; a vertical `Field` label 19.25px
+  tall and 4px over its control as before; a horizontal one 36px tall with its text 0px off the centre of
+  the control; the glyph 0px off the centre of the first line.
+- **`types.check.tsx`**: a label with `description`, `textId` and `leading` compiles; an emphasis that is
+  not a register and an `href` on a root rendered as a span do not, each made valid for a moment.
 
 What was run for the outline of the focus:
 

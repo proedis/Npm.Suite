@@ -296,7 +296,8 @@ CheckboxGroup.displayName = 'CheckboxGroup';
  * of the Tab order. The description says why.
  *
  * Slots: `checkbox` (the row, with `data-disabled`, `data-readonly`, `data-invalid`, `data-parent`),
- * `checkbox-box`, `checkbox-indicator`, `checkbox-text`, `label`, `label-required`, `label-description`.
+ * `checkbox-box`, `checkbox-indicator`, `label` (the text, with `label-text`, `label-required`,
+ * `label-description`).
  *
  * The ref and the native props reach the box, the element that takes the focus, so a checkbox can be
  * the trigger of a tooltip or the target of a form library; `className` and the shared props reach the row.
@@ -461,7 +462,6 @@ export const Checkbox = React.forwardRef<HTMLSpanElement, CheckboxProps>((props,
     >
       {box}
       <ChoiceText
-        slot={'checkbox'}
         label={children}
         description={description}
         labelId={labelId}

@@ -105,18 +105,18 @@ const unknownBreakpoint = <Box hideFrom={'3xl'}>no</Box>;
 /** No type argument, exactly as a consumer or a wrapper would write it */
 const asAWrapper: (props: StackProps) => React.ReactNode = (props) => <Stack {...props} />;
 
-/** The element defaults per component, not globally: a Label is a `label`, a VisuallyHidden a `span` */
+/** The element defaults per component, not globally: a Label is a `span` that names a control through `htmlFor` */
 const labelDefault = <Label htmlFor={'email'}>Email</Label>;
 
-const quietLabel = <Label as={'span'} emphasis={'quiet'} optional={'optional'}>Total</Label>;
+const quietLabel = <Label as={'dt'} emphasis={'quiet'} optional={'optional'}>Total</Label>;
 
-const labelWithItsLine = <Label.Description id={'email-hint'}>We never share it</Label.Description>;
+const labelWithItsLine = <Label htmlFor={'email'} textId={'email-label'} description={'We never share it'} leading={'@'}>Email</Label>;
 
-/** @ts-expect-error the description is a sibling, `Label.Description`: inside a label it joins the name */
-const descriptionInside = <Label htmlFor={'email'} description={'We never share it'}>Email</Label>;
+/** @ts-expect-error the registers are four, and none of them is a size */
+const wrongEmphasis = <Label emphasis={'lg'}>Email</Label>;
 
-/** @ts-expect-error 'htmlFor' belongs to a label, and this one renders a span */
-const spanWithHtmlFor = <Label as={'span'} htmlFor={'email'}>no</Label>;
+/** @ts-expect-error a root rendered as a span takes no `href`: `htmlFor` belongs to the name, `as` to the root */
+const spanWithHref = <Label as={'span'} href={'/'}>no</Label>;
 
 const skipLink = <VisuallyHidden as={'a'} focusable href={'#main'}>Skip to content</VisuallyHidden>;
 
@@ -536,7 +536,7 @@ export const CHECKED = [
   anchorStack, sectionStack, plainStack, wrongAttribute, wrongAttributeToo,
   scaleRespected, outsideTheScale, outsideTheColumns, outsideTheScaleResponsive,
   baseIsNotABreakpoint, unknownBreakpoint, asAWrapper, labelDefault, quietLabel, labelWithItsLine,
-  descriptionInside, spanWithHtmlFor,
+  wrongEmphasis, spanWithHref,
   skipLink, contradictoryProps, throughAComponent, missingComponentProp,
   responsiveSpan, singleSpan, wrongSpan, detailResponsiveSpan, detailWrongSpan, detailRefs,
   responsiveGroups, wrongOrientation, responsiveBlock, wrongHide, pillButton, radiusInPixels,

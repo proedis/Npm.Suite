@@ -164,7 +164,7 @@ const CARD = [
  *
  * Slots: `radio-group` (with `data-variant`, `data-orientation`, `data-disabled`, `data-readonly`,
  * `data-invalid`), `radio` (the row or card),
- * `radio-circle`, `radio-dot`, `radio-text`, `label`, `label-description`.
+ * `radio-circle`, `radio-dot`, `label` (the text, with `label-text`, `label-description`).
  */
 export const RadioGroup = React.forwardRef<HTMLDivElement, RadioGroupProps>((props, ref) => {
 
@@ -325,7 +325,7 @@ export const Radio = React.forwardRef<HTMLSpanElement, RadioProps>((props, ref) 
         <RadioPrimitive.Indicator data-slot={'radio-dot'} className={DOT} />
       </RadioPrimitive.Root>
 
-      <ChoiceText slot={'radio'} label={children} description={description} labelId={labelId} descriptionId={descriptionId} />
+      <ChoiceText label={children} description={description} labelId={labelId} descriptionId={descriptionId} />
     </Stack>
   );
 

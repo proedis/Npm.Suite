@@ -2,7 +2,6 @@ import * as React from 'react';
 
 import { responsiveClasses } from '../../core/responsive';
 
-import { Stack } from '../../layout/Stack';
 
 import { Label } from '../../primitives/Label';
 
@@ -135,8 +134,6 @@ export const GROUP_FOCUS_PROPS = {
  * -------- */
 
 interface ChoiceTextProps {
-  /** The prefix of the slot of the text block: `checkbox`, `radio`, `switch` */
-  slot: string;
   label: React.ReactNode;
   description: React.ReactNode;
 
@@ -147,23 +144,22 @@ interface ChoiceTextProps {
 }
 
 /**
- * The label and the description of an option: a `Label` in the register of an option, and its
- * description beside it.
+ * The text of an option: a `Label` in the register of an option, its description under the name.
  *
- * The row around them is a `<label>`, so a press anywhere on it presses the control. That same row
+ * The row around it is a `<label>`, so a press anywhere on it presses the control. That same row
  * would be the name of the control, description included, read at every focus and once more through
- * `aria-describedby`: the control is named by the `Label` alone (`aria-labelledby={labelId}`), and
+ * `aria-describedby`: the control is named by the name alone (`aria-labelledby={labelId}`), and
  * described by the description.
  *
- * Disabled, the label fades with the control and the description does not: it is where the reason
- * is written, and a reason at half opacity is a reason nobody reads.
+ * Disabled, the name fades with the control and the description does not: it is where the reason is
+ * written, and a reason at half opacity is a reason nobody reads.
  */
 export function ChoiceText(props: ChoiceTextProps): React.ReactNode {
 
   // ----
   // Props Deconstruct
   // ----
-  const { description, descriptionId, label, labelId, required = false, slot } = props;
+  const { description, descriptionId, label, labelId, required = false } = props;
 
 
   // ----
@@ -174,17 +170,16 @@ export function ChoiceText(props: ChoiceTextProps): React.ReactNode {
   }
 
   return (
-    <Stack as={'span'} data-slot={`${slot}-text`} gap={0.5} className={'min-w-0'}>
-      {isPresent(label) && (
-        <Label as={'span'} id={labelId} emphasis={'regular'} required={required} className={'group-data-disabled/choice:opacity-50'}>
-          {label}
-        </Label>
-      )}
-
-      {isPresent(description) && (
-        <Label.Description id={descriptionId}>{description}</Label.Description>
-      )}
-    </Stack>
+    <Label
+      emphasis={'regular'}
+      textId={isPresent(label) ? labelId : undefined}
+      description={description}
+      descriptionId={descriptionId}
+      required={required}
+      className={'group-data-disabled/choice:[&_[data-slot=label-text]]:opacity-50'}
+    >
+      {label}
+    </Label>
   );
 
 }

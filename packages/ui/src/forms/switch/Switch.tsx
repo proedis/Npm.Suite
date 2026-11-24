@@ -97,7 +97,7 @@ const THUMB = [
  * position of the thumb and the colour of the track, never by colour alone.
  *
  * Slots: `switch` (the row, with `data-disabled`, `data-readonly`), `switch-track`, `switch-thumb`,
- * `switch-text`, `label`, `label-description`.
+ * `label` (the text, with `label-text`, `label-description`).
  *
  * The ref and the native props reach the track, the element that takes the focus; `className` and the
  * shared props reach the row.
@@ -178,7 +178,7 @@ export const Switch = React.forwardRef<HTMLSpanElement, SwitchProps>((props, ref
         <SwitchPrimitive.Thumb data-slot={'switch-thumb'} className={THUMB} />
       </SwitchPrimitive.Root>
 
-      <ChoiceText slot={'switch'} label={children} description={description} labelId={labelId} descriptionId={descriptionId} />
+      <ChoiceText label={children} description={description} labelId={labelId} descriptionId={descriptionId} />
     </Stack>
   );
 

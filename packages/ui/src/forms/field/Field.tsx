@@ -170,7 +170,7 @@ const ORIENTATION_LAYOUT: Readonly<Record<Direction, string>> = {
     'grid-cols-field-horizontal gap-x-4',
     '*:col-start-2 *:col-span-2 *:row-start-1',
     '*:data-[slot=field-label]:col-start-1 *:data-[slot=field-label]:col-span-1 *:data-[slot=field-label]:row-start-1',
-    '*:data-[slot=field-label]:flex *:data-[slot=field-label]:min-h-control-md *:data-[slot=field-label]:items-center *:data-[slot=field-label]:self-start',
+    '*:data-[slot=field-label]:min-h-control-md *:data-[slot=field-label]:justify-center *:data-[slot=field-label]:self-start',
     '*:data-[slot=field-description]:col-start-2 *:data-[slot=field-description]:row-start-2',
     '*:data-[slot=field-error]:col-start-2 *:data-[slot=field-error]:row-start-2',
     '*:data-[slot=field-counter]:col-start-3 *:data-[slot=field-counter]:row-start-2'
@@ -179,7 +179,7 @@ const ORIENTATION_LAYOUT: Readonly<Record<Direction, string>> = {
     'grid-cols-field gap-x-2',
     '*:col-start-auto *:col-span-2 *:row-start-auto',
     '*:data-[slot=field-label]:col-start-auto *:data-[slot=field-label]:col-span-2 *:data-[slot=field-label]:row-start-auto',
-    '*:data-[slot=field-label]:block *:data-[slot=field-label]:min-h-0 *:data-[slot=field-label]:self-end',
+    '*:data-[slot=field-label]:min-h-0 *:data-[slot=field-label]:justify-start *:data-[slot=field-label]:self-end',
     '*:data-[slot=field-description]:col-start-1 *:data-[slot=field-description]:row-start-auto',
     '*:data-[slot=field-error]:col-start-1 *:data-[slot=field-error]:row-start-auto',
     '*:data-[slot=field-counter]:col-start-2 *:data-[slot=field-counter]:row-start-auto'
@@ -315,16 +315,15 @@ function FieldLabel(props: FieldLabelProps): React.ReactNode {
   // Component Render
   // ----
   /*
-   * The `Label` of the package, on Base UI's label so the name stays tied to the control. Its slot is
-   * `field-label` still: the grid of the field places its parts by slot
+   * The `Label` of the package, its name on Base UI's label so it stays tied to the control. The root
+   * keeps the slot `field-label`: the grid of the field places its parts by slot. A column whose rows
+   * are the name and, later, the description, so the orientations move it with `justify-*`
    */
   return (
     <Label
-      as={FieldPrimitive.Label}
-      {...rest}
-      id={labelId}
-      nativeLabel={native}
-      render={native ? undefined : <div />}
+      textAs={FieldPrimitive.Label}
+      textProps={{ ...rest, nativeLabel: native, render: native ? undefined : <div /> }}
+      textId={labelId}
       data-slot={'field-label'}
       required={required}
       optional={optional}

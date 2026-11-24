@@ -10,6 +10,8 @@ import { Label } from '../../primitives/Label';
 import type { BaseProps } from '../../core/base';
 import type { PolymorphicProps } from '../../core/polymorphic';
 
+import type { LabelProps } from '../../primitives/Label';
+
 
 /* --------
  * Types Definition
@@ -23,13 +25,7 @@ export type LabeledContentProps<E extends React.ElementType = 'div'> =
   PolymorphicProps<E, StrictLabeledContentProps>;
 
 
-export interface StrictLabeledContentLabelProps extends BaseProps {
-  /** A second line under the name: the unit, where the value comes from */
-  description?: React.ReactNode;
-}
-
-export type LabeledContentLabelProps<E extends React.ElementType = 'span'> =
-  PolymorphicProps<E, StrictLabeledContentLabelProps>;
+export type LabeledContentLabelProps<E extends React.ElementType = 'span'> = LabelProps<E>;
 
 
 export interface StrictLabeledContentValueProps extends BaseProps {}
@@ -43,50 +39,25 @@ export type LabeledContentValueProps<E extends React.ElementType = 'div'> =
  * -------- */
 
 /**
- * The quiet half: a `Label` in its quiet emphasis, rendered as a `span`, with its description under it.
- * The part is the pair, `labeled-content-label`, so the name is always the `label` inside it.
+ * The quiet half: a `Label` in its quiet emphasis, rendered as a `span`, with its `description`.
  *
  * Quiet on purpose, and it is the whole reason this component exists rather than a `Heading`: the
  * emphasis is inverted. A heading is a loud title with a quiet line under it; this is a quiet name
- * with a loud value under it, because here the value is the point and a label competing with it
- * flattens the pair. Same two elements, opposite weights.
- *
- * A `span` and not a `<label>`, because there is no control to point at — that is what `Label` itself
- * is for, and the difference between the two is whether there is a `for`.
+ * with a loud value under it, because here the value is the point. A `span` and not a `<label>`:
+ * there is no control to point at.
  */
 function LabeledContentLabel<E extends React.ElementType = 'span'>(
   props: LabeledContentLabelProps<E>
 ): React.ReactNode {
-  // ----
-  // Props Deconstruct
-  // ----
-  const {
-    as: Component = 'span',
-    children,
-    className,
-    description,
-    ...others
-  } = props as LabeledContentLabelProps<'span'>;
+  const { className, ...rest } = props as LabeledContentLabelProps<'span'>;
 
-  const { baseClasses, rest } = splitBaseProps(others);
-
-
-  // ----
-  // Component Render
-  // ----
   return (
-    <Stack
-      as={Component}
+    <Label
       data-slot={'labeled-content-label'}
-      gap={0.5}
-      className={cn('min-w-0', baseClasses, className)}
+      emphasis={'quiet'}
+      className={cn('min-w-0', className)}
       {...rest}
-    >
-      <Label as={'span'} emphasis={'quiet'}>{children}</Label>
-      {description !== null && description !== undefined && description !== false && description !== '' && (
-        <Label.Description>{description}</Label.Description>
-      )}
-    </Stack>
+    />
   );
 }
 

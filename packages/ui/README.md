@@ -299,7 +299,7 @@ for when the count per breakpoint *is* the design.
 | `Badge` | a compact label: `fill × tone × size`, plus a leading `dot` |
 | `IconBox` | the frame around a single icon: `fill × tone × size`, plus `shape` and a `halo` |
 | `Spinner` | a CSS ring, no icon library. `label` makes it announced, its absence makes it decorative |
-| `Label` | the name of anything, of a field, an option or a value, and every label of the package: the asterisk of `required`, the word of `optional`, four emphases (`default`, `strong`, `regular` for the text of an option, `quiet` over data). Its second line is `Label.Description`, a sibling and never a child, so it cannot join the name of a control |
+| `Label` | the name of anything, of a field, an option or a value, and every label of the package: the asterisk of `required`, the word of `optional`, four emphases (`default`, `strong`, `regular` for the text of an option, `quiet` over data). `description` adds a second line and `leading` a glyph before the name. Two elements inside: the root, and the name, a `<label>` when `htmlFor` points it at a control; the description sits beside the name, never inside it, so it cannot join the name of the control |
 | `LabeledContent` | a value with a quiet label: `LabeledContent.Label` and `.Value` |
 
 For a rule *between* the children of a stack use `<Stack divided>`, not `Divider`: it draws with
@@ -1189,8 +1189,8 @@ another package. A recessed surface is `--muted`.
 | `combobox-footer` on the "too many results" line of the single `Combobox` | `combobox-too-many`, as on the multiple one; `combobox-footer` is now only the footer of actions of the multiple field |
 | `resultsFor`, `onFlush` on a multiple `Combobox` | single field only: they never did anything on the multiple one |
 | `buttonVariants`, `alertVariants`, `textInputVariants` | no longer exported: the components lay themselves out through `Stack`, and a recipe on an element of your own would carry a layout no primitive gives it. A link drawn as a button is `<Button to={…}>`; any other element is `<Button render={<YourElement />}>`, which keeps the layout |
-| `<Label description={…}>` | `<Label.Description>` beside the `Label`, with an `id` the control points at through `aria-describedby`: inside a `<label>` the description became part of the name of the control. `LabeledContent.Label` keeps its `description` prop |
-| the slots `label-text`, `checkbox-label`, `radio-label`, `switch-label`, `detail-label` | `label`, on every label of the package; `checkbox-description`, `radio-description`, `switch-description` are `label-description`; `field-required` and `field-optional` are `label-required` and `label-optional`. A description is `text-xs` everywhere, where an option wrote `text-sm` |
+| `<Label>` rendered as the `<label>` itself | a `span` root (`as` changes it) with the name inside, `label-text`, a `<label>` when `htmlFor` is given. The description no longer sits inside the `<label>`, where it became part of the name of the control: its id is `<textId>-description` or `descriptionId`, for the control's `aria-describedby` |
+| the slots `checkbox-label`, `radio-label`, `switch-label`, `detail-label`, `checkbox-text`, `radio-text`, `switch-text` | `label`, the root of every label of the package, with `label-text` inside; `checkbox-description`, `radio-description`, `switch-description` are `label-description`; `field-required` and `field-optional` are `label-required` and `label-optional`. A description is `text-xs` everywhere, where an option wrote `text-sm` |
 | `useMediaQuery`, `usePrefersReducedMotion` from `@proedis/ui/hooks` | from `@proedis/react`, same signatures; `@proedis/ui/hooks` keeps `useBreakpoint` and `useIsMobile` |
 | `tailwindcss` `^4.0.0` | `^4.1.5`, see Compatibility |
 | a `Badge` with text renders the text as its child | the text is wrapped in `badge-label` and truncates with an ellipsis when the badge is too narrow |
