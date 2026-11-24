@@ -39,9 +39,10 @@ function FieldShellPage(): React.ReactNode {
         page={PAGE}
         lead={(
           <React.Fragment>
-            The frame of every text control, offered to a control of your own: the border, the surface, the three
-            heights, the states and the focus of a TextInput, around whatever you put in it. A control the package does
-            not have can then sit in a form and look like the ones it does.
+            The frame of every bordered control: the border, the surface, the three heights, the states and the focus.
+            TextInput, NumberInput, Select, MultiSelect, Combobox, DatePicker and the field of ModalSelector are each
+            this frame around their own content, and a control of your own is too: one the package does not have sits
+            in a form and looks like the ones it does, because it is drawn by the same component.
           </React.Fragment>
         )}
         imports={tsx`
@@ -69,6 +70,29 @@ function FieldShellPage(): React.ReactNode {
               padding, on an icon. A press on a button, a link or another input inside the frame is left alone. The same
               attribute is what the error summary of a{' '}
               <Link to={'/forms/form'} className={LINK}>Form</Link> focuses when it points at the field.
+            </p>
+          </Prose>
+        </Section>
+
+        <Section
+          title={'What goes inside'}
+          lead={(
+            <React.Fragment>
+              The children sit in the row as they are, between <InlineCode>leading</InlineCode> and{' '}
+              <InlineCode>trailing</InlineCode>: the control fills it with <InlineCode>flex-1</InlineCode>, and marks the
+              element that takes the focus with <InlineCode>data-field-control</InlineCode>. The frame fills its own row
+              (<InlineCode>w-full min-w-0</InlineCode>); a control sized by its content says so in{' '}
+              <InlineCode>className</InlineCode>, as DatePicker does with <InlineCode>w-auto min-w-auto</InlineCode>.
+              The icons of the two slots are quiet; whatever you put in the middle keeps its own colours.
+            </React.Fragment>
+          )}
+        >
+          <Prose>
+            <p>
+              The slots follow the slot of the frame: given a <InlineCode>data-slot</InlineCode> of its own, the frame
+              names its parts after it, which is how a TextInput is a <InlineCode>text-input</InlineCode> with{' '}
+              <InlineCode>text-input-leading</InlineCode> and <InlineCode>text-input-trailing</InlineCode>. Name yours,
+              and a product’s stylesheet can reach your control apart from the others.
             </p>
           </Prose>
         </Section>
@@ -121,7 +145,6 @@ function FieldShellPage(): React.ReactNode {
             rows={[
               { slot: 'field-shell', part: 'The frame', attributes: [ 'data-size', 'data-invalid', 'data-readonly', 'data-disabled' ] },
               { slot: 'field-shell-leading', part: 'The icon before the content' },
-              { slot: 'field-shell-content', part: 'Your control' },
               { slot: 'field-shell-trailing', part: 'The icon or the quiet action after it' }
             ]}
           />

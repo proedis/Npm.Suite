@@ -18,7 +18,7 @@ export default function Example(): React.ReactNode {
       {SIZES.map((size) => (
         <Stack key={size} direction={'horizontal'} align={'center'} gap={2}>
           <FieldShell size={size} leading={<Clock />} trailing={<span className={'text-xs text-muted-foreground'}>24h</span>}>
-            <input aria-label={`Opening time, ${size}`} defaultValue={'07:30'} data-field-control={''} className={'w-full bg-transparent outline-none'} />
+            <input aria-label={`Opening time, ${size}`} defaultValue={'07:30'} data-field-control={''} className={'min-w-0 flex-1 bg-transparent outline-none'} />
           </FieldShell>
           <TextInput size={size} aria-label={`Closing time, ${size}`} defaultValue={'19:00'} />
         </Stack>
