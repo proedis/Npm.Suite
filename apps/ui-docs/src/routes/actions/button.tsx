@@ -13,7 +13,8 @@ import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
 import { css, tsx } from '@/docs/snippet';
-import { DocTable, PropsTable, SlotsTable } from '@/docs/Tables';
+import { SlotsInspector } from '@/docs/SlotsInspector';
+import { DocTable, PropsTable } from '@/docs/Tables';
 import basic from '@/examples/actions/button/basic.tsx?example';
 import block from '@/examples/actions/button/block.tsx?example';
 import custom from '@/examples/actions/button/custom.tsx?example';
@@ -28,6 +29,7 @@ import link from '@/examples/actions/button/link.tsx?example';
 import loading from '@/examples/actions/button/loading.tsx?example';
 import menuTrigger from '@/examples/actions/button/menu-trigger.tsx?example';
 import sizes from '@/examples/actions/button/sizes.tsx?example';
+import slots from '@/examples/actions/button/slots.tsx?example';
 import tones from '@/examples/actions/button/tones.tsx?example';
 import { pageAt } from '@/nav';
 
@@ -345,9 +347,16 @@ function ButtonPage(): React.ReactNode {
 
         <Section
           title={'Slots and data attributes'}
-          lead={'Every part a stylesheet can reach, and what each one reports.'}
+          lead={(
+            <React.Fragment>
+              Every part a stylesheet can reach, and what each one reports. Hover or focus a row to outline its part
+              in the example; the attributes are read from the example as it is now, so turn on Loading or Disabled
+              and watch them change. Below the table, a rule you write is applied to this example alone.
+            </React.Fragment>
+          )}
         >
-          <SlotsTable
+          <SlotsInspector
+            of={slots}
             rows={[
               { slot: 'button', part: 'The button, or the anchor of a button with a to', attributes: [ 'data-fill', 'data-tone', 'data-size', 'data-block', 'data-loading', 'data-disabled', 'data-popup-open', 'data-icon-only' ] },
               { slot: 'button-content', part: 'The icons and the label, on one line' },
