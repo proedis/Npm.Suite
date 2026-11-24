@@ -141,7 +141,7 @@ const CONTENT_GAP: Readonly<Record<ToggleSize, SpacingValue>> = {
 };
 
 /** Alone: an outline 2px away and a halo, as the Button. In a group: inside, and a card line over the fill */
-const FOCUS_ALONE = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring focus-visible:ring-7 focus-visible:ring-ring/20';
+const FOCUS_ALONE = 'focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring focus-visible:ring-7 focus-visible:ring-ring/20';
 const FOCUS_IN_GROUP = cn(FOCUS_INSIDE, 'data-pressed:focus-visible:ring-3 data-pressed:focus-visible:ring-inset data-pressed:focus-visible:ring-card');
 
 const [ ToggleGroupContext, useToggleGroupContext ] = optionalContextBuilder<ToggleGroupContextValue | null>('ToggleGroup', null);

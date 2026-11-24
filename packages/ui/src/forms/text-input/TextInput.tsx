@@ -196,7 +196,7 @@ const TextInputAction = React.forwardRef<HTMLButtonElement, TextInputActionProps
       data-slot={'text-input-action'}
       className={cn(
         'size-6 cursor-pointer rounded-sm',
-        'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:ring-0',
+        'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:ring-0',
         ACTION_OFFSET[size],
         className
       )}

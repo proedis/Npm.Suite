@@ -136,7 +136,7 @@ const TAB_BASE = [
   'data-active:cursor-default data-active:text-primary-foreground forced-colors:data-active:forced-highlight',
 
   /* The focus inside a closed tab, outside the open one */
-  'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring data-active:focus-visible:outline-offset-1',
+  'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-ring data-active:focus-visible:outline-offset-1',
 
   'data-disabled:cursor-not-allowed'
 ].join(' ');
@@ -541,7 +541,7 @@ const TabsPanel = React.forwardRef<HTMLDivElement, TabsPanelProps>((props, ref) 
       aria-label={typeof label === 'string' ? label : undefined}
       data-slot={'tabs-panel'}
       data-visited={visited || undefined}
-      className={cn('outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring', baseClasses, className)}
+      className={cn('outline-none focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring', baseClasses, className)}
     >
       {visited ? children : null}
     </TabsPrimitive.Panel>

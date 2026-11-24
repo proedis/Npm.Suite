@@ -215,7 +215,7 @@ export function CollapsibleSection(props: CollapsibleSectionProps): React.ReactN
               'group/collapsible-trigger min-h-10 w-full py-2.5 text-start',
               'font-semibold text-foreground',
               'hover:bg-foreground/8',
-              'outline-none focus-visible:outline-2 focus-visible:outline-ring',
+              'outline-none focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-ring',
               inset
                 ? 'px-6 focus-visible:-outline-offset-2'
                 : 'rounded-md px-2 focus-visible:outline-offset-2'

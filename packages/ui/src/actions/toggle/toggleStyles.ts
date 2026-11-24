@@ -50,4 +50,4 @@ export const PRESSABLE_CONTENT = [
 ].join(' ');
 
 /** The focus inside the item: it never leaves the button nor covers the one beside it */
-export const FOCUS_INSIDE = 'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring';
+export const FOCUS_INSIDE = 'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-ring';

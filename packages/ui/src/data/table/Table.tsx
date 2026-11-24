@@ -709,7 +709,7 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
 
             /* Under the pointer only the ink darkens: no fill, the header stays light */
             'transition-colors duration-100 hover:text-foreground motion-reduce:transition-none',
-            'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring',
+            'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-ring',
             direction !== false && 'text-foreground',
             align === 'end' && 'flex-row-reverse'
           )}

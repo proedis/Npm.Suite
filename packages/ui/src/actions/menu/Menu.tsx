@@ -116,7 +116,7 @@ export interface MenuSubmenuProps {
 const ITEM = cn(
   LIST_ITEM,
   'group/menu-item data-disabled:opacity-100',
-  'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring',
+  'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-ring',
   'data-popup-open:bg-accent'
 );
 

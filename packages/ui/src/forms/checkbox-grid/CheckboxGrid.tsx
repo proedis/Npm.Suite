@@ -203,7 +203,7 @@ const ROW_TRACKS = 'grid min-h-8';
 // eslint-disable-next-line no-restricted-syntax -- tracks from the data, an inline template: no column count to give
 const HEADER_TRACKS = 'sticky top-0 z-2 grid h-8 items-center border-y border-border bg-card text-xs font-semibold text-muted-foreground';
 
-const CELL_FOCUS = 'has-focus-visible:outline-2 has-focus-visible:-outline-offset-2 has-focus-visible:outline-ring';
+const CELL_FOCUS = 'has-focus-visible:outline-2 has-focus-visible:outline-solid has-focus-visible:-outline-offset-2 has-focus-visible:outline-ring';
 
 /** The header of an open group stays put under the header of the columns */
 const STICKY_HEADER = 'data-open:[&>[data-slot=collapsible-section-header]]:sticky '

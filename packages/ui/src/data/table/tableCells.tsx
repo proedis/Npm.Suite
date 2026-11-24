@@ -158,7 +158,7 @@ export function sortValue<TData>(column: TableColumn<TData>, row: TData): unknow
  * Rendering
  * -------- */
 
-const LINK = 'outline-none hover:underline focus-visible:underline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring';
+const LINK = 'outline-none hover:underline focus-visible:underline focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-ring';
 
 function Truncated(props: { children: React.ReactNode; className?: string }): React.ReactNode {
   return <span data-truncate className={cn('block truncate', props.className)}>{props.children}</span>;

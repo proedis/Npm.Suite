@@ -236,7 +236,7 @@ function FormErrorSummary(props: FormErrorSummaryProps): React.ReactNode {
       gap={1}
       className={cn(
         'rounded-md bg-destructive-soft p-3 text-sm text-destructive-soft-foreground',
-        'outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+        'outline-none focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring',
         baseClasses,
         className
       )}

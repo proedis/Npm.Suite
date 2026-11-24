@@ -86,7 +86,7 @@ const HEAD_BUTTON = 'size-7 rounded-sm [&_svg]:size-4';
 const CELL_BUTTON = [
   'relative h-8 w-full rounded-sm text-sm tabular-nums outline-none',
   'hover:bg-accent hover:text-accent-foreground',
-  'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring',
+  'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-ring',
   'data-weekend:text-muted-foreground data-muted:text-muted-foreground data-outside:text-placeholder',
   'data-today:font-semibold data-today:inset-ring data-today:inset-ring-primary',
   'data-in-range:rounded-none data-in-range:bg-primary-soft data-in-range:text-primary-soft-foreground',
@@ -98,7 +98,7 @@ const CELL_BUTTON = [
 /** A month or a year: a button centring its name, as a Stack (`as={'button'}`) */
 const PICK_BUTTON = [
   'h-11 rounded-sm text-sm outline-none hover:bg-accent',
-  'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring',
+  'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-ring',
   'data-selected:bg-primary data-selected:font-semibold data-selected:text-primary-foreground'
 ].join(' ');
 

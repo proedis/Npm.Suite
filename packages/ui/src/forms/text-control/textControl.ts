@@ -48,11 +48,11 @@ const BASE = [
  */
 export const TEXT_CONTROL_FRAME = [
   BASE,
-  'has-[[data-field-control]:focus]:border-ring has-[[data-field-control]:focus]:outline-1',
+  'has-[[data-field-control]:focus]:border-ring has-[[data-field-control]:focus]:outline-1 has-[[data-field-control]:focus]:outline-solid',
   'has-[[data-field-control]:focus]:outline-ring',
   'not-has-[[data-popup-open]]:has-[[data-field-control]:focus]:ring-4',
   'not-has-[[data-popup-open]]:has-[[data-field-control]:focus]:ring-ring/20',
-  'has-[[data-popup-open]]:border-ring has-[[data-popup-open]]:outline-1 has-[[data-popup-open]]:outline-ring',
+  'has-[[data-popup-open]]:border-ring has-[[data-popup-open]]:outline-1 has-[[data-popup-open]]:outline-solid has-[[data-popup-open]]:outline-ring',
   'data-invalid:has-[[data-field-control]:focus]:border-destructive data-invalid:has-[[data-popup-open]]:border-destructive'
 ].join(' ');
 
@@ -61,7 +61,7 @@ export const TEXT_CONTROL_FRAME = [
 export const TEXT_CONTROL_SELF = [
   BASE,
   'outline-none',
-  'focus:border-ring focus:outline-1 focus:outline-ring focus:ring-4 focus:ring-ring/20',
+  'focus:border-ring focus:outline-1 focus:outline-solid focus:outline-ring focus:ring-4 focus:ring-ring/20',
   'data-invalid:focus:border-destructive'
 ].join(' ');
 

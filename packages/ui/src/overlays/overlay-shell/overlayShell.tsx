@@ -430,7 +430,7 @@ export const OverlayError = React.forwardRef<HTMLDivElement, { children: React.R
     align={'start'}
     gap={2}
     className={cn(
-      'rounded-md px-3 py-2 outline-none focus-visible:outline-2 focus-visible:outline-ring',
+      'rounded-md px-3 py-2 outline-none focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-ring',
       TONE_CLASSES.soft.destructive
     )}
   >
@@ -696,7 +696,7 @@ export function OverlayBody(props: OverlayBodyProps): React.ReactNode {
                   gap={2}
                   className={cn(
                     'relative min-h-8 rounded-sm px-2 py-1.5 text-start outline-none',
-                    'hover:bg-accent focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring',
+                    'hover:bg-accent focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-ring',
                     'aria-[current=location]:bg-primary-soft aria-[current=location]:text-primary-soft-foreground',
                     'aria-[current=location]:before:absolute aria-[current=location]:before:inset-y-1 aria-[current=location]:before:start-0',
                     'aria-[current=location]:before:w-0.5 aria-[current=location]:before:bg-primary'
@@ -734,7 +734,7 @@ export function OverlayBody(props: OverlayBodyProps): React.ReactNode {
               'min-h-0 flex-1 overflow-y-auto overscroll-contain scrollbar-thin scroll-py-4 px-6 pt-2 outline-none',
               hasFooter ? 'pb-2' : 'pb-6',
               indent && 'ps-17',
-              'focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-ring'
+              'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-4 focus-visible:outline-ring'
             )}
           >
             <div ref={topRef} aria-hidden className={'h-px'} />

@@ -131,7 +131,7 @@ const CARD = [
   'rounded-md border border-border bg-card px-1.75 py-1.25',
   'not-has-[[data-checked]]:not-data-disabled:not-data-readonly:hover:bg-accent',
   'has-[[data-checked]]:border-primary has-[[data-checked]]:bg-primary-soft',
-  'has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-ring',
+  'has-focus-visible:outline-2 has-focus-visible:outline-solid has-focus-visible:outline-offset-2 has-focus-visible:outline-ring',
   'has-focus-visible:ring-7 has-focus-visible:ring-ring/20',
   'data-invalid:border-destructive data-invalid:inset-ring data-invalid:inset-ring-destructive',
   'data-invalid:has-[[data-checked]]:bg-destructive-soft',

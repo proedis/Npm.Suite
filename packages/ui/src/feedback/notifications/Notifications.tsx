@@ -118,7 +118,7 @@ function ConfirmationRows(props: { labels: NotificationsLabels; store: Notificat
       render={<Stack direction={'horizontal'} align={'center'} gap={3} />}
       className={cn(
         'pointer-events-auto max-w-120 min-h-12 rounded-md bg-popover py-2.5 ps-4 pe-2 text-sm text-popover-foreground shadow-lg outline-none wrap-anywhere',
-        'focus-visible:outline-2 focus-visible:outline-ring',
+        'focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-ring',
         'transition duration-150 data-starting-style:translate-y-2 data-starting-style:opacity-0 data-ending-style:opacity-0 motion-reduce:transition-none'
       )}
     >
@@ -163,7 +163,7 @@ function JobRow(props: { job: Job; labels: NotificationsLabels; store: Notificat
         align={'center'}
         className={cn(
           CONTROL_HEIGHT.sm,
-          'shrink-0 rounded-md px-2.5 text-xs font-medium text-primary hover:underline focus-visible:outline-2 focus-visible:outline-ring'
+          'shrink-0 rounded-md px-2.5 text-xs font-medium text-primary hover:underline focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-ring'
         )}
       >
         {action.label}
@@ -388,7 +388,7 @@ function JobsPanel(props: JobsPanelProps): React.ReactNode {
             onClick={() => store.setExpanded(true)}
             className={cn(
               'h-10 rounded-md bg-popover px-4 text-sm shadow-lg outline-none',
-              'hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring'
+              'hover:bg-accent focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-ring'
             )}
           >
             <StatusMark status={urgent} />

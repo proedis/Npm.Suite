@@ -32,7 +32,7 @@ export const CHOICE_ROW = [
 
 /** The focus of a box, a circle or a track: 2px outline 2px away and a halo, keyboard only */
 export const CHOICE_FOCUS = [
-  'outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+  'outline-none focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring',
   'focus-visible:ring-7 focus-visible:ring-ring/20'
 ].join(' ');
 

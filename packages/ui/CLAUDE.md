@@ -537,6 +537,15 @@ narrower stylesheet is the one you have to ask for.
   radius that `size` sets) is appended outside the `cva` call, where `tailwind-merge` resolves it on
   an order the file controls — inside one call the winner is the order of the config keys, which is a
   subtlety nobody should need to know to read the file.
+- **An outline width carries its style, on the same variant.** In Tailwind 4 `outline-none` sets
+  `--tw-outline-style: none`, and `outline-2` writes `outline-style: var(--tw-outline-style)`, so
+  `outline-none focus-visible:outline-2` draws nothing: the width arrives, the style stays `none`.
+  Every width is therefore paired, `focus-visible:outline-2 focus-visible:outline-solid`, and the same
+  for `has-focus-visible:`, `has-[…]:` and `focus:`. It shipped that way from the first component
+  until the radius work measured `outline-style: none` on a focused Button: for the whole 2.0 line the
+  focus of every control was its 20% halo alone. A variant that switches the outline off on purpose
+  (`in-data-[variant=card]:focus-visible:outline-none` on the circle of a card Radio) comes later in
+  the CSS at the same specificity, and still wins.
 - **A line height goes AFTER the size, never before it.** A Tailwind size carries a line height of
   its own, so `tailwind-merge` treats `text-base` as conflicting with `leading-*` and keeps only the
   later one. `cva('leading-tight …', { variants: { size: { md: 'text-base' } } })` therefore emits
@@ -993,6 +1002,15 @@ What was run for the radius of the controls and the finish of the button:
   React Compiler at 202 functions, 0 skipped.
 - **`types.check.tsx`**: `radius={'full'}` compiles, `radius={12}` does not, made valid for a moment to
   watch `tsc` fail.
+
+What was run for the outline of the focus:
+
+- **In the browser, with the keyboard**: a focused Button measured `outline-style: none` before and
+  `solid 2px` after; a card Radio puts its 2px outline on the card and none on the circle; a field's
+  frame keeps its 1px outline on focus (it had no `outline-none`, and worked before too).
+- **The markup snapshots**, against the build of the radius commit: 3,100 `outline-solid` classes
+  added across the five variants, nothing removed, no other attribute moved. Tailwind's compiler
+  places `in-data-[variant=card]:focus-visible:outline-none` after `focus-visible:outline-solid`.
 
 ## Two defects the build surfaced
 

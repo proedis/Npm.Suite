@@ -42,13 +42,13 @@ export const CELL = [
   /* A chosen row under the pointer: its ink at 8% over the soft fill */
   'group-data-selected/row:group-hover/row:bg-linear-to-b group-data-selected/row:group-hover/row:from-primary-soft-foreground/8',
   'group-data-selected/row:group-hover/row:to-primary-soft-foreground/8',
-  'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring'
+  'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-ring'
 ].join(' ');
 
 export const HEAD = [
   'sticky top-0 z-20 h-8 border-b border-border bg-muted px-3 text-start align-middle',
   'text-xs font-semibold whitespace-nowrap text-muted-foreground',
-  'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring',
+  'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-ring',
 
   /* The shade under the header, once the rows have scrolled under it */
   'after:pointer-events-none after:absolute after:inset-x-0 after:top-full after:h-2 after:bg-linear-to-b after:from-scroll-shade',

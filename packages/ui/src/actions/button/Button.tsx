@@ -164,7 +164,7 @@ const buttonVariants = cva(
     'transition-colors duration-100 motion-reduce:transition-none',
 
     /* A 2px outline 2px away, and a halo of the same colour reaching 3px past it. Keyboard only */
-    'outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-7',
+    'outline-none focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:ring-7',
 
     /*
      * Disabled stays reachable when Base UI keeps it focusable (loading, icon only): that is when

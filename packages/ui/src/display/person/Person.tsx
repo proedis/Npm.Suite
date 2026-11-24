@@ -240,7 +240,7 @@ export const Avatar = React.forwardRef<HTMLSpanElement, AvatarProps>((props, ref
       className={cn(
         'relative shrink-0 overflow-hidden rounded-full font-semibold select-none',
         'after:pointer-events-none after:absolute after:inset-0 after:rounded-full after:inset-ring after:inset-ring-foreground/8',
-        'outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+        'outline-none focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring',
         SIZES[size],
         tone,
         baseClasses,
@@ -306,7 +306,7 @@ export const Person = React.forwardRef<HTMLSpanElement, PersonProps>((props, ref
 
   const nameClasses = cn(
     'min-w-0 truncate rounded-sm text-start outline-none',
-    'focus-visible:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+    'focus-visible:underline focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring',
     stacked ? 'font-semibold' : 'font-normal',
     muted ? 'text-muted-foreground' : 'text-foreground'
   );
@@ -438,7 +438,7 @@ export const AvatarGroup = React.forwardRef<HTMLButtonElement, AvatarGroupProps>
         render={<Stack gap={0} as={'button'} inline direction={'horizontal'} align={'center'} />}
         className={cn(
           'shrink-0 cursor-default rounded-full outline-none',
-          'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+          'focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring',
           OVERLAP[size],
           baseClasses,
           className
