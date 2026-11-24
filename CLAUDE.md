@@ -552,6 +552,9 @@ package:
   requiredness, JSDoc, declaring interface. A default that lives only in a destructure is invisible to
   it: the page states it under the table, and the fix is a JSDoc sentence in the package. Only the
   props the package declares; what comes from a native element or Base UI is one line on the page.
+  A prop the component writes back as a `data-*` attribute is marked with it, read from the
+  component's own folder (`data-size={size}`, `'data-loading': loading`): an attribute written by a
+  shared module elsewhere is not found, which leaves a mark missing rather than inventing one.
 - **`virtual:ui-theme/<section>/<name>`**: the variables of the theme a component reads, worked out from
   the classes its modules write (read from the syntax tree, `data-*` values skipped) translated through
   `ui.css` and `theme.css`, with their light and dark defaults. Every component page renders them in its

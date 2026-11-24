@@ -128,6 +128,14 @@ export function PropsTable(props: PropsTableProps): React.ReactNode {
             <Cluster gap={1.5}>
               <code className={'font-mono text-sm font-semibold text-foreground'}>{prop.name}</code>
               {prop.required && <span className={'text-xs font-medium text-destructive'}>required</span>}
+              {prop.dataAttribute && (
+                <code
+                  title={`Reported on the element as ${prop.dataAttribute}, which a stylesheet can target`}
+                  className={'rounded-sm bg-primary-soft px-1.5 py-0.5 font-mono text-2xs text-primary-soft-foreground'}
+                >
+                  {prop.dataAttribute}
+                </code>
+              )}
             </Cluster>
             {prop.description && <div className={'text-sm/6'}><Markdown text={prop.description} /></div>}
           </Stack>,

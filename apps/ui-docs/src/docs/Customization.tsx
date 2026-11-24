@@ -2,12 +2,11 @@ import * as React from 'react';
 
 import { Link } from '@tanstack/react-router';
 
-import { Stack } from '@proedis/ui/layout';
+import { CollapsibleSection } from '@proedis/ui/actions/collapsible';
+import { Cluster, Stack } from '@proedis/ui/layout';
 
-import { CodeBlock } from './CodeBlock';
 import { InlineCode } from './InlineCode';
-import { Prose, Section, SubSection } from './Page';
-import { css } from './snippet';
+import { Prose, Section } from './Page';
 import { DocTable } from './Tables';
 import { describeVariable, GROUP_LEADS, GROUP_TITLES } from './themeVariables';
 
@@ -69,6 +68,54 @@ export function ThemeTable(props: { variables: readonly ThemeVariable[] }): Reac
 }
 
 
+/** A colour family: a token and the variables that go with it, its ink, its soft pair, its hover */
+interface ColourFamily {
+  readonly name: string;
+  readonly variables: readonly string[];
+}
+
+/** A number with its noun, singular or plural */
+function count(value: number, one: string, many: string): string {
+  return `${value} ${value === 1 ? one : many}`;
+}
+
+/** The base token of a colour variable: `--primary-soft-foreground` belongs to `primary` */
+function familyOf(variable: string): string {
+  return variable
+    .replace(/^--/, '')
+    .replace(/-(soft-foreground|soft|muted-foreground|foreground|hover|pressed|nested)$/, '');
+}
+
+/** The colours grouped by family, in the order they first appear */
+function familiesOf(variables: readonly ThemeVariable[]): ColourFamily[] {
+  const families = new Map<string, string[]>();
+
+  for (const { variable } of variables) {
+    const family = familyOf(variable);
+    families.set(family, [ ...(families.get(family) ?? []), variable ]);
+  }
+
+  return [ ...families ].map(([ family, members ]) => ({ name: family, variables: members }));
+}
+
+/** One row per colour family, its variables as chips: the defaults are on the Foundations page */
+function FamilyTable(props: { families: readonly ColourFamily[] }): React.ReactNode {
+  return (
+    <DocTable
+      head={[ 'Family', 'Variables' ]}
+      rows={props.families.map((family) => [
+        <span key={'f'} className={'font-medium whitespace-nowrap text-foreground'}>{family.name}</span>,
+        <Cluster key={'v'} gap={'xs'}>
+          {family.variables.map((variable) => (
+            <code key={variable} className={'font-mono text-xs text-foreground'}>{variable}</code>
+          ))}
+        </Cluster>
+      ])}
+    />
+  );
+}
+
+
 /* --------
  * Component Definition
  * -------- */
@@ -96,48 +143,43 @@ export function Customization(props: CustomizationProps): React.ReactNode {
       lead={(
         <React.Fragment>
           {theme.variables.length
-            ? `Every variable of the theme ${name} reads, with what it moves and its default. `
+            ? `The variables of the theme ${name} reads, by group. `
             : `${name} reads no variable of the theme: it has no look of its own to tune. `}
-          Write them in plain CSS, in <InlineCode>:root {'{ }'}</InlineCode> after the import of the stylesheet, to
-          change every {name} of the application; in <InlineCode>.dark {'{ }'}</InlineCode> for dark mode only; in any
-          other selector for what is inside it. Never in <InlineCode>@theme</InlineCode> or{' '}
-          <InlineCode>@layer base</InlineCode>: there half of them are ignored with no error. The reasons, measured, and
-          every variable of every component are on the{' '}
-          <Link to={'/foundations/customization'} className={'font-medium text-foreground underline underline-offset-2'}>Customization</Link>{' '}
-          page of Foundations.
+          Plain CSS in <InlineCode>:root {'{ }'}</InlineCode> after the import, <InlineCode>.dark {'{ }'}</InlineCode>{' '}
+          for dark mode, never <InlineCode>@theme</InlineCode>. Why, with every default:{' '}
+          <Link to={'/foundations/customization'} className={'font-medium text-foreground underline underline-offset-2'}>Foundations, Customization</Link>.
         </React.Fragment>
       )}
     >
       {theme.variables.length > 0 && (
-        <CodeBlock
-          title={'app.css'}
-          snippet={css`
-            @import 'tailwindcss';
-            @import '@proedis/ui';
+        <Stack gap={0} divided className={'rounded-xl border border-border px-4'}>
+          {GROUPS.map((group) => {
+            const variables = theme.variables.filter((variable) => variable.group === group);
 
-            :root {
-              /* the variables below, for the whole application */
+            if (!variables.length) {
+              return null;
             }
 
-            .dark {
-              /* their dark values */
-            }
-          `}
-        />
+            const families = group === 'Colour' ? familiesOf(variables) : undefined;
+
+            return (
+              <CollapsibleSection
+                key={group}
+                title={GROUP_TITLES[group]}
+                meta={families ? `${count(families.length, 'family', 'families')}, ${count(variables.length, 'variable', 'variables')}` : count(variables.length, 'variable', 'variables')}
+                headingLevel={3}
+              >
+                <Stack gap={'sm'} className={'pb-4'}>
+                  <p className={'text-sm text-muted-foreground'}>{GROUP_LEADS[group]}</p>
+                  {families
+                    ? <FamilyTable families={families} />
+                    : <ThemeTable variables={variables} />}
+                </Stack>
+              </CollapsibleSection>
+            );
+          })}
+        </Stack>
       )}
-      {GROUPS.map((group) => {
-        const variables = theme.variables.filter((variable) => variable.group === group);
-
-        if (!variables.length) {
-          return null;
-        }
-
-        return (
-          <SubSection key={group} id={`customization-${group.toLowerCase()}`} title={GROUP_TITLES[group]} lead={GROUP_LEADS[group]}>
-            <ThemeTable variables={variables} />
-          </SubSection>
-        );
-      })}
       {children && <Prose>{children}</Prose>}
     </Section>
   );

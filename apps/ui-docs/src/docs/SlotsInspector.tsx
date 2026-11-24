@@ -212,6 +212,7 @@ export function SlotsInspector(props: SlotsInspectorProps): React.ReactNode {
   const [ ruleSlot, setRuleSlot ] = React.useState<string>(rows[0]?.slot ?? '');
   const [ ruleAttribute, setRuleAttribute ] = React.useState<string | null>(null);
   const [ declarations, setDeclarations ] = React.useState('');
+  const [ showCode, setShowCode ] = React.useState(false);
 
   /** The pointer wins over the focus, and leaving a row with the pointer gives the outline back to the focus */
   const highlighted = hovered ?? focused;
@@ -270,7 +271,11 @@ export function SlotsInspector(props: SlotsInspectorProps): React.ReactNode {
     <Stack gap={'lg'} data-slot={'slots-inspector'}>
       <style>{style}</style>
 
-      <div data-slot={'example'}>
+      {/*
+        The preview stays under the bar while the table and the rule below it scroll, so the part a row
+        outlines is on screen whichever row the pointer is on
+      */}
+      <div className={'sticky top-14 z-10 -mx-1 bg-background px-1 pt-2 pb-1'}>
         <Stack
           ref={previewRef}
           gap={0}
@@ -278,12 +283,20 @@ export function SlotsInspector(props: SlotsInspectorProps): React.ReactNode {
           justify={'center'}
           data-slot={'example-preview'}
           data-inspector={scope}
-          className={'min-h-36 overflow-x-auto rounded-t-xl border border-border bg-background p-6 sm:p-10'}
+          className={'min-h-28 overflow-x-auto rounded-xl border border-border bg-background p-5 shadow-sm'}
         >
           <Component />
         </Stack>
-        <CodeBlock attached snippet={of} title={of.file} maxHeight={320} />
       </div>
+
+      <Stack gap={'sm'}>
+        <Cluster justify={'end'}>
+          <Button size={'sm'} fill={'plain'} tone={'muted'} aria-expanded={showCode} onClick={() => setShowCode((value) => !value)}>
+            {showCode ? 'Hide the code' : 'Show the code'}
+          </Button>
+        </Cluster>
+        {showCode && <CodeBlock snippet={of} title={of.file} maxHeight={320} />}
+      </Stack>
 
       <div className={'overflow-hidden rounded-xl border border-border'}>
         <ScrollArea orientation={'horizontal'}>

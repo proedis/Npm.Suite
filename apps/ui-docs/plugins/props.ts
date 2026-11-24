@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import path from 'node:path';
 
 import ts from 'typescript';
@@ -201,7 +202,32 @@ class PropsReader {
 
         return fileA === fileB ? a.declarations[0].pos - b.declarations[0].pos : fileA.localeCompare(fileB);
       })
-      .map(({ property, declarations }) => this._describe(checker, property, declarations, typeName));
+      .map(({ property, declarations }) => this._describe(checker, property, declarations, typeName))
+      .map((doc) => {
+        const attribute = `data-${doc.name.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)}`;
+        /*
+         * The attribute assigned from an expression that names the prop, on one line, as JSX
+         * (`data-size={size}`) or as a key (`'data-loading': loading`); a Tailwind variant such as
+         * `data-placeholder:text-placeholder` is neither
+         */
+        const written = !doc.shared
+          && new RegExp(`(?:\\s${attribute}=\\{|'${attribute}'\\s*:)[^\\n]*${doc.name}`, 'i').test(this._componentSource(ownFile));
+        return written ? { ...doc, dataAttribute: attribute } : doc;
+      });
+  }
+
+  /**
+   * The source of the component a props type belongs to: its whole folder for a component with a
+   * subpath of its own, the file alone for a layout primitive or a primitive, which share a folder.
+   */
+  private _componentSource(file: string): string {
+    const folder = path.dirname(file);
+    const shared = [ 'core', 'layout', 'primitives' ].includes(path.basename(folder));
+    const files = shared
+      ? [ file ]
+      : fs.readdirSync(folder).filter((name) => /\.tsx?$/.test(name)).map((name) => path.join(folder, name));
+
+    return files.map((name) => fs.readFileSync(name, 'utf8')).join('\n');
   }
 
 

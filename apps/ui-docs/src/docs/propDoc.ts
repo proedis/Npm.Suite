@@ -28,4 +28,10 @@ export interface PropDoc {
 
   /** One of the shared props of `BaseProps`, listed apart */
   readonly shared: boolean;
+
+  /**
+   * The `data-*` attribute the component writes for this prop, when it writes one: the value a
+   * stylesheet can target, `data-size` for `size`
+   */
+  readonly dataAttribute?: string;
 }
