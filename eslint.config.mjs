@@ -54,6 +54,27 @@ const CONTROL_HEIGHT_SELECTORS = [
 
 
 /**
+ * An outline width with a variant (`focus-visible:outline-2`) and no style on the same variant. In
+ * Tailwind 4 the width writes `outline-style: var(--tw-outline-style)`, and `outline-none` sets that
+ * variable to `none`, so next to it the width draws nothing. The whole package shipped that way until
+ * it was measured. Pairing them in one string is the house rule, so a component that splits its
+ * classes across constants still carries the style where the width is. The style may come before or
+ * after; `outline-none` on the same variant counts, being a decision about the style too.
+ */
+const OUTLINE_STYLE = String.raw`outline-(?:solid|dashed|dotted|double|none|hidden)(?=\s|$)`;
+const OUTLINE_WIDTH_ALONE = String.raw`(?:^|\s)(\S+:)outline(?:-\d+)?(?=\s|$)`
+  + String.raw`(?![\s\S]*(?:^|\s)\1${OUTLINE_STYLE})(?<!(?:^|\s)\1${OUTLINE_STYLE}[\s\S]*)`;
+
+const OUTLINE_MESSAGE = 'An outline width with no style on the same variant: next to outline-none it draws nothing. '
+  + 'Add the style beside it, e.g. focus-visible:outline-2 focus-visible:outline-solid.';
+
+const OUTLINE_SELECTORS = [
+  { message: OUTLINE_MESSAGE, selector: `Literal[value=/${OUTLINE_WIDTH_ALONE}/]` },
+  { message: OUTLINE_MESSAGE, selector: `TemplateElement[value.raw=/${OUTLINE_WIDTH_ALONE}/]` }
+];
+
+
+/**
  * The suite lints itself with the config it publishes.
  *
  * The React preset is used for every package, not only the React ones: its extra rules only ever
@@ -157,7 +178,8 @@ export default proedis.defineConfig(
       'no-restricted-syntax': [
         ...proedis.configs.tailwind.rules['no-restricted-syntax'],
         ...LAYOUT_SELECTORS,
-        ...CONTROL_HEIGHT_SELECTORS
+        ...CONTROL_HEIGHT_SELECTORS,
+        ...OUTLINE_SELECTORS
       ]
     }
   }, {
@@ -167,10 +189,23 @@ export default proedis.defineConfig(
     rules: {
       'no-restricted-syntax': [
         ...proedis.configs.tailwind.rules['no-restricted-syntax'],
-        ...LAYOUT_SELECTORS
+        ...LAYOUT_SELECTORS,
+        ...OUTLINE_SELECTORS
       ]
     }
   } ] : []),
+
+  {
+    /** The layout section writes its own layout classes, but its outlines follow the rule of the package */
+    name : 'suite/ui-outline',
+    files: [ `${UI}/layout/**/*.{ts,tsx}` ],
+    rules: {
+      'no-restricted-syntax': [
+        ...proedis.configs.tailwind.rules['no-restricted-syntax'],
+        ...OUTLINE_SELECTORS
+      ]
+    }
+  },
 
   {
     /**

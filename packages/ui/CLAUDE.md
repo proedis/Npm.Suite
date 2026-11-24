@@ -107,7 +107,7 @@ imports them by relative path (`../../actions/button/IconButton`): with `preserv
 is emitted once and both subpaths reuse it. A context two subpaths share lives in the one lower down
 (`forms/field/fieldContext.ts` is provided by `form`), so the dependency goes one way.
 
-**Three rules of the root `eslint.config.mjs` hold the structure**, and they are why it does not erode:
+**Four rules of the root `eslint.config.mjs` hold the structure**, and they are why it does not erode:
 
 - `suite/ui-sections`: `import/no-restricted-paths` with one zone per section, so an import against
   the order fails; and one `import/order` for the whole package, with a group per section, so a
@@ -129,6 +129,10 @@ is emitted once and both subpaths reuse it. A context two subpaths share lives i
   a step off the others. `min-h-control-*` is not matched, a label lined up with a field reads the
   height without being a control. One exception, on its line: the `field` shape of `Skeleton`, in
   `primitives`, which comes before `internal` and reads the same variable.
+- The outline selectors (`OUTLINE_SELECTORS`, in every block above and in `suite/ui-outline` for
+  `layout`): an outline width with a variant and no style on the same variant, in the same string, is
+  an error. See the invariant on the outline of the focus. Proved on the code it was written for: the
+  20 files as they were before the fix give exactly their 31 widths, and nothing else.
 
 The private modules, shared by relative import and never exported by a barrel:
 
@@ -545,7 +549,11 @@ narrower stylesheet is the one you have to ask for.
   until the radius work measured `outline-style: none` on a focused Button: for the whole 2.0 line the
   focus of every control was its 20% halo alone. A variant that switches the outline off on purpose
   (`in-data-[variant=card]:focus-visible:outline-none` on the circle of a card Radio) comes later in
-  the CSS at the same specificity, and still wins.
+  the CSS at the same specificity, and still wins. ⚠️ Enforced by the outline selectors of the root
+  ESLint config, which ask for the pair **in the same string**: the style may sit before or after the
+  width, and `outline-none` on the same variant counts. It stays a rule of the suite, not of
+  `proedis/tailwind`: in an application without `outline-none` a lone width is correct, since
+  `--tw-outline-style` starts at `solid`, and the shared block would report it.
 - **A line height goes AFTER the size, never before it.** A Tailwind size carries a line height of
   its own, so `tailwind-merge` treats `text-base` as conflicting with `leading-*` and keeps only the
   later one. `cva('leading-tight …', { variants: { size: { md: 'text-base' } } })` therefore emits
