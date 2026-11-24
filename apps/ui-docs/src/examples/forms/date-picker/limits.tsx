@@ -30,8 +30,11 @@ function holiday(day: string): DayMeta | undefined {
 
 export default function Example(): React.ReactNode {
   return (
-    <Field className={'w-full max-w-xs'}>
-      <Field.Label>Extra collection</Field.Label>
+    <Field
+      className={'w-full max-w-xs'}
+      label={'Extra collection'}
+      description={'December and January only, never on a Sunday. Holidays are greyed and named.'}
+    >
       <DatePicker
         locale={'en-GB'}
         defaultValue={'2026-12-09'}
@@ -41,7 +44,6 @@ export default function Example(): React.ReactNode {
         dayMeta={holiday}
         labels={labels}
       />
-      <Field.Description>December and January only, never on a Sunday. Holidays are greyed and named.</Field.Description>
     </Field>
   );
 }

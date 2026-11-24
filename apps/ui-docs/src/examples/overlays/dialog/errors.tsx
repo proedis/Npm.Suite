@@ -67,8 +67,7 @@ export default function Example(): React.ReactNode {
         }}
       >
         <Form onSubmit={handleSubmit}>
-          <Field>
-            <Field.Label>Depot</Field.Label>
+          <Field label={'Depot'}>
             <TextInput defaultValue={'South depot, Moncalieri'} />
           </Field>
         </Form>

@@ -29,8 +29,7 @@ export default function Example(): React.ReactNode {
     >
       {/* A footer keeps the focus inside, and Popover.Submit submits the form of the popover */}
       <Form onSubmit={handleSubmit}>
-        <Field>
-          <Field.Label>Capacity</Field.Label>
+        <Field label={'Capacity'}>
           <TextInput key={capacity} name={'capacity'} defaultValue={capacity} inputMode={'numeric'} suffix={'m³'} />
         </Field>
       </Form>

@@ -12,14 +12,15 @@ export default function Example(): React.ReactNode {
     <Surface className={'w-full max-w-lg border border-border'}>
       <Surface.Section>
         <Stack gap={6}>
-          <Field>
-            <Field.Label>Waste accepted at the depot</Field.Label>
+          <Field
+            label={'Waste accepted at the depot'}
+            description={'A vehicle carrying anything else is sent to the next depot.'}
+          >
             <CheckboxGroup defaultValue={[ 'paper', 'glass' ]} orientation={{ base: 'vertical', sm: 'horizontal' }}>
               <Checkbox value={'paper'}>Paper</Checkbox>
               <Checkbox value={'glass'}>Glass</Checkbox>
               <Checkbox value={'plastic'}>Plastic</Checkbox>
             </CheckboxGroup>
-            <Field.Description>A vehicle carrying anything else is sent to the next depot.</Field.Description>
           </Field>
           <Checkbox description={'The depot appears in the planner only from the next round.'}>
             Open to the public

@@ -101,20 +101,16 @@ export default function Example(): React.ReactNode {
       >
         <Form ref={formRef} onSubmit={handleSubmit} onChange={() => setDirty(true)}>
           <Form.Section>
-            <Field span={3}>
-              <Field.Label>Plate</Field.Label>
+            <Field span={3} label={'Plate'}>
               <TextInput name={'plate'} placeholder={'FT-234-KL'} />
             </Field>
-            <Field span={3}>
-              <Field.Label>Model</Field.Label>
+            <Field span={3} label={'Model'}>
               <TextInput name={'model'} />
             </Field>
-            <Field span={2}>
-              <Field.Label>Capacity</Field.Label>
+            <Field span={2} label={'Capacity'}>
               <TextInput name={'capacity'} inputMode={'numeric'} suffix={'m³'} />
             </Field>
-            <Field span={4}>
-              <Field.Label>Depot</Field.Label>
+            <Field span={4} label={'Depot'}>
               <TextInput name={'depot'} defaultValue={'North depot, Chieri'} />
             </Field>
           </Form.Section>

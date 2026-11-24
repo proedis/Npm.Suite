@@ -11,19 +11,15 @@ export default function Example(): React.ReactNode {
 
   return (
     <Stack gap={5} className={'w-full max-w-md'}>
-      <Field>
-        <Field.Label>Invalid, from the field</Field.Label>
+      <Field label={'Invalid, from the field'} error={'At least two vehicles'}>
         <PlateTags value={plates} onChange={setPlates} />
-        <Field.Error>At least two vehicles</Field.Error>
       </Field>
 
-      <Field>
-        <Field.Label>Read only</Field.Label>
+      <Field label={'Read only'}>
         <PlateTags value={[ 'FT 234 KL', 'GH 567 MN' ]} onChange={setPlates} readOnly />
       </Field>
 
-      <Field disabled>
-        <Field.Label>Disabled, from the field</Field.Label>
+      <Field disabled label={'Disabled, from the field'}>
         <PlateTags value={[ 'FT 234 KL' ]} onChange={setPlates} />
       </Field>
     </Stack>

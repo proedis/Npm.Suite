@@ -57,8 +57,7 @@ export default function Example(): React.ReactNode {
           labels={{ close: 'Close' }}
         >
           <Form onSubmit={handleCustomer}>
-            <Field>
-              <Field.Label>Name</Field.Label>
+            <Field label={'Name'}>
               <TextInput name={'customer'} defaultValue={'Pizzeria Da Gino'} />
             </Field>
           </Form>

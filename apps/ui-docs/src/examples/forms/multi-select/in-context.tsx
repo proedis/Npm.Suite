@@ -21,12 +21,10 @@ export default function Example(): React.ReactNode {
   return (
     <Stack gap={4} className={'w-full max-w-2xl'}>
       <Stack direction={{ base: 'vertical', md: 'horizontal' }} align={{ base: 'stretch', md: 'end' }} gap={4}>
-        <Field className={'flex-1'}>
-          <Field.Label>Towns</Field.Label>
+        <Field className={'flex-1'} label={'Towns'}>
           <MultiSelect size={'sm'} options={TOWNS} value={towns} onValueChange={setTowns} placeholder={'All'} labels={labels} />
         </Field>
-        <Field className={'flex-1'}>
-          <Field.Label>Waste</Field.Label>
+        <Field className={'flex-1'} label={'Waste'}>
           <MultiSelect size={'sm'} options={WASTE} value={waste} onValueChange={setWaste} placeholder={'All'} labels={labels} />
         </Field>
         <Button size={'sm'} fill={'plain'} tone={'muted'} onClick={handleReset}>Reset</Button>

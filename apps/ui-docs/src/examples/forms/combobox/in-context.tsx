@@ -32,8 +32,7 @@ export default function Example(): React.ReactNode {
     <Surface className={'w-full max-w-lg border border-border'}>
       <Surface.Section>
         <Stack gap={5}>
-          <Field>
-            <Field.Label required>Contract</Field.Label>
+          <Field required label={'Contract'} description={'The contract the container is delivered to.'}>
             <Combobox
               required
               value={contract?.value ?? null}
@@ -42,12 +41,9 @@ export default function Example(): React.ReactNode {
               labels={labels}
               {...search}
             />
-            <Field.Description>The contract the container is delivered to.</Field.Description>
           </Field>
-          <Field>
-            <Field.Label required>Container</Field.Label>
+          <Field required label={'Container'} description={'The size on the delivery note.'}>
             <Select options={CONTAINERS} placeholder={'Select'} labels={SELECT_LABELS} />
-            <Field.Description>The size on the delivery note.</Field.Description>
           </Field>
         </Stack>
       </Surface.Section>

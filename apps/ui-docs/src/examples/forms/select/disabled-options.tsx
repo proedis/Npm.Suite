@@ -18,10 +18,12 @@ const DEPOTS: readonly SelectOption[] = [
 
 export default function Example(): React.ReactNode {
   return (
-    <Field className={'w-full max-w-xs'}>
-      <Field.Label>Depot of the 2025 round</Field.Label>
+    <Field
+      className={'w-full max-w-xs'}
+      label={'Depot of the 2025 round'}
+      description={'The value keeps its label; the option cannot be chosen again.'}
+    >
       <Select options={DEPOTS} defaultValue={'rivoli'} labels={labels} />
-      <Field.Description>The value keeps its label; the option cannot be chosen again.</Field.Description>
     </Field>
   );
 }

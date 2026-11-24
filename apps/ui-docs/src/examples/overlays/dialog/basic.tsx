@@ -37,8 +37,7 @@ export default function Example(): React.ReactNode {
         labels={{ close: 'Close' }}
       >
         <Form onSubmit={handleSubmit}>
-          <Field name={'name'}>
-            <Field.Label>Name</Field.Label>
+          <Field name={'name'} label={'Name'}>
             <TextInput key={name} name={'name'} defaultValue={name} />
           </Field>
         </Form>

@@ -33,10 +33,12 @@ export default function Example(): React.ReactNode {
   const handleRemove = React.useCallback((id: string) => setFiles((current) => current.filter((entry) => entry.id !== id)), []);
 
   return (
-    <Field className={'w-full max-w-lg'}>
-      <Field.Label>Photos of the bin</Field.Label>
+    <Field
+      className={'w-full max-w-lg'}
+      label={'Photos of the bin'}
+      description={'A duplicate name, a wrong kind, a file too large, one past the maximum.'}
+    >
       <FileUpload files={files} onAdd={handleAdd} onRemove={handleRemove} {...LIMITS} labels={labels} />
-      <Field.Description>A duplicate name, a wrong kind, a file too large, one past the maximum.</Field.Description>
     </Field>
   );
 }

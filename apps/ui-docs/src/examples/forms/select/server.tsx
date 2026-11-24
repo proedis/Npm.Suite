@@ -46,12 +46,10 @@ export default function Example(): React.ReactNode {
 
   return (
     <Stack gap={3} className={'w-full max-w-xs'}>
-      <Field>
-        <Field.Label>Town</Field.Label>
+      <Field label={'Town'} description={'The towns arrive from the server, all at once.'}>
         {options === null
           ? <Select options={[]} value={town} placeholder={'Select'} loading loadingLabel={'Loading the towns'} labels={labels} />
           : <Select options={options} value={town} onValueChange={setTown} placeholder={'Select'} labels={labels} />}
-        <Field.Description>The towns arrive from the server, all at once.</Field.Description>
       </Field>
       <Button size={'sm'} fill={'soft'} tone={'secondary'} onClick={handleReload}>Load again</Button>
     </Stack>

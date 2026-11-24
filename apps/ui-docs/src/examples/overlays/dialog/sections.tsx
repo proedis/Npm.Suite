@@ -47,28 +47,24 @@ export default function Example(): React.ReactNode {
       >
         <Form onSubmit={handleSubmit}>
           <Dialog.Section id={'identity'} title={'Identity'}>
-            <Field><Field.Label>Name</Field.Label><TextInput defaultValue={'Comune di Chieri'} /></Field>
-            <Field><Field.Label>Tax code</Field.Label><TextInput defaultValue={'90003840017'} /></Field>
+            <Field label={'Name'}><TextInput defaultValue={'Comune di Chieri'} /></Field>
+            <Field label={'Tax code'}><TextInput defaultValue={'90003840017'} /></Field>
           </Dialog.Section>
           <Dialog.Section id={'address'} title={'Address'}>
-            <Field>
-              <Field.Label>Street</Field.Label>
+            <Field label={'Street'} error={'The street is required.'}>
               <TextInput invalid />
-              <Field.Error>The street is required.</Field.Error>
             </Field>
-            <Field>
-              <Field.Label>Postcode</Field.Label>
+            <Field label={'Postcode'} error={'The postcode is required.'}>
               <TextInput invalid />
-              <Field.Error>The postcode is required.</Field.Error>
             </Field>
           </Dialog.Section>
           <Dialog.Section id={'billing'} title={'Billing'}>
-            <Field><Field.Label>IBAN</Field.Label><TextInput /></Field>
-            <Field><Field.Label>Recipient code</Field.Label><TextInput /></Field>
+            <Field label={'IBAN'}><TextInput /></Field>
+            <Field label={'Recipient code'}><TextInput /></Field>
           </Dialog.Section>
           <Dialog.Section id={'contacts'} title={'Contacts'}>
-            <Field><Field.Label>Email</Field.Label><TextInput type={'email'} /></Field>
-            <Field><Field.Label>Phone</Field.Label><TextInput type={'tel'} /></Field>
+            <Field label={'Email'}><TextInput type={'email'} /></Field>
+            <Field label={'Phone'}><TextInput type={'tel'} /></Field>
           </Dialog.Section>
         </Form>
       </Dialog>

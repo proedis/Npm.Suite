@@ -89,12 +89,10 @@ export default function Example(): React.ReactNode {
         {vehicle && mode === 'detail' && <VehicleFacts vehicle={vehicle} />}
         {vehicle && mode === 'form' && (
           <Form onSubmit={handleSubmit} onChange={() => setDirty(true)}>
-            <Field>
-              <Field.Label>Driver</Field.Label>
+            <Field label={'Driver'}>
               <TextInput name={'driver'} defaultValue={vehicle.driver} />
             </Field>
-            <Field>
-              <Field.Label>Depot</Field.Label>
+            <Field label={'Depot'}>
               <TextInput name={'depot'} defaultValue={vehicle.depot} />
             </Field>
           </Form>

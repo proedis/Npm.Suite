@@ -17,12 +17,15 @@ export default function Example(): React.ReactNode {
   const over = text.length - LIMIT;
 
   return (
-    <Field className={'w-full max-w-md'}>
-      <Field.Label>Message for the driver</Field.Label>
+    <Field
+      className={'w-full max-w-md'}
+      label={'Message for the driver'}
+      description={'Shown on the tablet at the stop'}
+      counterExceeded={over > 0}
+      counter={<React.Fragment>{text.length}/{LIMIT}</React.Fragment>}
+      error={over > 0 ? `${over} characters too many` : null}
+    >
       <Textarea value={text} onChange={handleChange} />
-      <Field.Description>Shown on the tablet at the stop</Field.Description>
-      <Field.Counter exceeded={over > 0}>{text.length}/{LIMIT}</Field.Counter>
-      <Field.Error>{over > 0 ? `${over} characters too many` : null}</Field.Error>
     </Field>
   );
 }

@@ -9,10 +9,8 @@ import { DEPOTS } from './options';
 
 export default function Example(): React.ReactNode {
   return (
-    <Field className={'w-full max-w-xs'}>
-      <Field.Label>Depot</Field.Label>
+    <Field className={'w-full max-w-xs'} label={'Depot'} description={'Where the vehicle starts and ends its round.'}>
       <Select options={DEPOTS} placeholder={'Select'} labels={labels} />
-      <Field.Description>Where the vehicle starts and ends its round.</Field.Description>
     </Field>
   );
 }

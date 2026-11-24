@@ -57,10 +57,8 @@ export default function Example(): React.ReactNode {
         labels={{ close: 'Close' }}
       >
         <Form onSubmit={handleSubmit}>
-          <Field>
-            <Field.Label>Note</Field.Label>
+          <Field label={'Note'} description={'Type something, then press Esc, the x or Cancel.'}>
             <Textarea value={note} onChange={(event) => setNote(event.currentTarget.value)} />
-            <Field.Description>Type something, then press Esc, the x or Cancel.</Field.Description>
           </Field>
         </Form>
       </Dialog>

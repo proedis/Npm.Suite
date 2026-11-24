@@ -59,11 +59,14 @@ export default function Example(): React.ReactNode {
   const [ level, setLevel ] = React.useState(95);
 
   return (
-    <Field className={'w-full max-w-sm'}>
-      <Field.Label required>Fill level at the last pass</Field.Label>
+    <Field
+      className={'w-full max-w-sm'}
+      required
+      label={'Fill level at the last pass'}
+      description={'As read by the sensor of the bin'}
+      error={level > 90 ? 'Over 90%: plan an extra pass' : null}
+    >
       <FillLevel value={level} onChange={setLevel} />
-      <Field.Description>As read by the sensor of the bin</Field.Description>
-      <Field.Error>{level > 90 ? 'Over 90%: plan an extra pass' : null}</Field.Error>
     </Field>
   );
 }

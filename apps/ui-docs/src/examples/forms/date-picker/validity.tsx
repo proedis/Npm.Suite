@@ -28,8 +28,12 @@ export default function Example(): React.ReactNode {
   const handleValidityChange = React.useCallback((validity: DateValidity) => setError(message(validity)), []);
 
   return (
-    <Field className={'w-full max-w-xs'}>
-      <Field.Label>Date of the inspection</Field.Label>
+    <Field
+      className={'w-full max-w-xs'}
+      label={'Date of the inspection'}
+      description={'Try “3102”, “31/02/2026” or a date in 2027, then leave the field.'}
+      error={error}
+    >
       <DatePicker
         locale={'en-GB'}
         min={'2026-01-01'}
@@ -37,8 +41,6 @@ export default function Example(): React.ReactNode {
         onValidityChange={handleValidityChange}
         labels={labels}
       />
-      <Field.Description>Try “3102”, “31/02/2026” or a date in 2027, then leave the field.</Field.Description>
-      {error && <Field.Error>{error}</Field.Error>}
     </Field>
   );
 }

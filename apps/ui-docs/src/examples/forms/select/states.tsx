@@ -11,28 +11,20 @@ import { DEPOTS } from './options';
 export default function Example(): React.ReactNode {
   return (
     <Stack columns={{ base: 1, sm: 2 }} gap={5} className={'w-full max-w-xl'}>
-      <Field>
-        <Field.Label>Read only</Field.Label>
+      <Field label={'Read only'} description={'Reachable and selectable, it does not open.'}>
         <Select options={DEPOTS} defaultValue={'pinerolo'} readOnly labels={labels} />
-        <Field.Description>Reachable and selectable, it does not open.</Field.Description>
       </Field>
 
-      <Field disabled>
-        <Field.Label>Disabled</Field.Label>
+      <Field disabled label={'Disabled'} description={'Out of the Tab order.'}>
         <Select options={DEPOTS} defaultValue={'pinerolo'} labels={labels} />
-        <Field.Description>Out of the Tab order.</Field.Description>
       </Field>
 
-      <Field>
-        <Field.Label required>Invalid</Field.Label>
+      <Field required label={'Invalid'} error={'Choose the depot of the round'}>
         <Select options={DEPOTS} placeholder={'Select'} labels={labels} />
-        <Field.Error>Choose the depot of the round</Field.Error>
       </Field>
 
-      <Field>
-        <Field.Label>Loading</Field.Label>
+      <Field label={'Loading'} description={'Keeps its value, does not open.'}>
         <Select options={[]} placeholder={'Select'} loading loadingLabel={'Loading the depots'} labels={labels} />
-        <Field.Description>Keeps its value, does not open.</Field.Description>
       </Field>
     </Stack>
   );

@@ -123,7 +123,7 @@ function NumberInputPage(): React.ReactNode {
           <Prose>
             <p>
               The error is the caller’s, as for every field: the first example checks the maximum itself and shows it
-              with <InlineCode>Field.Error</InlineCode>. The field keeps the 14 rather than turning it into a 12 nobody
+              as the <InlineCode>error</InlineCode> of its Field. The field keeps the 14 rather than turning it into a 12 nobody
               typed.
             </p>
           </Prose>

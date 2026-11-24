@@ -25,21 +25,15 @@ export default function Example(): React.ReactNode {
       <Surface.Section>
         <Stack gap={5}>
           <Stack direction={{ base: 'vertical', sm: 'horizontal' }} gap={4}>
-            <Field className={'flex-1'}>
-              <Field.Label required>Depot</Field.Label>
+            <Field className={'flex-1'} required label={'Depot'} description={'Where the round starts.'}>
               <Select options={DEPOTS} defaultValue={'chieri'} labels={labels} />
-              <Field.Description>Where the round starts.</Field.Description>
             </Field>
-            <Field className={'flex-1'}>
-              <Field.Label required>Body</Field.Label>
+            <Field className={'flex-1'} required label={'Body'} description={'What the vehicle must carry.'}>
               <Select options={BODIES} placeholder={'Select'} labels={labels} />
-              <Field.Description>What the vehicle must carry.</Field.Description>
             </Field>
           </Stack>
-          <Field>
-            <Field.Label optional={'optional'}>First town</Field.Label>
+          <Field optional={'optional'} label={'First town'} description={'Leave it empty to let the planner choose.'}>
             <Select options={TOWNS} placeholder={'Select'} labels={labels} />
-            <Field.Description>Leave it empty to let the planner choose.</Field.Description>
           </Field>
         </Stack>
       </Surface.Section>

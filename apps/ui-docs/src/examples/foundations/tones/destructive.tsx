@@ -18,10 +18,8 @@ export default function Example(): React.ReactNode {
       </Cluster>
 
       {/* The plain destructive button, the error and the border of the field are one red */}
-      <Field>
-        <Field.Label required>Plate</Field.Label>
+      <Field required label={'Plate'} error={'Write the whole plate, seven characters'}>
         <TextInput defaultValue={'FT-23'} />
-        <Field.Error>Write the whole plate, seven characters</Field.Error>
       </Field>
     </Stack>
   );

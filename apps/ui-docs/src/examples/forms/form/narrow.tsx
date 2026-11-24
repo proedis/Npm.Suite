@@ -10,20 +10,16 @@ import { Stack } from '@proedis/ui/layout';
 function Address(): React.ReactNode {
   return (
     <Form.Section title={'Address'}>
-      <Field span={4}>
-        <Field.Label>Street</Field.Label>
+      <Field span={4} label={'Street'}>
         <TextInput width={'long'} />
       </Field>
-      <Field span={2}>
-        <Field.Label>Number</Field.Label>
+      <Field span={2} label={'Number'}>
         <TextInput width={'code'} />
       </Field>
-      <Field span={1}>
-        <Field.Label>Floor</Field.Label>
+      <Field span={1} label={'Floor'}>
         <TextInput width={'short'} />
       </Field>
-      <Field span={1}>
-        <Field.Label>Unit</Field.Label>
+      <Field span={1} label={'Unit'}>
         <TextInput width={'short'} />
       </Field>
     </Form.Section>

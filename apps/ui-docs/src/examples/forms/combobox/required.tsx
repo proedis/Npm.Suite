@@ -21,8 +21,12 @@ function ContractField(props: { required: boolean; initial: ComboboxItem; descri
   const handleValueChange = React.useCallback((_value: string | null, item: ComboboxItem | null) => setContract(item), []);
 
   return (
-    <Field>
-      <Field.Label required={required} optional={required ? undefined : 'optional'}>Contract</Field.Label>
+    <Field
+      required={required}
+      optional={required ? undefined : 'optional'}
+      label={'Contract'}
+      description={description}
+    >
       <Combobox
         value={contract?.value ?? null}
         selectedItem={contract}
@@ -30,7 +34,6 @@ function ContractField(props: { required: boolean; initial: ComboboxItem; descri
         labels={labels}
         {...search}
       />
-      <Field.Description>{description}</Field.Description>
     </Field>
   );
 }

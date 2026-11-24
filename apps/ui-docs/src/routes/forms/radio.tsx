@@ -94,8 +94,8 @@ function RadioPage(): React.ReactNode {
           lead={(
             <React.Fragment>
               A disabled option says why in its description, which stays readable. Read only, the focus moves and the
-              choice does not, and the value is still submitted. Invalid, inside a <InlineCode>Field</InlineCode> with a{' '}
-              <InlineCode>Field.Error</InlineCode>, the circles turn red.
+              choice does not, and the value is still submitted. Invalid, inside a <InlineCode>Field</InlineCode> with an{' '}
+              <InlineCode>error</InlineCode>, the circles turn red.
             </React.Fragment>
           )}
         >

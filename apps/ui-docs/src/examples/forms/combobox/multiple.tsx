@@ -18,8 +18,11 @@ export default function Example(): React.ReactNode {
   const handleValueChange = React.useCallback((_values: string[], items: ComboboxItem[]) => setContracts(items), []);
 
   return (
-    <Field className={'w-full max-w-md'}>
-      <Field.Label>Contracts on the round</Field.Label>
+    <Field
+      className={'w-full max-w-md'}
+      label={'Contracts on the round'}
+      description={'Search inside the list; each tick adds a chip, in the order chosen.'}
+    >
       <Combobox
         multiple
         value={contracts.map((contract) => contract.value)}
@@ -28,7 +31,6 @@ export default function Example(): React.ReactNode {
         labels={labels}
         {...search}
       />
-      <Field.Description>Search inside the list; each tick adds a chip, in the order chosen.</Field.Description>
     </Field>
   );
 }

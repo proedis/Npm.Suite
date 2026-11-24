@@ -75,17 +75,17 @@ export default function Example(): React.ReactNode {
       >
         <Form onSubmit={handleSubmit} onChange={() => setDirty(true)}>
           <Drawer.Section id={'vehicle'} title={'Vehicle'}>
-            <Field><Field.Label>Plate</Field.Label><TextInput name={'plate'} /></Field>
-            <Field><Field.Label>Model</Field.Label><TextInput name={'model'} /></Field>
-            <Field><Field.Label>Capacity</Field.Label><TextInput name={'capacity'} suffix={'m³'} /></Field>
+            <Field label={'Plate'}><TextInput name={'plate'} /></Field>
+            <Field label={'Model'}><TextInput name={'model'} /></Field>
+            <Field label={'Capacity'}><TextInput name={'capacity'} suffix={'m³'} /></Field>
           </Drawer.Section>
           <Drawer.Section id={'assignment'} title={'Assignment'}>
-            <Field><Field.Label>Depot</Field.Label><TextInput name={'depot'} /></Field>
-            <Field><Field.Label>Driver</Field.Label><TextInput name={'driver'} /></Field>
+            <Field label={'Depot'}><TextInput name={'depot'} /></Field>
+            <Field label={'Driver'}><TextInput name={'driver'} /></Field>
           </Drawer.Section>
           <Drawer.Section id={'maintenance'} title={'Maintenance'}>
-            <Field><Field.Label>Last service</Field.Label><TextInput name={'service'} type={'date'} /></Field>
-            <Field><Field.Label>Odometer</Field.Label><TextInput name={'odometer'} suffix={'km'} /></Field>
+            <Field label={'Last service'}><TextInput name={'service'} type={'date'} /></Field>
+            <Field label={'Odometer'}><TextInput name={'odometer'} suffix={'km'} /></Field>
           </Drawer.Section>
         </Form>
       </Drawer>

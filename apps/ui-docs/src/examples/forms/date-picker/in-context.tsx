@@ -25,10 +25,12 @@ export default function Example(): React.ReactNode {
     <Surface className={'w-full max-w-lg border border-border'}>
       <Surface.Section>
         <Stack gap={5}>
-          <Field>
-            <Field.Label required>Suspend the service</Field.Label>
+          <Field
+            required
+            label={'Suspend the service'}
+            description={'The bins are not emptied in these days, both included.'}
+          >
             <DatePicker mode={'range'} locale={'en-GB'} min={todayIso()} value={suspension} onValueChange={setSuspension} labels={labels} />
-            <Field.Description>The bins are not emptied in these days, both included.</Field.Description>
           </Field>
         </Stack>
       </Surface.Section>

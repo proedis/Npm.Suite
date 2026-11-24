@@ -14,11 +14,10 @@ export default function Example(): React.ReactNode {
 
   return (
     <Stack gap={4} align={'start'} className={'w-full max-w-sm'}>
-      <Field>
+      <Field error={tried && !accepted ? 'Accept the conditions to go on' : null}>
         <Checkbox required checked={accepted} onCheckedChange={setAccepted} name={'terms'}>
           I accept the service conditions
         </Checkbox>
-        {tried && !accepted && <Field.Error>Accept the conditions to go on</Field.Error>}
       </Field>
       <Button size={'sm'} onClick={handleSubmit}>Confirm</Button>
     </Stack>

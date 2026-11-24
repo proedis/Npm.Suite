@@ -10,8 +10,7 @@ export default function Example(): React.ReactNode {
 
   return (
     <Stack gap={3}>
-      <Field>
-        <Field.Label>Priority of the report</Field.Label>
+      <Field label={'Priority of the report'}>
         <RadioGroup value={priority} onValueChange={setPriority} orientation={'horizontal'}>
           <Radio value={'low'}>Low</Radio>
           <Radio value={'normal'}>Normal</Radio>

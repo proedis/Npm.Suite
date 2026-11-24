@@ -21,11 +21,15 @@ export default function Example(): React.ReactNode {
   const error = touched && !POSTCODE.test(value) ? '5 digits' : null;
 
   return (
-    <Field className={'w-full max-w-xs'}>
-      <Field.Label required>Postcode</Field.Label>
+    <Field
+      className={'w-full max-w-xs'}
+      required
+      label={'Postcode'}
+      description={'Of the collection point'}
+      errorSummary={'Postcode: it must have 5 digits'}
+      error={error}
+    >
       <TextInput width={'short'} inputMode={'numeric'} value={value} onChange={handleChange} onBlur={handleBlur} />
-      <Field.Description>Of the collection point</Field.Description>
-      <Field.Error summary={'Postcode: it must have 5 digits'}>{error}</Field.Error>
     </Field>
   );
 }

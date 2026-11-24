@@ -12,23 +12,19 @@ export default function Example(): React.ReactNode {
     <Stack gap={0} className={'w-full resize-x overflow-auto rounded-xl border border-dashed border-border p-4'}>
       <Form>
         <Form.Section title={'One value: the section decides'}>
-          <Field span={2}>
-            <Field.Label>ZIP code</Field.Label>
+          <Field span={2} label={'ZIP code'}>
             <TextInput />
           </Field>
-          <Field span={4}>
-            <Field.Label>City</Field.Label>
+          <Field span={4} label={'City'}>
             <TextInput />
           </Field>
         </Form.Section>
 
         <Form.Section title={'A map: the window decides'}>
-          <Field span={{ base: 6, md: 2 }}>
-            <Field.Label>ZIP code</Field.Label>
+          <Field span={{ base: 6, md: 2 }} label={'ZIP code'}>
             <TextInput />
           </Field>
-          <Field span={{ base: 6, md: 4 }}>
-            <Field.Label>City</Field.Label>
+          <Field span={{ base: 6, md: 4 }} label={'City'}>
             <TextInput />
           </Field>
         </Form.Section>

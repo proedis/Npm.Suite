@@ -15,8 +15,11 @@ export default function Example(): React.ReactNode {
   const handleRemove = React.useCallback((id: string) => setFiles((current) => current.filter((entry) => entry.id !== id)), []);
 
   return (
-    <Field className={'w-full max-w-lg'}>
-      <Field.Label>Photos of the damage</Field.Label>
+    <Field
+      className={'w-full max-w-lg'}
+      label={'Photos of the damage'}
+      description={'The files are sent with the report, when it is confirmed.'}
+    >
       <FileUpload
         files={files}
         onAdd={handleAdd}
@@ -26,7 +29,6 @@ export default function Example(): React.ReactNode {
         maxFiles={5}
         labels={labels}
       />
-      <Field.Description>The files are sent with the report, when it is confirmed.</Field.Description>
     </Field>
   );
 }

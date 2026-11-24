@@ -75,7 +75,7 @@ function TextareaPage(): React.ReactNode {
           lead={(
             <React.Fragment>
               There is no <InlineCode>maxLength</InlineCode>, by the type: a native limit blocks typing and cuts a pasted
-              text without saying so. The limit is the caller’s, shown with <InlineCode>Field.Counter</InlineCode> and
+              text without saying so. The limit is the caller’s, shown with the <InlineCode>counter</InlineCode> of its Field and
               checked like any other rule. Write past the limit, then trim it.
             </React.Fragment>
           )}

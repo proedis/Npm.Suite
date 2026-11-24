@@ -50,7 +50,7 @@ function FormPage(): React.ReactNode {
           <React.Fragment>
             A real <InlineCode>{'<form>'}</InlineCode>, made of parts: a header, the error summary, sections of fields on
             a grid of six columns, a footer. It does not validate and picks no validation library: the errors come from
-            the caller as <InlineCode>Field.Error</InlineCode>s. What it owns is what follows a submit, which is where
+            the caller, as the <InlineCode>error</InlineCode> of each Field. What it owns is what follows a submit, which is where
             forms usually leave the user alone.
           </React.Fragment>
         )}
@@ -174,8 +174,8 @@ function FormPage(): React.ReactNode {
               again, so an answer that comes back late never pulls the focus away from someone already typing.
             </p>
             <p>
-              Each line is the <InlineCode>summary</InlineCode> of its <InlineCode>Field.Error</InlineCode>, or its
-              message. The title is a function of the count, because a count needs the plural rules of the caller’s
+              Each line is the <InlineCode>errorSummary</InlineCode> of its field, or its
+              error. The title is a function of the count, because a count needs the plural rules of the caller’s
               language and the package writes no text.
             </p>
           </Prose>
@@ -210,8 +210,8 @@ function FormPage(): React.ReactNode {
           title={'With react-hook-form'}
           lead={(
             <React.Fragment>
-              The form owns no state, so a form library fits under it as it is. The errors of the library become the
-              children of each <InlineCode>Field.Error</InlineCode>, and the summary and the focus follow.
+              The form owns no state, so a form library fits under it as it is. The errors of the library become the{' '}
+              <InlineCode>error</InlineCode> of each field, and the summary and the focus follow.
             </React.Fragment>
           )}
         >
@@ -223,10 +223,8 @@ function FormPage(): React.ReactNode {
               <Form onSubmit={form.handleSubmit(save)}>
                 <Form.ErrorSummary title={(count) => t('FORM.ERRORS', { count })} />
                 <Form.Section title={t('VEHICLE.IDENTITY')}>
-                  <Field span={2}>
-                    <Field.Label required>{t('VEHICLE.PLATE')}</Field.Label>
+                  <Field span={2} label={t('VEHICLE.PLATE')} required error={errors.plate?.message}>
                     <TextInput width={'code'} {...form.register('plate')} />
-                    <Field.Error>{errors.plate?.message}</Field.Error>
                   </Field>
                 </Form.Section>
               </Form>

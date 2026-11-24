@@ -14,12 +14,10 @@ export default function Example(): React.ReactNode {
   return (
     <Form onSubmit={handleSubmit} className={'w-full max-w-2xl'}>
       <Form.Section>
-        <Field span={4}>
-          <Field.Label required>Street</Field.Label>
+        <Field span={4} required label={'Street'}>
           <TextInput width={'long'} />
         </Field>
-        <Field span={2}>
-          <Field.Label required>Number</Field.Label>
+        <Field span={2} required label={'Number'}>
           <TextInput width={'code'} />
         </Field>
       </Form.Section>

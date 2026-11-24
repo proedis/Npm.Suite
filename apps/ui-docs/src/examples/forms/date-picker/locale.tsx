@@ -27,10 +27,12 @@ const labels: DatePickerLabels = {
 
 export default function Example(): React.ReactNode {
   return (
-    <Field className={'w-full max-w-xs'}>
-      <Field.Label>Data del ritiro</Field.Label>
+    <Field
+      className={'w-full max-w-xs'}
+      label={'Data del ritiro'}
+      description={'Locale “it”: day, month, year, and weeks from Monday.'}
+    >
       <DatePicker locale={'it'} defaultValue={'2026-11-16'} labels={labels} />
-      <Field.Description>Locale “it”: day, month, year, and weeks from Monday.</Field.Description>
     </Field>
   );
 }

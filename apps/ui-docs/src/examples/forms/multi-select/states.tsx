@@ -15,34 +15,24 @@ const OPTIONS = WASTE.map((option) => (option.value === 'green' ? { ...option, l
 export default function Example(): React.ReactNode {
   return (
     <Stack columns={{ base: 1, sm: 2 }} gap={5} className={'w-full max-w-2xl'}>
-      <Field>
-        <Field.Label>Read only</Field.Label>
+      <Field label={'Read only'} description={'Every value in view, the chips wrap.'}>
         <MultiSelect options={WASTE} defaultValue={[ 'paper', 'plastic', 'glass', 'organic', 'residual' ]} readOnly labels={labels} />
-        <Field.Description>Every value in view, the chips wrap.</Field.Description>
       </Field>
 
-      <Field>
-        <Field.Label>A value no longer offered</Field.Label>
+      <Field label={'A value no longer offered'} description={'Its chip has no x.'}>
         <MultiSelect options={OPTIONS} defaultValue={[ 'paper', 'green' ]} labels={labels} />
-        <Field.Description>Its chip has no x.</Field.Description>
       </Field>
 
-      <Field>
-        <Field.Label>Invalid</Field.Label>
+      <Field label={'Invalid'} error={'Choose at least one kind'}>
         <MultiSelect options={WASTE} placeholder={'Select'} labels={labels} />
-        <Field.Error>Choose at least one kind</Field.Error>
       </Field>
 
-      <Field disabled>
-        <Field.Label>Disabled</Field.Label>
+      <Field disabled label={'Disabled'} description={'Out of the Tab order.'}>
         <MultiSelect options={WASTE} defaultValue={[ 'paper' ]} labels={labels} />
-        <Field.Description>Out of the Tab order.</Field.Description>
       </Field>
 
-      <Field>
-        <Field.Label>Loading</Field.Label>
+      <Field label={'Loading'} description={'It does not open until the options arrive.'}>
         <MultiSelect options={[]} placeholder={'Select'} loading loadingLabel={'Loading the kinds of waste'} labels={labels} />
-        <Field.Description>It does not open until the options arrive.</Field.Description>
       </Field>
     </Stack>
   );

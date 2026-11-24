@@ -25,8 +25,7 @@ export default function Example(): React.ReactNode {
   }, []);
 
   return (
-    <Field className={'w-full max-w-sm'}>
-      <Field.Label>Customer</Field.Label>
+    <Field className={'w-full max-w-sm'} label={'Customer'}>
       <ModalSelectorField
         value={customer}
         getRowLabel={customerLabel}

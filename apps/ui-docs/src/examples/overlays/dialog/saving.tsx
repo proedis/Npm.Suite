@@ -40,10 +40,8 @@ export default function Example(): React.ReactNode {
         labels={{ close: 'Close', busySubmit: 'Saving the driver' }}
       >
         <Form onSubmit={handleSubmit}>
-          <Field>
-            <Field.Label>Driver</Field.Label>
+          <Field label={'Driver'} description={'Save, then try Esc or the x while it saves: nothing closes.'}>
             <TextInput defaultValue={'Luca Ferrero'} />
-            <Field.Description>Save, then try Esc or the x while it saves: nothing closes.</Field.Description>
           </Field>
         </Form>
       </Dialog>

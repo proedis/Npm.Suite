@@ -9,17 +9,17 @@ import { Stack } from '@proedis/ui/layout';
 export default function Example(): React.ReactNode {
   return (
     <Stack gap={5} className={'w-full max-w-xl'}>
-      <Field orientation={'horizontal'}>
-        <Field.Label>Depot</Field.Label>
+      <Field orientation={'horizontal'} label={'Depot'} description={'Where the rounds start and end'}>
         <TextInput defaultValue={'Chieri, Strada Cambiano'} />
-        <Field.Description>Where the rounds start and end</Field.Description>
       </Field>
 
       {/* Above the control on a phone, beside it from md */}
-      <Field orientation={{ base: 'vertical', md: 'horizontal' }}>
-        <Field.Label>Daily capacity</Field.Label>
+      <Field
+        orientation={{ base: 'vertical', md: 'horizontal' }}
+        label={'Daily capacity'}
+        description={'Narrow the window to see the label move above'}
+      >
         <NumberInput defaultValue={18000} max={99999} suffix={'kg'} locale={'en-GB'} />
-        <Field.Description>Narrow the window to see the label move above</Field.Description>
       </Field>
     </Stack>
   );

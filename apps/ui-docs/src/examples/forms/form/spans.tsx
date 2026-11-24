@@ -9,30 +9,24 @@ export default function Example(): React.ReactNode {
   return (
     <Form className={'w-full'}>
       <Form.Section title={'Spans'}>
-        <Field span={6}>
-          <Field.Label>span 6</Field.Label>
+        <Field span={6} label={'span 6'}>
           <TextInput />
         </Field>
-        <Field span={4}>
-          <Field.Label>span 4</Field.Label>
+        <Field span={4} label={'span 4'}>
           <TextInput width={'long'} />
         </Field>
-        <Field span={2}>
-          <Field.Label>span 2</Field.Label>
+        <Field span={2} label={'span 2'}>
           <TextInput width={'code'} />
         </Field>
-        <Field span={3}>
-          <Field.Label>span 3, the default</Field.Label>
+        <Field span={3} label={'span 3, the default'}>
           <TextInput />
         </Field>
-        <Field span={1}>
-          <Field.Label>span 1</Field.Label>
+        <Field span={1} label={'span 1'}>
           <TextInput width={'short'} />
         </Field>
 
         {/* A new row, even though one column is still free above */}
-        <Field span={FIELD_SPAN['text-code']} breakBefore>
-          <Field.Label>breakBefore</Field.Label>
+        <Field span={FIELD_SPAN['text-code']} breakBefore label={'breakBefore'}>
           <TextInput width={'code'} />
         </Field>
       </Form.Section>

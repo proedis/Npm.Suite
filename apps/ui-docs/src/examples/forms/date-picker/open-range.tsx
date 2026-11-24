@@ -13,10 +13,8 @@ export default function Example(): React.ReactNode {
 
   return (
     <Stack gap={3} className={'w-full max-w-sm'}>
-      <Field>
-        <Field.Label>Collected since</Field.Label>
+      <Field label={'Collected since'} description={'A filter: either end may stay empty.'}>
         <DatePicker mode={'range'} allowOpenRange size={'sm'} locale={'en-GB'} value={period} onValueChange={setPeriod} labels={labels} />
-        <Field.Description>A filter: either end may stay empty.</Field.Description>
       </Field>
       <p className={'text-sm text-muted-foreground'}>
         Value: <code className={'font-mono text-foreground'}>{JSON.stringify(period)}</code>

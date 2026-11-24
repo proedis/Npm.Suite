@@ -28,8 +28,7 @@ export default function Example(): React.ReactNode {
 
   return (
     <Stack gap={5} className={'w-full max-w-sm'}>
-      <Field>
-        <Field.Label>Access code for the gate</Field.Label>
+      <Field label={'Access code for the gate'}>
         <TextInput
           value={code}
           onChange={handleChange}
@@ -38,14 +37,12 @@ export default function Example(): React.ReactNode {
         />
       </Field>
 
-      <Field>
-        <Field.Label>API key</Field.Label>
+      <Field label={'API key'} description={'Read only: the action is not rendered'}>
         <TextInput
           readOnly
           value={'pk_live_51Hc8x…'}
           trailing={<TextInput.Action label={'Copy'} icon={<Copy />} onClick={handleCopy} />}
         />
-        <Field.Description>Read only: the action is not rendered</Field.Description>
       </Field>
     </Stack>
   );

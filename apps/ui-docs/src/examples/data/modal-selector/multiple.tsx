@@ -37,8 +37,7 @@ export default function Example(): React.ReactNode {
   }, []);
 
   return (
-    <Field className={'w-full max-w-md'}>
-      <Field.Label>Customers to notify</Field.Label>
+    <Field className={'w-full max-w-md'} label={'Customers to notify'} hint={outcome}>
       <ModalSelectorField
         value={customers}
         getRowLabel={customerLabel}
@@ -47,7 +46,6 @@ export default function Example(): React.ReactNode {
         onClear={() => setCustomers([])}
         labels={{ placeholder: 'Choose the customers', clear: 'Clear Customers to notify', more: (count) => `${count} more customers` }}
       />
-      {outcome && <Field.Description>{outcome}</Field.Description>}
 
       <ModalSelector
         multiple

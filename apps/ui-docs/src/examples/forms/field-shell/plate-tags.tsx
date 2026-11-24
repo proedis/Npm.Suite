@@ -109,10 +109,13 @@ export default function Example(): React.ReactNode {
   const [ plates, setPlates ] = React.useState<string[]>([ 'AB 123 CD', 'FT 234 KL' ]);
 
   return (
-    <Field className={'w-full max-w-md'}>
-      <Field.Label required>Vehicles on the round</Field.Label>
+    <Field
+      className={'w-full max-w-md'}
+      required
+      label={'Vehicles on the round'}
+      description={'Press the frame anywhere: the focus lands in the text'}
+    >
       <PlateTags value={plates} onChange={setPlates} />
-      <Field.Description>Press the frame anywhere: the focus lands in the text</Field.Description>
     </Field>
   );
 }

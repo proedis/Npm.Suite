@@ -27,8 +27,10 @@ export default function Example(): React.ReactNode {
         <Switch checked={failing} onCheckedChange={setFailing}>Failing server</Switch>
       </Cluster>
 
-      <Field>
-        <Field.Label>Contract</Field.Label>
+      <Field
+        label={'Contract'}
+        description={'Type one letter, then two, then “zzz”; turn the failure on and type again.'}
+      >
         <Combobox
           value={contract?.value ?? null}
           selectedItem={contract}
@@ -36,7 +38,6 @@ export default function Example(): React.ReactNode {
           labels={labels}
           {...search}
         />
-        <Field.Description>Type one letter, then two, then “zzz”; turn the failure on and type again.</Field.Description>
       </Field>
     </Stack>
   );

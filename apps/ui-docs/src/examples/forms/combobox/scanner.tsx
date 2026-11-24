@@ -18,8 +18,7 @@ export default function Example(): React.ReactNode {
 
   return (
     <Stack gap={3} className={'w-full max-w-md'}>
-      <Field>
-        <Field.Label>Contract</Field.Label>
+      <Field label={'Contract'} description={'Type “UT-004812” and press Enter at once, as a scanner would.'}>
         <Combobox
           value={contract?.value ?? null}
           selectedItem={contract}
@@ -27,7 +26,6 @@ export default function Example(): React.ReactNode {
           labels={labels}
           {...search}
         />
-        <Field.Description>Type “UT-004812” and press Enter at once, as a scanner would.</Field.Description>
       </Field>
       <p className={'text-sm text-muted-foreground'}>
         Chosen: <span className={'font-medium text-foreground'}>{contract ? `${contract.label} · ${contract.code}` : 'nothing yet'}</span>

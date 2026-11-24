@@ -6,8 +6,10 @@ import { Field } from '@proedis/ui/forms/field';
 
 export default function Example(): React.ReactNode {
   return (
-    <Field>
-      <Field.Label>Documents on board</Field.Label>
+    <Field
+      label={'Documents on board'}
+      description={'The parent changes what can change: the disabled and read-only boxes keep their value.'}
+    >
       <CheckboxGroup defaultValue={[ 'form', 'licence' ]}>
         <Checkbox parent>All documents</Checkbox>
         <Checkbox value={'form'} disabled description={'Required by law on every transport.'}>Waste identification form</Checkbox>
@@ -15,9 +17,6 @@ export default function Example(): React.ReactNode {
         <Checkbox value={'insurance'}>Insurance certificate</Checkbox>
         <Checkbox value={'adr'} readOnly description={'Set by the fleet office.'}>ADR certificate</Checkbox>
       </CheckboxGroup>
-      <Field.Description>
-        The parent changes what can change: the disabled and read-only boxes keep their value.
-      </Field.Description>
     </Field>
   );
 }

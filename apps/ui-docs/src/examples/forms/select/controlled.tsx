@@ -16,8 +16,7 @@ export default function Example(): React.ReactNode {
 
   return (
     <Stack gap={4} className={'w-full max-w-xs'}>
-      <Field>
-        <Field.Label>Depot</Field.Label>
+      <Field label={'Depot'}>
         <Select options={DEPOTS} value={depot} onValueChange={setDepot} placeholder={'Select'} labels={labels} />
       </Field>
 

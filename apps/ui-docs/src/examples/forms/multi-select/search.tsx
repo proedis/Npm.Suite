@@ -9,10 +9,12 @@ import { TOWNS } from './options';
 
 export default function Example(): React.ReactNode {
   return (
-    <Field className={'w-full max-w-sm'}>
-      <Field.Label>Towns</Field.Label>
+    <Field
+      className={'w-full max-w-sm'}
+      label={'Towns'}
+      description={'Type “torinese”, then “Select all”: only the five found are checked.'}
+    >
       <MultiSelect options={TOWNS} placeholder={'Select'} labels={labels} />
-      <Field.Description>Type “torinese”, then “Select all”: only the five found are checked.</Field.Description>
     </Field>
   );
 }

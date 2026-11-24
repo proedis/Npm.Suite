@@ -41,24 +41,19 @@ export default function Example(): React.ReactNode {
           <Form>
             {/* The same order, the same spans: each field takes the place of its value */}
             <Form.Section title={'Customer'}>
-              <Field span={DETAIL_SPAN['text-code']}>
-                <Field.Label>Code</Field.Label>
+              <Field span={DETAIL_SPAN['text-code']} label={'Code'}>
                 <TextInput width={'code'} defaultValue={'CL-004813'} />
               </Field>
-              <Field span={DETAIL_SPAN['text-long']}>
-                <Field.Label>Name</Field.Label>
+              <Field span={DETAIL_SPAN['text-long']} label={'Name'}>
                 <TextInput width={'long'} defaultValue={'Panificio Rossi'} />
               </Field>
-              <Field span={DETAIL_SPAN.choice}>
-                <Field.Label>Contract</Field.Label>
+              <Field span={DETAIL_SPAN.choice} label={'Contract'}>
                 <TextInput defaultValue={'Business'} />
               </Field>
-              <Field span={DETAIL_SPAN.date}>
-                <Field.Label>Since</Field.Label>
+              <Field span={DETAIL_SPAN.date} label={'Since'}>
                 <TextInput width={'code'} defaultValue={'14/03/2019'} />
               </Field>
-              <Field span={DETAIL_SPAN.number}>
-                <Field.Label>Bins</Field.Label>
+              <Field span={DETAIL_SPAN.number} label={'Bins'}>
                 <TextInput width={'code'} defaultValue={'6'} />
               </Field>
             </Form.Section>

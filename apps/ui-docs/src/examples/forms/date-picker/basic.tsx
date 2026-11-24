@@ -12,10 +12,8 @@ export default function Example(): React.ReactNode {
 
   return (
     <Stack gap={3} className={'w-full max-w-xs'}>
-      <Field>
-        <Field.Label>Collection date</Field.Label>
+      <Field label={'Collection date'} description={'Type it, the slashes arrive on their own, or open the calendar.'}>
         <DatePicker locale={'en-GB'} value={date} onValueChange={setDate} labels={labels} />
-        <Field.Description>Type it, the slashes arrive on their own, or open the calendar.</Field.Description>
       </Field>
       <p className={'text-sm text-muted-foreground'}>
         Value: <code className={'font-mono text-foreground'}>{JSON.stringify(date)}</code>

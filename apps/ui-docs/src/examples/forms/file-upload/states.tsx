@@ -18,20 +18,14 @@ const NOTHING = (): void => undefined;
 export default function Example(): React.ReactNode {
   return (
     <Stack gap={6} className={'w-full max-w-lg'}>
-      <Field>
-        <Field.Label>Read only</Field.Label>
+      <Field label={'Read only'} description={'The box is gone, the files stay.'}>
         <FileUpload readOnly files={FILES} onAdd={NOTHING} onRemove={NOTHING} labels={labels} />
-        <Field.Description>The box is gone, the files stay.</Field.Description>
       </Field>
-      <Field>
-        <Field.Label>Invalid</Field.Label>
+      <Field label={'Invalid'} error={'Attach the signed contract'}>
         <FileUpload files={[]} onAdd={NOTHING} onRemove={NOTHING} accept={'application/pdf'} labels={labels} />
-        <Field.Error>Attach the signed contract</Field.Error>
       </Field>
-      <Field disabled>
-        <Field.Label>Disabled</Field.Label>
+      <Field disabled label={'Disabled'} description={'Attachments are closed for this order.'}>
         <FileUpload files={[]} onAdd={NOTHING} onRemove={NOTHING} labels={labels} />
-        <Field.Description>Attachments are closed for this order.</Field.Description>
       </Field>
     </Stack>
   );

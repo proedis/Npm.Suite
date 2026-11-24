@@ -13,10 +13,11 @@ export default function Example(): React.ReactNode {
 
   return (
     <Stack gap={3} className={'w-full max-w-sm'}>
-      <Field>
-        <Field.Label>Period of the report</Field.Label>
+      <Field
+        label={'Period of the report'}
+        description={'One field, both dates: type them one after the other without stopping.'}
+      >
         <DatePicker mode={'range'} locale={'en-GB'} value={period} onValueChange={setPeriod} labels={labels} />
-        <Field.Description>One field, both dates: type them one after the other without stopping.</Field.Description>
       </Field>
       <p className={'text-sm text-muted-foreground'}>
         Value: <code className={'font-mono text-foreground'}>{JSON.stringify(period)}</code>

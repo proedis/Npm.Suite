@@ -16,8 +16,11 @@ export default function Example(): React.ReactNode {
   const handleValueChange = React.useCallback((_value: string | null, item: ComboboxItem | null) => setContract(item), []);
 
   return (
-    <Field className={'w-full max-w-md'}>
-      <Field.Label>Contract</Field.Label>
+    <Field
+      className={'w-full max-w-md'}
+      label={'Contract'}
+      description={'The holder, the code or the address: type “rossi” or “4812”.'}
+    >
       <Combobox
         value={contract?.value ?? null}
         selectedItem={contract}
@@ -25,7 +28,6 @@ export default function Example(): React.ReactNode {
         labels={labels}
         {...search}
       />
-      <Field.Description>The holder, the code or the address: type “rossi” or “4812”.</Field.Description>
     </Field>
   );
 }

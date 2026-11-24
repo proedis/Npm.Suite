@@ -16,12 +16,10 @@ export default function Example(): React.ReactNode {
       <Form.Header title={'Company details'} description={'Printed on every invoice and transport document'} />
 
       <Form.Section>
-        <Field span={4}>
-          <Field.Label required>Company name</Field.Label>
+        <Field span={4} required label={'Company name'}>
           <TextInput defaultValue={'Proedis S.r.l.'} />
         </Field>
-        <Field span={2}>
-          <Field.Label required>VAT number</Field.Label>
+        <Field span={2} required label={'VAT number'}>
           <TextInput width={'code'} prefix={'IT'} defaultValue={'01234567890'} />
         </Field>
       </Form.Section>

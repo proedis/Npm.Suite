@@ -28,12 +28,10 @@ export default function Example(): React.ReactNode {
             <Heading.Description>Cantieri Digitali, north depot</Heading.Description>
           </Heading>
           <Stack gap={4}>
-            <Field>
-              <Field.Label>Email</Field.Label>
+            <Field label={'Email'}>
               <TextInput size={'lg'} type={'email'} autoComplete={'username'} />
             </Field>
-            <Field>
-              <Field.Label>Password</Field.Label>
+            <Field label={'Password'}>
               <PasswordInput size={'lg'} autoComplete={'current-password'} labels={{ show: 'Show the password', hide: 'Hide the password' }} />
             </Field>
           </Stack>

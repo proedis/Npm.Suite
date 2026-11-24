@@ -132,8 +132,9 @@ function SelectPage(): React.ReactNode {
           lead={(
             <React.Fragment>
               Read only, the field stays reachable and its text selectable, and it does not open. Disabled, it leaves
-              the Tab order. Invalid, the frame turns red: inside a <InlineCode>Field</InlineCode> with a{' '}
-              <InlineCode>Field.Error</InlineCode> that happens on its own. Loading, a spinner takes the place of the
+              the Tab order. Invalid, the frame turns red: inside a <InlineCode>Field</InlineCode> with an{' '}
+              <InlineCode>error</InlineCode> that happens on its own, and a warning or a success of the field colours it
+              too. Loading, a spinner takes the place of the
               chevron, the value stays and the list does not open.
             </React.Fragment>
           )}

@@ -143,52 +143,70 @@ export default function Example(): React.ReactNode {
       <Form.ErrorSummary title={(count) => (count === 1 ? 'One field to fix' : `${count} fields to fix`)} />
 
       <Form.Section title={'Vehicle'} description={'How the vehicle is identified on the road and in the yard'}>
-        <Field span={2}>
-          <Field.Label required>Plate</Field.Label>
+        <Field
+          span={2}
+          required
+          label={'Plate'}
+          description={'As on the registration'}
+          errorSummary={`Plate: ${errors.plate?.toLowerCase() ?? ''}`}
+          error={errors.plate}
+        >
           <TextInput width={'code'} value={vehicle.plate} onChange={(event) => update('plate', event.currentTarget.value)} />
-          <Field.Description>As on the registration</Field.Description>
-          <Field.Error summary={`Plate: ${errors.plate?.toLowerCase() ?? ''}`}>{errors.plate}</Field.Error>
         </Field>
-        <Field span={1}>
-          <Field.Label optional={'optional'}>Fleet no.</Field.Label>
+        <Field span={1} optional={'optional'} label={'Fleet no.'}>
           <NumberInput max={999} value={vehicle.fleetNumber} onValueChange={(value) => update('fleetNumber', value)} />
         </Field>
-        <Field span={3}>
-          <Field.Label required>Model</Field.Label>
+        <Field span={3} required label={'Model'} errorSummary={'Model: write it'} error={errors.model}>
           <TextInput value={vehicle.model} onChange={(event) => update('model', event.currentTarget.value)} placeholder={'E.g. Iveco Eurocargo 180'} />
-          <Field.Error summary={'Model: write it'}>{errors.model}</Field.Error>
         </Field>
-        <Field span={4} breakBefore>
-          <Field.Label required>Chassis number (VIN)</Field.Label>
+        <Field
+          span={4}
+          breakBefore
+          required
+          label={'Chassis number (VIN)'}
+          description={'17 characters, stamped on the frame'}
+          errorSummary={'Chassis number: it has 17 characters'}
+          error={errors.vin}
+        >
           <TextInput width={'long'} value={vehicle.vin} onChange={(event) => update('vin', event.currentTarget.value)} />
-          <Field.Description>17 characters, stamped on the frame</Field.Description>
-          <Field.Error summary={'Chassis number: it has 17 characters'}>{errors.vin}</Field.Error>
         </Field>
       </Form.Section>
 
       <Form.Section title={'Capacity'} description={'What the vehicle may carry, from the registration'}>
-        <Field span={2}>
-          <Field.Label required>Gross weight</Field.Label>
+        <Field
+          span={2}
+          required
+          label={'Gross weight'}
+          errorSummary={'Gross weight: required'}
+          error={errors.grossWeight}
+        >
           <NumberInput max={44000} suffix={'kg'} locale={'en-GB'} value={vehicle.grossWeight} onValueChange={(value) => update('grossWeight', value)} />
-          <Field.Error summary={'Gross weight: required'}>{errors.grossWeight}</Field.Error>
         </Field>
-        <Field span={2}>
-          <Field.Label required>Payload</Field.Label>
+        <Field
+          span={2}
+          required
+          label={'Payload'}
+          errorSummary={'Payload: it must be below the gross weight'}
+          error={errors.payload}
+        >
           <NumberInput max={44000} suffix={'kg'} locale={'en-GB'} value={vehicle.payload} onValueChange={(value) => update('payload', value)} />
-          <Field.Error summary={'Payload: it must be below the gross weight'}>{errors.payload}</Field.Error>
         </Field>
-        <Field span={2}>
-          <Field.Label optional={'optional'}>Body volume</Field.Label>
+        <Field span={2} optional={'optional'} label={'Body volume'}>
           <NumberInput max={99} decimals={1} suffix={'m³'} locale={'en-GB'} value={vehicle.volume} onValueChange={(value) => update('volume', value)} />
         </Field>
       </Form.Section>
 
       <Form.Section title={'Notes'}>
-        <Field span={6}>
-          <Field.Label optional={'optional'}>For the workshop</Field.Label>
+        <Field
+          span={6}
+          optional={'optional'}
+          label={'For the workshop'}
+          counterExceeded={vehicle.notes.length > NOTES_LIMIT}
+          counter={<React.Fragment>{vehicle.notes.length}/{NOTES_LIMIT}</React.Fragment>}
+          errorSummary={'Notes: too long'}
+          error={errors.notes}
+        >
           <Textarea value={vehicle.notes} onChange={(event) => update('notes', event.currentTarget.value)} />
-          <Field.Counter exceeded={vehicle.notes.length > NOTES_LIMIT}>{vehicle.notes.length}/{NOTES_LIMIT}</Field.Counter>
-          <Field.Error summary={'Notes: too long'}>{errors.notes}</Field.Error>
         </Field>
       </Form.Section>
 

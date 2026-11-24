@@ -16,10 +16,13 @@ export default function Example(): React.ReactNode {
   const handleRemove = React.useCallback(() => setFiles([]), []);
 
   return (
-    <Field className={'w-full max-w-lg'}>
-      <Field.Label required>Signed delivery note</Field.Label>
+    <Field
+      className={'w-full max-w-lg'}
+      required
+      label={'Signed delivery note'}
+      description={'Once chosen, the file takes the place of the box, with Replace.'}
+    >
       <FileUpload files={files} onAdd={handleAdd} onRemove={handleRemove} accept={'application/pdf'} maxFiles={1} labels={labels} />
-      <Field.Description>Once chosen, the file takes the place of the box, with Replace.</Field.Description>
     </Field>
   );
 }

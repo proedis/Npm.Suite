@@ -6,8 +6,7 @@ import { TextInput } from '@proedis/ui/forms/text-input';
 
 export default function Example(): React.ReactNode {
   return (
-    <Field className={'w-full max-w-sm'}>
-      <Field.Label required>Town</Field.Label>
+    <Field className={'w-full max-w-sm'} required label={'Town'}>
       <TextInput placeholder={'E.g. Chieri'} />
     </Field>
   );

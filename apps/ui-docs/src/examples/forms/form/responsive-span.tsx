@@ -10,16 +10,13 @@ export default function Example(): React.ReactNode {
     <Form className={'w-full'}>
       <Form.Section title={'Contact'}>
         {/* A map speaks of the window: the whole row on a phone, half from md, a third from xl */}
-        <Field span={{ base: 6, md: 3, xl: 2 }}>
-          <Field.Label>First name</Field.Label>
+        <Field span={{ base: 6, md: 3, xl: 2 }} label={'First name'}>
           <TextInput />
         </Field>
-        <Field span={{ base: 6, md: 3, xl: 2 }}>
-          <Field.Label>Last name</Field.Label>
+        <Field span={{ base: 6, md: 3, xl: 2 }} label={'Last name'}>
           <TextInput />
         </Field>
-        <Field span={{ base: 6, xl: 2 }}>
-          <Field.Label>Role</Field.Label>
+        <Field span={{ base: 6, xl: 2 }} label={'Role'}>
           <TextInput />
         </Field>
       </Form.Section>

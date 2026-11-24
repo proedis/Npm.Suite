@@ -44,20 +44,26 @@ export default function Example(): React.ReactNode {
       <Form.ErrorSummary title={(count) => (count === 1 ? 'One field to fix' : `${count} fields to fix`)} />
 
       <Form.Section title={'Contact person'}>
-        <Field span={6} name={'name'}>
-          <Field.Label required>Name</Field.Label>
+        <Field span={6} name={'name'} required label={'Name'} errorSummary={'Name: write it'} error={errors.name}>
           <TextInput name={'name'} />
-          <Field.Error summary={'Name: write it'}>{errors.name}</Field.Error>
         </Field>
-        <Field name={'email'}>
-          <Field.Label required>Email</Field.Label>
+        <Field
+          name={'email'}
+          required
+          label={'Email'}
+          errorSummary={'Email: it is not an address'}
+          error={errors.email}
+        >
           <TextInput name={'email'} type={'email'} defaultValue={'mario.rossi@'} />
-          <Field.Error summary={'Email: it is not an address'}>{errors.email}</Field.Error>
         </Field>
-        <Field name={'phone'}>
-          <Field.Label required>Phone</Field.Label>
+        <Field
+          name={'phone'}
+          required
+          label={'Phone'}
+          errorSummary={'Phone: digits only, at least six'}
+          error={errors.phone}
+        >
           <TextInput name={'phone'} type={'tel'} defaultValue={'011-94'} />
-          <Field.Error summary={'Phone: digits only, at least six'}>{errors.phone}</Field.Error>
         </Field>
       </Form.Section>
 

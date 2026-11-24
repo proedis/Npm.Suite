@@ -38,11 +38,14 @@ export default function Example(): React.ReactNode {
   }, []);
 
   return (
-    <Field className={'w-full max-w-xs'}>
-      <Field.Label required>Plate</Field.Label>
+    <Field
+      className={'w-full max-w-xs'}
+      required
+      label={'Plate'}
+      description={'Try AB 123 CD'}
+      error={taken ? 'Already in the fleet' : null}
+    >
       <TextInput width={'code'} value={plate} onChange={handleChange} loading={checking} loadingLabel={'Checking the plate'} />
-      <Field.Description>Try AB 123 CD</Field.Description>
-      <Field.Error>{taken ? 'Already in the fleet' : null}</Field.Error>
     </Field>
   );
 }

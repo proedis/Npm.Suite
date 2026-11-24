@@ -55,12 +55,10 @@ export default function Example(): React.ReactNode {
         labels={{ close: 'Close', busyLoad: 'Loading the customer' }}
       >
         <Form onSubmit={handleSubmit}>
-          <Field>
-            <Field.Label>Name</Field.Label>
+          <Field label={'Name'}>
             <TextInput key={customer?.name} defaultValue={customer?.name} />
           </Field>
-          <Field>
-            <Field.Label>VAT number</Field.Label>
+          <Field label={'VAT number'}>
             <TextInput key={customer?.vat} defaultValue={customer?.vat} />
           </Field>
         </Form>

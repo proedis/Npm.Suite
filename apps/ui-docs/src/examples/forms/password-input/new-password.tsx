@@ -27,18 +27,19 @@ export default function Example(): React.ReactNode {
 
   return (
     <Stack gap={5} className={'w-full max-w-sm'}>
-      <Field>
-        <Field.Label required>New password</Field.Label>
+      <Field
+        required
+        label={'New password'}
+        description={<React.Fragment>At least {MIN_LENGTH} characters</React.Fragment>}
+        counterExceeded={tooShort}
+        counter={password.length}
+        error={tooShort ? `${MIN_LENGTH - password.length} more characters` : null}
+      >
         <PasswordInput autoComplete={'new-password'} labels={LABELS} value={password} onChange={handlePassword} />
-        <Field.Description>At least {MIN_LENGTH} characters</Field.Description>
-        <Field.Counter exceeded={tooShort}>{password.length}</Field.Counter>
-        <Field.Error>{tooShort ? `${MIN_LENGTH - password.length} more characters` : null}</Field.Error>
       </Field>
 
-      <Field>
-        <Field.Label required>Repeat it</Field.Label>
+      <Field required label={'Repeat it'} error={mismatch ? 'The two do not match' : null}>
         <PasswordInput autoComplete={'new-password'} labels={LABELS} value={repeat} onChange={handleRepeat} />
-        <Field.Error>{mismatch ? 'The two do not match' : null}</Field.Error>
       </Field>
     </Stack>
   );
