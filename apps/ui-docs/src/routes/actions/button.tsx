@@ -20,6 +20,7 @@ import block from '@/examples/actions/button/block.tsx?example';
 import custom from '@/examples/actions/button/custom.tsx?example';
 import disabled from '@/examples/actions/button/disabled.tsx?example';
 import fills from '@/examples/actions/button/fills.tsx?example';
+import finish from '@/examples/actions/button/finish.tsx?example';
 import iconButtonStates from '@/examples/actions/button/icon-button-states.tsx?example';
 import iconButtonVariants from '@/examples/actions/button/icon-button-variants.tsx?example';
 import iconButton from '@/examples/actions/button/icon-button.tsx?example';
@@ -28,6 +29,7 @@ import inContext from '@/examples/actions/button/in-context.tsx?example';
 import link from '@/examples/actions/button/link.tsx?example';
 import loading from '@/examples/actions/button/loading.tsx?example';
 import menuTrigger from '@/examples/actions/button/menu-trigger.tsx?example';
+import radius from '@/examples/actions/button/radius.tsx?example';
 import sizes from '@/examples/actions/button/sizes.tsx?example';
 import slots from '@/examples/actions/button/slots.tsx?example';
 import tones from '@/examples/actions/button/tones.tsx?example';
@@ -113,6 +115,30 @@ function ButtonPage(): React.ReactNode {
           )}
         >
           <Example of={sizes} />
+        </Section>
+
+        <Section
+          title={'Radius'}
+          lead={(
+            <React.Fragment>
+              <InlineCode>radius</InlineCode> sets the corner of one button: a step of the radius scale, or{' '}
+              <InlineCode>full</InlineCode> for a pill. Left at <InlineCode>default</InlineCode> the corner is the
+              theme’s: <InlineCode>--button-radius</InlineCode> for the buttons, which falls back to{' '}
+              <InlineCode>--control-radius</InlineCode>, the corner of every control. Declare only the second and a
+              field and the button beside it keep one shape.
+            </React.Fragment>
+          )}
+        >
+          <Example of={radius} />
+          <CodeBlock
+            title={'app.css'}
+            snippet={css`
+              :root {
+                --control-radius: var(--radius-full);   /* every control a pill */
+                --button-radius: var(--radius-lg);      /* or the buttons alone */
+              }
+            `}
+          />
         </Section>
 
         <Section
@@ -262,12 +288,60 @@ function ButtonPage(): React.ReactNode {
           lead={(
             <React.Fragment>
               <InlineCode>className</InlineCode> goes last and wins: the conflicts are resolved by{' '}
-              <InlineCode>tailwind-merge</InlineCode>, so <InlineCode>rounded-full</InlineCode> replaces the radius of
-              the button rather than fighting it.
+              <InlineCode>tailwind-merge</InlineCode>, so a class replaces the one of the button it conflicts with
+              rather than fighting it. For one button; every button of a product is a matter of the theme, below.
             </React.Fragment>
           )}
         >
           <Example of={custom} />
+
+          <SubSection
+            title={'A finish of your own'}
+            lead={(
+              <React.Fragment>
+                The solid fill is flat, and a theme can give it depth with four numbers, all zero by default:{' '}
+                <InlineCode>--button-gradient</InlineCode>, a light top and a darker bottom;{' '}
+                <InlineCode>--button-border-shade</InlineCode>, a border of the tone mixed with black;{' '}
+                <InlineCode>--button-highlight</InlineCode>, a light line inside the top edge;{' '}
+                <InlineCode>--button-glow</InlineCode>, a soft shadow in the colour of the tone. Each part is derived
+                from <InlineCode>--tone</InlineCode>, the colour the button sets on itself, so one theme serves the
+                seven tones.
+              </React.Fragment>
+            )}
+          >
+            <Example of={finish} />
+            <CodeBlock
+              title={'app.css'}
+              snippet={css`
+                @import 'tailwindcss';
+                @import '@proedis/ui';
+
+                :root {
+                  /* The blue of the brand */
+                  --primary: oklch(0.53 0.17 256);
+                  --primary-foreground: oklch(0.99 0 0);
+
+                  /* Rounder buttons */
+                  --button-radius: var(--radius-2xl);
+
+                  /* The finish of the solid fill */
+                  --button-gradient: 0.12;        /* light top, darker bottom */
+                  --button-border-shade: 22%;     /* a border darker than the fill */
+                  --button-highlight: 0.3;        /* a light line inside the top edge */
+                  --button-glow: 0.5;             /* a shadow in the colour of the tone */
+                }
+              `}
+            />
+            <Prose>
+              <p>
+                That is the whole theme of the large button above, and it changes every solid button of the
+                application, as the row under it shows. The large one is also larger than a control: its height,
+                padding and type are its own <InlineCode>className</InlineCode>, since the three sizes of a button are
+                the heights every control shares. The finish follows the hover, the pressed state and the focus ring,
+                which still draw over it.
+              </p>
+            </Prose>
+          </SubSection>
 
           <SubSection
             title={'Styling every button of a product'}

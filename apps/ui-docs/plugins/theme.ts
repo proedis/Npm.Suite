@@ -41,7 +41,7 @@ const SPACE_STEPS = [ 'xs', 'sm', 'md', 'lg', 'xl', '2xl' ];
 const CONTROL_STEPS = [ 'sm', 'md', 'lg' ];
 
 /** The order the groups are listed in */
-const GROUP_ORDER: readonly ThemeVariableGroup[] = [ 'Default', 'Spacing', 'Size', 'Typography', 'Shape', 'Colour', 'Layer' ];
+const GROUP_ORDER: readonly ThemeVariableGroup[] = [ 'Default', 'Spacing', 'Size', 'Typography', 'Shape', 'Finish', 'Colour', 'Layer' ];
 
 /** A font utility and the variable behind it: the families, and the weights a component writes */
 const FONT_CLASS = /(?:^|[\s:])font-(heading|sans|mono|normal|medium|semibold|bold)(?=$|[\s'"`])/g;
@@ -75,6 +75,12 @@ interface Sheets {
 
   /** A default class (`gap-stack`) and its variable, with the fallback */
   readonly defaults: ReadonlyMap<string, { variable: string; fallback: string }>;
+
+  /**
+   * A variable a utility reads with a default of its own and nobody sets (`--button-glow` in
+   * `button-finish`): a knob of the theme, off until a product declares it
+   */
+  readonly knobs: ReadonlyMap<string, string>;
 }
 
 
@@ -136,7 +142,8 @@ export function readableValue(value: string | undefined): string | undefined {
     .replace(/var\(--color-([\w-]+)\)/g, '$1')
     .replace(/color-mix\(in oklab, var\((--[\w-]+)\) (\d+)%, transparent\)/g, '$1 at $2%')
     .replace(/color-mix\(in oklab, ([\w-]+) (\d+)%, transparent\)/g, '$1 at $2%')
-    .replace(/var\((--[\w-]+)\)/g, '$1');
+    .replace(/var\((--[\w-]+)\)/g, '$1')
+    .replace(/var\((--[\w-]+),\s*([^()]+)\)/g, '$1, else $2');
 }
 
 /**
@@ -301,6 +308,8 @@ class ThemeReader {
     const colours = new Map<string, { variable: string; fallback?: string }>();
     const utilities = new Map<string, string[]>();
     const defaults = new Map<string, { variable: string; fallback: string }>();
+    const knobs = new Map<string, string>();
+    const setByUtilities = new Set<string>();
 
     for (const sheet of SHEETS) {
       const css = fs.readFileSync(path.join(this._sourceRoot, sheet), 'utf8');
@@ -324,13 +333,13 @@ class ThemeReader {
         for (const [ name, value ] of declarations(body)) {
           const read = readVar(value);
           const colour = /^--color-([\w-]+)$/.exec(name);
-          const defaultClass = /^--(gap|height)-([a-z]+)$/.exec(name);
+          const defaultClass = /^--(gap|height|radius)-([a-z-]+)$/.exec(name);
 
           if (colour && read) {
             colours.set(colour[1], read);
           }
           else if (defaultClass && read?.fallback && !SPACE_STEPS.includes(defaultClass[2])) {
-            const utility = defaultClass[1] === 'gap' ? 'gap' : 'h';
+            const utility = { gap: 'gap', height: 'h', radius: 'rounded' }[defaultClass[1] as 'gap' | 'height' | 'radius'];
             defaults.set(`${utility}-${defaultClass[2]}`, { variable: read.variable, fallback: read.fallback });
           }
           else if (!variables.has(name) && /^--(?:spacing-control|container|text|font)-/.test(name) && !name.includes('--line-height')) {
@@ -343,6 +352,16 @@ class ThemeReader {
         const body = blocks(css.slice(match.index), /^@utility\s+[\w-]+\s*\{/)[0] ?? '';
         const read = [ ...new Set([ ...body.matchAll(/var\((--[\w-]+)/g) ].map((m) => m[1].replace(/^--color-/, '--'))) ];
         utilities.set(match[1], read);
+
+        for (const set of body.matchAll(/(--[\w-]+)\s*:/g)) {
+          setByUtilities.add(set[1]);
+        }
+
+        for (const knob of body.matchAll(/var\((--[\w-]+),\s*([^()]+?)\)/g)) {
+          if (!knob[1].startsWith('--tw-')) {
+            knobs.set(knob[1], knob[2].trim());
+          }
+        }
       }
     }
 
@@ -357,7 +376,11 @@ class ThemeReader {
       }
     }
 
-    this._sheets = { variables, colours, utilities, defaults };
+    for (const name of setByUtilities) {
+      knobs.delete(name);
+    }
+
+    this._sheets = { variables, colours, utilities, defaults, knobs };
     return this._sheets;
   }
 
@@ -443,6 +466,9 @@ class ThemeReader {
           if (sheets.variables.has(variable)) {
             add(variable, /^--z-/.test(variable) ? 'Layer' : 'Colour', bare);
           }
+          else if (sheets.knobs.has(variable)) {
+            add(variable, 'Finish', bare);
+          }
         }
 
         const defaultClass = sheets.defaults.get(bare);
@@ -470,6 +496,17 @@ class ThemeReader {
       }
     }
 
+    /* A default that falls back on another default brings it along: `--button-radius` on `--control-radius` */
+    for (const [ variable ] of [ ...found ]) {
+      const fallback = [ ...sheets.defaults.values() ].find((entry) => entry.variable === variable)?.fallback ?? '';
+
+      for (const inner of fallback.matchAll(/var\((--[\w-]+)/g)) {
+        if ([ ...sheets.defaults.values() ].some((entry) => entry.variable === inner[1])) {
+          add(inner[1], 'Default', variable);
+        }
+      }
+    }
+
     /* A spacing prop of the component itself takes the named steps */
     if (/\bSpacing\b/.test(ownText)) {
       for (const step of SPACE_STEPS) {
@@ -491,7 +528,7 @@ class ThemeReader {
       variable,
       group,
       via    : via.slice(0, 4),
-      default: readableValue(declared?.light ?? defaultOf?.fallback ?? colourOf?.fallback),
+      default: readableValue(declared?.light ?? defaultOf?.fallback ?? colourOf?.fallback ?? sheets.knobs.get(variable)),
       dark   : readableValue(declared?.dark)
     };
   }

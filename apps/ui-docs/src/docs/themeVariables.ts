@@ -15,6 +15,7 @@ export const GROUP_TITLES: Readonly<Record<ThemeVariableGroup, string>> = {
   Size      : 'Sizes',
   Typography: 'Typography',
   Shape     : 'Shape',
+  Finish    : 'Finish',
   Colour    : 'Colours',
   Layer     : 'Layers'
 };
@@ -26,6 +27,7 @@ export const GROUP_LEADS: Readonly<Record<ThemeVariableGroup, string>> = {
   Size      : 'The heights and the widths that are a decision of the product. A control height moves every control of that size at once, under a finger too.',
   Typography: 'The families and the weights the component writes with. A family set here changes every component that uses it; a weight changes what that name means, everywhere.',
   Shape     : 'The corner language: every rounded step is Tailwind’s own value times this number.',
+  Finish    : 'The depth of a solid fill, every part off by default: each one a number a product turns up from :root, each one derived from the colour of the tone.',
   Colour    : 'The semantic colours the component paints with. Each one is shared with every other component that reads it.',
   Layer     : 'The stacking order of what floats.'
 };
@@ -57,6 +59,12 @@ const SINGLE: Readonly<Record<string, string>> = {
   '--font-weight-medium': 'What font-medium means: 500. A label, a button, a tab.',
   '--font-weight-semibold': 'What font-semibold means: 600. A title, a value that leads.',
   '--font-weight-bold': 'What font-bold means: 700. The largest title.',
+  '--control-radius'  : 'The corner of every control that declares no radius: a field, a select, a date picker, a toggle, a segmented control, a button.',
+  '--button-radius'   : 'The corner of every button that declares no radius. Undeclared, it is --control-radius.',
+  '--button-gradient' : 'From 0 to 1: a light top and a darker bottom over the solid fill.',
+  '--button-border-shade': 'The border of the solid fill: the tone mixed with this much black, 0% for a border the colour of the fill.',
+  '--button-highlight': 'From 0 to 1: a light line inside the top edge.',
+  '--button-glow'     : 'From 0 to 1: a soft shadow under the button, in the colour of its tone.',
   '--radius-scale'    : 'A unitless multiplier over every radius step, xs to 4xl: 1 is Tailwind’s scale as documented.',
   '--background'      : 'The canvas. The application paints it; the package reads it only on the hover of the FileUpload drop zone.',
   '--foreground'      : 'The ink of a value.',

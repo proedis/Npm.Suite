@@ -51,17 +51,18 @@ const LEVELS: readonly (readonly [ string, string, string ])[] = [
 ];
 
 /** What a group of variables is about, in the order the page reads them */
-const GROUPS: readonly ThemeVariableGroup[] = [ 'Default', 'Spacing', 'Size', 'Typography', 'Shape', 'Colour', 'Layer' ];
+const GROUPS: readonly ThemeVariableGroup[] = [ 'Default', 'Spacing', 'Size', 'Typography', 'Shape', 'Finish', 'Colour', 'Layer' ];
 
 /** The ids of the sections that hold the tables, so a title cannot collide with another section */
 const GROUP_IDS: Readonly<Record<ThemeVariableGroup, string>> = {
-  Default: 'component-defaults',
-  Spacing: 'spacing-scale',
+  Default   : 'component-defaults',
+  Spacing   : 'spacing-scale',
   Size      : 'sizes',
   Typography: 'typography',
-  Shape  : 'shape',
-  Colour : 'colours',
-  Layer  : 'layers'
+  Shape     : 'shape',
+  Finish    : 'finish',
+  Colour    : 'colours',
+  Layer     : 'layers'
 };
 
 

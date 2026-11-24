@@ -33,7 +33,7 @@ interface CustomizationProps {
  * Parts
  * -------- */
 
-const GROUPS: readonly ThemeVariableGroup[] = [ 'Default', 'Spacing', 'Size', 'Typography', 'Shape', 'Colour', 'Layer' ];
+const GROUPS: readonly ThemeVariableGroup[] = [ 'Default', 'Spacing', 'Size', 'Typography', 'Shape', 'Finish', 'Colour', 'Layer' ];
 
 /** One value of the theme, light and dark when they differ */
 export function ThemeValue(props: { variable: ThemeVariable }): React.ReactNode {
