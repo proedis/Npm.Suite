@@ -129,8 +129,8 @@ function RadioPage(): React.ReactNode {
               { slot: 'radio-circle', part: 'The circle, which takes the focus', attributes: [ 'data-checked', 'data-unchecked' ] },
               { slot: 'radio-dot', part: 'The dot of the chosen one' },
               { slot: 'radio-text', part: 'The label and the description' },
-              { slot: 'radio-label', part: 'The label' },
-              { slot: 'radio-description', part: 'The description' }
+              { slot: 'label', part: 'The label, a Label in the register of an option', attributes: [ 'data-emphasis' ] },
+              { slot: 'label-description', part: 'The description, outside the name of the control' }
             ]}
           />
         </Section>

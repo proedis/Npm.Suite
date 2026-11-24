@@ -112,8 +112,8 @@ function SwitchPage(): React.ReactNode {
               { slot: 'switch-track', part: 'The track, which takes the focus', attributes: [ 'data-checked', 'data-unchecked' ] },
               { slot: 'switch-thumb', part: 'The thumb', attributes: [ 'data-checked', 'data-unchecked' ] },
               { slot: 'switch-text', part: 'The label and the description' },
-              { slot: 'switch-label', part: 'The label' },
-              { slot: 'switch-description', part: 'The description' }
+              { slot: 'label', part: 'The label, a Label in the register of an option', attributes: [ 'data-emphasis' ] },
+              { slot: 'label-description', part: 'The description, outside the name of the control' }
             ]}
           />
         </Section>

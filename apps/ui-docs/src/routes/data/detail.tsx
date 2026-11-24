@@ -257,7 +257,7 @@ function DetailPage(): React.ReactNode {
               { slot: 'detail-section-error', part: 'The error of a section, with its Retry' },
               { slot: 'detail-grid', part: 'The grid of six, the <dl>' },
               { slot: 'detail-item', part: 'One value with its label', attributes: [ 'data-type', 'data-span', 'data-break-before', 'data-empty', 'data-label-hidden', 'data-copyable' ] },
-              { slot: 'detail-label', part: 'The label, the <dt>' },
+              { slot: 'label', part: 'The label, a quiet Label rendered as the <dt>' },
               { slot: 'detail-value', part: 'The value, the <dd>' },
               { slot: 'detail-value-text', part: 'The text of the value, what a copy copies' },
               { slot: 'detail-empty', part: 'The dash of a value that is not there' },

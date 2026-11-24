@@ -10,6 +10,7 @@ import type { LabelEmphasis } from '@proedis/ui/primitives';
 const REGISTERS: readonly { emphasis: LabelEmphasis; use: string }[] = [
   { emphasis: 'default', use: 'No opinion given: today the form register' },
   { emphasis: 'strong', use: 'The form register, asked for on purpose' },
+  { emphasis: 'regular', use: 'The text of an option: a checkbox, a radio, a switch' },
   { emphasis: 'quiet', use: 'The data register: the value next to it is the point' }
 ];
 

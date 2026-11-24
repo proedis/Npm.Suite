@@ -163,8 +163,8 @@ function CheckboxPage(): React.ReactNode {
               { slot: 'checkbox-box', part: 'The box, which takes the focus', attributes: [ 'data-checked', 'data-unchecked', 'data-indeterminate' ] },
               { slot: 'checkbox-indicator', part: 'The tick or the dash' },
               { slot: 'checkbox-text', part: 'The label and the description' },
-              { slot: 'checkbox-label', part: 'The label' },
-              { slot: 'checkbox-description', part: 'The description' },
+              { slot: 'label', part: 'The label, a Label in the register of an option', attributes: [ 'data-emphasis' ] },
+              { slot: 'label-description', part: 'The description, outside the name of the control' },
               { slot: 'checkbox-group', part: 'The group', attributes: [ 'data-orientation', 'data-disabled', 'data-readonly', 'data-invalid' ] }
             ]}
           />

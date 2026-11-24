@@ -16,6 +16,7 @@ import { PropsTable } from '@/docs/Tables';
 import basic from '@/examples/primitives/label/basic.tsx?example';
 import data from '@/examples/primitives/label/data.tsx?example';
 import emphasis from '@/examples/primitives/label/emphasis.tsx?example';
+import marks from '@/examples/primitives/label/marks.tsx?example';
 import { pageAt } from '@/nav';
 
 
@@ -32,7 +33,8 @@ function LabelPage(): React.ReactNode {
         page={PAGE}
         lead={(
           <React.Fragment>
-            The name of something, with an optional line of detail under it. A <InlineCode>{'<label>'}</InlineCode> by
+            The name of something: of a field, of an option, of a value. Every label of the package is this one, the
+            label of a Field, the text of a checkbox, the name in a Detail. A <InlineCode>{'<label>'}</InlineCode> by
             default, because that element is what ties a name to a control: clicking the name focuses the field.
           </React.Fragment>
         )}
@@ -48,16 +50,17 @@ function LabelPage(): React.ReactNode {
           title={'Emphasis'}
           lead={(
             <React.Fragment>
-              Two registers for two opposite jobs. A <strong>form</strong> label is the loud half of its pair: the field
-              under it is empty until someone types, so the label carries the meaning. A <strong>data</strong> label is
-              the quiet half: the value next to it is the point. <InlineCode>quiet</InlineCode> is the second register.
+              Registers for opposite jobs. A <strong>form</strong> label is the loud half of its pair: the field under
+              it is empty until someone types, so the label carries the meaning. A <strong>data</strong> label is the
+              quiet half: the value next to it is the point. The text of an <strong>option</strong> sits between the
+              two, at the weight of the body: <InlineCode>regular</InlineCode>, what Checkbox, Radio and Switch write.
             </React.Fragment>
           )}
         >
           <Example of={emphasis} />
           <Prose>
             <p>
-              The first rows above are the three values; the two columns under them are the two jobs, a form label over
+              The first rows above are the four values; the two columns under them are the two jobs, a form label over
               an empty field and a data label over its value. <InlineCode>default</InlineCode> and{' '}
               <InlineCode>strong</InlineCode> draw the same today, and that is the point of having both. A label nobody had an opinion about reports <InlineCode>data-emphasis</InlineCode> as{' '}
               <InlineCode>default</InlineCode>,
@@ -68,19 +71,32 @@ function LabelPage(): React.ReactNode {
         </Section>
 
         <Section
+          title={'Required and optional'}
+          lead={(
+            <React.Fragment>
+              <InlineCode>required</InlineCode> puts the asterisk after the name, hidden from a screen reader: the
+              control says <InlineCode>aria-required</InlineCode> itself, and a Field does it for the control inside.{' '}
+              <InlineCode>optional</InlineCode> takes the word of a form where almost everything is required, in the
+              language of the page, and is not shown with <InlineCode>required</InlineCode>.
+            </React.Fragment>
+          )}
+        >
+          <Example of={marks} />
+        </Section>
+
+        <Section
           title={'Without a control'}
           lead={(
             <React.Fragment>
-              With nothing to point at, render a <InlineCode>span</InlineCode>: a summary, a key figure, a definition.
-              <InlineCode>description</InlineCode> adds the unit, the format or the source on a second, quieter line.
+              With nothing to point at, render a <InlineCode>span</InlineCode>: a summary, a key figure, a definition.{' '}
+              <InlineCode>Label.Description</InlineCode> adds the unit, the format or the source on a second line.
             </React.Fragment>
           )}
         >
           <Example of={data} />
           <Callout>
             For a label over a value, <InlineCode>LabeledContent</InlineCode> is this pattern already assembled, with the
-            value in its register. Inside a form, <InlineCode>Field.Label</InlineCode> adds the required mark and the
-            optional word, which need the form layer.
+            value in its register. Inside a form, a Field renders this label and ties it to its control.
           </Callout>
         </Section>
 
@@ -88,12 +104,13 @@ function LabelPage(): React.ReactNode {
           <Prose>
             <p>
               Rendered as a <InlineCode>{'<label>'}</InlineCode> with <InlineCode>htmlFor</InlineCode>, the text becomes the
-              accessible name of the control, and the description is part of that name. Every element inside is phrasing
-              content, two spans laid out by a stack, so the label stays valid HTML even with a description.
+              accessible name of the control. The description is a sibling and never a child: inside a label it would
+              join the name, and a screen reader would read it at every focus, then once more as the description. Give
+              it an <InlineCode>id</InlineCode> and point the control at it with <InlineCode>aria-describedby</InlineCode>.
             </p>
             <p>
-              There is no <InlineCode>required</InlineCode> prop on purpose: the asterisk and its colour belong to the
-              form layer, next to the error and the description it already owns.
+              The asterisk is hidden from a screen reader, which hears <InlineCode>required</InlineCode> from the control
+              instead: a mark read aloud as “star” says nothing.
             </p>
           </Prose>
         </Section>
@@ -103,9 +120,10 @@ function LabelPage(): React.ReactNode {
         <Section title={'Slots and data attributes'}>
           <SlotsInspector of={basic}
             rows={[
-              { slot: 'label', part: 'The label, or the element given with as', attributes: [ 'data-emphasis' ] },
-              { slot: 'label-text', part: 'The name' },
-              { slot: 'label-description', part: 'The second line' }
+              { slot: 'label', part: 'The label, or the element given with as', attributes: [ 'data-emphasis', 'data-required', 'data-optional' ] },
+              { slot: 'label-required', part: 'The asterisk' },
+              { slot: 'label-optional', part: 'The optional word' },
+              { slot: 'label-description', part: 'Label.Description, the second line' }
             ]}
           />
         </Section>

@@ -245,8 +245,8 @@ function FieldPage(): React.ReactNode {
             rows={[
               { slot: 'field', part: 'The root, a grid of named tracks', attributes: [ 'data-span', 'data-break-before', 'data-required', 'data-orientation', 'data-invalid', 'data-disabled' ] },
               { slot: 'field-label', part: 'The label', attributes: [ 'data-required', 'data-optional' ] },
-              { slot: 'field-required', part: 'The asterisk' },
-              { slot: 'field-optional', part: 'The optional word' },
+              { slot: 'label-required', part: 'The asterisk' },
+              { slot: 'label-optional', part: 'The optional word' },
               { slot: 'field-description', part: 'The description' },
               { slot: 'field-error', part: 'The error row: the mark and the message' },
               { slot: 'field-error-icon-box', part: 'The box one line tall around the mark' },
