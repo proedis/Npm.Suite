@@ -196,7 +196,7 @@ FormHeader.displayName = 'Form.Header';
  *
  * Placed by whoever writes the form, normally at the top. On a submit that ends with two or more
  * errors the focus lands here; with one it goes straight to the field. Each line is the `summary` of
- * its `Field.Error`, or its message.
+ * its field's `errorSummary`, or its `error`.
  */
 function FormErrorSummary(props: FormErrorSummaryProps): React.ReactNode {
 
@@ -413,17 +413,15 @@ FormFooter.displayName = 'Form.Footer';
  * <Form id={'signal'} onSubmit={handleSubmit}>
  *   <Form.ErrorSummary title={(count) => t('FORM.ERRORS', { count })} />
  *   <Form.Section title={'Address'}>
- *     <Field span={4}>
- *       <Field.Label required>Street</Field.Label>
+ *     <Field span={4} required label={'Street'} error={errors.street}>
  *       <TextInput width={'long'} />
- *       <Field.Error>{errors.street}</Field.Error>
  *     </Field>
  *   </Form.Section>
  * </Form>
  * ```
  *
  * It does not validate and picks no validation library: the errors come from the caller, as
- * `Field.Error`s. What it does is what follows a submit. Once the caller's errors are on screen the
+ * `error` of each `Field`. What it does is what follows a submit. Once the caller's errors are on screen the
  * focus goes to the error summary when there are two or more and a summary is mounted, otherwise to
  * the first invalid field, in the order of the screen. The errors may arrive later than the submit
  * (an answer from the server): the form waits for them until the user types again.

@@ -57,7 +57,7 @@ export interface StrictNumberInputProps extends BaseProps {
   /** The same three heights as a TextInput. Defaults to `md` */
   size?: TextControlSize;
 
-  /** The error state. Inside a field with a `Field.Error` it is on already */
+  /** The error state. Inside a `Field` with an `error` it is on already */
   invalid?: boolean;
 
   readOnly?: boolean;
@@ -112,10 +112,8 @@ function insertText(input: HTMLInputElement, text: string): void {
  * the value is typed, or moved with the arrow keys.
  *
  * ```tsx
- * <Field span={2}>
- *   <Field.Label>Weight</Field.Label>
+ * <Field span={2} label={'Weight'} description={'Up to 5,000 kg'}>
  *   <NumberInput value={weight} onValueChange={setWeight} max={5000} decimals={2} suffix={'kg'} locale={'it-IT'} />
- *   <Field.Description>Up to 5,000 kg</Field.Description>
  * </Field>
  * ```
  *

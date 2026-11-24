@@ -59,7 +59,7 @@ export interface StrictTextInputProps extends BaseProps {
   /** Fixed text after the value, normally a unit, not part of it */
   suffix?: React.ReactNode;
 
-  /** The error state. Inside a `Field` with a `Field.Error` it is on already */
+  /** The error state. Inside a `Field` with an `error` it is on already */
   invalid?: boolean;
 
   /** Classes for the frame, last so they win */
@@ -313,8 +313,7 @@ TextInputBase.displayName = 'TextInput';
  * The single line text field: full border on a `card` surface, three sizes, four slots.
  *
  * ```tsx
- * <Field>
- *   <Field.Label required>Town</Field.Label>
+ * <Field required label={'Town'}>
  *   <TextInput placeholder={'E.g. Brescia'} />
  * </Field>
  *

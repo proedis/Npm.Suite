@@ -178,10 +178,8 @@ function CalendarGlyph(): React.ReactNode {
  * one after the other without stopping, and one calendar.
  *
  * ```tsx
- * <Field span={2}>
- *   <Field.Label required>Opening date</Field.Label>
+ * <Field span={2} required label={'Opening date'} error={dateErrorMessage}>
  *   <DatePicker value={date} onValueChange={setDate} locale={'it'} labels={dateLabels} onValidityChange={setDateError} />
- *   <Field.Error>{dateErrorMessage}</Field.Error>
  * </Field>
  * ```
  *

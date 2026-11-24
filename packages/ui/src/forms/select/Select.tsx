@@ -88,7 +88,7 @@ export interface StrictSelectProps extends BaseProps {
   /** The name the value is submitted under */
   name?: string;
 
-  /** The error state. Inside a field with a `Field.Error` it is on already */
+  /** The error state. Inside a `Field` with an `error` it is on already */
   invalid?: boolean;
 
   /** Reachable, selectable, submitted; it does not open */
@@ -153,8 +153,7 @@ function firstStartingWith(options: readonly SelectOption[], key: string): Selec
  * One choice from a list that is not in view. The field is the TextInput's; the list opens under it.
  *
  * ```tsx
- * <Field>
- *   <Field.Label required>Town</Field.Label>
+ * <Field required label={'Town'}>
  *   <Select options={towns} value={town} onValueChange={setTown} placeholder={t('…SELECT')} labels={selectLabels} />
  * </Field>
  * ```

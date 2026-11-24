@@ -43,7 +43,7 @@ export interface StrictRadioGroupProps extends BaseProps {
    */
   orientation?: Responsive<Direction>;
 
-  /** The error state. Inside a field with a `Field.Error` it is on already */
+  /** The error state. Inside a `Field` with an `error` it is on already */
   invalid?: boolean;
 
   /** The focus moves, the choice does not; the value is submitted */
@@ -149,8 +149,7 @@ const CARD = [
  * option needs explaining.
  *
  * ```tsx
- * <Field>
- *   <Field.Label required>Frequency</Field.Label>
+ * <Field required label={'Frequency'}>
  *   <RadioGroup value={frequency} onValueChange={setFrequency}>
  *     <Radio value={'weekly'}>Weekly</Radio>
  *     <Radio value={'monthly'} description={'On the first working day'}>Monthly</Radio>

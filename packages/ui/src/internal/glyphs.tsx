@@ -139,6 +139,19 @@ export function ToneGlyph(props: { tone: ToneGlyphTone; className?: string; slot
 
 
 /**
+ * The mark in front of a message of any status, in the same one-line box as `ErrorGlyph`: a warning,
+ * a success and an error take the same room, so a message that changes status moves nothing.
+ */
+export function StatusGlyph(props: { tone: ToneGlyphTone; slot: string }): React.ReactNode {
+  return (
+    <Stack gap={0} as={'span'} data-slot={`${props.slot}-box`} direction={'horizontal'} align={'center'} className={'h-lh shrink-0'}>
+      <ToneGlyph tone={props.tone} slot={props.slot} className={'size-3.5'} />
+    </Stack>
+  );
+}
+
+
+/**
  * The mark in front of an error message: the `destructive` mark of a tone, so an error looks the
  * same in a field, a list and an alert. It inherits the colour of the message.
  *
@@ -147,11 +160,7 @@ export function ToneGlyph(props: { tone: ToneGlyphTone; className?: string; slot
  * line height only, and a theme that makes the message smaller would leave the icon below the text.
  */
 export function ErrorGlyph(): React.ReactNode {
-  return (
-    <Stack gap={0} as={'span'} data-slot={'field-error-icon-box'} direction={'horizontal'} align={'center'} className={'h-lh shrink-0'}>
-      <ToneGlyph tone={'destructive'} slot={'field-error-icon'} className={'size-3.5'} />
-    </Stack>
-  );
+  return <StatusGlyph tone={'destructive'} slot={'field-error-icon'} />;
 }
 
 

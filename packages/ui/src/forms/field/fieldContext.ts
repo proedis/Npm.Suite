@@ -9,37 +9,41 @@ import type * as React from 'react';
  * Types Definition
  * -------- */
 
-/** What a control needs to know about the field it sits in */
+/**
+ * The status of a field, and of the message under its control. `error` makes the control
+ * `aria-invalid`; `warning` and `success` colour the frame and the message, and leave the value valid.
+ */
+export type FieldStatus = 'error' | 'warning' | 'success';
+
+/** What a control needs to know about the field it sits in. It flows down only: the field decides it from its props */
 export interface FieldControlState {
   /** The label carries the asterisk: the control says `aria-required`, never the native `required` */
   readonly required: boolean;
 
-  /** The field shows an error */
+  /** The field shows an error: its status is `error` */
   readonly invalid: boolean;
 
   /** The whole field is disabled */
   readonly disabled: boolean;
 
-  /** The id of `Field.Label`, for a control that composes its name from it */
+  /** The status of the field, when it has one */
+  readonly status?: FieldStatus;
+
+  /** The id of the name of the field, for a control that composes its name from it */
   readonly labelId?: string;
 }
 
 /**
- * How the parts of a field tell the field what they are. Private: a part registers itself, a control
- * only reads `useFieldControl`.
+ * What a control tells the field around it, and what the form reaches the field by. Private to the
+ * tier: a control calls `useNonNativeFieldLabel`, and only reads `useFieldControl`.
  */
 export interface FieldRegistry {
-  readonly setRequired: (required: boolean) => void;
-  readonly setInvalid: (invalid: boolean) => void;
-
   /**
    * A control that is not a text box (a trigger, a group of options) asks for a label that is not a
    * native `<label>`: a click on it must not press the trigger or pick the first option, and for a
    * group it is the legend that names the group.
    */
   readonly setNativeLabel: (native: boolean) => void;
-
-  readonly setLabelId: (id: string | undefined) => void;
 
   /** Moves the focus to the control of the field, for the links of an error summary */
   readonly focusControl: () => void;
@@ -86,7 +90,7 @@ export const [ FieldRegistryContext, useFieldRegistryContext ] = optionalContext
 export const [ FormSectionContext, useFormSectionContext ] = optionalContextBuilder('FormSection', false);
 
 
-/** Whether `Field.Label` renders a native `<label>`. Private: written by the controls through the registry */
+/** Whether the label of a field renders a native `<label>`. Private: written by the controls through the registry */
 export const [ FieldLabelNativeContext, useFieldLabelNativeContext ] = optionalContextBuilder('FieldLabelNative', true);
 
 
@@ -114,9 +118,8 @@ export const [ FormHostContext, useFormHostContext ] = optionalContextBuilder<Fo
  * -------- */
 
 /*
- * The parts of a field register with `useEnhancedEffect` from `@proedis/react`, a layout effect in
- * the browser and a plain one on the server: a part registers before paint, so a required field never
- * shows one frame without its `aria-required` and an invalid one never one frame with its description.
+ * A control registers with `useEnhancedEffect` from `@proedis/react`, a layout effect in the browser
+ * and a plain one on the server: the label of a field around a list is never one frame a `<label>`.
  */
 
 /**
@@ -128,8 +131,8 @@ export const [ FormHostContext, useFormHostContext ] = optionalContextBuilder<Fo
  * ```
  *
  * Every control of this package reads it, and a control written by an application reads it the same
- * way: that is how the asterisk of `Field.Label` and the announcement of the control cannot
- * disagree. Outside a field all three are `false`.
+ * way: that is how the asterisk of the label and the announcement of the control cannot disagree.
+ * Outside a field the three flags are `false` and there is no status.
  */
 export function useFieldControl(): FieldControlState {
   return useFieldControlContext();

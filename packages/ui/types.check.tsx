@@ -359,9 +359,7 @@ const pillButton = <Button radius={'full'}>ok</Button>;
 const radiusInPixels = <Button radius={12}>no</Button>;
 
 const besideOnDesktop = (
-  <Field orientation={{ base: 'vertical', md: 'horizontal' }}>
-    <Field.Label optional={'optional'}>Notes</Field.Label>
-  </Field>
+  <Field orientation={{ base: 'vertical', md: 'horizontal' }} optional={'optional'} label={'Notes'} />
 );
 
 /** @ts-expect-error 'inline' is PinTips' word, here the orientation says it */

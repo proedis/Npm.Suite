@@ -72,6 +72,11 @@ export interface StrictLabelProps extends BaseProps {
   textAs?: React.ElementType;
 
   textProps?: Readonly<Record<string, unknown>>;
+
+  /** The element of the description, as `textAs` for the name: a field renders its library's description */
+  descriptionAs?: React.ElementType;
+
+  descriptionProps?: Readonly<Record<string, unknown>>;
 }
 
 export type LabelProps<E extends React.ElementType = 'span'> = PolymorphicProps<E, StrictLabelProps>;
@@ -151,7 +156,9 @@ export function Label<E extends React.ElementType = 'span'>(props: LabelProps<E>
     children,
     className,
     description,
+    descriptionAs,
     descriptionId,
+    descriptionProps,
     emphasis = 'default',
     htmlFor,
     leading,
@@ -173,7 +180,10 @@ export function Label<E extends React.ElementType = 'span'>(props: LabelProps<E>
   const hasLeading = isShown(leading);
   const Text: React.ElementType = textAs ?? (htmlFor === undefined ? 'span' : 'label');
 
-  const name = (
+  const Description: React.ElementType = descriptionAs ?? 'span';
+
+  /* No name element with nothing in it: a description alone stays a description */
+  const name = (isShown(children) || required || showOptional) && (
     <Text {...textProps} id={textId} htmlFor={htmlFor} data-slot={'label-text'} className={'min-w-0'}>
       {children}
 
@@ -188,13 +198,14 @@ export function Label<E extends React.ElementType = 'span'>(props: LabelProps<E>
   );
 
   const line = isShown(description) && (
-    <span
+    <Description
+      {...descriptionProps}
       id={descriptionId ?? (textId === undefined ? undefined : `${textId}-description`)}
       data-slot={'label-description'}
       className={'text-xs leading-snug font-normal text-muted-foreground'}
     >
       {description}
-    </span>
+    </Description>
   );
 
   return (

@@ -134,8 +134,7 @@ const DEFAULT_THRESHOLD = 8;
  * per option.
  *
  * ```tsx
- * <Field>
- *   <Field.Label>Towns</Field.Label>
+ * <Field label={'Towns'}>
  *   <MultiSelect options={towns} value={selected} onValueChange={setSelected} labels={multiSelectLabels} />
  * </Field>
  * ```

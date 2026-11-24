@@ -26,7 +26,7 @@ export interface StrictTextareaProps extends BaseProps {
   /** Lines at most, dragging the handle or in read only. Defaults to 12 */
   maxRows?: number;
 
-  /** The error state. Inside a field with a `Field.Error` it is on already */
+  /** The error state. Inside a `Field` with an `error` it is on already */
   invalid?: boolean;
 
   className?: string;
@@ -34,7 +34,7 @@ export interface StrictTextareaProps extends BaseProps {
 
 /**
  * `maxLength` is left out on purpose: a native limit blocks typing and cuts a pasted text without
- * saying so. The limit is the caller's, shown by `Field.Counter`.
+ * saying so. The limit is the caller's, shown by the `counter` of its `Field`.
  */
 export type TextareaProps = StrictTextareaProps & Omit<
   React.ComponentProps<'textarea'>,
@@ -64,10 +64,8 @@ function fitToContent(element: HTMLTextAreaElement): void {
  * The multi-line text field: the border of a `TextInput`, three lines to start, longer by hand.
  *
  * ```tsx
- * <Field span={6}>
- *   <Field.Label>Notes</Field.Label>
+ * <Field span={6} label={'Notes'} counter={'{note.length}/250'}>
  *   <Textarea placeholder={'E.g. wet material, repeated weighing'} />
- *   <Field.Counter>{note.length}/250</Field.Counter>
  * </Field>
  * ```
  *
@@ -164,7 +162,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>((pr
       aria-invalid={isInvalid || undefined}
       data-slot={'textarea'}
       data-field-control={''}
-      {...textControlState({ invalid: isInvalid, readOnly, disabled: isDisabled })}
+      {...textControlState({ invalid: isInvalid, readOnly, disabled: isDisabled, status: field.status })}
       className={cn(
         TEXT_CONTROL_SELF,
         TEXT_CONTROL_TEXT,

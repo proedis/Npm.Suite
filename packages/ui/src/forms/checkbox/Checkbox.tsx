@@ -54,7 +54,7 @@ export interface StrictCheckboxProps extends BaseProps {
   /** A single checkbox that must be ticked: the asterisk after its label, `aria-required` on the box */
   required?: boolean;
 
-  /** The error state. Inside a field with a `Field.Error` it is on already */
+  /** The error state. Inside a `Field` with an `error` it is on already */
   invalid?: boolean;
 
   /** The value cannot change here, and is still submitted and reachable */
@@ -144,14 +144,12 @@ const BOX = [ CHECKBOX_BOX, CHOICE_ALIGN, CHOICE_FOCUS ].join(' ');
  * Several options checked together, up to seven, all visible.
  *
  * ```tsx
- * <Field>
- *   <Field.Label required>Days</Field.Label>
+ * <Field required label={'Days'} error={errors.days}>
  *   <CheckboxGroup value={days} onValueChange={setDays}>
  *     <Checkbox parent>Every day</Checkbox>
  *     <Checkbox value={'mon'}>Monday</Checkbox>
  *     <Checkbox value={'tue'}>Tuesday</Checkbox>
  *   </CheckboxGroup>
- *   <Field.Error>{errors.days}</Field.Error>
  * </Field>
  * ```
  *
@@ -282,9 +280,8 @@ CheckboxGroup.displayName = 'CheckboxGroup';
  * is a `Switch`.
  *
  * ```tsx
- * <Field>
+ * <Field error={errors.terms}>
  *   <Checkbox required name={'terms'}>I accept the terms</Checkbox>
- *   <Field.Error>{errors.terms}</Field.Error>
  * </Field>
  * ```
  *
@@ -348,17 +345,6 @@ export const Checkbox = React.forwardRef<HTMLSpanElement, CheckboxProps>((props,
   const isReadOnly = readOnly || (group?.readOnly ?? false);
   const isInvalid = invalid || field.invalid;
   const groupRegister = group?.register;
-
-  /* A single checkbox is the whole field: its `required` is the field's */
-  useEnhancedEffect(() => {
-    if (group || !registry || !required) {
-      return undefined;
-    }
-
-    registry.setRequired(true);
-
-    return () => registry.setRequired(false);
-  }, [ group, registry, required ]);
 
   useEnhancedEffect(() => {
     if (!groupRegister || parent || value === undefined) {

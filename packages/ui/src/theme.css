@@ -56,7 +56,7 @@
 @source inline("{sm:,md:,lg:,xl:,2xl:,}grid-cols-{field,field-horizontal}");
 @source inline("{sm:,md:,lg:,xl:,2xl:,}*:{col-start-2,col-start-auto,col-span-2,row-start-1,row-start-auto}");
 @source inline("{sm:,md:,lg:,xl:,2xl:,}*:data-[slot=field-label]:{col-start-1,col-start-auto,col-span-1,col-span-2,row-start-1,row-start-auto,min-h-control-md,min-h-0,justify-center,justify-start,self-start,self-end}");
-@source inline("{sm:,md:,lg:,xl:,2xl:,}*:data-[slot=field-{description,error}]:{col-start-1,col-start-2,row-start-2,row-start-auto}");
+@source inline("{sm:,md:,lg:,xl:,2xl:,}*:data-[slot=field-message]:{col-start-1,col-start-2,row-start-2,row-start-auto}");
 @source inline("{sm:,md:,lg:,xl:,2xl:,}*:data-[slot=field-counter]:{col-start-2,col-start-3,row-start-2,row-start-auto}");
 
 /* ============================================================

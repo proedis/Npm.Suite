@@ -145,11 +145,9 @@ function readDrop(event: React.DragEvent): { files: File[]; folders: Set<File> }
  * chosen under it.
  *
  * ```tsx
- * <Field span={6}>
- *   <Field.Label>Photos and documents</Field.Label>
+ * <Field span={6} label={'Photos and documents'} error={errors.files}>
  *   <FileUpload files={files} onAdd={(entries) => setFiles([ ...files, ...entries ])} onRemove={remove}
  *     accept={'image/jpeg,image/png,application/pdf'} maxSize={20 * 1024 * 1024} maxFiles={10} labels={uploadLabels} />
- *   <Field.Error>{errors.files}</Field.Error>
  * </Field>
  * ```
  *

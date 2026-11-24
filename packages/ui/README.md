@@ -741,7 +741,7 @@ its own peers; none of them is re-exported by the root barrel. Every module is c
 | `feedback/empty-state` | `EmptyState`, at most two actions |
 | `feedback/notifications` | `createNotifications`, `NotificationsProvider`, `JobsButton` |
 | `forms/form` | `Form` (`.Header`, `.ErrorSummary`, `.Section`, `.Footer`), `FormSubmit` |
-| `forms/field` | `Field` (`.Label`, `.Description`, `.Error`, `.Counter`), `FIELD_SPAN`, `useFieldControl` |
+| `forms/field` | `Field`, `FIELD_SPAN`, `useFieldControl`, the types `FieldStatus` and `FieldControlState` |
 | `forms/field-shell` | `FieldShell`, the frame of every bordered control, the package's and yours |
 | `forms/text-input` | `TextInput` (`.Action`) |
 | `forms/password-input` | `PasswordInput` |
@@ -771,10 +771,9 @@ its own peers; none of them is re-exported by the root barrel. Every module is c
   <Form id={'signal'} onSubmit={handleSubmit}>
     <Form.ErrorSummary title={(count) => t('FORM.ERRORS', { count })} />
     <Form.Section title={'Address'} description={'Where the collection takes place'}>
-      <Field span={4} breakBefore>
-        <Field.Label required>Street</Field.Label>
+      <Field span={4} breakBefore required label={'Street'} error={errors.street}
+        errorSummary={'Street: write it in full'}>
         <TextInput width={'long'} />
-        <Field.Error summary={'Street: write it in full'}>{errors.street}</Field.Error>
       </Field>
     </Form.Section>
   </Form>
@@ -812,14 +811,28 @@ What is worth knowing before using them:
 - **A button that leads somewhere is a link.** `to` takes a `LinkTarget` from `@proedis/ui/core`
   (`{ href, go() }`): the button renders an `<a href>`, a plain click calls `go()`, the middle click and
   a new tab still work. No router and no provider in the package.
-- **The form does not validate.** Errors come from the caller as `Field.Error`; after a submit the focus
-  goes to the summary with two or more of them, to the field with one. `noValidate` is always on.
-- **The field is made of parts**, in any order: each finds its row by its slot. Inside a `Form.Section`
-  fields share three tracks per row (labels, controls, messages), so the controls stay aligned when a
-  label wraps. A custom control reads `required`, `invalid` and `disabled` with `useFieldControl()`.
-  Out of a section, `orientation={{ base: 'vertical', md: 'horizontal' }}` puts the label beside the
-  control, on a third of the width, with the messages under the control. `Field.Label optional={t('…')}`
-  writes the word after the name of a field that may stay empty: the package writes no text.
+- **The form does not validate.** Errors come from the caller as the `error` of each `Field`; after a
+  submit the focus goes to the summary with two or more of them, to the field with one. `noValidate` is
+  always on.
+- **A field is props, and the control is its one child.** Three rows: the `label` (with an `icon`
+  before it and the asterisk of `required` or the word of `optional` after it) with its `description`
+  under it; the control; one line under the control, the `hint` or, in its place, the message of a
+  status, with the `counter` at its end. The hint and every message share one size and one line height,
+  so a hint that turns into an error moves nothing.
+
+  ```tsx
+  <Field label={'Plate'} description={'As on the registration'} hint={'Letters and digits'} required
+    error={errors.plate} errorSummary={'Plate: it is not in the registry'}>
+    <TextInput width={'code'} />
+  </Field>
+  ```
+
+  Besides `error`, `status` takes `warning` or `success` with its `message`: the border of the control
+  and the line take the ink of the tone, and the value stays valid. Inside a `Form.Section` fields share
+  three tracks per row (labels, controls, lines), so the controls stay aligned when a description wraps.
+  A custom control reads `required`, `invalid`, `disabled` and `status` with `useFieldControl()`. Out of
+  a section, `orientation={{ base: 'vertical', md: 'horizontal' }}` puts the label beside the control.
+  The package writes no text: `optional={t('…')}` is the word in the language of the page.
 - **A control of your own wears `FieldShell`**, the frame every bordered control of the package is:
   TextInput, NumberInput, Select, MultiSelect, Combobox, DatePicker and the field of ModalSelector each
   render it around their own content. The border, the surface, the three heights, the states and the
@@ -829,8 +842,7 @@ What is worth knowing before using them:
   focuses it. Given a `data-slot` of its own, the frame names its slots after it.
 
   ```tsx
-  <Field>
-    <Field.Label>Opening hours</Field.Label>
+  <Field label={'Opening hours'}>
     <FieldShell data-slot={'time-slots'} leading={<Clock />}>
       <TimeSlots data-field-control className={'flex-1'} … />
     </FieldShell>
@@ -1196,6 +1208,7 @@ another package. A recessed surface is `--muted`.
 | `buttonVariants`, `alertVariants`, `textInputVariants` | no longer exported: the components lay themselves out through `Stack`, and a recipe on an element of your own would carry a layout no primitive gives it. A link drawn as a button is `<Button to={…}>`; any other element is `<Button render={<YourElement />}>`, which keeps the layout |
 | `<Label>` rendered as the `<label>` itself | a `span` root (`as` changes it) with the name inside, `label-text`, a `<label>` when `htmlFor` is given. The description no longer sits inside the `<label>`, where it became part of the name of the control: its id is `<textId>-description` or `descriptionId`, for the control's `aria-describedby` |
 | the slots `checkbox-label`, `radio-label`, `switch-label`, `detail-label`, `checkbox-text`, `radio-text`, `switch-text` | `label`, the root of every label of the package, with `label-text` inside; `checkbox-description`, `radio-description`, `switch-description` are `label-description`; `field-required` and `field-optional` are `label-required` and `label-optional`. A description is `text-xs` everywhere, where an option wrote `text-sm` |
+| `Field.Label`, `Field.Description`, `Field.Error`, `Field.Counter` | props of `Field`: `label` (with `required`, `optional`), `description`, `error` (with `errorSummary` for `summary`), `counter` (with `counterExceeded`). `description` now sits under the label, above the control; what sat under the control and disappeared with an error is `hint`. Slots: `field-description` and `field-error` are `field-message` |
 | `useMediaQuery`, `usePrefersReducedMotion` from `@proedis/ui/hooks` | from `@proedis/react`, same signatures; `@proedis/ui/hooks` keeps `useBreakpoint` and `useIsMobile` |
 | `tailwindcss` `^4.0.0` | `^4.1.5`, see Compatibility |
 | a `Badge` with text renders the text as its child | the text is wrapped in `badge-label` and truncates with an ellipsis when the badge is too narrow |

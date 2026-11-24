@@ -275,7 +275,25 @@ weighed and left out: shortcut props, a `role="alert"` error, a state icon on th
   `TextInput.Action` sits in `trailing`, and inside the frame it read the default context, an `sm` field
   drawing an `md` action and a disabled one showing it. The frame fills its row; DatePicker and
   NumberInput say `w-auto` / `min-w-auto`.
-- **`Field.Label optional`** takes its word from the caller, and is not shown with `required`.
+- **`Field` is props, and the state flows down only.** `label`, `description`, `hint`, `error`,
+  `errorSummary`, `status` with `message`, `required`, `optional`, `icon`, `counter`; the control is
+  the one child. The parts (`Field.Label` & co.) are gone, and so is the registry they used to tell the
+  field it was required or invalid from an effect: four of the five pieces of state travelled upward,
+  which is why nobody could read a `<Field>` and say what it was. The registry left keeps only what a
+  control must tell its field (`setNativeLabel`) and what the form reaches the field by; the field
+  registers its own error with the form summary.
+  ⚠️ Three rows, decided by Marco: the label, with its `description` under it and above the control
+  (a `Label`, so the description is never inside the name); the control; one line under it, the `hint`
+  or, in its place, the message of a status. **The hint and every message have the same height**, and
+  that is a requirement, not a nicety: one size and line height (`MESSAGE`, `text-xs leading-snug`), the
+  mark in `StatusGlyph`, a box exactly one line tall. Measured on the four of them: the line 16.5px, the
+  field 98.25px, the field under it not moving by a pixel. The line is drawn only when it says
+  something, so a field with no hint opens a line at its first error; a hint reserves it.
+  `status` is `error` (from `error`, which wins), `warning` or `success`: only `error` makes the control
+  `aria-invalid` and keeps the double border; the other two colour the frame (`data-status` on
+  `FieldShell` and `Textarea`) and the line with the ink of their tone. Tones like `primary` were asked
+  for and left out on purpose: a field has a status, not a brand colour.
+- **`optional`** takes its word from the caller, and is not shown with `required`.
 - **`Field` `orientation`** is ignored in a `Form.Section` (`FormSectionContext`), whose rows of
   three tracks keep the labels aligned. Out of one, the label takes a third of the field
   (`grid-cols-field-horizontal`, a percentage and not a fraction, so a counter in the third column
@@ -1044,6 +1062,17 @@ What was run for the radius of the controls and the finish of the button:
   React Compiler at 202 functions, 0 skipped.
 - **`types.check.tsx`**: `radius={'full'}` compiles, `radius={12}` does not, made valid for a moment to
   watch `tsc` fail.
+
+What was run for `Field` as props:
+
+- **The documentation converted by the TypeScript AST** (a codemod over the JSX, the parts read and
+  rewritten as attributes with their source text): 193 fields in 93 files, 295 parts, none skipped;
+  three conditional parts and the JSDoc blocks by hand. `tsc` and `eslint` clean on the site.
+- **In the browser**: the hint, the error, the warning and the success of one field measured at the same
+  line height (16.5px), the field at the same height (98.25px) and the next field at the same top in all
+  four; the control named by the label alone and described by the description and the line;
+  `aria-invalid` with the error only; the border in the colour of each status. A form submitted with
+  three errors focusing its summary, a link of the summary focusing its field.
 
 What was run for the one `FieldShell`:
 

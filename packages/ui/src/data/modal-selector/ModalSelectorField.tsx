@@ -116,8 +116,7 @@ function ListGlyph(): React.ReactNode {
  * the part that is cut. With several values, the chips of the MultiSelect.
  *
  * ```tsx
- * <Field>
- *   <Field.Label>Contract</Field.Label>
+ * <Field label={'Contract'}>
  *   <ModalSelectorField
  *     value={contract} getRowLabel={contractLabel} buttonRef={fieldRef}
  *     onOpen={(text) => { setTerm(text); setOpen(true); }} onClear={() => setContract(null)}

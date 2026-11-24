@@ -74,8 +74,7 @@ const SLOT = 'shrink-0 text-muted-foreground [&_svg]:shrink-0';
  * ModalSelector are each this frame around their own content, and a control of your own is too.
  *
  * ```tsx
- * <Field>
- *   <Field.Label>Opening hours</Field.Label>
+ * <Field label={'Opening hours'}>
  *   <FieldShell leading={<Clock />} trailing={<span>24h</span>}>
  *     <TimeSlots data-field-control className={'flex-1'} … />
  *   </FieldShell>
@@ -95,7 +94,9 @@ const SLOT = 'shrink-0 text-muted-foreground [&_svg]:shrink-0';
  * The slots follow the slot of the frame, `field-shell` unless a control names it: a `TextInput` is a
  * `text-input` with `text-input-leading` and `text-input-trailing`.
  *
- * Slots: `field-shell` (with `data-size`, `data-invalid`, `data-readonly`, `data-disabled`),
+ * The status of the field reaches the frame too: `warning` and `success` colour its border.
+ *
+ * Slots: `field-shell` (with `data-size`, `data-invalid`, `data-status`, `data-readonly`, `data-disabled`),
  * `field-shell-leading`, `field-shell-trailing`.
  */
 export const FieldShell = React.forwardRef<HTMLDivElement, FieldShellProps>((props, ref) => {
@@ -158,7 +159,7 @@ export const FieldShell = React.forwardRef<HTMLDivElement, FieldShellProps>((pro
       {...rest}
       /* The states after the rest: a control rendered by a library (Base UI's NumberField) hands in its own */
       data-size={size}
-      {...textControlState({ invalid: isInvalid, readOnly, disabled: isDisabled })}
+      {...textControlState({ invalid: isInvalid, readOnly, disabled: isDisabled, status: field.status })}
       ref={ref}
       direction={'horizontal'}
       align={'center'}

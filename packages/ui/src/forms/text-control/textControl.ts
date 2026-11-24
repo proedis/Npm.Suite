@@ -30,10 +30,16 @@ import type { SpacingValue } from '../../core/responsive';
 const BASE = [
   'rounded-control border border-input bg-card text-sm text-foreground',
   'transition-colors duration-100 motion-reduce:transition-none',
-  'not-data-invalid:not-data-readonly:not-data-disabled:hover:border-input-hover',
+  'not-data-invalid:not-data-status:not-data-readonly:not-data-disabled:hover:border-input-hover',
 
   /* The error border is drawn inward too, so the text does not move */
   'data-invalid:border-destructive data-invalid:inset-ring data-invalid:inset-ring-destructive',
+
+  /*
+   * A warning and a success colour the border with the ink of their tone, a single line: the double one
+   * is the mark of an error alone, which is the one status that stops a submit
+   */
+  'data-[status=warning]:border-warning-soft-foreground data-[status=success]:border-success-soft-foreground',
 
   'data-readonly:border-border data-readonly:bg-muted',
 
@@ -53,7 +59,9 @@ export const TEXT_CONTROL_FRAME = [
   'not-has-[[data-popup-open]]:has-[[data-field-control]:focus]:ring-4',
   'not-has-[[data-popup-open]]:has-[[data-field-control]:focus]:ring-ring/20',
   'has-[[data-popup-open]]:border-ring has-[[data-popup-open]]:outline-1 has-[[data-popup-open]]:outline-solid has-[[data-popup-open]]:outline-ring',
-  'data-invalid:has-[[data-field-control]:focus]:border-destructive data-invalid:has-[[data-popup-open]]:border-destructive'
+  'data-invalid:has-[[data-field-control]:focus]:border-destructive data-invalid:has-[[data-popup-open]]:border-destructive',
+  'data-[status=warning]:has-[[data-field-control]:focus]:border-warning-soft-foreground',
+  'data-[status=success]:has-[[data-field-control]:focus]:border-success-soft-foreground'
 ].join(' ');
 
 
@@ -62,7 +70,8 @@ export const TEXT_CONTROL_SELF = [
   BASE,
   'outline-none',
   'focus:border-ring focus:outline-1 focus:outline-solid focus:outline-ring focus:ring-4 focus:ring-ring/20',
-  'data-invalid:focus:border-destructive'
+  'data-invalid:focus:border-destructive',
+  'data-[status=warning]:focus:border-warning-soft-foreground data-[status=success]:focus:border-success-soft-foreground'
 ].join(' ');
 
 
@@ -106,17 +115,27 @@ export interface TextControlStateAttributes {
   'data-invalid': true | undefined;
   'data-readonly': true | undefined;
   'data-disabled': true | undefined;
+  'data-status': 'warning' | 'success' | undefined;
 }
+
+/** A status a frame draws besides the error, which is `data-invalid` */
+export type TextControlStatus = 'error' | 'warning' | 'success';
 
 
 /* --------
  * Helpers
  * -------- */
 
-export function textControlState(state: { invalid: boolean; readOnly: boolean; disabled: boolean }): TextControlStateAttributes {
+export function textControlState(state: {
+  invalid: boolean;
+  readOnly: boolean;
+  disabled: boolean;
+  status?: TextControlStatus;
+}): TextControlStateAttributes {
   return {
     'data-invalid' : state.invalid || undefined,
     'data-readonly': state.readOnly || undefined,
-    'data-disabled': state.disabled || undefined
+    'data-disabled': state.disabled || undefined,
+    'data-status'  : !state.invalid && (state.status === 'warning' || state.status === 'success') ? state.status : undefined
   };
 }

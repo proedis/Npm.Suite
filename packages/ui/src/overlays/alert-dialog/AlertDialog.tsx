@@ -328,8 +328,15 @@ export function AlertDialog(props: AlertDialogProps): React.ReactNode {
             )}
 
             {confirmText !== undefined && (
-              <Field>
-                <Field.Label>{labels.confirmField}</Field.Label>
+              <Field
+                label={labels.confirmField}
+                hint={(
+                  <span aria-live={'polite'}>
+                    {matches ? labels.confirmMatch : labels.confirmHint?.(confirmText)}
+                  </span>
+                )}
+                error={mismatch ? labels.confirmMismatch?.(confirmText) : null}
+              >
                 <TextInput
                   ref={fieldRef}
                   value={typed}
@@ -347,12 +354,6 @@ export function AlertDialog(props: AlertDialogProps): React.ReactNode {
                     }
                   }}
                 />
-                <Field.Description>
-                  <span aria-live={'polite'}>
-                    {matches ? labels.confirmMatch : labels.confirmHint?.(confirmText)}
-                  </span>
-                </Field.Description>
-                <Field.Error>{mismatch ? labels.confirmMismatch?.(confirmText) : null}</Field.Error>
               </Field>
             )}
           </OverlayBody>
