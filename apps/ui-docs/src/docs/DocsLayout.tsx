@@ -17,6 +17,18 @@ import { Toc } from './Toc';
 
 
 /* --------
+ * Constants Definition
+ * -------- */
+
+/**
+ * The rail is the height of the window under the bar, and scrolls inside: sticky, it stays in view while
+ * the page scrolls. `self-start` is what lets it stick at all: a grid item stretched to the height of
+ * the row is as tall as the page, and a box that tall has nowhere to stick to.
+ */
+const RAIL_HEIGHT: React.CSSProperties = { height: 'calc(100dvh - 3.5rem)' };
+
+
+/* --------
  * Parts
  * -------- */
 
@@ -126,8 +138,10 @@ export function DocsLayout(props: { children: React.ReactNode }): React.ReactNod
           railWidth={'15rem'}
           gap={{ base: 0, lg: 10 }}
           rail={(
-            <Box hideBelow={'lg'} className={'py-10 pe-2'}>
-              <Sidebar />
+            <Box hideBelow={'lg'} className={'sticky top-14 -mt-px self-start'} style={RAIL_HEIGHT}>
+              <ScrollArea className={'h-full py-10 pe-2'}>
+                <Sidebar />
+              </ScrollArea>
             </Box>
           )}
         >

@@ -75,10 +75,45 @@ export function Sidebar(props: { onNavigate?: () => void }): React.ReactNode {
 
 
   // ----
+  // Internal Refs
+  // ----
+  const navRef = React.useRef<HTMLElement | null>(null);
+
+
+  // ----
+  // Lifecycle Events
+  // ----
+
+  /**
+   * The page being read is in view in the navigation: on load, and after a navigation that did not come
+   * from a click on it (the pager, a link in a page). An entry already in view is left where it is, so a
+   * click does not make the list jump.
+   */
+  React.useEffect(() => {
+    const nav = navRef.current;
+    const scroller = nav?.closest<HTMLElement>('[data-slot="scroll-area"]');
+    const entry = nav?.querySelector<HTMLElement>('[aria-current="page"]');
+
+    if (!scroller || !entry) {
+      return;
+    }
+
+    const view = scroller.getBoundingClientRect();
+    const box = entry.getBoundingClientRect();
+
+    if (box.top >= view.top && box.bottom <= view.bottom) {
+      return;
+    }
+
+    scroller.scrollTop += box.top - view.top - (view.height - box.height) / 2;
+  }, [ current ]);
+
+
+  // ----
   // Component Render
   // ----
   return (
-    <Stack as={'nav'} aria-label={'Documentation'} gap={8}>
+    <Stack ref={navRef} as={'nav'} aria-label={'Documentation'} gap={8}>
       {NAV.map((group) => (
         <Stack key={group.title} gap={3}>
           <h2 className={'text-sm font-semibold text-foreground'}>{group.title}</h2>
