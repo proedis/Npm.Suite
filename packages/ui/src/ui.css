@@ -65,9 +65,7 @@
 @source inline("2xl:split-rail-2xl");
 @source inline("-mx-{0,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,12,14,16,xs,sm,md,lg,xl,2xl}");
 @source inline("{sm:,md:,lg:,xl:,2xl:,}{my,mx}-{0,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,12,14,16,xs,sm,md,lg,xl,2xl}");
-@source inline("h-{0,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,12,14,16,xs,sm,md,lg,xl,2xl}");
 @source inline("gap-{stack,cluster,grid,split,item,heading}");
-@source inline("h-separator");
 
 /*
  * Dark mode as a class on an ancestor, which is what makes a theme switch a single attribute write.
@@ -209,7 +207,6 @@
   --gap-split: var(--split-gap, var(--space-md));
   --gap-item: var(--item-gap, calc(var(--spacing) * 3));
   --gap-heading: var(--heading-gap, calc(var(--spacing) * 0.5));
-  --height-separator: var(--separator-space, var(--space-lg));
 }
 
 /*

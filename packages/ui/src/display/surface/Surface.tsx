@@ -7,14 +7,15 @@ import { cn } from '../../core/cn';
 
 import { Stack } from '../../layout/Stack';
 
-import { Divider } from '../../primitives/Divider';
 import { Spinner } from '../../primitives/Spinner';
 
 import { Item } from '../item/Item';
 
 import type { BaseProps } from '../../core/base';
 import type { PolymorphicProps } from '../../core/polymorphic';
-import type { Justify, Responsive, Spacing } from '../../core/responsive';
+import type { Justify, Responsive } from '../../core/responsive';
+
+import type { StackProps } from '../../layout/Stack';
 
 import type { ItemProps } from '../item/Item';
 
@@ -24,17 +25,19 @@ import type { ItemProps } from '../item/Item';
  * -------- */
 
 /**
- * The house elevation and the house radius, each in one place.
- *
- * `default` and the step it happens to equal share these constants rather than repeating a class, so
- * the two cannot drift: the point of `default` is that it *is* one of the steps until an application
- * says otherwise, not that it is a fourth appearance.
+ * The room of every part, one variable of the theme (`--surface-padding`, the `lg` step undeclared): the
+ * horizontal padding of a dialog and of the table's card, so a card lines up with them.
  */
-const DEFAULT_ELEVATION_CLASS = 'shadow-sm';
+const PADDING_CLASS = 'p-surface';
 
-const DEFAULT_RADIUS_CLASS = 'rounded-4xl';
+/**
+ * A part right under another in the same column does not repeat its top padding: a section under the
+ * header, a footer of actions under a section. Twice the room read as two cards. Not inside a divided
+ * group (`data-divided`), where the line wants room on both sides.
+ */
+const FOLLOWS_HEADER = '[:not([data-divided])>[data-slot=surface-header]+&]:pt-0';
 
-const DEFAULT_PADDING_CLASS = 'p-5';
+const FOLLOWS_SECTION = '[:not([data-divided])>[data-slot=surface-section]+&]:pt-0';
 
 
 /* --------
@@ -42,39 +45,33 @@ const DEFAULT_PADDING_CLASS = 'p-5';
  * -------- */
 
 /**
- * ## Why `elevation` and `radius` have a `default` value of their own
+ * ## Why `elevation`, `radius` and `border` have a default of their own
  *
- * A variant that resolves to its concrete step reports that step: a bare `<Surface />` would emit
- * `data-elevation="soft"`, which is indistinguishable from a surface where somebody **asked** for
- * `soft`. An application that wants to restyle "a card we did not say anything about" would then also
- * restyle every card that deliberately chose that step.
- *
- * `default` keeps the two apart. `[data-elevation='default']` is exactly the set of surfaces with no
- * opinion, and it is the set an application actually wants to own.
- *
- * ⚠️ This belongs to a **chrome** variant, not to every variant. `elevation` and `radius` carry a
- * house opinion an application will want to redefine wholesale; `size`, `gap` and `tone` are steps the
- * caller picked from a scale, and there `data-size="md"` is worth more than `data-size="default"`
- * because it says what the thing *is*. The criterion is whether the default is an opinion or a
- * measurement.
+ * A variant that resolved to its concrete step would report that step: a bare `<Surface />` would emit
+ * the same attribute as a surface where somebody **asked** for it. `default` keeps the two apart, and it
+ * reads the theme: `--surface-shadow` (none), `--surface-radius` (`lg`), `--surface-border-color`
+ * (`--border`), so a product sets the look of every card it did not style once, in `:root`.
  */
 const surfaceVariants = cva('relative overflow-hidden bg-card text-card-foreground', {
   variants: {
     elevation: {
-      default: DEFAULT_ELEVATION_CLASS,
-      flat   : 'shadow-none',
-      soft   : DEFAULT_ELEVATION_CLASS,
-      raised : 'shadow-lg'
+      default: 'shadow-surface',
+      none   : 'shadow-none',
+      xs     : 'shadow-xs',
+      sm     : 'shadow-sm',
+      md     : 'shadow-md',
+      lg     : 'shadow-lg'
     },
 
     radius: {
-      default: DEFAULT_RADIUS_CLASS,
+      default: 'rounded-surface',
       none   : 'rounded-none',
+      sm     : 'rounded-sm',
+      md     : 'rounded-md',
       lg     : 'rounded-lg',
       xl     : 'rounded-xl',
       '2xl'  : 'rounded-2xl',
-      '3xl'  : 'rounded-3xl',
-      '4xl'  : DEFAULT_RADIUS_CLASS
+      '3xl'  : 'rounded-3xl'
     }
   },
 
@@ -84,11 +81,28 @@ const surfaceVariants = cva('relative overflow-hidden bg-card text-card-foregrou
   }
 });
 
+/** The border: the theme's colour by default, the line of the package, or none */
+const BORDER = {
+  default: 'border border-surface-border',
+  true   : 'border border-border',
+  false  : 'border-0'
+} as const;
+
 
 /* --------
  * Types Definition
  * -------- */
+export type SurfaceElevation = NonNullable<VariantProps<typeof surfaceVariants>['elevation']>;
+
+export type SurfaceRadius = NonNullable<VariantProps<typeof surfaceVariants>['radius']>;
+
 export interface StrictSurfaceProps extends BaseProps, VariantProps<typeof surfaceVariants> {
+  /**
+   * The line around the card. Undeclared, the theme's: on, in `--surface-border-color` (`--border`
+   * undeclared, `transparent` to have none). `true` draws `--border`, `false` none
+   */
+  border?: boolean;
+
   /** Dim the content, block its interactions and show a spinner over it */
   loading?: boolean;
 
@@ -111,25 +125,14 @@ export type SurfaceSectionProps<E extends React.ElementType = 'div'> =
   PolymorphicProps<E, StrictSurfaceSectionProps>;
 
 
-export interface StrictSurfaceSeparatorProps extends BaseProps {
-  /**
-   * How much room a `gap` takes: a step of the spacing scale by name, or a Tailwind spacing step by
-   * number. Defaults to `lg`, moved by the theme with `--separator-space`. Ignored by a `divider`
-   */
-  space?: Spacing;
-
-  /** A hairline, or empty room. Defaults to `divider` */
-  type?: 'divider' | 'gap';
-}
-
-export type SurfaceSeparatorProps = StrictSurfaceSeparatorProps & Omit<React.ComponentProps<'div'>, 'type'>;
+export type SurfaceSectionGroupProps<E extends React.ElementType = 'div'> = StackProps<E>;
 
 
 export interface StrictSurfaceFooterProps extends BaseProps {
   /** Where the actions sit. Defaults to `end` */
   justify?: Responsive<Justify>;
 
-  /** A recessed footer, for the row that carries a pagination rather than an action */
+  /** A recessed footer, quieter in its surface and its ink: the row of a pagination rather than an action */
   muted?: boolean;
 }
 
@@ -142,23 +145,17 @@ export type SurfaceFooterProps<E extends React.ElementType = 'div'> =
  * -------- */
 
 /**
- * The header of a card, which **is** an `Item` with the card's padding.
- *
- * That is not a shortcut, it is the finding this package was built on: the anatomy of a card header
- * and the anatomy of a list row are the same three slots with the same truncation plumbing, and the
- * only difference is the register of the title. So this renders an `Item`, takes every one of its
- * props, and replaces only its slot — the row's own `data-slot` would be wrong here, and a header is
- * not a thing a consumer wants to catch with `[data-slot='item']`.
- *
- * The title states its own size, because a header reads larger than a row:
+ * The header of a card, which **is** an `Item` with the card's padding: the anatomy of a card header and
+ * of a list row are the same slots with the same truncation, and the only difference is the register of
+ * the title. It takes every prop of `Item` and replaces only its slot.
  *
  * ```tsx
  * <Surface.Header>
- *   <IconBox tone={'primary'}><Truck /></IconBox>
- *   <Heading size={'lg'}>
+ *   <Item.Icon><IconBox tone={'primary'}><Truck /></IconBox></Item.Icon>
+ *   <Item.Heading size={'lg'}>
  *     <Heading.Title>Mezzi in servizio</Heading.Title>
  *     <Heading.Description>Aggiornato 2 minuti fa</Heading.Description>
- *   </Heading>
+ *   </Item.Heading>
  *   <Item.Actions>{…}</Item.Actions>
  * </Surface.Header>
  * ```
@@ -169,7 +166,7 @@ function SurfaceHeader<E extends React.ElementType = 'div'>(props: SurfaceHeader
   return (
     <Item
       data-slot={'surface-header'}
-      className={cn(DEFAULT_PADDING_CLASS, className)}
+      className={cn(PADDING_CLASS, className)}
       {...rest}
     />
   );
@@ -201,7 +198,7 @@ function SurfaceSection<E extends React.ElementType = 'div'>(props: SurfaceSecti
     <Component
       data-slot={'surface-section'}
       data-flush={flush || undefined}
-      className={cn('min-w-0', flush ? 'p-0' : DEFAULT_PADDING_CLASS, baseClasses, className)}
+      className={cn('min-w-0', flush ? 'p-0' : cn(PADDING_CLASS, FOLLOWS_HEADER), baseClasses, className)}
       {...rest}
     />
   );
@@ -212,59 +209,32 @@ SurfaceSection.displayName = 'Surface.Section';
 
 
 /**
- * What goes **between** two sections, and it is a component rather than a prop on purpose.
- *
- * The two reference implementations disagree here, and neither is wrong: one draws an automatic
- * hairline between every part (`divide-y` on the body), the other separates with vertical rhythm and
- * no line at all. Both had to encode that decision once, for the whole card — the first one carries
- * a `divide-y` nobody can opt out of per section, the second carries nine `[&>[data-slot=…]]` margin
- * rules to reproduce a rhythm the caller cannot see.
- *
- * Placing the separator explicitly costs one element and removes both machines: the decision is per
- * seam, it is visible where it happens, and a card can have a line in one place and room in another.
+ * Sections that belong together, which **is** a `Stack`: every prop of it, with no gap by default, so a
+ * group of sections looks exactly like the same sections placed straight in the card. `divided` draws a
+ * line between them; `direction={'horizontal'}` sets them side by side, the line between them vertical.
  *
  * ```tsx
- * <Surface.Separator />                          // a hairline
- * <Surface.Separator type={'gap'} space={'xl'} />   // room instead
+ * <Surface.SectionGroup divided>
+ *   <Surface.Section>…</Surface.Section>
+ *   <Surface.Section>…</Surface.Section>
+ * </Surface.SectionGroup>
  * ```
- *
- * A `divider` renders a `Divider`, so it arrives with `role="separator"` already on it.
  */
-function SurfaceSeparator(props: SurfaceSeparatorProps): React.ReactNode {
-
-  // ----
-  // Props Deconstruct
-  // ----
-  const {
-    className,
-    space,
-    type = 'divider',
-    ...others
-  } = props;
-
-  const { baseClasses, rest } = splitBaseProps(others);
-
-
-  // ----
-  // Component Render
-  // ----
-  if (type === 'divider') {
-    return <Divider data-slot={'surface-separator'} data-type={'divider'} className={cn(baseClasses, className)} {...rest} />;
-  }
+function SurfaceSectionGroup<E extends React.ElementType = 'div'>(props: SurfaceSectionGroupProps<E>): React.ReactNode {
+  const { divided, gap, ...rest } = props as SurfaceSectionGroupProps<'div'>;
 
   return (
-    <div
-      aria-hidden
-      data-slot={'surface-separator'}
-      data-type={'gap'}
-      className={cn('shrink-0', space === undefined ? 'h-separator' : `h-${space}`, baseClasses, className)}
+    <Stack
+      data-slot={'surface-section-group'}
+      data-divided={divided ? true : undefined}
+      gap={gap ?? 0}
+      divided={divided}
       {...rest}
     />
   );
-
 }
 
-SurfaceSeparator.displayName = 'Surface.Separator';
+SurfaceSectionGroup.displayName = 'Surface.SectionGroup';
 
 
 /** The last row: form actions, or the pagination of a table */
@@ -295,10 +265,10 @@ function SurfaceFooter<E extends React.ElementType = 'div'>(props: SurfaceFooter
       direction={'horizontal'}
       align={'center'}
       justify={justify}
-      gap={2.5}
+      gap={'sm'}
       className={cn(
-        DEFAULT_PADDING_CLASS,
-        muted && 'bg-muted/40',
+        PADDING_CLASS,
+        muted ? 'bg-muted text-muted-foreground' : FOLLOWS_SECTION,
         baseClasses,
         className
       )}
@@ -356,22 +326,26 @@ SurfaceLoadingOverlay.displayName = 'Surface.LoadingOverlay';
  * The card, the panel, the box: one anatomy that carries information, tables, forms and charts.
  *
  * ```tsx
- * <Surface elevation={'raised'}>
+ * <Surface>
  *   <Surface.Header>…</Surface.Header>
- *   <Surface.Separator />
- *   <Surface.Section>…</Surface.Section>
- *   <Surface.Separator type={'gap'} />
- *   <Surface.Section flush><DataTable /></Surface.Section>
+ *   <Surface.SectionGroup divided>
+ *     <Surface.Section>…</Surface.Section>
+ *     <Surface.Section flush><DataTable /></Surface.Section>
+ *   </Surface.SectionGroup>
  *   <Surface.Footer justify={'between'}>…</Surface.Footer>
  * </Surface>
  * ```
  *
- * **The Surface has no padding of its own**: the room lives in the parts, which is what lets a section
- * go `flush` and give its edges to a table without fighting a padding one level up.
+ * **The Surface has no padding of its own**: the room lives in the parts (`--surface-padding`), which is
+ * what lets a section go `flush` and give its edges to a table without fighting a padding one level up.
+ * A part under another does not repeat its top padding, outside a divided group.
  *
- * ⚠️ No `modal` elevation, though one of the references has it. There it is not an elevation at all —
- * it is a whole bottom-sheet behaviour with an internal scroll, coupled to that project's `Dialog`
- * through a shared shell module. It belongs to whichever package ships the dialog.
+ * Its look is the theme's: `--surface-radius`, `--surface-shadow`, `--surface-border-color`, read by the
+ * `default` of `radius`, `elevation` and `border`.
+ *
+ * Slots: `surface` (with `data-elevation`, `data-radius`, `data-border`, `data-loading`), `surface-body`,
+ * `surface-header`, `surface-section-group` (with `data-divided`), `surface-section` (with `data-flush`),
+ * `surface-footer` (with `data-muted`), `surface-loading`.
  */
 export function Surface<E extends React.ElementType = 'div'>(props: SurfaceProps<E>): React.ReactNode {
 
@@ -380,6 +354,7 @@ export function Surface<E extends React.ElementType = 'div'>(props: SurfaceProps
   // ----
   const {
     as: Component = 'div',
+    border,
     children,
     className,
     elevation = 'default',
@@ -395,15 +370,18 @@ export function Surface<E extends React.ElementType = 'div'>(props: SurfaceProps
   // ----
   // Component Render
   // ----
+  const borderKey = border === undefined ? 'default' : (border ? 'true' : 'false');
+
   return (
     <Stack
       gap={0}
       as={Component}
       data-slot={'surface'}
+      data-border={borderKey}
       data-elevation={elevation}
       data-loading={loading || undefined}
       data-radius={radius}
-      className={cn(surfaceVariants({ elevation, radius }), baseClasses, className)}
+      className={cn(surfaceVariants({ elevation, radius }), BORDER[borderKey], baseClasses, className)}
       {...rest}
     >
       <Stack
@@ -427,4 +405,4 @@ Surface.displayName = 'Surface';
 Surface.Footer = SurfaceFooter;
 Surface.Header = SurfaceHeader;
 Surface.Section = SurfaceSection;
-Surface.Separator = SurfaceSeparator;
+Surface.SectionGroup = SurfaceSectionGroup;

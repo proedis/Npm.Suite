@@ -81,7 +81,7 @@ const namedSteps = (
     <Stack gap={{ base: 'sm', lg: 2 }}>ok</Stack>
     <Heading gap={'xs'}>ok</Heading>
     <Item gap={{ base: 'sm', md: 'lg' }}>ok</Item>
-    <Surface.Separator type={'gap'} space={'2xl'} />
+    <Surface.SectionGroup gap={'2xl'}>ok</Surface.SectionGroup>
   </Stack>
 );
 
@@ -235,13 +235,13 @@ const spinnerNoDefault = <Spinner size={'default'} />;
  * The card, and the 'default' that is not a step
  * -------- */
 const card = (
-  <Surface elevation={'raised'} radius={'2xl'} loading loadingLabel={'Caricamento'}>
+  <Surface elevation={'lg'} radius={'2xl'} border={false} loading loadingLabel={'Caricamento'}>
     <Surface.Header>
-      <Heading size={'lg'}><Heading.Title>Mezzi</Heading.Title></Heading>
+      <Item.Heading size={'lg'}><Heading.Title>Mezzi</Heading.Title></Item.Heading>
     </Surface.Header>
-    <Surface.Separator />
-    <Surface.Section flush>{null}</Surface.Section>
-    <Surface.Separator type={'gap'} space={8} />
+    <Surface.SectionGroup divided direction={'horizontal'}>
+      <Surface.Section flush>{null}</Surface.Section>
+    </Surface.SectionGroup>
     <Surface.Footer justify={'between'} muted>{null}</Surface.Footer>
   </Surface>
 );
@@ -255,11 +255,11 @@ const modalSurface = <Surface elevation={'modal'} />;
 /** @ts-expect-error the label is read out, so it is a string and not a node */
 const wrongLoadingLabel = <Surface loadingLabel={<span>no</span>} />;
 
-/** @ts-expect-error the separator has two kinds and neither is a hairline-with-room */
-const wrongSeparator = <Surface.Separator type={'both'} />;
+/** @ts-expect-error the elevation is a step of the shadow scale: the old names are gone */
+const oldElevation = <Surface elevation={'raised'} />;
 
-/** @ts-expect-error the space of a gap is a spacing step */
-const wrongSeparatorSpace = <Surface.Separator type={'gap'} space={13} />;
+/** @ts-expect-error a group of sections is a Stack, and its gap a step of the scale */
+const wrongGroupGap = <Surface.SectionGroup gap={13}>no</Surface.SectionGroup>;
 
 /** The header is an Item, so it takes an Item's props */
 const headerIsAnItem = <Surface.Header direction={'vertical'} align={'start'} interactive />;
@@ -530,7 +530,7 @@ const multiplePendingEnter = (
 export const CHECKED = [
   badges, titleWithBadge, badgeWrongTone, badgeWrongFill, badgeNoDefault,
   chromeDefaults, iconBoxNoDefault, titleNoDefault, itemNoDefault, spinnerNoDefault,
-  card, noOpinion, modalSurface, wrongLoadingLabel, wrongSeparator, wrongSeparatorSpace,
+  card, noOpinion, modalSurface, wrongLoadingLabel, oldElevation, wrongGroupGap,
   headerIsAnItem, listRow, buttonRow, emptyStateRow, divWithType, itemWrongGap, itemWrongTone,
   pair, partSize, headingWrongSize, headingAs, wrongLines, wrongGapValue, flatPart,
   softMuted, solidDestructive, emptyState, iconBoxShape, iconBoxRadiusLength,

@@ -137,7 +137,7 @@ Six names, each a variable of the theme. The defaults are Tailwind's own steps, 
 | Default | 0.25rem | 0.5rem | 1rem | 1.5rem | 2rem | 3rem |
 
 Every spacing prop takes them: the `gap` of `Stack`, `Cluster`, `Grid`, `Split`, `Item` and
-`Heading`, the `space` of `Surface.Separator`, the `inset` of `Bleed`, the `offset` of `Sticky`. So do
+`Heading`, the `inset` of `Bleed`, the `offset` of `Sticky`. So do
 five families of classes, for what a prop does not cover: `gap-md`, `p-md` and its sides, `m-md` and
 `-mx-md`, `top-md` and the other insets, `h-md`. One vocabulary in the props and in the classes.
 
@@ -308,21 +308,20 @@ For a rule *between* the children of a stack use `<Stack divided>`, not `Divider
 ### `Surface`, the card
 
 ```tsx
-<Surface elevation={'raised'}>
+<Surface>
   <Surface.Header>
-    <IconBox tone={'primary'}><Truck /></IconBox>
-    <Heading>
-      <Heading.Title size={'lg'}>Mezzi in servizio</Heading.Title>
+    <Item.Icon><IconBox tone={'primary'}><Truck /></IconBox></Item.Icon>
+    <Item.Heading size={'lg'}>
+      <Heading.Title>Mezzi in servizio</Heading.Title>
       <Heading.Description>Aggiornato 2 minuti fa</Heading.Description>
-    </Heading>
+    </Item.Heading>
     <Item.Actions>{actions}</Item.Actions>
   </Surface.Header>
 
-  <Surface.Separator />
-  <Surface.Section>{content}</Surface.Section>
-
-  <Surface.Separator type={'gap'} space={'xl'} />
-  <Surface.Section flush><DataTable /></Surface.Section>
+  <Surface.SectionGroup divided>
+    <Surface.Section>{content}</Surface.Section>
+    <Surface.Section flush><DataTable /></Surface.Section>
+  </Surface.SectionGroup>
 
   <Surface.Footer justify={'between'}>{pagination}</Surface.Footer>
 </Surface>
@@ -330,20 +329,23 @@ For a rule *between* the children of a stack use `<Stack divided>`, not `Divider
 
 | | |
 | --- | --- |
-| `Surface` | `elevation`: `default` · `flat` · `soft` · `raised` — `radius`: `default` · `none` · `lg` → `4xl` — `loading`, `loadingLabel` |
+| `Surface` | `border` (a boolean; undeclared, the theme's) · `elevation`: `default` · `none` · `xs` → `lg` · `radius`: `default` · `none` · `sm` → `3xl` · `loading`, `loadingLabel` |
 | `.Header` | **an `Item`**, with the card's padding: every `Item` prop works on it |
 | `.Section` | the body. `flush` drops the padding so a table can reach the edges |
-| `.Separator` | `type`: `divider` (a hairline) or `gap` (`space`, a spacing step, `lg` by default) |
-| `.Footer` | `justify`, and `muted` for a recessed row |
+| `.SectionGroup` | **a `Stack`** with no gap: `divided` draws a line between its sections, `direction` sets them side by side |
+| `.Footer` | `justify`, and `muted` for a recessed row, quieter in its surface and its ink |
 
-**The Surface has no padding and no vertical rhythm of its own.** The room lives in the parts, which
-is what lets a section go `flush` without fighting a padding one level up, and the space between two
-parts is a `Separator` you place. The two implementations this comes from each encoded that decision
-once for the whole card — one with a `divide-y` nobody can opt out of, the other with nine descendant
-margin rules — and neither could put a line in one seam and room in the next.
+The look is the theme's, with a hairline by default: `--surface-border-color` (`--border`, `transparent`
+for none), `--surface-shadow` (none), `--surface-radius` (`lg`), `--surface-padding` (the `lg` step, the
+room of a dialog and of the table's card).
+
+**The Surface has no padding of its own.** The room lives in the parts, which is what lets a section
+go `flush` without fighting a padding one level up. A part right under another does not repeat its top
+padding (a section under the header, a footer of actions under a section), except in a `divided`
+group, where the line wants room on both sides.
 
 `Surface.Header` **is** an `Item`, which is the finding this tier was built on: a card header and a
-list row are the same three slots with the same truncation plumbing, and the only difference is the
+list row are the same slots with the same truncation plumbing, and the only difference is the
 register of the title. So the header takes `direction`, `align`, `gap`, `interactive` and everything
 else a row takes.
 
@@ -351,7 +353,7 @@ else a row takes.
 
 ```tsx
 <Surface />                        // data-elevation="default"  data-radius="default"
-<Surface elevation={'soft'} />     // data-elevation="soft"      — identical on screen
+<Surface elevation={'none'} />     // data-elevation="none"      identical on screen
 ```
 
 Both render the same shadow. They are **not** the same set to a stylesheet, and that is the point:
@@ -361,20 +363,20 @@ Both render the same shadow. They are **not** the same set to a stylesheet, and 
 ```
 
 That rule owns every card nobody had an opinion about, and leaves alone every card that deliberately
-asked for `soft`. Reporting the resolved step would have made the two indistinguishable.
+asked for `none`. Reporting the resolved step would have made the two indistinguishable.
 
 There is a second reason, and it is the stronger one: your rule keeps meaning "the ones we did not
 decide" even if this package later changes which step the default is. A rule against
-`[data-elevation='soft']` would silently stop matching.
+`[data-elevation='none']` would silently stop matching.
 
-⚠️ Only **four** props have it, and the list is deliberately short. A prop earns a `default` when its
+⚠️ Only a few props have it, and the list is deliberately short. A prop earns a `default` when its
 default is a **choice among named options** (not a step of a themeable scale), when you would plausibly
 write a rule for the unspecified case, and when that rule should survive this package changing its
 mind:
 
 | Has `default` | Does not, and why |
 | --- | --- |
-| `Surface.elevation` · `Surface.radius` · `Container.size` · `Label.emphasis` | `IconBox`'s `size` / `fill` / `tone` / `shape`, `Spinner.size`, every `Heading` size and every `gap` are **steps of a scale** — `--space-*`, `--radius-scale`, `--text-*` are the better lever, and `data-size="md"` says what the thing *is* |
+| `Surface.elevation` · `Surface.radius` · `Container.size` · `Label.emphasis` · the `radius` of `Button`, `Accordion`, `IconBox`, `LoadingBar` | `IconBox`'s `size` / `fill` / `tone`, `Spinner.size`, every `Heading` size and every `gap` are **steps of a scale** — `--space-*`, `--radius-scale`, `--text-*` are the better lever, and `data-size="md"` says what the thing *is* |
 | | `Divider.orientation`, `ScrollArea.orientation`, `Sticky.position`, `Split.side`, `SafeArea.sides`, `Item.direction`, `Grid.fill` are **what you meant**, not a house look: nobody restyles "the dividers we did not give an orientation" |
 | | every boolean: `data-inset` is present or absent, and there is no third state to name |
 
@@ -1108,7 +1110,7 @@ A prop left undeclared reads a variable, so the default is the theme's to change
 | `--split-gap` | `md` | the gap between the panes of a `Split` that declares none |
 | `--item-gap` | `0.75rem` | the gap of an `Item` that declares none, the header of a `Surface` included |
 | `--heading-gap` | `0.125rem` | the gap of a `Heading` that declares none |
-| `--separator-space` | `lg` | the room of a `Surface.Separator` of type gap that declares no `space` |
+| `--surface-padding` | `lg` | the room of every part of a `Surface` |
 | `--accordion-gap` | `sm` | the room between the items of a `separated` `Accordion` |
 
 ```css
@@ -1244,9 +1246,11 @@ another package. A recessed surface is `--muted`.
 | `dirty` on a `Dialog` or `Drawer` without `discard` compiled, and did nothing | `discard` is required as soon as `dirty` can be true (`DialogDirtyProps`); `dirty={false}`, or none, needs none |
 | `actions` of an `EmptyState`: any array, the third and later dropped | at most two, by the type (`EmptyStateActions`): an array typed `EmptyStateAction[]` becomes a tuple |
 | a `Stack` or a `Split` with no `gap`: the children touch | the gap is `md`, 1rem. Declare `gap={0}` where the children must touch |
-| `Cluster` `gap` defaults to `2`, `Grid` to `4`, `Surface.Separator` `space` to `6` | `sm`, `md` and `lg`: the same lengths, now following the theme's `--space-*` |
+| `Cluster` `gap` defaults to `2`, `Grid` to `4` | `sm` and `md`: the same lengths, now following the theme's `--space-*` |
 | `<Skeleton className={'size-4'} />` for a box, and a line of text 10px tall | `shape={'block'}` for a box; a line of text is as tall as a line of its `size` (20px at `sm`) with the 10px bar in its middle, inside a `skeleton` element holding a `skeleton-bar` |
 | `Divider` drawn as a 1px box filled with `--border` | drawn as a border, so `lineStyle` can dash it: a rule targeting its `background-color` targets nothing now, its `border-color` is the line |
+| `Surface.Separator` | `Surface.SectionGroup`, a `Stack` with no gap: `divided` for the lines, sections straight in the card for room |
+| `Surface` `elevation`: `flat` · `soft` · `raised`, `radius` `4xl` by default, `p-5` in the parts, a `bg-muted/40` muted footer | `elevation`: `none` · `xs` → `lg` (`default` is `--surface-shadow`, none); `radius` `lg` by default (`--surface-radius`), `4xl` gone; a 1px border by default (`border`, `--surface-border-color`); the parts padded by `--surface-padding` (24px), a part under another without its top padding; the muted footer on `bg-muted` with `text-muted-foreground` |
 | a `Heading`, an `IconBox` or an `Avatar` as a direct child of `Item` or `Surface.Header` | `Item.Heading` (which is a `Heading`) and `Item.Icon` around the visual. A plain `Heading` in the row no longer grows: the rule that made it was a descendant selector on the row |
 | `shape` on `IconBox` | `radius`: `round` is `radius={'full'}`. A `soft` box has no hairline; the glyph is half the box at every size (larger from `lg` up) and the corner scales with it; `icon-box-halo` is no longer a slot, the rings are shadows of the box (`data-halo`) |
 | `size` on `Heading.Title`, `Heading.Description`, `Heading.Eyebrow` | `size` on `Heading`, for the three together (`sm` · `md` · `lg` · `xl`, the title's steps); `data-size` moves from the parts to the root. A part that has to step out of the scale takes a size in its `className` |

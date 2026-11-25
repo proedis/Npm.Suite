@@ -15,16 +15,16 @@ import type { ClassValue } from 'clsx';
 const twMerge = extendTailwindMerge<'scrollbar'>({
   extend: {
     theme: {
-      spacing      : [ 'control-sm', 'control-md', 'control-lg', 'xs', 'sm', 'md', 'lg', 'xl', '2xl' ],
+      spacing      : [ 'control-sm', 'control-md', 'control-lg', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', 'surface' ],
+      shadow       : [ 'surface' ],
       font         : [ 'heading' ],
       text         : [ 'heading-eyebrow', 'heading-title', 'heading-description' ],
       'font-weight': [ 'heading-title' ],
-      radius       : [ 'control', 'control-inner', 'button', 'accordion', 'loading-bar', 'icon-box' ]
+      radius       : [ 'control', 'control-inner', 'button', 'accordion', 'loading-bar', 'icon-box', 'surface' ]
     },
     classGroups: {
       'grid-cols': [ { 'grid-cols': [ 'field', 'field-horizontal' ] } ],
       gap        : [ { gap: [ 'stack', 'cluster', 'grid', 'split', 'item', 'heading', 'accordion' ] } ],
-      h          : [ { h: [ 'separator' ] } ],
       scrollbar  : [ { scrollbar: [ 'thin', 'hover', 'none' ] } ],
       animate    : [ { animate: [ 'loading-bar', 'nudge-x', 'nudge-y' ] } ],
       z          : [ { z: [ 'dialog', 'popover', 'toast', 'tooltip' ] } ]

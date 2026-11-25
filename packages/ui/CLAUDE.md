@@ -441,8 +441,8 @@ narrower stylesheet is the one you have to ask for.
   change only what is inside it, since the class carries `var(--space-md)` itself.
 - **A default is a variable of the theme, read only when the prop is undeclared.** `Stack` writes
   `gap-stack` (`gap: var(--stack-gap, var(--space-md))`), `<Stack gap={'lg'}>` writes `gap-lg`: the
-  same for `Cluster`, `Grid`, `Split`, `Item`, `Heading` (`--*-gap`) and `Surface.Separator`
-  (`--separator-space`). The fallback sits in the class, not on `:root`, so it is resolved where the
+  same for `Cluster`, `Grid`, `Split`, `Item`, `Heading` (`--*-gap`), and for the chrome of `Surface`
+  (`--surface-radius`, `--surface-padding`, `--surface-shadow`, `--surface-border-color`). The fallback sits in the class, not on `:root`, so it is resolved where the
   component is and a region redeclaring the scale moves the defaults inside it. The classes are written
   once, in `layout/defaultGap.ts`, the section where layout classes live; `Item` and `Heading` import
   them from there and pass `gap={0}` to their Stack, the class winning through `cn`. `Heading` writes
@@ -590,7 +590,7 @@ narrower stylesheet is the one you have to ask for.
   `Own` to `object` rather than to `BaseProps`: a constraint that forces a wrong API on one component
   is worse than a rule written down.
 - **A component with parts is a compound, reached through the dot.** `Surface`, `Surface.Header`,
-  `Surface.Section`, `Surface.Separator`, `Surface.Footer`: the parts are assigned as properties of
+  `Surface.Section`, `Surface.SectionGroup`, `Surface.Footer`: the parts are assigned as properties of
   the root and are **not** exported as flat values, so one import gets the whole anatomy. Their
   **types** are exported flat (`StrictHeadingTitleProps`, `HeadingTitleProps<E>`), because a type
   cannot be reached through a value namespace and a wrapper needs them. A part that **is** another
@@ -795,16 +795,26 @@ narrower stylesheet is the one you have to ask for.
   `bg-card` + a radius + its own padding, which is a card. Composing is one element —
   `<Surface><Item /></Surface>` — against a chrome duplicated in two places that then has to be kept
   in step with the real one. `inset` stayed because row padding is a property of the row.
-- **What goes between two sections is a component, not a prop.** `Surface.Separator` with
-  `type='divider' | 'gap'` replaces two machines the references built to encode the same decision once
-  for the whole card: one puts `divide-y` on the body, which nobody can opt out of per seam, and the
-  other carries nine `[&>[data-slot=…]]` margin rules to reproduce a rhythm the caller cannot see.
-  Placing the separator costs one element and makes the decision per seam, visible where it happens,
-  and mixable — a line here, room there. A `divider` renders `Divider`, so it arrives with
-  `role="separator"` already on it.
-  ⚠️ Consequence to keep: `Surface` therefore has **no** vertical rhythm of its own and **no** padding
-  of its own. The room lives in the parts, which is what lets a section go `flush` and give its edges
-  to a table without fighting a padding one level up.
+- **What divides two sections is a group, and the group is a `Stack`.** `Surface.SectionGroup` renders
+  a `Stack` with `gap={0}` by default and every prop of it (Marco, 2026-11-25, in place of
+  `Surface.Separator`, a part placed between two sections, which he read as a mechanism invented for the
+  card): `divided` draws the lines, `direction` sets sections side by side, and a group without
+  `divided` looks exactly like the same sections placed straight in the card. A part with a name
+  rather than a bare Stack because the Stack's own default gap is `md`, and because the group writes
+  `data-divided`, which the padding rule below reads.
+  ⚠️ `Surface` has **no** padding of its own. The room lives in the parts (`p-surface`, one variable),
+  which is what lets a section go `flush`. A part right under another in the same column does not repeat
+  its top padding (a section under the header, a footer of actions under a section), except inside a
+  divided group, where the line wants room on both sides: an arbitrary variant on the part,
+  `[:not([data-divided])>[data-slot=surface-header]+&]:pt-0`. A group under the header keeps its full
+  room on purpose: collapsing its first child would leave a horizontal group with its first section
+  higher than the second.
+- **The chrome of a card is the theme's, and the docs default is a hairline.** `border` (a boolean;
+  undeclared, `border-surface-border`, `--surface-border-color` falling back to `--border`), `elevation`
+  (`default` is `--surface-shadow`, none undeclared, then `none` and `xs` to `lg`) and `radius`
+  (`default` is `--surface-radius`, `lg` undeclared). The look used to be GeoStore's, `4xl` corners,
+  `shadow-sm` and `p-5`, which Marco found foreign to this package: the corner and the room are now
+  those of the table's card and of a dialog.
 - **`Surface.Header` is an `Item`.** Not a shortcut — the finding the tier was built on: a card header
   and a list row are the same three slots with the same truncation plumbing, and the only difference is
   the register of the title. It renders an `Item`, forwards every one of its props, and replaces only
