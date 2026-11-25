@@ -12,6 +12,8 @@ import { cn } from '../../core/cn';
 
 import { Stack } from '../../layout/Stack';
 
+import { Spinner } from '../../primitives/Spinner';
+
 import { CONTROL_HEIGHT } from '../../internal/control';
 import { isPresent } from '../../internal/presence';
 
@@ -61,7 +63,10 @@ export interface StrictToggleProps extends BaseProps {
   /** The second line of the tooltip of a disabled toggle */
   disabledReason?: React.ReactNode;
 
-  /** A change is being saved: clicks are ignored, nothing changes in its look */
+  /**
+   * A change is being saved: the toggle is disabled until it is (`aria-disabled`, the disabled look) and
+   * busy (`aria-busy`), a spinner in place of its leading icon
+   */
   pending?: boolean;
 
   className?: string;
@@ -162,7 +167,8 @@ const [ ToggleGroupContext, useToggleGroupContext ] = optionalContextBuilder<Tog
  *
  * Disabled and pending are never passed to Base UI as `disabled`: that would take the item out of
  * the Tab order and of the arrows. They render `aria-disabled` and `data-disabled` and cancel the
- * change, so a disabled toggle keeps its tooltip with the reason. Icon only, the tooltip says what
+ * change, so a disabled toggle keeps its tooltip with the reason. Pending is disabled too, with
+ * `aria-busy` and a spinner in place of the leading icon. Icon only, the tooltip says what
  * `aria-label` says.
  *
  * Parts with a slot: `toggle` (with `data-size`, `data-pressed`, `data-disabled`, `data-pending`,
@@ -202,8 +208,10 @@ export const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>((props, r
   // Style Computation
   // ----
   const resolvedSize = size ?? group?.size ?? 'md';
-  const isDisabled = disabled || (group?.disabled ?? false);
   const isPending = pending || (group?.pending ?? false);
+
+  /* Pending is disabled too: a click on a toggle whose change is being saved can only confuse the state */
+  const isDisabled = disabled || (group?.disabled ?? false) || isPending;
   const reason = disabled ? disabledReason : group?.disabled ? group.disabledReason ?? disabledReason : undefined;
   const hasText = isPresent(children);
   const iconOnly = !hasText;
@@ -235,6 +243,7 @@ export const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>((props, r
       onPressedChange={handlePressedChange}
       aria-label={ariaLabel}
       aria-disabled={isDisabled || undefined}
+      aria-busy={isPending || undefined}
       data-disabled={isDisabled || undefined}
       data-pending={isPending || undefined}
       data-icon-only={iconOnly || undefined}
@@ -249,7 +258,7 @@ export const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>((props, r
         SIZES[resolvedSize],
         iconOnly && 'aspect-square px-0 has-[[data-slot=toggle-leading]]:ps-0',
         group ? FOCUS_IN_GROUP : FOCUS_ALONE,
-        isPending && 'cursor-default',
+        isPending && 'cursor-progress',
         baseClasses,
         className
       )}
@@ -263,8 +272,10 @@ export const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>((props, r
         gap={CONTENT_GAP[resolvedSize]}
         className={PRESSABLE_CONTENT}
       >
-        {leading !== null && leading !== undefined && (
-          <Stack gap={0} as={'span'} data-slot={'toggle-leading'} inline direction={'horizontal'}>{leading}</Stack>
+        {(isPending || (leading !== null && leading !== undefined)) && (
+          <Stack gap={0} as={'span'} data-slot={'toggle-leading'} inline direction={'horizontal'}>
+            {isPending ? <Spinner size={'sm'} className={resolvedSize === 'sm' ? 'size-3.5' : undefined} /> : leading}
+          </Stack>
         )}
         {children}
       </Stack>
@@ -362,7 +373,8 @@ export const ToggleGroup = React.forwardRef<HTMLDivElement, ToggleGroupProps>((p
           rest.onKeyDown?.(event);
           handleRovingKeyDown(event, '[data-slot=toggle]');
         }}
-        aria-disabled={disabled || undefined}
+        aria-disabled={disabled || pending || undefined}
+        aria-busy={pending || undefined}
         data-slot={'toggle-group'}
         data-size={size}
         data-disabled={disabled || undefined}
