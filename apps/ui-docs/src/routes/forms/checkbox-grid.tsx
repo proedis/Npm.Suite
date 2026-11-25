@@ -76,7 +76,7 @@ function CheckboxGridPage(): React.ReactNode {
           title={'Sections that open'}
           lead={(
             <React.Fragment>
-              Every group is a CollapsibleSection whose header sums it up, “2 of 4 entities with permissions”. All are
+              The groups are an Accordion, each header summing its group up, “2 of 4 entities with permissions”. All are
               closed by default and not remembered; <InlineCode>defaultOpenGroups</InlineCode> or the controlled{' '}
               <InlineCode>openGroups</InlineCode> open some. A closed group has no parent boxes: to act on a whole area,
               open it.
@@ -187,7 +187,8 @@ function CheckboxGridPage(): React.ReactNode {
               { slot: 'checkbox-grid', part: 'The grid', attributes: [ 'data-read-only', 'data-searching' ] },
               { slot: 'checkbox-grid-header', part: 'The header of the columns, which stays put while the grid scrolls' },
               { slot: 'checkbox-grid-column-header', part: 'A column title' },
-              { slot: 'collapsible-section', part: 'A group', attributes: [ 'data-open', 'data-modified' ] },
+              { slot: 'checkbox-grid-groups', part: 'The groups, an Accordion with inset' },
+              { slot: 'accordion-item', part: 'A group', attributes: [ 'data-open', 'data-modified' ] },
               { slot: 'checkbox-grid-modified', part: 'The “modified” after the name of a group' },
               { slot: 'checkbox-grid-body', part: 'The grid of an open group' },
               { slot: 'checkbox-grid-all', part: 'The row of the parent boxes' },

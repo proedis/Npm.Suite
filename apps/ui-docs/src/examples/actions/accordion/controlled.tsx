@@ -1,7 +1,7 @@
 import * as React from 'react';
 
+import { Accordion } from '@proedis/ui/actions/accordion';
 import { Button } from '@proedis/ui/actions/button';
-import { CollapsibleSection } from '@proedis/ui/actions/collapsible';
 import { Stack } from '@proedis/ui/layout';
 
 
@@ -13,45 +13,22 @@ const SECTIONS = [
 
 
 export default function Example(): React.ReactNode {
-  const [ open, setOpen ] = React.useState<ReadonlySet<string>>(() => new Set([ 'route' ]));
-
-  const handleOpenAll = React.useCallback(() => setOpen(new Set(SECTIONS.map((section) => section.id))), []);
-  const handleCloseAll = React.useCallback(() => setOpen(new Set()), []);
-
-  const handleToggle = React.useCallback((id: string, next: boolean) => {
-    setOpen((previous) => {
-      const copy = new Set(previous);
-
-      if (next) {
-        copy.add(id);
-      }
-      else {
-        copy.delete(id);
-      }
-
-      return copy;
-    });
-  }, []);
+  const [ open, setOpen ] = React.useState<string[]>([ 'route' ]);
 
   return (
-    <Stack gap={4} className={'w-full max-w-lg'}>
-      <Stack direction={'horizontal'} gap={2}>
-        <Button size={'sm'} fill={'soft'} onClick={handleOpenAll}>Open all</Button>
-        <Button size={'sm'} fill={'plain'} tone={'muted'} onClick={handleCloseAll}>Close all</Button>
+    <Stack gap={'md'} className={'w-full max-w-lg'}>
+      <Stack direction={'horizontal'} gap={'sm'}>
+        <Button size={'sm'} fill={'soft'} onClick={() => setOpen(SECTIONS.map((section) => section.id))}>Open all</Button>
+        <Button size={'sm'} fill={'plain'} tone={'muted'} onClick={() => setOpen([])}>Close all</Button>
       </Stack>
 
-      <Stack gap={0}>
+      <Accordion value={open} onValueChange={setOpen}>
         {SECTIONS.map((section) => (
-          <CollapsibleSection
-            key={section.id}
-            title={section.title}
-            open={open.has(section.id)}
-            onOpenChange={(next) => handleToggle(section.id, next)}
-          >
+          <Accordion.Item key={section.id} value={section.id} title={section.title}>
             <p className={'text-sm text-muted-foreground'}>{section.text}</p>
-          </CollapsibleSection>
+          </Accordion.Item>
         ))}
-      </Stack>
+      </Accordion>
     </Stack>
   );
 }

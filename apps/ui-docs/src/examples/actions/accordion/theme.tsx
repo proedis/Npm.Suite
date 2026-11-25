@@ -11,7 +11,7 @@ const THEME = {
   '--accordion-radius'              : 'var(--radius-2xl)',
   '--accordion-gap'                 : 'var(--space-md)',
   '--accordion-item-background'     : 'transparent',
-  '--accordion-item-open-background': 'var(--primary-soft)',
+  '--accordion-item-open-background': 'var(--color-primary-soft)',
   '--accordion-open-border'         : 'var(--primary)'
 } as React.CSSProperties;
 

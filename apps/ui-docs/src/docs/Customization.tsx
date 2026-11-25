@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { Link } from '@tanstack/react-router';
 
-import { CollapsibleSection } from '@proedis/ui/actions/collapsible';
+import { Accordion } from '@proedis/ui/actions/accordion';
 import { Cluster, Stack } from '@proedis/ui/layout';
 
 import { InlineCode } from './InlineCode';
@@ -79,10 +79,11 @@ function count(value: number, one: string, many: string): string {
   return `${value} ${value === 1 ? one : many}`;
 }
 
-/** The base token of a colour variable: `--primary-soft-foreground` belongs to `primary` */
+/** The base token of a colour variable: `--primary-soft-foreground` belongs to `primary`, the variables of a component to it */
 function familyOf(variable: string): string {
   return variable
     .replace(/^--/, '')
+    .replace(/^(accordion)-.+$/, '$1')
     .replace(/-(soft-foreground|soft|muted-foreground|foreground|hover|pressed|nested)$/, '');
 }
 
@@ -152,7 +153,7 @@ export function Customization(props: CustomizationProps): React.ReactNode {
       )}
     >
       {theme.variables.length > 0 && (
-        <Stack gap={0} divided className={'rounded-xl border border-border px-4'}>
+        <Accordion variant={'contained'} radius={'xl'}>
           {GROUPS.map((group) => {
             const variables = theme.variables.filter((variable) => variable.group === group);
 
@@ -163,22 +164,22 @@ export function Customization(props: CustomizationProps): React.ReactNode {
             const families = group === 'Colour' ? familiesOf(variables) : undefined;
 
             return (
-              <CollapsibleSection
+              <Accordion.Item
                 key={group}
+                value={group}
                 title={GROUP_TITLES[group]}
                 meta={families ? `${count(families.length, 'family', 'families')}, ${count(variables.length, 'variable', 'variables')}` : count(variables.length, 'variable', 'variables')}
-                headingLevel={3}
               >
-                <Stack gap={'sm'} className={'pb-4'}>
+                <Stack gap={'sm'}>
                   <p className={'text-sm text-muted-foreground'}>{GROUP_LEADS[group]}</p>
                   {families
                     ? <FamilyTable families={families} />
                     : <ThemeTable variables={variables} />}
                 </Stack>
-              </CollapsibleSection>
+              </Accordion.Item>
             );
           })}
-        </Stack>
+        </Accordion>
       )}
       {children && <Prose>{children}</Prose>}
     </Section>

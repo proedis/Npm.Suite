@@ -11,7 +11,7 @@ const RADII: readonly AccordionRadius[] = [ 'none', 'md', 'default', '2xl' ];
 
 export default function Example(): React.ReactNode {
   return (
-    <Grid columns={{ base: 1, md: 2 }} className={'w-full'}>
+    <Grid minColWidth={240} className={'w-full'}>
       {RADII.map((radius) => (
         <Accordion key={radius} variant={'separated'} radius={radius} defaultValue={[ 'open' ]}>
           <Accordion.Item value={'open'} title={`radius="${radius}"`}>

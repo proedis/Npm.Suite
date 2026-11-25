@@ -1,22 +1,26 @@
 import * as React from 'react';
 
-import { CollapsibleSection } from '@proedis/ui/actions/collapsible';
+import { Accordion } from '@proedis/ui/actions/accordion';
 import { TextInput } from '@proedis/ui/forms/text-input';
 import { Stack } from '@proedis/ui/layout';
 
 
 export default function Example(): React.ReactNode {
   return (
-    <Stack gap={0} className={'w-full max-w-lg'}>
+    <Stack gap={'lg'} className={'w-full max-w-lg'}>
       {/* Closed, the body leaves the document: what was typed is gone when it opens again */}
-      <CollapsibleSection defaultOpen title={'Unmounted when closed'}>
-        <TextInput aria-label={'Note on the stop'} placeholder={'Type, close, open again'} />
-      </CollapsibleSection>
+      <Accordion defaultValue={[ 'note' ]}>
+        <Accordion.Item value={'note'} title={'Unmounted when closed'}>
+          <TextInput aria-label={'Note on the stop'} placeholder={'Type, close, open again'} />
+        </Accordion.Item>
+      </Accordion>
 
       {/* Closed, the body stays in the document, hidden: the field keeps its value */}
-      <CollapsibleSection defaultOpen keepMounted title={'Kept mounted'}>
-        <TextInput aria-label={'Note on the stop, kept'} placeholder={'Type, close, open again'} />
-      </CollapsibleSection>
+      <Accordion keepMounted defaultValue={[ 'note' ]}>
+        <Accordion.Item value={'note'} title={'Kept mounted'}>
+          <TextInput aria-label={'Note on the stop, kept'} placeholder={'Type, close, open again'} />
+        </Accordion.Item>
+      </Accordion>
     </Stack>
   );
 }

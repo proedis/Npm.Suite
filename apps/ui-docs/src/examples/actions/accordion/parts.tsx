@@ -2,16 +2,15 @@ import * as React from 'react';
 
 import { Plus } from 'lucide-react';
 
+import { Accordion } from '@proedis/ui/actions/accordion';
 import { Button } from '@proedis/ui/actions/button';
-import { CollapsibleSection } from '@proedis/ui/actions/collapsible';
-import { Stack } from '@proedis/ui/layout';
 
 
 export default function Example(): React.ReactNode {
   return (
-    <Stack gap={0} className={'w-full max-w-lg'}>
-      <CollapsibleSection
-        defaultOpen
+    <Accordion defaultValue={[ 'contract' ]} className={'w-full max-w-lg'}>
+      <Accordion.Item
+        value={'contract'}
         title={'Contract'}
         status={(
           <React.Fragment>
@@ -21,19 +20,20 @@ export default function Example(): React.ReactNode {
         )}
       >
         <p className={'text-sm text-muted-foreground'}>Weekly collection, 1100 litre container, renewed every year.</p>
-      </CollapsibleSection>
+      </Accordion.Item>
 
-      <CollapsibleSection
+      <Accordion.Item
+        value={'containers'}
         title={'Containers'}
         meta={'4 containers'}
         actions={<Button size={'sm'} fill={'soft'} leading={<Plus />}>Add</Button>}
       >
         <p className={'text-sm text-muted-foreground'}>Two for paper, one for glass, one for organic waste.</p>
-      </CollapsibleSection>
+      </Accordion.Item>
 
-      <CollapsibleSection title={'Notes'} meta={'No notes'}>
+      <Accordion.Item value={'notes'} title={'Notes'} meta={'No notes'} disabled>
         <p className={'text-sm text-muted-foreground'}>Nothing written yet.</p>
-      </CollapsibleSection>
-    </Stack>
+      </Accordion.Item>
+    </Accordion>
   );
 }

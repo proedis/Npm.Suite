@@ -10,8 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ActionsAccordionRouteImport } from './routes/actions/accordion'
 import { Route as ActionsButtonRouteImport } from './routes/actions/button'
-import { Route as ActionsCollapsibleRouteImport } from './routes/actions/collapsible'
 import { Route as ActionsMenuRouteImport } from './routes/actions/menu'
 import { Route as ActionsSegmentedControlRouteImport } from './routes/actions/segmented-control'
 import { Route as ActionsTabsRouteImport } from './routes/actions/tabs'
@@ -92,14 +92,14 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ActionsAccordionRoute = ActionsAccordionRouteImport.update({
+  id: '/actions/accordion',
+  path: '/actions/accordion',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ActionsButtonRoute = ActionsButtonRouteImport.update({
   id: '/actions/button',
   path: '/actions/button',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ActionsCollapsibleRoute = ActionsCollapsibleRouteImport.update({
-  id: '/actions/collapsible',
-  path: '/actions/collapsible',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ActionsMenuRoute = ActionsMenuRouteImport.update({
@@ -477,8 +477,8 @@ const PrimitivesVisuallyHiddenRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/actions/accordion': typeof ActionsAccordionRoute
   '/actions/button': typeof ActionsButtonRoute
-  '/actions/collapsible': typeof ActionsCollapsibleRoute
   '/actions/menu': typeof ActionsMenuRoute
   '/actions/segmented-control': typeof ActionsSegmentedControlRoute
   '/actions/tabs': typeof ActionsTabsRoute
@@ -556,8 +556,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/actions/accordion': typeof ActionsAccordionRoute
   '/actions/button': typeof ActionsButtonRoute
-  '/actions/collapsible': typeof ActionsCollapsibleRoute
   '/actions/menu': typeof ActionsMenuRoute
   '/actions/segmented-control': typeof ActionsSegmentedControlRoute
   '/actions/tabs': typeof ActionsTabsRoute
@@ -636,8 +636,8 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/actions/accordion': typeof ActionsAccordionRoute
   '/actions/button': typeof ActionsButtonRoute
-  '/actions/collapsible': typeof ActionsCollapsibleRoute
   '/actions/menu': typeof ActionsMenuRoute
   '/actions/segmented-control': typeof ActionsSegmentedControlRoute
   '/actions/tabs': typeof ActionsTabsRoute
@@ -717,8 +717,8 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/actions/accordion'
     | '/actions/button'
-    | '/actions/collapsible'
     | '/actions/menu'
     | '/actions/segmented-control'
     | '/actions/tabs'
@@ -796,8 +796,8 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/actions/accordion'
     | '/actions/button'
-    | '/actions/collapsible'
     | '/actions/menu'
     | '/actions/segmented-control'
     | '/actions/tabs'
@@ -875,8 +875,8 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/actions/accordion'
     | '/actions/button'
-    | '/actions/collapsible'
     | '/actions/menu'
     | '/actions/segmented-control'
     | '/actions/tabs'
@@ -955,8 +955,8 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ActionsAccordionRoute: typeof ActionsAccordionRoute
   ActionsButtonRoute: typeof ActionsButtonRoute
-  ActionsCollapsibleRoute: typeof ActionsCollapsibleRoute
   ActionsMenuRoute: typeof ActionsMenuRoute
   ActionsSegmentedControlRoute: typeof ActionsSegmentedControlRoute
   ActionsTabsRoute: typeof ActionsTabsRoute
@@ -1042,18 +1042,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/actions/accordion': {
+      id: '/actions/accordion'
+      path: '/actions/accordion'
+      fullPath: '/actions/accordion'
+      preLoaderRoute: typeof ActionsAccordionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/actions/button': {
       id: '/actions/button'
       path: '/actions/button'
       fullPath: '/actions/button'
       preLoaderRoute: typeof ActionsButtonRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/actions/collapsible': {
-      id: '/actions/collapsible'
-      path: '/actions/collapsible'
-      fullPath: '/actions/collapsible'
-      preLoaderRoute: typeof ActionsCollapsibleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/actions/menu': {
@@ -1579,8 +1579,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ActionsAccordionRoute: ActionsAccordionRoute,
   ActionsButtonRoute: ActionsButtonRoute,
-  ActionsCollapsibleRoute: ActionsCollapsibleRoute,
   ActionsMenuRoute: ActionsMenuRoute,
   ActionsSegmentedControlRoute: ActionsSegmentedControlRoute,
   ActionsTabsRoute: ActionsTabsRoute,

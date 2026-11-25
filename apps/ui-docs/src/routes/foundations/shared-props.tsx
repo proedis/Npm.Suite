@@ -31,7 +31,7 @@ const TAKERS: readonly (readonly [ string, string ])[] = [
   [ 'Layout', 'Every primitive: Box, Stack, Cluster, Grid, Center, Container, Split, Spacer, Sticky, AspectRatio, Bleed, SafeArea.' ],
   [ 'Primitives', 'Divider, Label, LoadingBar, ScrollArea, Skeleton, Spinner.' ],
   [ 'Display', 'Badge, BadgeCounter, Heading, IconBox, Item, LabeledContent, Person, Surface, and their parts.' ],
-  [ 'Actions', 'Button and IconButton, CollapsibleSection, SegmentedControl, Tabs, Toggle.' ],
+  [ 'Actions', 'Accordion, Button and IconButton, SegmentedControl, Tabs, Toggle.' ],
   [ 'Feedback', 'Alert, EmptyState, the jobs button of the notifications.' ],
   [ 'Forms', 'Form and its parts, Field, FieldShell, every control: TextInput and the inputs built on it, Textarea, NumberInput, Select, MultiSelect, Combobox, DatePicker, Checkbox, CheckboxGrid, Radio, Switch, FileUpload, AttachmentList.' ],
   [ 'Data', 'Table, FiltersBar, Detail, the field of ModalSelector.' ]
