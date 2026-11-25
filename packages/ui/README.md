@@ -34,7 +34,7 @@ import { Dialog } from '@proedis/ui/overlays/dialog';
 | **layout** | `@proedis/ui/layout` | *where things are*: `Box` · `Stack` · `Cluster` · `Grid` · `Center` · `Container` · `Split` · `Spacer` · `Sticky` · `AspectRatio` · `Bleed` · `SafeArea` |
 | **primitives** | `@proedis/ui/primitives` | the small pieces with a look: `BusyVeil` · `Divider` · `Label` · `LoadingBar` · `ScrollArea` · `Skeleton` · `Spinner` · `VisuallyHidden` |
 | **display** | `@proedis/ui/display/<name>` | what things look like: `Badge` · `BadgeCounter` · `BadgeDot` · `Heading` · `IconBox` · `Item` · `LabeledContent` · `Surface`, and `Person` on Base UI |
-| **actions** | `@proedis/ui/actions/<name>` | what a user presses: `Accordion` · `Button` · `IconButton` · `Menu` · `SegmentedControl` · `Tabs` · `Toggle` · `Tooltip` |
+| **actions** | `@proedis/ui/actions/<name>` | what a user presses: `Accordion` · `Button` · `IconButton` · `CopyButton` · `Menu` · `SegmentedControl` · `Tabs` · `Toggle` · `Tooltip` |
 | **feedback** | `@proedis/ui/feedback/<name>` | what the interface says back: `Alert` · `EmptyState` · notifications |
 | **forms** | `@proedis/ui/forms/<name>` | `Form`, `Field` and every control |
 | **overlays** | `@proedis/ui/overlays/<name>` | `Dialog` · `Drawer` · `AlertDialog` · `Popover` |
@@ -88,7 +88,7 @@ One or the other, never both: the full sheet imports the narrow one itself. See
 | `react` | `>=19.0.0 <20.0.0` |
 | `tailwindcss` | `^4.1.5` |
 | `@base-ui/react` | `^1.7.0`, **optional**: for `display/person` and every subpath of actions, feedback, forms, overlays and data |
-| `dayjs` | `^1.11.0`, **optional**: only for `forms/date-picker`, `data/filters-bar` and `data/modal-selector`, with the locale loaded by the application |
+| `dayjs` | `^1.11.0`, **optional**: only for `forms/date-picker`, `forms/range-date-picker`, `data/filters-bar` and `data/modal-selector`, with the locale loaded by the application |
 | `@tanstack/react-table` | `^9.3.1`, **optional**: only for `data/table` |
 
 ⚠️ The stylesheet uses Tailwind directives. Loaded as a plain `<link>` it does nothing — it has to be
@@ -771,6 +771,7 @@ its own peers; none of them is re-exported by the root barrel. Every module is c
 | `actions/tabs` | `Tabs` (`.Panel`), with "More" for the tabs that do not fit |
 | `actions/toggle` | `Toggle`, `ToggleGroup` |
 | `actions/tooltip` | `Tooltip`, `TooltipProvider` |
+| `actions/copy-button` | `CopyButton`, a copy to the clipboard with a tick for a moment |
 | `feedback/alert` | `Alert` |
 | `feedback/empty-state` | `EmptyState` (`.Icon`, `.Title`, `.Description`, `.Actions`): a size and a tone, the parts composed |
 | `feedback/notifications` | `createNotifications`, `NotificationsProvider`, `JobsButton` |
@@ -778,7 +779,7 @@ its own peers; none of them is re-exported by the root barrel. Every module is c
 | `forms/form` | `Form` (`.Header`, `.ErrorSummary`, `.Section`, `.Footer`, `.Submit`, `.Cancel`), `FormSubmit`, `FormCancel` |
 | `forms/field` | `Field`, `FIELD_SPAN`, `useFieldControl`, the types `FieldStatus` and `FieldControlState` |
 | `forms/field-shell` | `FieldShell`, the frame of every bordered control, the package's and yours |
-| `forms/text-input` | `TextInput` (`.Action`) |
+| `forms/text-input` | `TextInput` (`.Action`, `.Copy`) |
 | `forms/password-input` | `PasswordInput` |
 | `forms/search-input` | `SearchInput` |
 | `forms/number-input` | `NumberInput` |
@@ -786,7 +787,8 @@ its own peers; none of them is re-exported by the root barrel. Every module is c
 | `forms/select` | `Select`, with a search past `searchThreshold` options |
 | `forms/multi-select` | `MultiSelect`, and the `SelectOption` type its options take |
 | `forms/combobox` | `Combobox`, one record or several (`multiple`) among results from the server |
-| `forms/date-picker` | `DatePicker`, a date or a period (`mode="range"`); needs `dayjs` |
+| `forms/date-picker` | `DatePicker`, a date typed or picked; needs `dayjs` |
+| `forms/range-date-picker` | `RangeDatePicker`, a period in one field; needs `dayjs` |
 | `forms/checkbox` | `Checkbox`, `CheckboxGroup` (with a computed parent box) |
 | `forms/checkbox-grid` | `CheckboxGrid`: boxes in sections that open and close, a row of parent boxes in each open group |
 | `forms/radio` | `RadioGroup`, `Radio` (classic or `variant="card"`) |
@@ -1290,6 +1292,7 @@ another package. A recessed surface is `--muted`.
 | `shape` on `IconBox` | `radius`: `round` is `radius={'full'}`. A `soft` box has no hairline; the glyph is half the box at every size (larger from `lg` up) and the corner scales with it; `icon-box-halo` is no longer a slot, the rings are shadows of the box (`data-halo`) |
 | `size` on `Heading.Title`, `Heading.Description`, `Heading.Eyebrow` | `size` on `Heading`, for the three together (`sm` · `md` · `lg` · `xl`, the title's steps); `data-size` moves from the parts to the root. A part that has to step out of the scale takes a size in its `className` |
 | `CollapsibleSection` from `@proedis/ui/actions/collapsible` | `Accordion` from `@proedis/ui/actions/accordion`: a section is an `Accordion.Item` in an `Accordion`, `open` / `defaultOpen` / `onOpenChange` are the item's `value` in `value` / `defaultValue` / `onValueChange` of the accordion, and the slots `collapsible-section-*` are `accordion-*`. The body opens on its height; the last item draws no rule under it |
+| `<DatePicker mode={'range'}>`, `DatePickerProps` as a union of `DateModeProps` and `RangeModeProps` | `RangeDatePicker` from `@proedis/ui/forms/range-date-picker`, with the same props but `mode`. The labels are split: `DatePickerLabels` keeps `today`, `RangeDatePickerLabels` has `pickEnd` and `rangeSummary`; `onValidityChange` is told `'date'` by one and `'from'` or `'to'` by the other |
 | `data-mode`, `data-inline`, `data-wrap`, `data-divided`, `data-fill` on the parts of a component laid out by `Stack`, `Cluster`, `Center` or `Grid` | written only on a primitive that renders as itself; a rule matching them on a component part matches nothing now |
 
 ## 🤝 Compatibility

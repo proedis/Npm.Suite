@@ -90,6 +90,7 @@
       "forms/number-input",
       "forms/password-input",
       "forms/radio",
+      "forms/range-date-picker",
       "forms/search-input",
       "forms/select",
       "forms/switch",

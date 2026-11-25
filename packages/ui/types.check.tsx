@@ -24,12 +24,14 @@ import { Meter, ProgressBar } from './src/feedback/progress-bar';
 import { Drawer } from './src/overlays/drawer';
 import { Checkbox, CheckboxGroup } from './src/forms/checkbox';
 import { Combobox } from './src/forms/combobox';
+import { DatePicker } from './src/forms/date-picker';
 import { Detail } from './src/data/detail';
 import { Field } from './src/forms/field';
 import { FiltersBar } from './src/data/filters-bar';
 import { FieldShell } from './src/forms/field-shell';
 import { PasswordInput } from './src/forms/password-input';
 import { Radio, RadioGroup } from './src/forms/radio';
+import { RangeDatePicker } from './src/forms/range-date-picker';
 import { SegmentedControl } from './src/actions/segmented-control';
 import { Switch } from './src/forms/switch';
 import { Tabs } from './src/actions/tabs';
@@ -596,6 +598,33 @@ const multiplePendingEnter = (
   <Combobox multiple items={[]} selectedItems={[]} labels={{} as never} resultsFor={'abc'} />
 );
 
+/* --------
+ * DatePicker and RangeDatePicker: two components, each with its own labels
+ * -------- */
+
+const CALENDAR_TEXT = {
+  format: 'dd/mm/yyyy', calendar: 'Calendar', clear: 'Clear', previousMonth: 'Previous month', nextMonth: 'Next month',
+  chooseMonth: 'Month', chooseYear: 'Year', previousYears: 'Earlier years', nextYears: 'Later years'
+};
+
+const oneDate = <DatePicker value={null} labels={{ ...CALENDAR_TEXT, today: 'Today' }} />;
+
+const period = (
+  <RangeDatePicker
+    value={{ from: null, to: null }}
+    labels={{ ...CALENDAR_TEXT, pickEnd: (from) => from, rangeSummary: (from, to) => `${from} ${to}` }}
+  />
+);
+
+/* The mode is gone: a period is the other component */
+// @ts-expect-error mode is not a prop of DatePicker
+const dateWithMode = <DatePicker mode={'range'} labels={{ ...CALENDAR_TEXT, today: 'Today' }} />;
+
+/* A period without the texts of its footer does not compile */
+// @ts-expect-error pickEnd and rangeSummary are required
+const periodWithoutFooter = <RangeDatePicker labels={{ ...CALENDAR_TEXT }} />;
+
+
 
 /* --------
  * Keep the compiler from pruning the assertions
@@ -625,5 +654,6 @@ export const CHECKED = [
   dirtyWithoutPrompt, dirtyWithPrompt, neverDirty, drawerDirtyWithoutPrompt,
   composedEmptyState, emptyStateKind, emptyStateIconSize,
   filtersBarRoot, filtersBarChildren, singlePendingEnter, multiplePendingEnter,
-  namedSteps, unknownStep, unknownStepResponsive, controlsAtLarge, controlOffTheScale
+  namedSteps, unknownStep, unknownStepResponsive, controlsAtLarge, controlOffTheScale,
+  oneDate, period, dateWithMode, periodWithoutFooter
 ];
