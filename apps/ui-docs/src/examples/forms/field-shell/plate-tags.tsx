@@ -95,7 +95,7 @@ export function PlateTags(props: PlateTagsProps): React.ReactNode {
           data-field-control={''}
           aria-labelledby={labelId}
           aria-required={required || undefined}
-          className={'h-6 min-w-24 flex-1 bg-transparent text-sm outline-none placeholder:text-placeholder'}
+          className={'h-lh min-w-24 flex-1 bg-transparent text-sm outline-none placeholder:text-placeholder'}
         />
       </Cluster>
     </FieldShell>
