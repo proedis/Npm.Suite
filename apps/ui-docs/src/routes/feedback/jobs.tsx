@@ -188,12 +188,19 @@ function JobsPage(): React.ReactNode {
             <PropsTable props={startOptions} />
           </SubSection>
           <SubSection title={'OutcomeOptions'} id={'api-outcome-options'}>
-            <PropsTable props={outcomeOptions} rest={<React.Fragment>What <InlineCode>jobs.succeed</InlineCode> takes.</React.Fragment>} />
+            <PropsTable
+              props={outcomeOptions}
+              rest={<React.Fragment>What <InlineCode>jobs.succeed</InlineCode> takes.</React.Fragment>}
+            />
           </SubSection>
           <SubSection title={'FailOptions'} id={'api-fail-options'}>
             <PropsTable
               props={failOptions}
-              rest={<React.Fragment>What <InlineCode>jobs.warn</InlineCode> and <InlineCode>jobs.fail</InlineCode> take.</React.Fragment>}
+              rest={(
+                <React.Fragment>
+                  What <InlineCode>jobs.warn</InlineCode> and <InlineCode>jobs.fail</InlineCode> take.
+                </React.Fragment>
+              )}
             />
           </SubSection>
           <SubSection title={'ErrorOptions'} id={'api-error-options'}>

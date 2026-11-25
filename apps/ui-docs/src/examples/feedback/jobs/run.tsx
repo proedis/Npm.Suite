@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Button } from '@proedis/ui/actions/button';
 import { Cluster } from '@proedis/ui/layout';
 
-import { notifications } from './setup';
+import { notifications } from '../notifications/setup';
 
 
 /** Stands in for a long request: ten steps of progress, then the outcome */

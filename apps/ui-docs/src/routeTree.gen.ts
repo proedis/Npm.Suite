@@ -34,6 +34,7 @@ import { Route as DisplayPersonRouteImport } from './routes/display/person'
 import { Route as DisplaySurfaceRouteImport } from './routes/display/surface'
 import { Route as FeedbackAlertRouteImport } from './routes/feedback/alert'
 import { Route as FeedbackEmptyStateRouteImport } from './routes/feedback/empty-state'
+import { Route as FeedbackJobsRouteImport } from './routes/feedback/jobs'
 import { Route as FeedbackNotificationsRouteImport } from './routes/feedback/notifications'
 import { Route as FeedbackProgressBarRouteImport } from './routes/feedback/progress-bar'
 import { Route as FormBindingBoundFieldRouteImport } from './routes/form-binding/bound-field'
@@ -218,6 +219,11 @@ const FeedbackAlertRoute = FeedbackAlertRouteImport.update({
 const FeedbackEmptyStateRoute = FeedbackEmptyStateRouteImport.update({
   id: '/feedback/empty-state',
   path: '/feedback/empty-state',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeedbackJobsRoute = FeedbackJobsRouteImport.update({
+  id: '/feedback/jobs',
+  path: '/feedback/jobs',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FeedbackNotificationsRoute = FeedbackNotificationsRouteImport.update({
@@ -549,6 +555,7 @@ export interface FileRoutesByFullPath {
   '/display/surface': typeof DisplaySurfaceRoute
   '/feedback/alert': typeof FeedbackAlertRoute
   '/feedback/empty-state': typeof FeedbackEmptyStateRoute
+  '/feedback/jobs': typeof FeedbackJobsRoute
   '/feedback/notifications': typeof FeedbackNotificationsRoute
   '/feedback/progress-bar': typeof FeedbackProgressBarRoute
   '/form-binding/bound-field': typeof FormBindingBoundFieldRoute
@@ -636,6 +643,7 @@ export interface FileRoutesByTo {
   '/display/surface': typeof DisplaySurfaceRoute
   '/feedback/alert': typeof FeedbackAlertRoute
   '/feedback/empty-state': typeof FeedbackEmptyStateRoute
+  '/feedback/jobs': typeof FeedbackJobsRoute
   '/feedback/notifications': typeof FeedbackNotificationsRoute
   '/feedback/progress-bar': typeof FeedbackProgressBarRoute
   '/form-binding/bound-field': typeof FormBindingBoundFieldRoute
@@ -724,6 +732,7 @@ export interface FileRoutesById {
   '/display/surface': typeof DisplaySurfaceRoute
   '/feedback/alert': typeof FeedbackAlertRoute
   '/feedback/empty-state': typeof FeedbackEmptyStateRoute
+  '/feedback/jobs': typeof FeedbackJobsRoute
   '/feedback/notifications': typeof FeedbackNotificationsRoute
   '/feedback/progress-bar': typeof FeedbackProgressBarRoute
   '/form-binding/bound-field': typeof FormBindingBoundFieldRoute
@@ -813,6 +822,7 @@ export interface FileRouteTypes {
     | '/display/surface'
     | '/feedback/alert'
     | '/feedback/empty-state'
+    | '/feedback/jobs'
     | '/feedback/notifications'
     | '/feedback/progress-bar'
     | '/form-binding/bound-field'
@@ -900,6 +910,7 @@ export interface FileRouteTypes {
     | '/display/surface'
     | '/feedback/alert'
     | '/feedback/empty-state'
+    | '/feedback/jobs'
     | '/feedback/notifications'
     | '/feedback/progress-bar'
     | '/form-binding/bound-field'
@@ -987,6 +998,7 @@ export interface FileRouteTypes {
     | '/display/surface'
     | '/feedback/alert'
     | '/feedback/empty-state'
+    | '/feedback/jobs'
     | '/feedback/notifications'
     | '/feedback/progress-bar'
     | '/form-binding/bound-field'
@@ -1075,6 +1087,7 @@ export interface RootRouteChildren {
   DisplaySurfaceRoute: typeof DisplaySurfaceRoute
   FeedbackAlertRoute: typeof FeedbackAlertRoute
   FeedbackEmptyStateRoute: typeof FeedbackEmptyStateRoute
+  FeedbackJobsRoute: typeof FeedbackJobsRoute
   FeedbackNotificationsRoute: typeof FeedbackNotificationsRoute
   FeedbackProgressBarRoute: typeof FeedbackProgressBarRoute
   FormBindingBoundFieldRoute: typeof FormBindingBoundFieldRoute
@@ -1312,6 +1325,13 @@ declare module '@tanstack/react-router' {
       path: '/feedback/empty-state'
       fullPath: '/feedback/empty-state'
       preLoaderRoute: typeof FeedbackEmptyStateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feedback/jobs': {
+      id: '/feedback/jobs'
+      path: '/feedback/jobs'
+      fullPath: '/feedback/jobs'
+      preLoaderRoute: typeof FeedbackJobsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/feedback/notifications': {
@@ -1763,6 +1783,7 @@ const rootRouteChildren: RootRouteChildren = {
   DisplaySurfaceRoute: DisplaySurfaceRoute,
   FeedbackAlertRoute: FeedbackAlertRoute,
   FeedbackEmptyStateRoute: FeedbackEmptyStateRoute,
+  FeedbackJobsRoute: FeedbackJobsRoute,
   FeedbackNotificationsRoute: FeedbackNotificationsRoute,
   FeedbackProgressBarRoute: FeedbackProgressBarRoute,
   FormBindingBoundFieldRoute: FormBindingBoundFieldRoute,

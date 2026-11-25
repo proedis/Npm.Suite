@@ -2,10 +2,10 @@ import * as React from 'react';
 
 import { Bell } from 'lucide-react';
 
-import { JobsButton } from '@proedis/ui/feedback/notifications';
+import { JobsButton } from '@proedis/ui/feedback/jobs';
 import { Stack } from '@proedis/ui/layout';
 
-import { jobsButtonLabels } from './setup';
+import { jobsButtonLabels } from '../notifications/setup';
 
 
 export default function Example(): React.ReactNode {
