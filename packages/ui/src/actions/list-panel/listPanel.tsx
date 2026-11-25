@@ -51,7 +51,7 @@ export const LIST_SIDE_OFFSET = 4;
 /** The panel: as wide as the field, never under 160px, never taller than the room there is. A column, through Stack */
 export const LIST_PANEL = [
   'max-h-(--available-height) w-(--anchor-width) min-w-40',
-  'rounded-md bg-popover p-1 text-sm text-popover-foreground shadow-md outline-none',
+  'rounded-list-panel bg-popover p-1 text-sm text-popover-foreground shadow-md outline-none',
   'transition-opacity duration-150 data-starting-style:opacity-0 data-ending-style:opacity-0',
   'motion-reduce:transition-none'
 ].join(' ');
@@ -65,9 +65,9 @@ export const LIST_ITEMS = 'max-h-68 overflow-y-auto scrollbar-thin outline-none'
  * the top with a gap of 2, through Stack.
  */
 export const LIST_ITEM = [
-  'relative min-h-8 cursor-default rounded-sm px-2 py-1.5 outline-none select-none',
+  'relative min-h-8 cursor-pointer rounded-list-item px-2 py-1.5 outline-none select-none',
   'data-highlighted:bg-accent data-highlighted:text-accent-foreground',
-  'data-disabled:opacity-50'
+  'data-disabled:cursor-not-allowed data-disabled:opacity-50'
 ].join(' ');
 
 /** The search row at the top of a panel: 32px, a rule under it, out of the scrolling area. A centred row with a gap of 2 */

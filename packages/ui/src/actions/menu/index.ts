@@ -6,3 +6,5 @@
  */
 
 export * from './Menu';
+
+export type { MenuRadius } from './menuPanel';

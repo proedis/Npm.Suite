@@ -381,6 +381,24 @@
  * arbitrary one.
  */
 /*
+ * The corner of every floating list (a menu, the list of a Select, a Combobox, a filter) and of its
+ * items, which sit 4px inside it and take its corner less those 4px: the two stay concentric whatever
+ * the theme declares. `list-panel-radius-*` sets it for one panel, its items following.
+ */
+@theme inline {
+  --radius-list-panel: var(--list-panel-radius, var(--radius-md));
+  --radius-list-item: max(0px, calc(var(--list-panel-radius, var(--radius-md)) - 4px));
+}
+
+@utility list-panel-radius-* {
+  --list-panel-radius: --value(--radius-*);
+}
+
+@utility list-panel-radius-none {
+  --list-panel-radius: 0px;
+}
+
+/*
  * The card. Its corner, its room and its shadow are the theme's, each falling back to what the rest of
  * the package draws a panel with (the table's card, a dialog): `lg`, the `lg` step, none. The border is
  * on by default and its colour is the theme's too, so a product with borderless cards declares

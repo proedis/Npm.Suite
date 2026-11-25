@@ -750,6 +750,12 @@ narrower stylesheet is the one you have to ask for.
   invisible to the scanner, so a missing safelist entry is a silently absent style. Before adding
   one, check whether the consumer could write it literally in `className` instead, where `@source "."`
   finds it for free.
+- **A floating list has one corner, and its items are concentric with it.** `rounded-list-panel` is
+  `var(--list-panel-radius, var(--radius-md))` on the panel of a menu and of every list (Select, Combobox,
+  the filters), `rounded-list-item` the same less the 4px of the panel's padding, so the two stay
+  concentric whatever the theme declares. `Menu.radius` sets it per menu through `list-panel-radius-*`,
+  and a context carries it to the submenus, which render in a portal the panel's variable does not reach.
+  The items take the pointer cursor (Marco, 2026-11-25), `not-allowed` when disabled.
 - **A control's corner is a variable, and a button's falls back to it.** `rounded-control` is
   `var(--control-radius, var(--radius-md))`, `rounded-button` is `var(--button-radius, <the control's>)`,
   both in an `@theme inline` block of `theme.css` so the fallback is resolved where the control is. The

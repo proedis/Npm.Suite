@@ -30,11 +30,27 @@ export type MenuAnchor = MenuPrimitive.Positioner.Props['anchor'];
 
 const PANEL = [
   'max-h-(--available-height) min-w-40 max-w-70 overflow-y-auto overscroll-contain scrollbar-thin',
-  'rounded-md bg-popover p-1 text-sm text-popover-foreground shadow-md outline-none',
+  'rounded-list-panel bg-popover p-1 text-sm text-popover-foreground shadow-md outline-none',
   'transition-opacity duration-150 data-starting-style:opacity-0 data-ending-style:transition-none motion-reduce:transition-none'
 ].join(' ');
 
 export const [ MenuContext, useMenuContext ] = optionalContextBuilder<MenuContextValue>('Menu', { afterClose: (action) => action() });
+
+/** The corner of a menu: the theme's (`--list-panel-radius`, `md` undeclared), or a step. Its items follow it */
+export type MenuRadius = 'default' | 'none' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+
+const RADIUS: Readonly<Record<MenuRadius, string | undefined>> = {
+  default: undefined,
+  none   : 'list-panel-radius-none',
+  sm     : 'list-panel-radius-sm',
+  md     : 'list-panel-radius-md',
+  lg     : 'list-panel-radius-lg',
+  xl     : 'list-panel-radius-xl',
+  '2xl'  : 'list-panel-radius-2xl'
+};
+
+/** The radius of the menu, for its submenus too: they render in a portal, where the variable of the panel does not reach */
+export const [ MenuRadiusContext, useMenuRadius ] = optionalContextBuilder<MenuRadius>('MenuRadius', 'default');
 
 
 /* --------
@@ -113,6 +129,7 @@ export function Panel(props: {
   children: React.ReactNode;
 }): React.ReactNode {
   const { align, anchor, children, className, label, onAnchorHidden, side } = props;
+  const radius = useMenuRadius();
 
   return (
     <MenuPrimitive.Portal>
@@ -131,7 +148,7 @@ export function Panel(props: {
           </div>
         )}
       >
-        <MenuPrimitive.Popup aria-label={label} data-slot={'menu'} className={cn(PANEL, className)}>
+        <MenuPrimitive.Popup aria-label={label} data-slot={'menu'} data-radius={radius} className={cn(PANEL, RADIUS[radius], className)}>
           {children}
         </MenuPrimitive.Popup>
       </MenuPrimitive.Positioner>

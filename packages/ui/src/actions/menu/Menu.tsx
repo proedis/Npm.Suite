@@ -14,9 +14,11 @@ import { CheckGlyph } from '../../internal/glyphs';
 import { useLinkNavigate } from '../link/LinkProvider';
 import { LIST_ITEM } from '../list-panel/listPanel';
 
-import { MenuContext, Panel, useAfterClose, useMenuContext } from './menuPanel';
+import { MenuContext, MenuRadiusContext, Panel, useAfterClose, useMenuContext } from './menuPanel';
 
 import type { LinkTarget } from '../../core/link';
+
+import type { MenuRadius } from './menuPanel';
 
 
 /* --------
@@ -35,6 +37,12 @@ export interface MenuProps {
 
   /** Defaults to `end`: from a ⋯ at the end of a row the menu lines up with its right edge */
   align?: 'start' | 'end';
+
+  /**
+   * The corner of the menu and of its submenus, the items following it 4px inside. Defaults to `default`,
+   * the theme's `--list-panel-radius`
+   */
+  radius?: MenuRadius;
 
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -237,6 +245,7 @@ function MenuRoot(props: MenuProps): React.ReactNode {
     className,
     onOpenChange,
     open: openProp,
+    radius = 'default',
     side = 'bottom',
     trigger
   } = props;
@@ -270,21 +279,23 @@ function MenuRoot(props: MenuProps): React.ReactNode {
   // Component Render
   // ----
   return (
-    <MenuContext.Provider value={context}>
-      <MenuPrimitive.Root
-        open={open}
-        onOpenChange={(next) => setOpen(next)}
-        onOpenChangeComplete={handleOpenChangeComplete}
-        modal={false}
-        loopFocus={false}
-      >
-        <MenuPrimitive.Trigger ref={triggerRef} render={trigger} />
+    <MenuRadiusContext.Provider value={radius}>
+      <MenuContext.Provider value={context}>
+        <MenuPrimitive.Root
+          open={open}
+          onOpenChange={(next) => setOpen(next)}
+          onOpenChangeComplete={handleOpenChangeComplete}
+          modal={false}
+          loopFocus={false}
+        >
+          <MenuPrimitive.Trigger ref={triggerRef} render={trigger} />
 
-        <Panel side={side} align={align} label={ariaLabel} onAnchorHidden={closeOnHidden} className={className}>
-          {children}
-        </Panel>
-      </MenuPrimitive.Root>
-    </MenuContext.Provider>
+          <Panel side={side} align={align} label={ariaLabel} onAnchorHidden={closeOnHidden} className={className}>
+            {children}
+          </Panel>
+        </MenuPrimitive.Root>
+      </MenuContext.Provider>
+    </MenuRadiusContext.Provider>
   );
 
 }
