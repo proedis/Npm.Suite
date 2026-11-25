@@ -87,13 +87,14 @@ export const TEXT_CONTROL_SELF = [
 
 /**
  * Height, padding and icon size of the three sizes. The height is `CONTROL_HEIGHT`, the one every
- * control reads, so a field lines up with a button of the same size. The gap is `TEXT_CONTROL_GAP`,
- * which every frame hands to its Stack.
+ * control reads, so a field lines up with a button of the same size; `frame-room-*` tells the input
+ * inside how tall the frame is, for `frame-line`. The gap is `TEXT_CONTROL_GAP`, which every frame
+ * hands to its Stack.
  */
 export const TEXT_CONTROL_SIZES: Readonly<Record<ControlSize, string>> = {
-  sm: `${CONTROL_HEIGHT.sm} px-2 [&_svg]:size-3.5`,
-  md: `${CONTROL_HEIGHT.md} px-2.5 [&_svg]:size-4`,
-  lg: `${CONTROL_HEIGHT.lg} px-3 [&_svg]:size-4`
+  sm: `${CONTROL_HEIGHT.sm} frame-room-sm px-2 [&_svg]:size-3.5`,
+  md: `${CONTROL_HEIGHT.md} frame-room-md px-2.5 [&_svg]:size-4`,
+  lg: `${CONTROL_HEIGHT.lg} frame-room-lg px-3 [&_svg]:size-4`
 };
 
 

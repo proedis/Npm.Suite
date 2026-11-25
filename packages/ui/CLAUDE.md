@@ -762,6 +762,17 @@ narrower stylesheet is the one you have to ask for.
   invisible to the scanner, so a missing safelist entry is a silently absent style. Before adding
   one, check whether the consumer could write it literally in `className` instead, where `@source "."`
   finds it for free.
+- **The input inside a frame is exactly one line tall, and the frame keeps the press.** An `<input>`
+  taller than its line centres the text on its own, and Chrome rounds that centring apart from the way
+  the flex row centres the prefix, the suffix and the icons beside it: measured on the 36px frame, the
+  value sat 1px under its prefix at 1x and at 2x (Marco caught it on a prefixed TextInput). The input
+  therefore stretches to the frame with `frame-line`, a padding of half the room left by one line
+  (`--frame-room`, written on the frame by `frame-room-*` from the control height less the border), so
+  the browser has nothing to centre and a press anywhere in the frame still places the caret. A search
+  row in a panel, which has no frame, uses `h-lh`. Measured after: prefix and value on the same rows at
+  1x, 2x and 6x in Chrome, and in WebKit, which was already right; every visible input of the form pages
+  with a content box of exactly one line. ⚠️ `h-full` must not come back on these inputs: it is what
+  reintroduces the pixel.
 - **A floating list has one corner, and its items are concentric with it.** `rounded-list-panel` is
   `var(--list-panel-radius, var(--radius-md))` on the panel of a menu and of every list (Select, Combobox,
   the filters), `rounded-list-item` the same less the 4px of the panel's padding, so the two stay

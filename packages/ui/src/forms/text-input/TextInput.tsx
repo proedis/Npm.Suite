@@ -289,7 +289,7 @@ const TextInputBase = React.forwardRef<HTMLInputElement, TextInputProps>((props,
           aria-required={field.required || undefined}
           aria-invalid={isInvalid || undefined}
           className={cn(
-            'h-full min-w-0 flex-1 bg-transparent outline-none',
+            'frame-line min-w-0 flex-1 bg-transparent outline-none',
             TEXT_CONTROL_TEXT,
             '[&::-webkit-search-cancel-button]:appearance-none'
           )}

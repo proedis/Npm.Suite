@@ -313,7 +313,7 @@ const NumberInputBase = React.forwardRef<HTMLInputElement, NumberInputProps>((pr
         onBeforeInput={handleBeforeInput}
         onPaste={handlePaste}
         onKeyDown={handleKeyDown}
-        className={cn('h-full min-w-0 flex-1 bg-transparent text-right outline-none', TEXT_CONTROL_TEXT)}
+        className={cn('frame-line min-w-0 flex-1 bg-transparent text-right outline-none', TEXT_CONTROL_TEXT)}
       />
 
       {loading

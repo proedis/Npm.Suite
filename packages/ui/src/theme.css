@@ -261,6 +261,26 @@
 }
 
 /*
+ * The line of text inside a frame. An `<input>` taller than its line centres the line itself, and
+ * Chrome rounds that centring apart from the way a flex row centres the prefix, the suffix and the
+ * icons beside it: measured on a 36px frame, the value sat 1px under its prefix at 1x and at 2x.
+ * So the input keeps the whole height of the frame (a press anywhere in it places the caret) with a
+ * padding that leaves exactly one line inside, and the browser has nothing left to centre.
+ *
+ * `frame-room-*` sits on the frame and says how tall its inside is, the control height less the two
+ * lines of the border; `frame-line` sits on the input. Both follow the height of a coarse pointer.
+ */
+@utility frame-room-sm { --frame-room: calc(var(--spacing-control-sm) - 2px); }
+@utility frame-room-md { --frame-room: calc(var(--spacing-control-md) - 2px); }
+@utility frame-room-lg { --frame-room: calc(var(--spacing-control-lg) - 2px); }
+
+@utility frame-line {
+  align-self: stretch;
+  height: auto;
+  padding-block: max(0px, calc((var(--frame-room) - 1lh) / 2));
+}
+
+/*
  * Under a finger the controls grow one step, 4px each: 36, 40 and 44px. The size of a control is
  * a decision about the pointer, not about the width of the window, so it is decided here once and
  * not with a size per breakpoint at every call site. A phone held sideways is as wide as a small

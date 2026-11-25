@@ -385,7 +385,7 @@ const SelectBase = React.forwardRef<HTMLButtonElement, SelectProps>((props, forw
           value={selected?.label ?? ''}
           data-slot={'select-value'}
           data-field-control={''}
-          className={cn('h-full min-w-0 flex-1 truncate bg-transparent outline-none', TEXT_CONTROL_TEXT)}
+          className={cn('frame-line min-w-0 flex-1 truncate bg-transparent outline-none', TEXT_CONTROL_TEXT)}
         />
         {name && <input type={'hidden'} name={name} value={current ?? ''} />}
       </FieldShell>

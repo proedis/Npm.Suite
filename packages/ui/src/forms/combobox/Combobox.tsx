@@ -350,7 +350,7 @@ const SingleCombobox = React.forwardRef<HTMLInputElement, SingleComboboxProps>((
           value={restText(selected)}
           data-slot={'combobox-input'}
           data-field-control={''}
-          className={cn('h-full min-w-0 flex-1 truncate bg-transparent outline-none', TEXT_CONTROL_TEXT)}
+          className={cn('frame-line min-w-0 flex-1 truncate bg-transparent outline-none', TEXT_CONTROL_TEXT)}
         />
         {selected?.code && <span data-slot={'combobox-code'} className={CODE}>{selected.code}</span>}
         {name && <input type={'hidden'} name={name} value={selected?.value ?? ''} />}
@@ -438,7 +438,7 @@ const SingleCombobox = React.forwardRef<HTMLInputElement, SingleComboboxProps>((
             rest.onKeyDown?.(event);
             handleKeyDown(event);
           }}
-          className={cn('h-full min-w-0 flex-1 truncate bg-transparent outline-none', TEXT_CONTROL_TEXT)}
+          className={cn('frame-line min-w-0 flex-1 truncate bg-transparent outline-none', TEXT_CONTROL_TEXT)}
         />
 
         {!focused && selected?.code && <span data-slot={'combobox-code'} className={CODE}>{selected.code}</span>}

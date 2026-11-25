@@ -76,7 +76,11 @@ export const LIST_SEARCH = [
   '[&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground'
 ].join(' ');
 
-export const LIST_SEARCH_INPUT = 'h-full min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground';
+/**
+ * The search itself, one line tall and centred by the row like the lens beside it: an input taller than
+ * its line centres the text on its own, and Chrome rounds that apart from the row, a pixel off the lens
+ */
+export const LIST_SEARCH_INPUT = 'h-lh min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground';
 
 /** A line of text in the panel: no results, the hint, a status. Never an empty list */
 export const LIST_MESSAGE = 'px-2 py-1.5 text-muted-foreground';

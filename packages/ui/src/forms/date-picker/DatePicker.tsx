@@ -606,7 +606,7 @@ const DatePickerBase = React.forwardRef<HTMLInputElement, DatePickerProps>((prop
             aria-invalid={isInvalid || undefined}
             data-slot={'date-picker-input'}
             data-field-control={''}
-            className={cn('h-full shrink-0 bg-transparent outline-none', INPUT_WIDTH[isRange ? 'range' : 'date'], TEXT_CONTROL_TEXT, 'placeholder:text-muted-foreground')}
+            className={cn('frame-line shrink-0 bg-transparent outline-none', INPUT_WIDTH[isRange ? 'range' : 'date'], TEXT_CONTROL_TEXT, 'placeholder:text-muted-foreground')}
             onChange={handleChange}
             onClick={(event: React.MouseEvent<HTMLInputElement>) => {
               rest.onClick?.(event);
