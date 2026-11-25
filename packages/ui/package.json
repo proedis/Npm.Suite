@@ -58,6 +58,7 @@
       "hooks",
       "display/badge",
       "display/badge-counter",
+      "display/badge-dot",
       "display/heading",
       "display/icon-box",
       "display/item",

@@ -38,6 +38,8 @@ export * from './display/badge';
 
 export * from './display/badge-counter';
 
+export * from './display/badge-dot';
+
 export * from './display/heading';
 
 export * from './display/icon-box';

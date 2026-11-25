@@ -33,7 +33,7 @@ import { Dialog } from '@proedis/ui/overlays/dialog';
 | **core** | `@proedis/ui/core` | the class machinery, the shared props, the responsive types, the tones. **No JSX** |
 | **layout** | `@proedis/ui/layout` | *where things are*: `Box` · `Stack` · `Cluster` · `Grid` · `Center` · `Container` · `Split` · `Spacer` · `Sticky` · `AspectRatio` · `Bleed` · `SafeArea` |
 | **primitives** | `@proedis/ui/primitives` | the small pieces with a look: `BusyVeil` · `Divider` · `Label` · `LoadingBar` · `ScrollArea` · `Skeleton` · `Spinner` · `VisuallyHidden` |
-| **display** | `@proedis/ui/display/<name>` | what things look like: `Badge` · `BadgeCounter` · `Heading` · `IconBox` · `Item` · `LabeledContent` · `Surface`, and `Person` on Base UI |
+| **display** | `@proedis/ui/display/<name>` | what things look like: `Badge` · `BadgeCounter` · `BadgeDot` · `Heading` · `IconBox` · `Item` · `LabeledContent` · `Surface`, and `Person` on Base UI |
 | **actions** | `@proedis/ui/actions/<name>` | what a user presses: `Accordion` · `Button` · `IconButton` · `Menu` · `SegmentedControl` · `Tabs` · `Toggle` · `Tooltip` |
 | **feedback** | `@proedis/ui/feedback/<name>` | what the interface says back: `Alert` · `EmptyState` · notifications |
 | **forms** | `@proedis/ui/forms/<name>` | `Form`, `Field` and every control |
@@ -574,6 +574,25 @@ Not here either, each for a reason: `loading` (a badge as a live region), `pulse
 stylesheet does not declare) and `count` / `iconOnly` (a second geometry where one digit is a circle).
 `dot` is here because it needs none of the three.
 
+### `BadgeDot`, a state with no words
+
+```tsx
+<BadgeDot tone={'success'} pulse label={'Online'} />
+<Avatar kind={'person'} name={'Rossi Mario'} initials={'RM'} stateLabel={'online'} indicator={<BadgeDot pulse ring />} />
+```
+
+| | |
+| --- | --- |
+| `tone` | the seven tones, `success` by default; `muted` and `secondary` in their ink |
+| `size` | `xs` 6 · `sm` 8 · `md` 10 · `lg` 12 |
+| `pulse` | a copy of the dot that grows and fades, for a state that is live; still under reduced motion |
+| `ring` | the card's colour around it, for a dot over a photo or a box |
+| `placement` | `inline`, or a corner of the positioned parent |
+| `label` | its name when nothing beside it says it; without it, the dot is hidden from assistive technology |
+
+On an `Avatar` the dot goes in `indicator`, which places it on the bottom-end corner outside the circle
+(the circle clips what it holds). `Avatar` also takes `radius`, a circle by default (`--avatar-radius`).
+
 ### `IconBox`, and the tone vocabulary
 
 Three independent axes: **how** it is filled, **which** tone, **how big**.
@@ -744,7 +763,7 @@ its own peers; none of them is re-exported by the root barrel. Every module is c
 
 | Subpath | Exports |
 | --- | --- |
-| `display/person` | `Avatar`, `AvatarGroup`, `Person` |
+| `display/person` | `Avatar` (with `radius` and an `indicator` on its corner), `AvatarGroup`, `Person` |
 | `actions/accordion` | `Accordion` (`.Item`): sections that open and close from their header, in four variants |
 | `actions/button` | `Button`, `IconButton` |
 | `actions/menu` | `Menu` (`.Item`, `.Group`, `.Separator`, `.RadioGroup`, `.RadioItem`, `.CheckboxItem`, `.Submenu`) |

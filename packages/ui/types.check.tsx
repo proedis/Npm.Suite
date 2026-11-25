@@ -14,7 +14,8 @@
 
 import * as React from 'react';
 
-import { Badge, Box, Container, Heading, IconBox, Item, Label, Spinner, Stack, Surface, VisuallyHidden } from './src';
+import { Badge, BadgeDot, Box, Container, Heading, IconBox, Item, Label, Spinner, Stack, Surface, VisuallyHidden } from './src';
+import { Avatar } from './src/display/person';
 import { AlertDialog } from './src/overlays/alert-dialog';
 import { Button, IconButton } from './src/actions/button';
 import { Dialog } from './src/overlays/dialog';
@@ -230,6 +231,29 @@ const itemNoDefault = <Item direction={'default'}>no</Item>;
 /** @ts-expect-error nor the spinner's size */
 const spinnerNoDefault = <Spinner size={'default'} />;
 
+
+/* --------
+ * A dot, and the avatar that carries one
+ * -------- */
+const presence = (
+  <Avatar
+    kind={'person'}
+    name={'Rossi Mario'}
+    initials={'RM'}
+    radius={'lg'}
+    stateLabel={'online'}
+    indicator={<BadgeDot tone={'success'} size={'md'} pulse ring placement={'bottom-end'} />}
+  />
+);
+
+/** @ts-expect-error four sizes, xs to lg */
+const dotWrongSize = <BadgeDot size={'xl'} />;
+
+/** @ts-expect-error a dot draws nothing inside it */
+const dotWithChildren = <BadgeDot>3</BadgeDot>;
+
+/** @ts-expect-error an avatar's corner is a step, not a length */
+const avatarRadiusLength = <Avatar kind={'system'} name={'Import'} radius={12} />;
 
 /* --------
  * A link is an address, or an address that knows how to go there
@@ -543,6 +567,7 @@ const multiplePendingEnter = (
 export const CHECKED = [
   badges, titleWithBadge, badgeWrongTone, badgeWrongFill, badgeNoDefault,
   chromeDefaults, iconBoxNoDefault, titleNoDefault, itemNoDefault, spinnerNoDefault,
+  presence, dotWrongSize, dotWithChildren, avatarRadiusLength,
   linkAsString, linkAsDestination, linkWithoutHref, linkAsNumber,
   card, noOpinion, modalSurface, wrongLoadingLabel, oldElevation, wrongGroupGap,
   headerIsAnItem, listRow, buttonRow, emptyStateRow, divWithType, itemWrongGap, itemWrongTone,

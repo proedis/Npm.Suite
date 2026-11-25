@@ -771,6 +771,13 @@ narrower stylesheet is the one you have to ask for.
   show, scaled; `none` and `full` are absolutes. The halo is two shadows of the box itself: the two
   spans it used to be sat at `-z-10` and went under the background of the first ancestor that had one,
   which is why it never showed. `soft` has no hairline any more.
+- **`BadgeDot` is static and sits in the root barrel**, like `Badge`: no context, no behaviour, so a
+  Server Component renders it. The pulse is Tailwind's `ping` on its `before:`, gone under reduced motion
+  (the copy is hidden, not frozen mid scale). It is hidden from assistive technology unless `label`
+  names it: a colour is never the only carrier of a state. The `Avatar` takes it through `indicator`,
+  which renders a box of its own around the circle (`avatar-indicator-anchor`), because the circle is
+  `overflow-hidden` and would clip a mark on its corner. `Avatar.radius` follows its inner line too
+  (`after:rounded-*`), `default` is `--avatar-radius`, a circle undeclared.
 - **`Badge` is static, and the `×` is not coming back.** Both references say a badge communicates
   rather than being clicked; one of them then puts a removable `×` button inside it. That is the `Item`
   trap again: a control inside a label needs the label not to be a control, and needs its own name,

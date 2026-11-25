@@ -27,6 +27,9 @@ import type { LinkTarget } from '../../core/link';
 
 export type AvatarSize = 24 | 32 | 40 | 56;
 
+/** The corner: the theme's (`--avatar-radius`, a circle undeclared), or a step */
+export type AvatarRadius = 'default' | 'none' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
+
 /** Who the circle stands for. A union: combinations with no look do not compile */
 export type AvatarIdentity =
   | {
@@ -57,6 +60,15 @@ export type AvatarProps = AvatarIdentity & BaseProps & {
 
   /** Next to the name it is decorative; alone it has a name and a tooltip. Defaults to `false` */
   decorative?: boolean;
+
+  /** Defaults to `default`, a circle unless the theme says otherwise */
+  radius?: AvatarRadius;
+
+  /**
+   * A mark on the bottom-end corner, over the circle: a `BadgeDot` for a presence, with `ring` so it keeps
+   * its edge. Its meaning goes in `stateLabel` too, since the mark has no words
+   */
+  indicator?: React.ReactNode;
 
   /** Read after the name when alone: "account disabled" */
   stateLabel?: string;
@@ -130,6 +142,17 @@ export type AvatarGroupProps = StrictAvatarGroupProps & Omit<
  * Constants Definition
  * -------- */
 
+/** The corner of the circle and of its inner line, which follows it */
+const RADIUS: Readonly<Record<AvatarRadius, string>> = {
+  default: 'rounded-avatar after:rounded-avatar',
+  none   : 'rounded-none after:rounded-none',
+  sm     : 'rounded-sm after:rounded-sm',
+  md     : 'rounded-md after:rounded-md',
+  lg     : 'rounded-lg after:rounded-lg',
+  xl     : 'rounded-xl after:rounded-xl',
+  full   : 'rounded-full after:rounded-full'
+};
+
 const SIZES: Readonly<Record<AvatarSize, string>> = {
   24: 'size-6 text-2xs [&_svg]:size-3.5',
   32: 'size-8 text-xs [&_svg]:size-4',
@@ -185,7 +208,11 @@ function KindGlyph(props: { kind: keyof typeof GLYPHS }): React.ReactNode {
  * `Person`, `AvatarGroup`) it is decorative. The initials appear at once without a photo, after a
  * moment with one, so a fast photo never flashes letters.
  *
- * Parts with a slot: `avatar` (with `data-kind`, `data-size`, `data-current`, `data-inactive`, `data-decorative`),
+ * `radius` changes the corner (the theme's `--avatar-radius` by default, a circle undeclared); `indicator`
+ * puts a mark on the bottom-end corner, a `BadgeDot` for a presence.
+ *
+ * Parts with a slot: `avatar` (with `data-kind`, `data-size`, `data-radius`, `data-current`, `data-inactive`,
+ * `data-decorative`), `avatar-indicator-anchor` and `avatar-indicator` (with an `indicator`),
  * `avatar-image`, `avatar-fallback`.
  */
 export const Avatar = React.forwardRef<HTMLSpanElement, AvatarProps>((props, ref) => {
@@ -193,7 +220,17 @@ export const Avatar = React.forwardRef<HTMLSpanElement, AvatarProps>((props, ref
   // ----
   // Props Deconstruct
   // ----
-  const { className, decorative = false, hideBelow: _hideBelow, hideFrom: _hideFrom, size = 24, stateLabel, ...identity } = props;
+  const {
+    className,
+    decorative = false,
+    hideBelow: _hideBelow,
+    hideFrom: _hideFrom,
+    indicator,
+    radius = 'default',
+    size = 24,
+    stateLabel,
+    ...identity
+  } = props;
 
   /* The classes from every shared prop, read off the whole props: a new one cannot be dropped here */
   const { baseClasses } = splitBaseProps(props);
@@ -238,9 +275,11 @@ export const Avatar = React.forwardRef<HTMLSpanElement, AvatarProps>((props, ref
       data-current={current || undefined}
       data-inactive={inactive || undefined}
       data-decorative={decorative || undefined}
+      data-radius={radius}
       className={cn(
-        'relative shrink-0 overflow-hidden rounded-full font-semibold select-none',
-        'after:pointer-events-none after:absolute after:inset-0 after:rounded-full after:inset-ring after:inset-ring-foreground/8',
+        'relative shrink-0 overflow-hidden font-semibold select-none',
+        'after:pointer-events-none after:absolute after:inset-0 after:inset-ring after:inset-ring-foreground/8',
+        RADIUS[radius],
         'outline-none focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring',
         SIZES[size],
         tone,
@@ -261,7 +300,21 @@ export const Avatar = React.forwardRef<HTMLSpanElement, AvatarProps>((props, ref
     </AvatarPrimitive.Root>
   );
 
-  return decorative ? circle : <Tooltip content={name}>{circle}</Tooltip>;
+  const named = decorative ? circle : <Tooltip content={name}>{circle}</Tooltip>;
+
+  if (indicator === undefined || indicator === null || indicator === false) {
+    return named;
+  }
+
+  /* The circle clips what it holds, so the mark sits beside it, over its corner, in a box of its own */
+  return (
+    <Stack gap={0} as={'span'} data-slot={'avatar-indicator-anchor'} inline className={cn('relative shrink-0', baseClasses)}>
+      {named}
+      <Stack gap={0} as={'span'} data-slot={'avatar-indicator'} inline className={'pointer-events-none absolute end-0 bottom-0'}>
+        {indicator}
+      </Stack>
+    </Stack>
+  );
 
 });
 
