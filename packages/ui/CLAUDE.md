@@ -773,6 +773,14 @@ narrower stylesheet is the one you have to ask for.
   1x, 2x and 6x in Chrome, and in WebKit, which was already right; every visible input of the form pages
   with a content box of exactly one line. ⚠️ `h-full` must not come back on these inputs: it is what
   reintroduces the pixel.
+- **The three overlays share one corner** (Marco, 2026-11-25). `--overlay-radius` is the corner of
+  Dialog, Drawer and AlertDialog, `lg` undeclared; `--dialog-radius`, `--drawer-radius` and
+  `--alert-dialog-radius` let one of them differ and fall back to it. The panel carries the variable of
+  its component (`overlay-corner-dialog` & co.) or the step of its `radius` prop (`overlay-corner-xl`),
+  and the panel and its waiting veil both read `rounded-overlay`, so the veil never shows a square corner
+  over a round one. `radius` has a `default` member for the reason `Button.radius` has one. The Drawer
+  also takes `variant`: `floating` (8px from the edges, the default) or `attached` (against the right
+  edge, the top and the bottom, square, no `data-radius`), and `--drawer-inset` follows either.
 - **A floating list has one corner, and its items are concentric with it.** `rounded-list-panel` is
   `var(--list-panel-radius, var(--radius-md))` on the panel of a menu and of every list (Select, Combobox,
   the filters), `rounded-list-item` the same less the 4px of the panel's padding, so the two stay

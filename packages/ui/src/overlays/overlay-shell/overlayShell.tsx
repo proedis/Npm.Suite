@@ -37,6 +37,15 @@ export type OverlaySize = 'sm' | 'md' | 'lg';
 
 export type OverlayBusy = false | 'load' | 'submit';
 
+/**
+ * The corner of a panel. `default` is the theme's: `--dialog-radius`, `--drawer-radius` or
+ * `--alert-dialog-radius`, each falling back to `--overlay-radius`, then to `lg`
+ */
+export type OverlayRadius = 'default' | 'none' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+
+/** Which of the three variables of the theme a panel reads when its `radius` is `default` */
+export type OverlayCorner = 'dialog' | 'drawer' | 'alert-dialog';
+
 /** One section of the index of a large dialog or drawer */
 export interface OverlaySection {
   readonly id: string;
@@ -50,6 +59,22 @@ export interface OverlaySection {
 /* --------
  * Constants Definition
  * -------- */
+
+/** The variable a panel sets for `rounded-overlay`: its component's, or a step of the scale */
+const OVERLAY_CORNER: Readonly<Record<OverlayCorner, string>> = {
+  dialog        : 'overlay-corner-dialog',
+  drawer        : 'overlay-corner-drawer',
+  'alert-dialog': 'overlay-corner-alert-dialog'
+};
+
+const OVERLAY_RADIUS: Readonly<Record<Exclude<OverlayRadius, 'default'>, string>> = {
+  none : 'overlay-corner-none',
+  sm   : 'overlay-corner-sm',
+  md   : 'overlay-corner-md',
+  lg   : 'overlay-corner-lg',
+  xl   : 'overlay-corner-xl',
+  '2xl': 'overlay-corner-2xl'
+};
 
 /** 15s: a save with no answer by then becomes a send error */
 export const SUBMIT_TIMEOUT = 15_000;
@@ -219,6 +244,13 @@ interface OverlayFrameProps {
   placement: 'dialog' | 'drawer';
   size: OverlaySize;
 
+  /** The variable of the theme for `radius="default"` */
+  corner: OverlayCorner;
+  radius: OverlayRadius;
+
+  /** A drawer stuck to the edges of the window, with no corner: `radius` does not apply */
+  attached?: boolean;
+
   /** A click on the veil, which never closes by itself */
   onVeilPress: () => void;
   nudging: boolean;
@@ -261,8 +293,10 @@ export function OverlayFrame(props: OverlayFrameProps): React.ReactNode {
   // ----
   const {
     'aria-describedby': ariaDescribedBy,
+    attached = false,
     children,
     className,
+    corner,
     dataAttributes,
     dataSlot,
     finalFocus,
@@ -272,6 +306,7 @@ export function OverlayFrame(props: OverlayFrameProps): React.ReactNode {
     onVeilPress,
     placement,
     popupRef,
+    radius,
     size
   } = props;
 
@@ -303,7 +338,7 @@ export function OverlayFrame(props: OverlayFrameProps): React.ReactNode {
         render={<Stack gap={0} direction={'horizontal'} align={isDrawer ? undefined : 'start'} justify={isDrawer ? 'end' : 'center'} />}
         className={cn(
           'fixed inset-0 z-10',
-          isDrawer ? 'p-2' : cn('px-4 pb-4', DIALOG_TOP[Math.min(level, 2)])
+          isDrawer ? !attached && 'p-2' : cn('px-4 pb-4', DIALOG_TOP[Math.min(level, 2)])
         )}
         onPointerDown={(event: React.PointerEvent<HTMLDivElement>) => {
           if (event.target === event.currentTarget) {
@@ -320,9 +355,11 @@ export function OverlayFrame(props: OverlayFrameProps): React.ReactNode {
           {...dataAttributes}
           data-slot={dataSlot}
           data-size={size}
+          data-radius={attached ? undefined : radius}
           render={<Stack gap={0} />}
           className={cn(
-            'relative min-w-0 rounded-lg bg-popover text-sm text-popover-foreground shadow-lg outline-none',
+            'relative min-w-0 rounded-overlay bg-popover text-sm text-popover-foreground shadow-lg outline-none',
+            attached ? 'overlay-corner-none' : (radius === 'default' ? OVERLAY_CORNER[corner] : OVERLAY_RADIUS[radius]),
             'tabular-nums wrap-anywhere',
             DIALOG_WIDTHS[size],
             isDrawer
@@ -830,7 +867,7 @@ export const OverlayVeil = React.forwardRef<HTMLDivElement, OverlayVeilProps>((p
       ref={ref}
       tabIndex={-1}
       data-slot={`${dataSlot}-veil`}
-      className={cn('absolute inset-0 z-10 overflow-hidden rounded-lg outline-none', !busy && 'pointer-events-none')}
+      className={cn('absolute inset-0 z-10 overflow-hidden rounded-overlay outline-none', !busy && 'pointer-events-none')}
     >
       <BusyVeil visible={visible} label={label} />
     </div>

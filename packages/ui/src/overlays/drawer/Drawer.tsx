@@ -36,9 +36,17 @@ import {
 import type { ButtonProps } from '../../actions/button/Button';
 
 import type { DialogDirtyProps, DialogLabels } from '../dialog/Dialog';
-import type { OverlayBusy, OverlaySection, OverlaySize } from '../overlay-shell/overlayShell';
+import type { OverlayBusy, OverlayRadius, OverlaySection, OverlaySize } from '../overlay-shell/overlayShell';
 
-export type { OverlayBusy as DrawerBusy, OverlaySection as DrawerSection, OverlaySize as DrawerSize };
+export type {
+  OverlayBusy as DrawerBusy,
+  OverlayRadius as DrawerRadius,
+  OverlaySection as DrawerSection,
+  OverlaySize as DrawerSize
+};
+
+/** `floating` 8px from the edges of the window, rounded; `attached` against its right edge, top and bottom, square */
+export type DrawerVariant = 'floating' | 'attached';
 
 
 /* --------
@@ -90,6 +98,16 @@ export interface StrictDrawerProps {
 
   /** 400, 560, 800px. Defaults to `md`; the same for detail and edit */
   size?: OverlaySize;
+
+  /** Defaults to `floating` */
+  variant?: DrawerVariant;
+
+  /**
+   * The corner of a `floating` drawer; an `attached` one has none. `default` is the theme's
+   * `--drawer-radius`, falling back to `--overlay-radius`, the corner Dialog, Drawer and AlertDialog
+   * share, then to `lg`. Defaults to `default`
+   */
+  radius?: OverlayRadius;
 
   busy?: OverlayBusy;
   onSubmitTimeout?: () => void;
@@ -157,8 +175,9 @@ function ArrowGlyph(props: { up?: boolean }): React.ReactNode {
  * -------- */
 
 /**
- * A modal panel on the right, over a veil, the full height of the window, 8px from its edges and
- * rounded on every corner. The Dialog's anatomy with no lines. For an item of a list: its detail, its
+ * A modal panel on the right, over a veil, the full height of the window: `floating` 8px from its
+ * edges and rounded on every corner, `attached` against the edge and square. The Dialog's anatomy with
+ * no lines. For an item of a list: its detail, its
  * edit in the same panel, the creation with many fields. It moves from one item to the next without
  * closing.
  *
@@ -183,7 +202,7 @@ function ArrowGlyph(props: { up?: boolean }): React.ReactNode {
  *
  * On Base UI's `Dialog`, not its `Drawer`, which drags by default, even with the mouse.
  *
- * Parts with a slot: `drawer` (with `data-size`, `data-mode`), and the same parts as `dialog` with
+ * Parts with a slot: `drawer` (with `data-size`, `data-mode`, `data-variant`, `data-radius`), and the same parts as `dialog` with
  * the `drawer-` prefix, plus `drawer-previous`, `drawer-next`, `drawer-position`.
  */
 function DrawerRoot(props: DrawerProps): React.ReactNode {
@@ -213,10 +232,12 @@ function DrawerRoot(props: DrawerProps): React.ReactNode {
     open,
     position,
     returnFocus,
+    radius = 'default',
     sections,
     size = 'md',
     title,
-    toolbar
+    toolbar,
+    variant = 'floating'
   } = props;
 
 
@@ -447,8 +468,11 @@ function DrawerRoot(props: DrawerProps): React.ReactNode {
           <OverlayFrame
             placement={'drawer'}
             size={size}
+            corner={'drawer'}
+            radius={radius}
+            attached={variant === 'attached'}
             dataSlot={'drawer'}
-            dataAttributes={{ 'data-mode': mode }}
+            dataAttributes={{ 'data-mode': mode, 'data-variant': variant }}
             popupRef={setPopup}
             nudging={nudging}
             onVeilPress={handleVeilPress}

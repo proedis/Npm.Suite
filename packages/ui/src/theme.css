@@ -430,6 +430,28 @@
 }
 
 /*
+ * The corner of the overlays. `--overlay-radius` is the one corner of Dialog, Drawer and AlertDialog,
+ * which Marco wants equal; `--dialog-radius`, `--drawer-radius` and `--alert-dialog-radius` let one of
+ * them differ and fall back to it, and all of them fall back to `--radius-lg`:
+ *
+ *   :root { --overlay-radius: var(--radius-2xl); }    every overlay
+ *   :root { --drawer-radius: 0px; }                   the drawers alone
+ *
+ * The panel carries the variable of its component (`overlay-corner-dialog` & co.) or the step of its
+ * `radius` prop (`overlay-corner-xl`), and the panel and the waiting veil inside it read
+ * `rounded-overlay`, so the veil follows the corner it covers.
+ */
+@theme inline {
+  --radius-overlay: var(--overlay-corner, var(--overlay-radius, var(--radius-lg)));
+}
+
+@utility overlay-corner-dialog { --overlay-corner: var(--dialog-radius, var(--overlay-radius, var(--radius-lg))); }
+@utility overlay-corner-drawer { --overlay-corner: var(--drawer-radius, var(--overlay-radius, var(--radius-lg))); }
+@utility overlay-corner-alert-dialog { --overlay-corner: var(--alert-dialog-radius, var(--overlay-radius, var(--radius-lg))); }
+@utility overlay-corner-* { --overlay-corner: --value(--radius-*); }
+@utility overlay-corner-none { --overlay-corner: 0px; }
+
+/*
  * The corner of every floating list (a menu, the list of a Select, a Combobox, a filter) and of its
  * items, which sit 4px inside it and take its corner less those 4px: the two stay concentric whatever
  * the theme declares. `list-panel-radius-*` sets it for one panel, its items following.

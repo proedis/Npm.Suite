@@ -36,14 +36,19 @@ import { DiscardPrompt, OverlayCancel } from './dialogParts';
 
 import type { ButtonProps } from '../../actions/button/Button';
 
-import type { OverlayBusy, OverlaySection, OverlaySize } from '../overlay-shell/overlayShell';
+import type { OverlayBusy, OverlayRadius, OverlaySection, OverlaySize } from '../overlay-shell/overlayShell';
 
 
 /* --------
  * Types Definition
  * -------- */
 
-export type { OverlayBusy as DialogBusy, OverlaySection as DialogSection, OverlaySize as DialogSize };
+export type {
+  OverlayBusy as DialogBusy,
+  OverlayRadius as DialogRadius,
+  OverlaySection as DialogSection,
+  OverlaySize as DialogSize
+};
 
 export interface DialogLabels {
   /** The name of the x, and its tooltip */
@@ -106,6 +111,12 @@ export interface StrictDialogProps {
 
   /** 400, 560, 800px. Defaults to `md` */
   size?: OverlaySize;
+
+  /**
+   * The corner. `default` is the theme's `--dialog-radius`, falling back to `--overlay-radius`, the corner
+   * Dialog, Drawer and AlertDialog share, then to `lg`. Defaults to `default`
+   */
+  radius?: OverlayRadius;
 
   /** With `lg` only, from 3 to 5: an index beside the body. The body uses `Dialog.Section` */
   sections?: readonly OverlaySection[];
@@ -188,7 +199,7 @@ const [ DialogCloseContext, useDialogCloseContext ] = optionalContextBuilder<Dia
  * The dialog renders no `<form>`: a `Form` in the body takes its id, and `Dialog.Submit` in the
  * footer points at it.
  *
- * Parts with a slot: `dialog` (with `data-size`), `dialog-backdrop`, `dialog-viewport`,
+ * Parts with a slot: `dialog` (with `data-size`, `data-radius`), `dialog-backdrop`, `dialog-viewport`,
  * `dialog-content`, `dialog-header`, `dialog-icon`, `dialog-heading`, `dialog-title`,
  * `dialog-description`, `dialog-header-end`, `dialog-close`, `dialog-toolbar`, `dialog-index`,
  * `dialog-index-item`, `dialog-index-item-errors`, `dialog-body`, `dialog-scroll`, `dialog-shade`,
@@ -217,6 +228,7 @@ function DialogRoot(props: DialogProps): React.ReactNode {
     onSubmitTimeout,
     open,
     returnFocus,
+    radius = 'default',
     sections,
     size = 'md',
     title,
@@ -345,6 +357,8 @@ function DialogRoot(props: DialogProps): React.ReactNode {
           <OverlayFrame
             placement={'dialog'}
             size={size}
+            corner={'dialog'}
+            radius={radius}
             dataSlot={'dialog'}
             popupRef={popupRef}
             nudging={nudging}

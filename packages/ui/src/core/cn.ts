@@ -22,7 +22,7 @@ const twMerge = extendTailwindMerge<'scrollbar'>({
       'font-weight': [ 'heading-title' ],
       radius       : [
         'control', 'control-inner', 'button', 'accordion', 'loading-bar', 'icon-box', 'surface', 'avatar', 'progress',
-        'list-panel', 'list-item', 'segmented', 'segmented-inner', 'tabs', 'tabs-inner'
+        'list-panel', 'list-item', 'segmented', 'segmented-inner', 'tabs', 'tabs-inner', 'overlay'
       ]
     },
     classGroups: {

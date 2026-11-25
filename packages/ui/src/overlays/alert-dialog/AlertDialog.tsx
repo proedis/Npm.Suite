@@ -30,6 +30,10 @@ import {
   useOverlayBusy
 } from '../overlay-shell/overlayShell';
 
+import type { OverlayRadius } from '../overlay-shell/overlayShell';
+
+export type { OverlayRadius as AlertDialogRadius };
+
 
 /* --------
  * Types Definition
@@ -110,6 +114,12 @@ export interface StrictAlertDialogProps {
 
   /** Where the focus goes if the control that opened it is gone, and after a successful action */
   returnFocus?: { readonly current: HTMLElement | null } | (() => HTMLElement | null);
+
+  /**
+   * The corner. `default` is the theme's `--alert-dialog-radius`, falling back to `--overlay-radius`, the
+   * corner Dialog, Drawer and AlertDialog share, then to `lg`. Defaults to `default`
+   */
+  radius?: OverlayRadius;
 }
 
 /**
@@ -180,7 +190,7 @@ function normalizeConfirm(text: string, numeric: boolean): string {
  * outside never closes, and the panel jolts. While the action runs nothing closes; after `timeoutMs`
  * the outcome becomes uncertain and only the exit stays. `result` turns it into an outcome.
  *
- * Parts with a slot: `alert-dialog` (with `data-tone`), `alert-dialog-header`, `alert-dialog-title`,
+ * Parts with a slot: `alert-dialog` (with `data-tone`, `data-radius`), `alert-dialog-header`, `alert-dialog-title`,
  * `alert-dialog-description`, `alert-dialog-icon`, `alert-dialog-body`, `alert-dialog-body-content`,
  * `alert-dialog-consequences`, `alert-dialog-error`, `alert-dialog-footer`, `alert-dialog-cancel`,
  * `alert-dialog-action`.
@@ -204,6 +214,7 @@ export function AlertDialog(props: AlertDialogProps): React.ReactNode {
     onOpenChange,
     onTimeout,
     open,
+    radius = 'default',
     result,
     returnFocus,
     timeoutMs = SUBMIT_TIMEOUT,
@@ -299,6 +310,8 @@ export function AlertDialog(props: AlertDialogProps): React.ReactNode {
       <OverlayFrame
         placement={'dialog'}
         size={'sm'}
+        corner={'alert-dialog'}
+        radius={radius}
         dataSlot={'alert-dialog'}
         dataAttributes={{ 'data-tone': tone }}
         nudging={nudging}
