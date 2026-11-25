@@ -1,0 +1,10 @@
+# What the image of apps/platform never needs: dependencies are installed inside it, builds are made there
+**/node_modules
+**/build
+.git
+.github
+.claude
+.idea
+.vscode
+.DS_Store
+*.log

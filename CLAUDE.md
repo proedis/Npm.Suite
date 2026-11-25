@@ -8,8 +8,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 packages (plus `eslint-config-proedis`). Nothing is deployed from here: the deliverable is a set of
 libraries consumed by Proedis applications. Versioning is **independent per package**.
 
-One workspace is not a package: `apps/ui-docs`, the documentation site of `@proedis/ui`, private and
-never published. See *The documentation site* below.
+One workspace is not a package: `apps/platform`, Proedis Internal Platform, the internal site whose
+first section is the documentation of `@proedis/ui`; private, never published to npm, deployed on
+CapRover. See *The platform* below.
 
 ## Commands
 
@@ -527,12 +528,36 @@ consumers compile sibling TypeScript **source** directly; there is no
 build step between packages during development. The compiled entry points only exist in the
 generated `build/package.json`.
 
-### The documentation site, `apps/ui-docs`
+### The platform, `apps/platform`
 
-`@proedis/ui-docs` documents `@proedis/ui` with a page per component, built with the package itself.
-Vite, TanStack Router (file routes, `src/routeTree.gen.ts` generated and committed), Tailwind 4,
-Lucide. `yarn workspace @proedis/ui-docs dev` serves it on port 3200. It is `private`, so `lerna
-version` skips it and `release:verify` never sees it; `release:build` does build it, after `ui`.
+`@proedis/platform` is **Proedis Internal Platform** (Marco, 2026-11-25): a site public by address and
+internal by use, made of sections. The documentation of `@proedis/ui` is the first, under `/ui`; the next
+ones (the docs of the other packages, internal tools) arrive the same way. Vite, TanStack Router (file
+routes, `src/routeTree.gen.ts` generated and committed), Tailwind 4, Lucide. `yarn workspace
+@proedis/platform dev` serves it on port 3200. It is `private`, so `lerna version` skips it and
+`release:verify` never sees it; `release:build` does build it, after `ui`.
+
+**A section is a prefix, a folder of routes, a navigation and one entry in `src/platform/sections.ts`.**
+The root route draws the bar of the platform (`PlatformHeader`: the name, the section of the page with its
+version, the theme) and nothing else; a section's layout route (`src/routes/ui/route.tsx`) draws its own
+frame, `DocsLayout` with its rail. `sectionAt(pathname)` tells which section a page is in. `src/nav.ts` is
+the navigation of the UI section: a second section brings its own and passes it to `Sidebar`, which takes
+its groups as a prop. `/` is the home of the platform, a card per section. `/preview/<id>` stays at the
+root, outside every section, since it renders one example alone. A link inside a section is written with
+its prefix (`/ui/forms/text-input`): the router types every address, so a link without it does not
+compile.
+
+**It is kept out of search engines**, by decision: `noindex, nofollow` in a meta of `index.html`, in an
+`X-Robots-Tag` header from nginx, and a `robots.txt` that disallows everything.
+
+**Deployed on CapRover from the repository.** `apps/platform/Dockerfile` builds from the root of the
+monorepo (the site compiles the source of the workspace packages, so the context is the whole repository,
+which `.dockerignore` trims) in a Node 22 stage with Yarn through corepack, and serves `build/` with
+nginx (`apps/platform/nginx.conf`: the fallback of a single page application, the hashed assets cached for
+a year, the page never). CapRover keeps the root of the repository as the build context whatever the path
+of the definition, so `apps/platform/captain-definition` names the Dockerfile from the root; the app
+points its "Captain Definition Path" at it. nginx listens on 80. Deploying is Marco's to start: nothing
+in this repository pushes or deploys.
 
 **It reads the package's source, not a build.** `@proedis/ui` and every `@proedis/ui/<subpath>` are
 aliased onto `packages/ui/src` in both `vite.config.ts` and `tsconfig.json` (the source manifest
@@ -581,7 +606,7 @@ drawn scaled when wider than the column. Not for an overlay, which the frame wou
 `src/nav.ts` is the one list of pages: sidebar, pager and overview read it, and a page not yet written
 is listed with `ready: false`, greyed and not linked. A page names itself with `pageAt(route)`.
 
-The site lays out through the primitives like any consumer should: the `suite/ui-docs-layout` block of
+The site lays out through the primitives like any consumer should: the `suite/platform-layout` block of
 the root ESLint config forbids hand-written `flex`, `grid` and `gap-*`, but only in class contexts
 (`className`, `cn()`), since most of the site is prose about grids. A claim a page makes about types
 (a negative case that must not compile) is verified with a throwaway `@ts-expect-error` file before it
@@ -606,7 +631,7 @@ Dependency direction is strictly one-way; `utils` and `types` are the leaves.
 | `@proedis/react-query` | The query boundary and the gated cache invalidation, extracted from the `query-suspense` pattern Orbit had copy-pasted for years. Three subpaths: `suspense` presupposes `useClientQuery` and therefore sits beside `react-client`; `invalidation` works against a bare `QueryClient` and `search` (`useSearchQuery`, what the ui `Combobox` takes its results from) against TanStack Query alone, and neither depends on anything of the suite. Ships **no** visible component: the five views arrive from the host application. |
 | `@proedis/form` | react-hook-form and Zod bound to the form layer of `ui`: `useSchemaForm`, `BoundForm`, `BoundField` (never named `Form`/`Field`, so a plain ui Field cannot sit in a bound form unnoticed). A field gives its name; the schema, read through `@proedis/zod`, gives the label, the requiredness and the bounds; the control binds itself through the `binding` every ui control declares, so the package imports no control and none of their optional peers. It exists apart so that `ui` depends on no form library. The first package to import a sibling's **subpaths**: its declaration build reads `ui`'s built types, see its CLAUDE.md for why it must not read the source. |
 | `@proedis/zod` | Schema in, field descriptor out, so a form reads its label, its requiredness and its bounds off the schema instead of repeating them per field. Two subpaths, `fields` and `validators`, and neither imports the other. **No runtime import of zod**, only `import type`, which is what makes it immune to two zod instances in one bundle. |
-| `@proedis/ui` | The interface layer a Proedis frontend starts from: twelve layout primitives, the primitives and display components reading a token contract, the components with behaviour on Base UI, the class machinery and the stylesheet behind all of it. Sections in dependency order (`core`, `layout`, `primitives`, the private `internal`, `actions`, `display`, `feedback`, `forms`, `overlays`, `data`, plus `hooks`), with one subpath per component from `display` on (e.g. `data/table`), plus two published stylesheets, with `theme.css` reachable from the package name alone. Spacing is a scale by name (`xs` to `2xl`, `--space-*` in the theme, `md` is 1rem) on every spacing prop and in the classes, and every control takes `sm`, `md` and `lg` with one height per size, and one corner, `--control-radius`, which a button refines with `--button-radius` and four finish variables of its solid fill. Lint blocks hold it: the sections import only from earlier ones, every container of every component is a layout primitive, and a control height is written in one place, and every bordered control is drawn by `FieldShell`. Base UI, dayjs and TanStack Table are **optional** peers: each subpath brings only its own, so a project that imports none of them installs nothing new. No visible string ships in a component: every label arrives as a prop. Depends on `@proedis/react` for every hook and helper that knows nothing of it (`useMediaQuery`, `useDelayedBusy`, `useForkRef`, the context builders…), outside the root barrel only. The root barrel (core, layout, primitives, static display) stays renderable from a React Server Component, and `release:verify` fails if it reaches an optional peer. Documented, one page per component, by `apps/ui-docs`. |
+| `@proedis/ui` | The interface layer a Proedis frontend starts from: twelve layout primitives, the primitives and display components reading a token contract, the components with behaviour on Base UI, the class machinery and the stylesheet behind all of it. Sections in dependency order (`core`, `layout`, `primitives`, the private `internal`, `actions`, `display`, `feedback`, `forms`, `overlays`, `data`, plus `hooks`), with one subpath per component from `display` on (e.g. `data/table`), plus two published stylesheets, with `theme.css` reachable from the package name alone. Spacing is a scale by name (`xs` to `2xl`, `--space-*` in the theme, `md` is 1rem) on every spacing prop and in the classes, and every control takes `sm`, `md` and `lg` with one height per size, and one corner, `--control-radius`, which a button refines with `--button-radius` and four finish variables of its solid fill. Lint blocks hold it: the sections import only from earlier ones, every container of every component is a layout primitive, and a control height is written in one place, and every bordered control is drawn by `FieldShell`. Base UI, dayjs and TanStack Table are **optional** peers: each subpath brings only its own, so a project that imports none of them installs nothing new. No visible string ships in a component: every label arrives as a prop. Depends on `@proedis/react` for every hook and helper that knows nothing of it (`useMediaQuery`, `useDelayedBusy`, `useForkRef`, the context builders…), outside the root barrel only. The root barrel (core, layout, primitives, static display) stays renderable from a React Server Component, and `release:verify` fails if it reaches an optional peer. Documented, one page per component, by the UI section of `apps/platform`. |
 | `@proedis/cli` | `proedis` binary: `scaffold enums`, `scaffold models` and `scaffold hooks`, all fed by an Orbit-style API. `init` and `generate` were removed unpublished. Published **bin-only**: `noMain`, `buildFormats: ['cjs']`, no declaration build — shipping types would force `@proedis/types`, `type-fest` and `@types/inquirer` into runtime deps for an API nobody imports. It is the only package declaring `engines` (Node `>=22.13.0`), which `createPackageJson` passes through untouched: a CLI that fails at runtime on an old Node should refuse to install instead, while the libraries must not inherit a floor that has nothing to do with them. ESLint is resolved from the *target* project at runtime, never bundled. |
 
 ## Architecture
