@@ -76,6 +76,9 @@ const OVERLAY_RADIUS: Readonly<Record<Exclude<OverlayRadius, 'default'>, string>
   '2xl': 'overlay-corner-2xl'
 };
 
+/** The veil of a waiting overlay: at once, held at least `useDelayedBusy`'s 400ms */
+const VEIL_TIMING = { delay: 0 } as const;
+
 /** 15s: a save with no answer by then becomes a send error */
 export const SUBMIT_TIMEOUT = 15_000;
 
@@ -165,7 +168,7 @@ export interface OverlayBusyState {
   /** Inert at once: no second click, no second Enter */
   inert: boolean;
 
-  /** The veil, after 300ms and for at least 400 */
+  /** The veil, at once and for at least 400ms */
   visible: boolean;
 
   /** The save got no answer in time */
@@ -173,7 +176,11 @@ export interface OverlayBusyState {
 }
 
 /**
- * The timing of a waiting dialog: inert at once, the veil later, and a limit on a save.
+ * The timing of a waiting dialog: inert at once, the veil at once too, and a limit on a save.
+ *
+ * The veil answers a press of the user, so it comes with no delay (Marco, 2026-11-25): the 300ms of
+ * `useDelayedBusy`, right for a wait nobody asked for, read here as an interface slow to react. It
+ * fades in over 150ms and stays at least 400ms, which is what keeps a fast answer from blinking.
  *
  * The limit belongs to one save. When the wait ends the timeout is forgotten, adjusted while
  * rendering, so the next save of a dialog that stayed mounted gets its full limit instead of being
@@ -185,7 +192,7 @@ export function useOverlayBusy(busy: OverlayBusy | 'action', timeoutMs: number, 
   // ----
   // Internal Hooks
   // ----
-  const wait = useDelayedBusy(busy !== false);
+  const wait = useDelayedBusy(busy !== false, VEIL_TIMING);
 
 
   // ----

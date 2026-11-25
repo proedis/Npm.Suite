@@ -773,6 +773,12 @@ narrower stylesheet is the one you have to ask for.
   1x, 2x and 6x in Chrome, and in WebKit, which was already right; every visible input of the form pages
   with a content box of exactly one line. ⚠️ `h-full` must not come back on these inputs: it is what
   reintroduces the pixel.
+- **The veil of an overlay comes at once** (Marco, 2026-11-25). `useOverlayBusy` asks `useDelayedBusy`
+  for `{ delay: 0 }`: the 300ms default, right for a wait nobody asked for (a table refreshing, a remote
+  search), read after a press as an interface slow to react. The veil fades in over 150ms and keeps the
+  400ms minimum, which is what stops a fast answer from blinking. While saving the header goes under it
+  (`z-20` only while not inert, so the x of a loading dialog stays usable), and the veil reads
+  `rounded-overlay`, so it covers the whole panel at its corner.
 - **The three overlays share one corner** (Marco, 2026-11-25). `--overlay-radius` is the corner of
   Dialog, Drawer and AlertDialog, `lg` undeclared; `--dialog-radius`, `--drawer-radius` and
   `--alert-dialog-radius` let one of them differ and fall back to it. The panel carries the variable of

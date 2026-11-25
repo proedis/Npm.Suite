@@ -12,7 +12,10 @@ import { Spinner } from './Spinner';
  * -------- */
 
 export interface BusyVeilProps {
-  /** From `useDelayedBusy`: the veil shows after 300ms and stays at least 400ms */
+  /**
+   * From `useDelayedBusy`. After a press of the user, `{ delay: 0 }`: the veil at once, held at least
+   * 400ms, as the overlays do; the default 300ms delay is for a wait nobody asked for
+   */
   visible: boolean;
 
   /** What is happening, already translated: "Saving the signal". Shown and announced */

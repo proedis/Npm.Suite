@@ -193,8 +193,8 @@ const [ DialogCloseContext, useDialogCloseContext ] = optionalContextBuilder<Dia
  * prompt opens first. A click outside closes only a detail (no footer, no changes); otherwise the
  * panel jolts. The focus goes to the first field (the toolbar's, then the body's), or to the primary
  * in a confirmation, or to the body in a detail; never to the x. On closing it goes back to the control that opened it, or to
- * `returnFocus`, or to the title of the page. `busy` makes it inert at once and shows the veil after
- * 300ms. A dialog opened from inside this one sits 120px from the top, over a lighter veil.
+ * `returnFocus`, or to the title of the page. `busy` makes it inert and shows the veil at once, for at
+ * least 400ms. A dialog opened from inside this one sits 120px from the top, over a lighter veil.
  *
  * The dialog renders no `<form>`: a `Form` in the body takes its id, and `Dialog.Submit` in the
  * footer points at it.
