@@ -99,9 +99,12 @@ working, since nx builds its own PATH.
 
 ```bash
 yarn release:preflight  # lint + build + verify, before anything is bumped
-yarn release:version    # lerna version, interactive per package
-yarn release:finalize   # build + verify + publish
+yarn release:version    # lerna version, interactive per package: bumps, tags, pushes
+# then GitHub → Actions → Publish → Run workflow, on master (trusted publishing, below)
 ```
+
+`yarn release:finalize` (build + verify + publish) still works from a machine, but only with a token
+or a one time password: npm asks for a second factor on every publish from outside the workflow.
 
 **There is deliberately no single `release` script, and the reason is the order of the steps.**
 `lerna version` bumps, commits, tags and — with no `--no-push` in `lerna.json` or in the script —
@@ -133,15 +136,30 @@ dependent into the bump set unconditionally, so one change to `types` still bump
 downstream of it.
 
 `.github/workflows/ci.yml` runs lint → build → verify on every push to `master`, every pull
-request, and on demand. **CI never publishes** — that was tried and pulled back out; releasing
-stays a deliberate local action.
+request, and on demand, and never publishes.
 
-Should it ever be automated, the constraint to design around is that independent versioning
-creates **one tag per package** — the last multi-package release pushed 13 tags at the same commit,
-so `on: push: tags` would start 13 concurrent runs each trying to publish everything. The trigger
-has to be a branch push or a manual dispatch, with `lerna publish from-package`, which needs no tags:
-it compares each local version against the registry, publishes only what is missing, and is a
-no-op on a re-run.
+**Publishing runs in `.github/workflows/publish.yml`, through npm's trusted publishing** (Marco,
+2026-11-25, when npm's mandatory second factor made publishing from a machine a one time password per
+package). It changes who authenticates, not how versions are chosen: the bump stays local and
+interactive, and the workflow publishes what the bump committed. It starts **only by hand**
+(`workflow_dispatch`), only from `master`, in the GitHub environment `npm`: releasing stays a
+deliberate action, now a button instead of a command. A tag must never start it, since independent
+versioning pushes one tag per package (13 at the same commit in the last multi-package release), and
+each would start a run. `lerna publish from-package` needs no tag: it reads every version from the
+manifests, publishes what the registry lacks, and is a no-op on a re-run.
+
+How it authenticates, read in lerna 10's own `oidc.ts`: with `id-token: write`, lerna asks GitHub for
+the identity of the job, exchanges it with npm for a token valid for one package, and, the repository
+being public, turns provenance on. No secret lives anywhere. `setup-node` gets no `registry-url`, which
+would write an empty `_authToken` into `.npmrc`. The build happens in the workflow, after the bump, which
+is what `createPackageJson` needs.
+
+What npm must know, once per package on npmjs.com (Settings → Trusted publishing → GitHub Actions):
+the organization `proedis`, the repository `Npm.Suite`, the workflow `publish.yml`, the environment
+`npm`. A package that is not on the registry yet cannot be configured: its first version is published
+from a machine, with a one time password, and configured right after (`@proedis/form` was the case when
+this was set up). With every package configured, "Require two-factor authentication and disallow
+tokens" in the same settings makes a stolen token useless for publishing.
 
 **Never run any of the release scripts, `git push`, or `lerna publish` unless explicitly asked.**
 

@@ -1,0 +1,60 @@
+name: Publish
+
+# Publishes to npm the packages whose version is not on the registry yet, through trusted publishing:
+# no token, no one time password. npm trusts this workflow, in this repository and in the `npm`
+# environment, for every package configured that way on npmjs.com, and lerna exchanges the identity of
+# the job for a token valid for one package at a time. The repository is public, so every version is
+# published with a signed provenance.
+#
+# It runs only by hand, from master, after `yarn release:version` has bumped, tagged and pushed: a tag
+# never starts it, because independent versioning pushes one tag per package and each would start a run.
+# `lerna publish from-package` reads each version from the manifests and skips what the registry already
+# has, so a second run on the same commit publishes nothing, and a run stopped halfway publishes the rest.
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Build, verify and publish
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+
+    # The environment npm trusts: its protection rules (who may run it) live in the settings of the repository
+    environment: npm
+
+    permissions:
+      contents: read
+
+      # The identity of the job, which npm exchanges for a token: without it the exchange is skipped
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Must run before setup-node: the yarn cache step shells out to `yarn --version`,
+      # which needs corepack to have resolved the version pinned in `packageManager`.
+      - name: Enable corepack
+        run: corepack enable
+
+      # No registry-url: it writes an `_authToken` into .npmrc, and trusted publishing needs none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      # Lint, build and verify: the artifacts are built here, after the bump, so they carry the new versions
+      - name: Preflight
+        run: yarn release:preflight
+
+      - name: Publish
+        run: yarn release:publish --yes
