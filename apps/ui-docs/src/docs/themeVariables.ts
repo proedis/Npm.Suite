@@ -64,6 +64,7 @@ const SINGLE: Readonly<Record<string, string>> = {
   '--button-border-shade': 'The border of the solid fill: the tone mixed with this much black, 0% for a border the colour of the fill.',
   '--button-highlight': 'From 0 to 1: a light line inside the top edge.',
   '--button-press-scale': 'How much a button gives under the pointer: 0.98 of its size, 1 for none.',
+  '--button-press-translate': 'How far a button moves under the pointer: none by default, 0 1px to sink it a pixel.',
   '--button-glow'     : 'From 0 to 1: a soft shadow under the button, in the colour of its tone.',
   '--loading-bar-radius': 'The corner of a LoadingBar that declares no radius, and of its segment. Undeclared, square.',
   '--surface-radius'  : 'The corner of a Surface that declares no radius. Undeclared, --radius-lg.',

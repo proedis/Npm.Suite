@@ -19,6 +19,8 @@ const THEME = `
     --button-border-shade: 22%;
     --button-highlight: 0.3;
     --button-glow: 0.5;
+    --button-press-scale: 0.97;
+    --button-press-translate: 0 1px;
   }
 `;
 

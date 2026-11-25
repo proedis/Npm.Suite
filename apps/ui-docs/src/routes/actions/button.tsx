@@ -321,7 +321,9 @@ function ButtonPage(): React.ReactNode {
                 <InlineCode>--button-glow</InlineCode>, a soft shadow in the colour of the tone. Each part is derived
                 from <InlineCode>--tone</InlineCode>, the colour the button sets on itself, so one theme serves the
                 seven tones. Every button gives under the pointer, to <InlineCode>--button-press-scale</InlineCode> of
-                its size (0.98; 1 for none), and not at all under reduced motion.
+                its size (0.98; 1 for none), and moves by <InlineCode>--button-press-translate</InlineCode> (none;{' '}
+                <InlineCode>0 1px</InlineCode> sinks it a pixel), not at all under reduced motion. The example
+                declares both: press the large button.
               </React.Fragment>
             )}
           >
