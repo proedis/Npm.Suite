@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Avatar } from '@proedis/ui/display/person';
 import { Cluster } from '@proedis/ui/layout';
 
-import { PORTRAIT_SRC } from './photo';
+import { PORTRAIT_SRC } from '@/examples/display/person/photo';
 
 
 /** Alone, each circle has a name and a tooltip: hover them, or reach them with Tab */

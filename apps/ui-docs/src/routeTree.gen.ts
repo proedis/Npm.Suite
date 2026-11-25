@@ -21,8 +21,10 @@ import { Route as DataDetailRouteImport } from './routes/data/detail'
 import { Route as DataFiltersBarRouteImport } from './routes/data/filters-bar'
 import { Route as DataModalSelectorRouteImport } from './routes/data/modal-selector'
 import { Route as DataTableRouteImport } from './routes/data/table'
+import { Route as DisplayAvatarRouteImport } from './routes/display/avatar'
 import { Route as DisplayBadgeRouteImport } from './routes/display/badge'
 import { Route as DisplayBadgeCounterRouteImport } from './routes/display/badge-counter'
+import { Route as DisplayBadgeDotRouteImport } from './routes/display/badge-dot'
 import { Route as DisplayHeadingRouteImport } from './routes/display/heading'
 import { Route as DisplayIconBoxRouteImport } from './routes/display/icon-box'
 import { Route as DisplayItemRouteImport } from './routes/display/item'
@@ -147,6 +149,11 @@ const DataTableRoute = DataTableRouteImport.update({
   path: '/data/table',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DisplayAvatarRoute = DisplayAvatarRouteImport.update({
+  id: '/display/avatar',
+  path: '/display/avatar',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DisplayBadgeRoute = DisplayBadgeRouteImport.update({
   id: '/display/badge',
   path: '/display/badge',
@@ -155,6 +162,11 @@ const DisplayBadgeRoute = DisplayBadgeRouteImport.update({
 const DisplayBadgeCounterRoute = DisplayBadgeCounterRouteImport.update({
   id: '/display/badge-counter',
   path: '/display/badge-counter',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DisplayBadgeDotRoute = DisplayBadgeDotRouteImport.update({
+  id: '/display/badge-dot',
+  path: '/display/badge-dot',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DisplayHeadingRoute = DisplayHeadingRouteImport.update({
@@ -488,8 +500,10 @@ export interface FileRoutesByFullPath {
   '/data/filters-bar': typeof DataFiltersBarRoute
   '/data/modal-selector': typeof DataModalSelectorRoute
   '/data/table': typeof DataTableRoute
+  '/display/avatar': typeof DisplayAvatarRoute
   '/display/badge': typeof DisplayBadgeRoute
   '/display/badge-counter': typeof DisplayBadgeCounterRoute
+  '/display/badge-dot': typeof DisplayBadgeDotRoute
   '/display/heading': typeof DisplayHeadingRoute
   '/display/icon-box': typeof DisplayIconBoxRoute
   '/display/item': typeof DisplayItemRoute
@@ -567,8 +581,10 @@ export interface FileRoutesByTo {
   '/data/filters-bar': typeof DataFiltersBarRoute
   '/data/modal-selector': typeof DataModalSelectorRoute
   '/data/table': typeof DataTableRoute
+  '/display/avatar': typeof DisplayAvatarRoute
   '/display/badge': typeof DisplayBadgeRoute
   '/display/badge-counter': typeof DisplayBadgeCounterRoute
+  '/display/badge-dot': typeof DisplayBadgeDotRoute
   '/display/heading': typeof DisplayHeadingRoute
   '/display/icon-box': typeof DisplayIconBoxRoute
   '/display/item': typeof DisplayItemRoute
@@ -647,8 +663,10 @@ export interface FileRoutesById {
   '/data/filters-bar': typeof DataFiltersBarRoute
   '/data/modal-selector': typeof DataModalSelectorRoute
   '/data/table': typeof DataTableRoute
+  '/display/avatar': typeof DisplayAvatarRoute
   '/display/badge': typeof DisplayBadgeRoute
   '/display/badge-counter': typeof DisplayBadgeCounterRoute
+  '/display/badge-dot': typeof DisplayBadgeDotRoute
   '/display/heading': typeof DisplayHeadingRoute
   '/display/icon-box': typeof DisplayIconBoxRoute
   '/display/item': typeof DisplayItemRoute
@@ -728,8 +746,10 @@ export interface FileRouteTypes {
     | '/data/filters-bar'
     | '/data/modal-selector'
     | '/data/table'
+    | '/display/avatar'
     | '/display/badge'
     | '/display/badge-counter'
+    | '/display/badge-dot'
     | '/display/heading'
     | '/display/icon-box'
     | '/display/item'
@@ -807,8 +827,10 @@ export interface FileRouteTypes {
     | '/data/filters-bar'
     | '/data/modal-selector'
     | '/data/table'
+    | '/display/avatar'
     | '/display/badge'
     | '/display/badge-counter'
+    | '/display/badge-dot'
     | '/display/heading'
     | '/display/icon-box'
     | '/display/item'
@@ -886,8 +908,10 @@ export interface FileRouteTypes {
     | '/data/filters-bar'
     | '/data/modal-selector'
     | '/data/table'
+    | '/display/avatar'
     | '/display/badge'
     | '/display/badge-counter'
+    | '/display/badge-dot'
     | '/display/heading'
     | '/display/icon-box'
     | '/display/item'
@@ -966,8 +990,10 @@ export interface RootRouteChildren {
   DataFiltersBarRoute: typeof DataFiltersBarRoute
   DataModalSelectorRoute: typeof DataModalSelectorRoute
   DataTableRoute: typeof DataTableRoute
+  DisplayAvatarRoute: typeof DisplayAvatarRoute
   DisplayBadgeRoute: typeof DisplayBadgeRoute
   DisplayBadgeCounterRoute: typeof DisplayBadgeCounterRoute
+  DisplayBadgeDotRoute: typeof DisplayBadgeDotRoute
   DisplayHeadingRoute: typeof DisplayHeadingRoute
   DisplayIconBoxRoute: typeof DisplayIconBoxRoute
   DisplayItemRoute: typeof DisplayItemRoute
@@ -1119,6 +1145,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DataTableRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/display/avatar': {
+      id: '/display/avatar'
+      path: '/display/avatar'
+      fullPath: '/display/avatar'
+      preLoaderRoute: typeof DisplayAvatarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/display/badge': {
       id: '/display/badge'
       path: '/display/badge'
@@ -1131,6 +1164,13 @@ declare module '@tanstack/react-router' {
       path: '/display/badge-counter'
       fullPath: '/display/badge-counter'
       preLoaderRoute: typeof DisplayBadgeCounterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/display/badge-dot': {
+      id: '/display/badge-dot'
+      path: '/display/badge-dot'
+      fullPath: '/display/badge-dot'
+      preLoaderRoute: typeof DisplayBadgeDotRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/display/heading': {
@@ -1590,8 +1630,10 @@ const rootRouteChildren: RootRouteChildren = {
   DataFiltersBarRoute: DataFiltersBarRoute,
   DataModalSelectorRoute: DataModalSelectorRoute,
   DataTableRoute: DataTableRoute,
+  DisplayAvatarRoute: DisplayAvatarRoute,
   DisplayBadgeRoute: DisplayBadgeRoute,
   DisplayBadgeCounterRoute: DisplayBadgeCounterRoute,
+  DisplayBadgeDotRoute: DisplayBadgeDotRoute,
   DisplayHeadingRoute: DisplayHeadingRoute,
   DisplayIconBoxRoute: DisplayIconBoxRoute,
   DisplayItemRoute: DisplayItemRoute,

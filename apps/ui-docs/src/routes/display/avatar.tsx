@@ -117,7 +117,7 @@ function AvatarPage(): React.ReactNode {
           <DocTable
             head={[ 'State', 'Look', 'Written' ]}
             rows={[
-              [ 'Anybody', 'The quiet muted circle, the initials in the foreground', <InlineCode key={'w'}>{'kind="person"'}</InlineCode> ],
+              [ 'Anybody', 'The quiet muted circle, the initials in the foreground', <span key={'w'}><InlineCode>kind</InlineCode> person</span> ],
               [ 'The user of the application', 'primary-soft', <InlineCode key={'w'}>current</InlineCode> ],
               [ 'Inactive', 'Dashed, transparent, a grey photo. Wins over current', <InlineCode key={'w'}>inactive</InlineCode> ],
               [ 'Organization, system, unknown', 'The muted circle and its icon', <InlineCode key={'w'}>kind</InlineCode> ]
