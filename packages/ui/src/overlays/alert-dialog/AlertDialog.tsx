@@ -4,8 +4,6 @@ import * as React from 'react';
 
 import { AlertDialog as AlertDialogPrimitive } from '@base-ui/react/alert-dialog';
 
-import { cn } from '../../core/cn';
-
 import { BusyVeil } from '../../primitives/BusyVeil';
 
 import { isPresent } from '../../internal/presence';
@@ -281,6 +279,11 @@ export function AlertDialog(props: AlertDialogProps): React.ReactNode {
   };
 
   const runAction = (): void => {
+    /* Enter in the field reaches here too: nothing runs before the consequences have been read */
+    if (busy === 'load') {
+      return;
+    }
+
     if (!matches) {
       setMismatch(true);
       fieldRef.current?.focus();
@@ -381,17 +384,18 @@ export function AlertDialog(props: AlertDialogProps): React.ReactNode {
             )}
           />
           {!outcome && (
+            /*
+             * Disabled while the consequences load and until the text matches, in the look of a disabled
+             * button: it used to stay clickable in appearance (Marco, 2026-11-25). It keeps the focus, and a
+             * text that does not match is still explained by Enter in the field
+             */
             <Button
               fill={'solid'}
               tone={'destructive'}
               data-slot={'alert-dialog-action'}
-              aria-disabled={!matches || busy === 'load' || undefined}
-              className={cn((!matches || busy === 'load') && 'bg-destructive/50 hover:bg-none active:bg-none')}
-              onClick={() => {
-                if (busy !== 'load') {
-                  runAction();
-                }
-              }}
+              disabled={!matches || busy === 'load'}
+              focusableWhenDisabled
+              onClick={runAction}
             >
               {actionLabel}
             </Button>

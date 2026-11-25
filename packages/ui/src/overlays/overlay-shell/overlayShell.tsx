@@ -399,10 +399,10 @@ interface OverlayHeaderProps {
   /** The x, the arrows of a drawer: on the right, on the line of the title */
   end?: React.ReactNode;
 
-  /** Inert while saving; while loading only the x stays usable, above the veil */
+  /** Inert while saving, and then under the veil; while loading only the x stays usable, above it */
   inert?: boolean;
 
-  /** A dialog with no x lines up 24px on both sides */
+  /** A dialog with no x lines up 24px above and on both sides */
   symmetric?: boolean;
 
   dataSlot: string;
@@ -422,7 +422,13 @@ export function OverlayHeader(props: OverlayHeaderProps): React.ReactNode {
       direction={'horizontal'}
       align={'start'}
       gap={3}
-      className={cn('relative z-20 flex-none pt-4 pb-2 ps-6', symmetric ? 'pe-6' : 'pe-4')}
+      className={cn(
+        'relative flex-none pb-2 ps-6',
+        /* With no x, the room above equals the room beside, so an icon sits square in its corner */
+        symmetric ? 'pt-6 pe-6' : 'pt-4 pe-4',
+        /* Above the veil while loading, for the x; under it while saving, when nothing can be used */
+        !inert && 'z-20'
+      )}
     >
       {hasIcon && (
         <IconBox data-slot={`${dataSlot}-icon`} size={'sm'} fill={'soft'} tone={iconTone} className={'rounded-md'}>
