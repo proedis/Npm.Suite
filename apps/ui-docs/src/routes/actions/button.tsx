@@ -97,7 +97,8 @@ function ButtonPage(): React.ReactNode {
         >
           <Example of={tones} />
           <Callout>
-            <InlineCode>primary</InlineCode> is the default and the right choice almost always.{' '}
+            <InlineCode>primary</InlineCode> is the default and the right choice almost always, and{' '}
+            <InlineCode>muted</InlineCode> the neutral action beside it: a grey surface with the standard ink.{' '}
             <InlineCode>destructive</InlineCode> is for an action that loses something, and that action asks for a
             confirmation anyway: the red tells the user to read, the dialog makes sure they did.
           </Callout>
@@ -319,7 +320,8 @@ function ButtonPage(): React.ReactNode {
                 <InlineCode>--button-highlight</InlineCode>, a light line inside the top edge;{' '}
                 <InlineCode>--button-glow</InlineCode>, a soft shadow in the colour of the tone. Each part is derived
                 from <InlineCode>--tone</InlineCode>, the colour the button sets on itself, so one theme serves the
-                seven tones.
+                seven tones. Every button gives under the pointer, to <InlineCode>--button-press-scale</InlineCode> of
+                its size (0.98; 1 for none), and not at all under reduced motion.
               </React.Fragment>
             )}
           >

@@ -14,7 +14,7 @@ export default function Example(): React.ReactNode {
       <IconButton label={'Filter'} icon={<Filter />} />
       <IconButton label={'Download'} icon={<Download />} />
       <IconButton label={'Settings'} icon={<Settings />} />
-      <Divider orientation={'vertical'} className={'mx-1 h-5'} />
+      <Divider orientation={'vertical'} spacing={1} />
       <IconButton label={'Delete'} icon={<Trash2 />} tone={'destructive'} />
     </Stack>
   );

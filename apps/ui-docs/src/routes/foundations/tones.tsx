@@ -25,9 +25,9 @@ const PAGE = pageAt('/foundations/tones');
 
 /** The seven tones, what each one means, and the tokens it reads */
 const TONE_ROWS: readonly (readonly [ string, string, string ])[] = [
-  [ 'primary', 'The voice of the application: the action you want taken, the selected thing. The default of Button.', '--primary' ],
-  [ 'secondary', 'The quieter action next to it. A surface, not an accent.', '--secondary' ],
-  [ 'muted', 'The quiet register: a draft, a neutral state, a toolbar. A surface, not an accent. The default of Badge and IconButton.', '--muted' ],
+  [ 'primary', 'The voice of the application: the action you want taken, the selected thing. The default of Button. A colour of the product.', '--primary' ],
+  [ 'secondary', 'A second colour of the product, for the support of its own interface. Neutral until the product gives it one.', '--secondary' ],
+  [ 'muted', 'The neutral tone of the package: the quieter action, a draft, a toolbar. A grey surface with the standard ink, never a disabled look. The default of Badge and IconButton.', '--muted' ],
   [ 'success', 'Done, approved, in service.', '--success' ],
   [ 'warning', 'Needs attention, late, to be checked.', '--warning' ],
   [ 'destructive', 'Loses something, or went wrong: delete, an error, an invalid field.', '--destructive' ],
@@ -119,8 +119,9 @@ function TonesPage(): React.ReactNode {
           lead={(
             <React.Fragment>
               <InlineCode>muted</InlineCode> and <InlineCode>secondary</InlineCode> are already the quiet register, so
-              a tenth of them would be invisible: their soft fill is their own surface at half strength, with their own
-              foreground as ink. The second row shows what the general rule would have given.
+              a tenth of them would be invisible: their soft fill is their own surface at half strength. The ink of{' '}
+              <InlineCode>muted</InlineCode> on a fill is the standard one, <InlineCode>--foreground</InlineCode>: grey
+              on grey reads as a control that is off. The second row shows what the general rule would have given.
             </React.Fragment>
           )}
         >

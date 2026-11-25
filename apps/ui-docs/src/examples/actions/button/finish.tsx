@@ -28,8 +28,15 @@ export default function Example(): React.ReactNode {
     <Stack data-finish-demo align={'center'} gap={'xl'} className={'w-full rounded-xl bg-primary-soft py-10'}>
       <style>{THEME}</style>
 
-      {/* The call to action of a landing: larger than a control, so the size is this button's own */}
-      <Button leading={<Download />} size={'lg'} className={'h-14 px-8 text-lg font-semibold [&_svg]:size-5'}>
+      {/*
+        The call to action of a landing: larger than a control, so the size is this button's own. A button
+        tightens its padding on the side of an icon, so a size of its own states that side too
+      */}
+      <Button
+        leading={<Download />}
+        size={'lg'}
+        className={'h-14 px-8 text-lg font-semibold has-[[data-slot=button-leading]]:ps-7 [&_svg]:size-5'}
+      >
         Download for Mac
       </Button>
 
