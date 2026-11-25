@@ -101,9 +101,9 @@ function TogglePage(): React.ReactNode {
           lead={(
             <React.Fragment>
               A disabled toggle stays reachable and its tooltip says why, through{' '}
-              <InlineCode>disabledReason</InlineCode>. <InlineCode>pending</InlineCode> is a change being saved: clicks
-              are ignored and nothing changes in its look, so a quick save does not flicker. Press the second one twice
-              in a row.
+              <InlineCode>disabledReason</InlineCode>. <InlineCode>pending</InlineCode> is a change being saved, and the
+              toggle is disabled until it is: the disabled look, a spinner in place of its icon, clicks ignored,{' '}
+              <InlineCode>aria-busy</InlineCode> for a screen reader. Press the second one.
             </React.Fragment>
           )}
         >
@@ -111,7 +111,8 @@ function TogglePage(): React.ReactNode {
           <Callout>
             Neither state reaches Base UI as <InlineCode>disabled</InlineCode>, which would take the toggle out of the
             Tab order and out of the arrows of its group. Both render <InlineCode>aria-disabled</InlineCode> and{' '}
-            <InlineCode>data-disabled</InlineCode> (or <InlineCode>data-pending</InlineCode>) and cancel the change.
+            <InlineCode>data-disabled</InlineCode> and cancel the change; a pending one adds{' '}
+            <InlineCode>data-pending</InlineCode> and <InlineCode>aria-busy</InlineCode>.
           </Callout>
         </Section>
 
