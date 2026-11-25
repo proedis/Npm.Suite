@@ -698,7 +698,8 @@ export function OverlayBody(props: OverlayBodyProps): React.ReactNode {
   return (
     <React.Fragment>
       {hasToolbar && (
-        <div data-slot={`${dataSlot}-toolbar`} inert={inertValue(inert)} className={'flex-none px-6 pt-2 pb-1'}>
+        /* 12px under the toolbar before the body's edge, where the rows scroll away under the shade */
+        <div data-slot={`${dataSlot}-toolbar`} inert={inertValue(inert)} className={'flex-none px-6 pt-2 pb-3'}>
           {toolbar}
         </div>
       )}
@@ -732,9 +733,11 @@ export function OverlayBody(props: OverlayBodyProps): React.ReactNode {
                   align={'center'}
                   gap={2}
                   className={cn(
-                    'relative min-h-8 rounded-sm px-2 py-1.5 text-start outline-none',
-                    'hover:bg-accent focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-ring',
-                    'aria-[current=location]:bg-primary-soft aria-[current=location]:text-primary-soft-foreground',
+                    'relative min-h-8 rounded-sm px-2 py-1.5 text-start text-muted-foreground outline-none transition-colors',
+                    'hover:text-foreground motion-reduce:transition-none',
+                    'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-ring',
+                    /* The current one: the bar on its left and the weight, no fill (Marco, 2026-11-25) */
+                    'aria-[current=location]:font-semibold aria-[current=location]:text-foreground',
                     'aria-[current=location]:before:absolute aria-[current=location]:before:inset-y-1 aria-[current=location]:before:start-0',
                     'aria-[current=location]:before:w-0.5 aria-[current=location]:before:bg-primary'
                   )}
@@ -768,7 +771,8 @@ export function OverlayBody(props: OverlayBodyProps): React.ReactNode {
             data-slot={`${dataSlot}-body`}
             tabIndex={focusable ? 0 : undefined}
             className={cn(
-              'min-h-0 flex-1 overflow-y-auto overscroll-contain scrollbar-thin scroll-py-4 px-6 pt-2 outline-none',
+              'min-h-0 flex-1 overflow-y-auto overscroll-contain scrollbar-thin scroll-py-4 px-6 outline-none',
+              hasToolbar ? 'pt-1' : 'pt-2',
               hasFooter ? 'pb-2' : 'pb-6',
               indent && 'ps-17',
               'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-4 focus-visible:outline-ring'
