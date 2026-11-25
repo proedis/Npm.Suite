@@ -595,26 +595,30 @@ export function ModalSelector<TData>(props: ModalSelectorProps<TData>): React.Re
 
   if (failed) {
     state = (
-      <EmptyState
-        kind={'error'}
-        size={'panel'}
-        icon={<TableGlyph name={'alert'} />}
-        title={labels.error}
-        description={labels.errorHint}
-        actions={onRetry ? [ { label: labels.retry, role: 'retry', onClick: onRetry } ] : []}
-      />
+      <EmptyState tone={'destructive'}>
+        <EmptyState.Icon><TableGlyph name={'alert'} /></EmptyState.Icon>
+        <EmptyState.Title>{labels.error}</EmptyState.Title>
+        <EmptyState.Description>{labels.errorHint}</EmptyState.Description>
+        {onRetry && (
+          <EmptyState.Actions>
+            <Button size={'sm'} tone={'muted'} onClick={onRetry}>{labels.retry}</Button>
+          </EmptyState.Actions>
+        )}
+      </EmptyState>
     );
   }
   else if (noRows && status === 'ready') {
     state = (
-      <EmptyState
-        kind={'no-results'}
-        size={'panel'}
-        icon={<TableGlyph name={'searchX'} />}
-        title={query === '' ? labels.noResultsFilters : labels.noResults(query)}
-        description={labels.noResultsHint}
-        actions={[ { label: query === '' ? labels.clearFilters : labels.clearFiltersAndSearch, role: 'clear', onClick: clearAllFilters } ]}
-      />
+      <EmptyState>
+        <EmptyState.Icon><TableGlyph name={'searchX'} /></EmptyState.Icon>
+        <EmptyState.Title>{query === '' ? labels.noResultsFilters : labels.noResults(query)}</EmptyState.Title>
+        <EmptyState.Description>{labels.noResultsHint}</EmptyState.Description>
+        <EmptyState.Actions>
+          <Button size={'sm'} fill={'plain'} tone={'destructive'} leading={<ClearGlyph />} onClick={clearAllFilters}>
+            {query === '' ? labels.clearFilters : labels.clearFiltersAndSearch}
+          </Button>
+        </EmptyState.Actions>
+      </EmptyState>
     );
   }
 

@@ -26,6 +26,8 @@ import { Stack } from '../../layout/Stack';
 
 import { LoadingBar } from '../../primitives/LoadingBar';
 
+import { ClearGlyph } from '../../internal/glyphs';
+
 import { Button } from '../../actions/button/Button';
 import { IconButton } from '../../actions/button/IconButton';
 import { Menu } from '../../actions/menu/Menu';
@@ -880,42 +882,61 @@ export function Table<TData extends object>(props: TableProps<TData>): React.Rea
       const invalid = error?.retryable === false;
 
       state = (
-        <EmptyState
-          kind={invalid ? 'invalid-view' : 'error'}
-          size={'panel'}
-          icon={<TableGlyph name={invalid ? 'funnelX' : 'alert'} />}
-          title={invalid ? labels.invalidView : labels.error}
-          description={invalid ? labels.invalidViewHint : labels.errorHint}
-          actions={invalid
-            ? (onClearFilters ? [ { label: labels.clearFiltersAndSearch, role: 'clear', onClick: onClearFilters } ] : [])
-            : (onRetry ? [ { label: labels.retry, role: 'retry', onClick: onRetry } ] : [])}
-        />
+        <EmptyState tone={invalid ? 'muted' : 'destructive'}>
+          <EmptyState.Icon><TableGlyph name={invalid ? 'funnelX' : 'alert'} /></EmptyState.Icon>
+          <EmptyState.Title>{invalid ? labels.invalidView : labels.error}</EmptyState.Title>
+          <EmptyState.Description>{invalid ? labels.invalidViewHint : labels.errorHint}</EmptyState.Description>
+          {invalid && onClearFilters && (
+            <EmptyState.Actions>
+              <Button size={'sm'} fill={'plain'} tone={'destructive'} leading={<ClearGlyph />} onClick={onClearFilters}>
+                {labels.clearFiltersAndSearch}
+              </Button>
+            </EmptyState.Actions>
+          )}
+          {!invalid && onRetry && (
+            <EmptyState.Actions>
+              <Button size={'sm'} tone={'muted'} onClick={onRetry}>{labels.retry}</Button>
+            </EmptyState.Actions>
+          )}
+        </EmptyState>
       );
     }
     else if (noRows && (filterKey !== '' || searchActive || !empty)) {
       state = (
-        <EmptyState
-          kind={'no-results'}
-          size={'panel'}
-          icon={<TableGlyph name={'searchX'} />}
-          title={labels.noResults}
-          description={labels.noResultsHint}
-          actions={onClearFilters && (filterKey !== '' || searchActive)
-            ? [ { label: searchActive ? labels.clearFiltersAndSearch : labels.clearFilters, role: 'clear', onClick: onClearFilters } ]
-            : []}
-        />
+        <EmptyState>
+          <EmptyState.Icon><TableGlyph name={'searchX'} /></EmptyState.Icon>
+          <EmptyState.Title>{labels.noResults}</EmptyState.Title>
+          <EmptyState.Description>{labels.noResultsHint}</EmptyState.Description>
+          {onClearFilters && (filterKey !== '' || searchActive) && (
+            <EmptyState.Actions>
+              <Button size={'sm'} fill={'plain'} tone={'destructive'} leading={<ClearGlyph />} onClick={onClearFilters}>
+                {searchActive ? labels.clearFiltersAndSearch : labels.clearFilters}
+              </Button>
+            </EmptyState.Actions>
+          )}
+        </EmptyState>
       );
     }
     else if (noRows && empty) {
       state = (
-        <EmptyState
-          kind={'first-use'}
-          size={'panel'}
-          icon={empty.icon}
-          title={empty.title}
-          description={empty.description}
-          actions={empty.action ? [ { ...empty.action, role: 'create' } ] : []}
-        />
+        <EmptyState tone={'primary'}>
+          <EmptyState.Icon>{empty.icon}</EmptyState.Icon>
+          <EmptyState.Title>{empty.title}</EmptyState.Title>
+          {empty.description !== undefined && <EmptyState.Description>{empty.description}</EmptyState.Description>}
+          {empty.action && (
+            <EmptyState.Actions>
+              <Button
+                size={'sm'}
+                fill={'soft'}
+                leading={empty.action.icon}
+                to={empty.action.target}
+                onClick={empty.action.target ? undefined : empty.action.onClick}
+              >
+                {empty.action.label}
+              </Button>
+            </EmptyState.Actions>
+          )}
+        </EmptyState>
       );
     }
 

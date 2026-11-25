@@ -517,13 +517,21 @@ const neverDirty = <Dialog open onOpenChange={() => undefined} title={'T'} label
 /** @ts-expect-error the same rule in a drawer */
 const drawerDirtyWithoutPrompt = <Drawer open onOpenChange={() => undefined} title={'T'} labels={drawerLabels} dirty={formIsDirty} />;
 
-/* An empty state takes at most two actions: a third used to be dropped without a word */
-const anAction = { role: 'retry' as const, label: 'Retry', onClick: () => undefined };
+/* An empty state is a composition: a size, a tone, and its parts */
+const composedEmptyState = (
+  <EmptyState size={'page'} tone={'primary'}>
+    <EmptyState.Icon halo><svg /></EmptyState.Icon>
+    <EmptyState.Title as={'h2'}>T</EmptyState.Title>
+    <EmptyState.Description>D</EmptyState.Description>
+    <EmptyState.Actions>{null}</EmptyState.Actions>
+  </EmptyState>
+);
 
-const twoActions = <EmptyState kind={'error'} title={'T'} icon={null} actions={[ anAction, anAction ]} />;
+/** @ts-expect-error the case is a tone now: kind is gone */
+const emptyStateKind = <EmptyState kind={'error'} />;
 
-/** @ts-expect-error a third action */
-const threeActions = <EmptyState kind={'error'} title={'T'} icon={null} actions={[ anAction, anAction, anAction ]} />;
+/** @ts-expect-error the icon's size is the empty state's */
+const emptyStateIconSize = <EmptyState.Icon size={'xl'}><svg /></EmptyState.Icon>;
 
 const alertLabels = { busyLoad: 'l', busyAction: 'a', close: 'c', timeout: { title: 't', description: 'd' } };
 
@@ -608,7 +616,8 @@ export const CHECKED = [
   namedToggle, namelessToggle, namedGroup, namelessGroup, chosenView, emptyView, namelessItem,
   formLibraryBox, namedRadioGroup, switchWithTitle, namedTabs, namelessTabs, closedTabs,
   silentIconButton, silentPassword, namelessArrows, namelessConfirm,
-  dirtyWithoutPrompt, dirtyWithPrompt, neverDirty, drawerDirtyWithoutPrompt, twoActions, threeActions,
+  dirtyWithoutPrompt, dirtyWithPrompt, neverDirty, drawerDirtyWithoutPrompt,
+  composedEmptyState, emptyStateKind, emptyStateIconSize,
   filtersBarRoot, filtersBarChildren, singlePendingEnter, multiplePendingEnter,
   namedSteps, unknownStep, unknownStepResponsive, controlsAtLarge, controlOffTheScale
 ];

@@ -772,7 +772,7 @@ its own peers; none of them is re-exported by the root barrel. Every module is c
 | `actions/toggle` | `Toggle`, `ToggleGroup` |
 | `actions/tooltip` | `Tooltip`, `TooltipProvider` |
 | `feedback/alert` | `Alert` |
-| `feedback/empty-state` | `EmptyState`, at most two actions |
+| `feedback/empty-state` | `EmptyState` (`.Icon`, `.Title`, `.Description`, `.Actions`): a size and a tone, the parts composed |
 | `feedback/notifications` | `createNotifications`, `NotificationsProvider`, `JobsButton` |
 | `feedback/progress-bar` | `ProgressBar`, how far a piece of work has gone, and `Meter`, a quantity in a range: one bar |
 | `forms/form` | `Form` (`.Header`, `.ErrorSummary`, `.Section`, `.Footer`, `.Submit`, `.Cancel`), `FormSubmit`, `FormCancel` |
@@ -1274,7 +1274,7 @@ another package. A recessed surface is `--muted`.
 | `tailwindcss` `^4.0.0` | `^4.1.5`, see Compatibility |
 | a `Badge` with text renders the text as its child | the text is wrapped in `badge-label` and truncates with an ellipsis when the badge is too narrow |
 | `dirty` on a `Dialog` or `Drawer` without `discard` compiled, and did nothing | `discard` is required as soon as `dirty` can be true (`DialogDirtyProps`); `dirty={false}`, or none, needs none |
-| `actions` of an `EmptyState`: any array, the third and later dropped | at most two, by the type (`EmptyStateActions`): an array typed `EmptyStateAction[]` becomes a tuple |
+| `EmptyState` with `kind`, `icon`, `title`, `description`, `actions` as data | a composition: `<EmptyState size tone>` with `EmptyState.Icon`, `.Title` (`as` for the heading level, the ref for the focus), `.Description`, `.Actions` holding your Buttons. `kind` is a `tone` (`first-use` primary, `error` destructive, the others muted); `headingLevel` is `as` on the Title; `EmptyStateAction`, `EmptyStateActions` and `EmptyStateKind` are gone |
 | a `Stack` or a `Split` with no `gap`: the children touch | the gap is `md`, 1rem. Declare `gap={0}` where the children must touch |
 | `Cluster` `gap` defaults to `2`, `Grid` to `4` | `sm` and `md`: the same lengths, now following the theme's `--space-*` |
 | `<Skeleton className={'size-4'} />` for a box, and a line of text 10px tall | `shape={'block'}` for a box; a line of text is as tall as a line of its `size` (20px at `sm`) with the 10px bar in its middle, inside a `skeleton` element holding a `skeleton-bar` |

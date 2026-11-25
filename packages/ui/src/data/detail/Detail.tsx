@@ -12,6 +12,7 @@ import { Stack } from '../../layout/Stack';
 
 import { Label } from '../../primitives/Label';
 
+import { ToneGlyph } from '../../internal/glyphs';
 import { isPresent } from '../../internal/presence';
 
 import { Button } from '../../actions/button/Button';
@@ -330,8 +331,11 @@ const DetailSection = React.forwardRef<HTMLDivElement, DetailSectionProps>((prop
       {hasError
         ? (
           <Stack data-slot={'detail-section-error'} align={'start'} gap={2}>
-            <EmptyState size={'inline'} kind={'error'} title={error} />
-            {onRetry && <Button size={'sm'} fill={'solid'} tone={'secondary'} onClick={onRetry}>{labels.retry}</Button>}
+            <EmptyState size={'inline'} tone={'destructive'}>
+              <EmptyState.Icon><ToneGlyph tone={'destructive'} /></EmptyState.Icon>
+              <EmptyState.Title>{error}</EmptyState.Title>
+            </EmptyState>
+            {onRetry && <Button size={'sm'} tone={'muted'} onClick={onRetry}>{labels.retry}</Button>}
           </Stack>
         )
         : (

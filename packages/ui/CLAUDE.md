@@ -802,6 +802,13 @@ narrower stylesheet is the one you have to ask for.
   show, scaled; `none` and `full` are absolutes. The halo is two shadows of the box itself: the two
   spans it used to be sat at `-z-10` and went under the background of the first ancestor that had one,
   which is why it never showed. `soft` has no hairline any more.
+- **`EmptyState` is a composition, not a set of cases** (Marco, 2026-11-25): a root with `size` and
+  `tone` that its parts read from a context, and `.Icon` (an IconBox, its size the empty state's),
+  `.Title`, `.Description`, `.Actions` (the application's Buttons). The `kind` that fixed the tone and the
+  look of each action is gone: an application writes its own empty states once. The recipes the package
+  needs itself (clear the filters plain destructive with the x, retry solid muted, create soft primary)
+  live in Table and ModalSelector, which know their case. An `inline` empty state draws only its icon and
+  title, in the ink of the tone.
 - **`BadgeDot` is static and sits in the root barrel**, like `Badge`: no context, no behaviour, so a
   Server Component renders it. The pulse is Tailwind's `ping` on its `before:`, gone under reduced motion
   (the copy is hidden, not frozen mid scale). It is hidden from assistive technology unless `label`
