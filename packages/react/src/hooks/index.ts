@@ -6,6 +6,8 @@ export * from './useAutoSizer';
 
 export * from './useClickOutside';
 
+export * from './useClipboard';
+
 export * from './useDataManager';
 
 export * from './useDataSelector';
