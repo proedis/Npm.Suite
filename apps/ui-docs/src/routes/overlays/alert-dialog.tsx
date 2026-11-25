@@ -126,8 +126,8 @@ function AlertDialogPage(): React.ReactNode {
             <React.Fragment>
               The third grade, for what cannot be undone and takes a lot with it: <InlineCode>confirmText</InlineCode>{' '}
               is the text to type, always together with <InlineCode>consequences</InlineCode>. The focus opens on the
-              field. The action stays reachable but off until the text matches; pressing it, or Enter in the field, while
-              it is off shows the field error and brings the focus back to the field.
+              field. The action is disabled until the text matches, and while the consequences load; Enter in the field
+              before it matches shows the field error.
             </React.Fragment>
           )}
         >
@@ -189,9 +189,9 @@ function AlertDialogPage(): React.ReactNode {
               in place, so it is read the same way.
             </p>
             <p>
-              The action that is off is <InlineCode>aria-disabled</InlineCode>, not <InlineCode>disabled</InlineCode>: it
-              stays in the tab order and says why it does nothing when pressed. The hint of the field is a polite live
-              region, so “The name matches” is heard when it does.
+              The action that is off looks disabled and is announced as such (<InlineCode>aria-disabled</InlineCode>),
+              but stays in the tab order, so the focus never jumps when it turns on. The hint of the field is a polite
+              live region, so “The name matches” is heard when it does.
             </p>
           </Prose>
           <DocTable
@@ -228,7 +228,7 @@ function AlertDialogPage(): React.ReactNode {
               { slot: 'alert-dialog-footer', part: 'The footer' },
               { slot: 'alert-dialog-footer-actions', part: 'The two actions' },
               { slot: 'alert-dialog-cancel', part: 'The safe exit, or Close after an outcome' },
-              { slot: 'alert-dialog-action', part: 'The action', attributes: [ 'aria-disabled' ] },
+              { slot: 'alert-dialog-action', part: 'The action', attributes: [ 'aria-disabled', 'data-disabled' ] },
               { slot: 'alert-dialog-veil', part: 'The veil while the action runs' }
             ]}
           />
