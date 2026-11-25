@@ -274,9 +274,10 @@ function DialogPage(): React.ReactNode {
             <React.Fragment>
               A long form in an <InlineCode>lg</InlineCode> dialog can take an index beside the body:{' '}
               <InlineCode>sections</InlineCode>, from three to five, each with an <InlineCode>id</InlineCode> that a{' '}
-              <InlineCode>Dialog.Section</InlineCode> of the body carries. The current one follows the scroll, a click
-              moves the focus to its title, and <InlineCode>errors</InlineCode> puts a count beside an item. The index
-              shows once the content area is 768px wide, a container query, so a narrow window keeps only the body.
+              <InlineCode>Dialog.Section</InlineCode> of the body carries. The current one follows the scroll and is
+              written in bold with a bar on its left, the others in the quiet ink; a click moves the focus to its title,
+              and <InlineCode>errors</InlineCode> puts a count beside an item. The index shows once the content area is
+              768px wide, a container query, so a narrow window keeps only the body.
             </React.Fragment>
           )}
         >
