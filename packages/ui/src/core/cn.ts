@@ -17,11 +17,11 @@ const twMerge = extendTailwindMerge<'scrollbar'>({
     theme: {
       spacing: [ 'control-sm', 'control-md', 'control-lg', 'xs', 'sm', 'md', 'lg', 'xl', '2xl' ],
       font   : [ 'heading' ],
-      radius : [ 'control', 'control-inner', 'button' ]
+      radius : [ 'control', 'control-inner', 'button', 'accordion', 'loading-bar' ]
     },
     classGroups: {
       'grid-cols': [ { 'grid-cols': [ 'field', 'field-horizontal' ] } ],
-      gap        : [ { gap: [ 'stack', 'cluster', 'grid', 'split', 'item', 'heading' ] } ],
+      gap        : [ { gap: [ 'stack', 'cluster', 'grid', 'split', 'item', 'heading', 'accordion' ] } ],
       h          : [ { h: [ 'separator' ] } ],
       scrollbar  : [ { scrollbar: [ 'thin', 'hover', 'none' ] } ],
       animate    : [ { animate: [ 'loading-bar', 'nudge-x', 'nudge-y' ] } ],

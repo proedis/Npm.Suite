@@ -59,7 +59,7 @@ const TONES: Readonly<Record<BadgeCounterTone, string>> = {
  * It sits on the top right corner of a `relative` parent, with a ring in the colour of the surface
  * that parts it from the button; the parent must not clip it.
  *
- * Parts with a slot: `badge-counter` (with `data-tone`).
+ * Parts with a slot: `badge-counter` (with `data-tone`), `badge-counter-label` (the number, or `9+`).
  */
 export function BadgeCounter(props: BadgeCounterProps): React.ReactNode {
 
@@ -105,7 +105,7 @@ export function BadgeCounter(props: BadgeCounterProps): React.ReactNode {
       )}
       {...rest}
     >
-      {count > max ? `${max}+` : count}
+      <span data-slot={'badge-counter-label'}>{count > max ? `${max}+` : count}</span>
     </Stack>
   );
 

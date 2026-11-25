@@ -270,10 +270,13 @@ function AccordionItem(props: AccordionItemProps): React.ReactNode {
    */
   const headerShape = !boxed && !inset ? '-mx-2 rounded-md' : undefined;
 
-  /* The body lines up with the title: past the arrow when it is before it */
+  /*
+   * The body lines up with the title, past the arrow when it is before it, and keeps a step from the header:
+   * flush under it, the text read as part of the button and touched the hover. `inset` places its own content
+   */
   const bodyPadding = boxed
-    ? (atEnd ? 'px-4 pb-4' : 'ps-10 pe-4 pb-4')
-    : (inset ? undefined : (atEnd ? 'pb-4' : 'ps-6 pb-4'));
+    ? (atEnd ? 'px-4 pt-2 pb-4' : 'ps-10 pe-4 pt-2 pb-4')
+    : (inset ? undefined : (atEnd ? 'pt-2 pb-4' : 'ps-6 pt-2 pb-4'));
 
   const chevron = (
     <Stack gap={0} as={'span'} data-slot={'accordion-chevron-box'} direction={'horizontal'} align={'center'} className={'h-5 shrink-0'}>

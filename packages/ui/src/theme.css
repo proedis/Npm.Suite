@@ -305,6 +305,7 @@
  */
 @theme inline {
   --radius-accordion: var(--accordion-radius, var(--radius-lg));
+  --radius-loading-bar: var(--loading-bar-radius, 0px);
   --gap-accordion: var(--accordion-gap, var(--space-sm));
   --color-accordion-filled: var(--accordion-filled-background, var(--muted));
   --color-accordion-item: var(--accordion-item-background, var(--muted));
