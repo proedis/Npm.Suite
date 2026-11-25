@@ -12,7 +12,8 @@ const BARS: readonly { tone: Tone; width: LoadingBarLineWidth }[] = [
   { tone: 'primary', width: 2 },
   { tone: 'info', width: 3 },
   { tone: 'success', width: 4 },
-  { tone: 'muted', width: 2 }
+  { tone: 'warning', width: 6 },
+  { tone: 'muted', width: 8 }
 ];
 
 

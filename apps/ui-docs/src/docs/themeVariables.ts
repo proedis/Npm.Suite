@@ -65,6 +65,7 @@ const SINGLE: Readonly<Record<string, string>> = {
   '--button-border-shade': 'The border of the solid fill: the tone mixed with this much black, 0% for a border the colour of the fill.',
   '--button-highlight': 'From 0 to 1: a light line inside the top edge.',
   '--button-glow'     : 'From 0 to 1: a soft shadow under the button, in the colour of its tone.',
+  '--loading-bar-radius': 'The corner of a LoadingBar that declares no radius, and of its segment. Undeclared, square.',
   '--accordion-radius': 'The corner of a contained, filled or separated Accordion that declares no radius. Undeclared, --radius-lg.',
   '--accordion-gap'   : 'The room between the items of a separated Accordion. Undeclared, the sm step of the scale.',
   '--accordion-filled-background': 'The surface of the open item of a filled Accordion. Undeclared, --muted.',

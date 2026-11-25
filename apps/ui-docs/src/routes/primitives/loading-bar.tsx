@@ -15,6 +15,7 @@ import { SlotsInspector } from '@/docs/SlotsInspector';
 import { PropsTable } from '@/docs/Tables';
 import basic from '@/examples/primitives/loading-bar/basic.tsx?example';
 import line from '@/examples/primitives/loading-bar/line.tsx?example';
+import radius from '@/examples/primitives/loading-bar/radius.tsx?example';
 import updating from '@/examples/primitives/loading-bar/updating.tsx?example';
 import { pageAt } from '@/nav';
 
@@ -69,7 +70,7 @@ function LoadingBarPage(): React.ReactNode {
           title={'Height and tone'}
           lead={(
             <React.Fragment>
-              <InlineCode>lineWidth</InlineCode> sets the height in pixels, 1 to 4, 2 by default.{' '}
+              <InlineCode>lineWidth</InlineCode> sets the height in pixels, 1 to 8, 2 by default.{' '}
               <InlineCode>lineTone</InlineCode> picks the tone: the track is its soft fill and the segment its solid
               fill, except for <InlineCode>muted</InlineCode> and <InlineCode>secondary</InlineCode>, whose solid fill
               is a surface, so the segment is drawn in their ink.
@@ -77,6 +78,19 @@ function LoadingBarPage(): React.ReactNode {
           )}
         >
           <Example of={line} />
+        </Section>
+
+        <Section
+          title={'Radius'}
+          lead={(
+            <React.Fragment>
+              <InlineCode>radius</InlineCode> rounds the bar and the segment running in it, up to{' '}
+              <InlineCode>full</InlineCode> for a bar round at both ends. <InlineCode>default</InlineCode> is the
+              theme’s <InlineCode>--loading-bar-radius</InlineCode>, square when undeclared.
+            </React.Fragment>
+          )}
+        >
+          <Example of={radius} />
         </Section>
 
         <Section
@@ -127,7 +141,7 @@ function LoadingBarPage(): React.ReactNode {
         <Section title={'Slots and data attributes'}>
           <SlotsInspector of={basic}
             rows={[
-              { slot: 'loading-bar', part: 'The track', attributes: [ 'data-line-tone', 'data-line-width' ] },
+              { slot: 'loading-bar', part: 'The track', attributes: [ 'data-line-tone', 'data-line-width', 'data-radius' ] },
               { slot: 'loading-bar-segment', part: 'The running segment' }
             ]}
           />

@@ -95,7 +95,8 @@ function BadgeCounterPage(): React.ReactNode {
         <Section title={'Slots and data attributes'}>
           <SlotsInspector of={basic}
             rows={[
-              { slot: 'badge-counter', part: 'The pill', attributes: [ 'data-tone' ] }
+              { slot: 'badge-counter', part: 'The pill', attributes: [ 'data-tone' ] },
+              { slot: 'badge-counter-label', part: 'The number, or 9+' }
             ]}
           />
         </Section>
