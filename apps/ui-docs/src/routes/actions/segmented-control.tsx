@@ -21,6 +21,8 @@ import icons from '@/examples/actions/segmented-control/icons.tsx?example';
 import inContext from '@/examples/actions/segmented-control/in-context.tsx?example';
 import period from '@/examples/actions/segmented-control/period.tsx?example';
 import sizes from '@/examples/actions/segmented-control/sizes.tsx?example';
+import variants from '@/examples/actions/segmented-control/variants.tsx?example';
+import vertical from '@/examples/actions/segmented-control/vertical.tsx?example';
 import { pageAt } from '@/nav';
 
 
@@ -100,6 +102,32 @@ function SegmentedControlPage(): React.ReactNode {
           )}
         >
           <Example of={sizes} />
+        </Section>
+
+        <Section
+          title={'Variants'}
+          lead={(
+            <React.Fragment>
+              The look of Tabs, shared: <InlineCode>contained</InlineCode>, the default, a grey rail with an inner
+              line; <InlineCode>elevated</InlineCode>, a white rail raised like a card;{' '}
+              <InlineCode>plain</InlineCode>, no rail, only the fill that slides under the chosen item. The two
+              components keep their own meaning: a choice among views here, sections with their panels there.
+            </React.Fragment>
+          )}
+        >
+          <Example of={variants} />
+        </Section>
+
+        <Section
+          title={'Vertical'}
+          lead={(
+            <React.Fragment>
+              <InlineCode>orientation={'{\'vertical\'}'}</InlineCode> stacks the items in a column, each as wide as the
+              widest, the label at its start. The arrows go up and down; the fill slides between the rows.
+            </React.Fragment>
+          )}
+        >
+          <Example of={vertical} />
         </Section>
 
         <Section
@@ -187,7 +215,7 @@ function SegmentedControlPage(): React.ReactNode {
         <Section title={'Slots and data attributes'} lead={'Every part a stylesheet can reach, and what each one reports.'}>
           <SlotsInspector of={icons}
             rows={[
-              { slot: 'segmented-control', part: 'The rail', attributes: [ 'data-size', 'data-disabled' ] },
+              { slot: 'segmented-control', part: 'The rail', attributes: [ 'data-size', 'data-variant', 'data-orientation', 'data-disabled' ] },
               { slot: 'segmented-control-indicator', part: 'The fill that slides under the chosen item', attributes: [ 'data-disabled' ] },
               { slot: 'segmented-control-item', part: 'An item', attributes: [ 'data-value', 'data-pressed', 'data-disabled', 'data-icon-only' ] },
               { slot: 'segmented-control-content', part: 'The icon and the label, on one line' },

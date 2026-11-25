@@ -7,15 +7,6 @@ import { Badge } from '@proedis/ui/display/badge';
 import { LabeledContent } from '@proedis/ui/display/labeled-content';
 import { Stack } from '@proedis/ui/layout';
 
-import type { TabItem } from '@proedis/ui/actions/tabs';
-
-
-const ITEMS: readonly TabItem[] = [
-  { value: 'position', label: 'Position', leading: <MapPin /> },
-  { value: 'maintenance', label: 'Maintenance', leading: <Wrench />, count: 2, countLabel: '2 interventions due' },
-  { value: 'refuels', label: 'Refuels', leading: <Fuel />, count: 31, countLabel: '31 refuels' }
-];
-
 
 export default function Example(): React.ReactNode {
   const titleId = React.useId();
@@ -28,8 +19,8 @@ export default function Example(): React.ReactNode {
         <Badge fill={'soft'} tone={'info'}>On a round</Badge>
       </Stack>
 
-      <Tabs aria-labelledby={titleId} items={ITEMS} value={tab} onValueChange={setTab} labels={{ overflow: 'More' }}>
-        <Tabs.Panel value={'position'}>
+      <Tabs aria-labelledby={titleId} value={tab} onValueChange={setTab} labels={{ overflow: 'More' }}>
+        <Tabs.Panel value={'position'} label={'Position'} leading={<MapPin />}>
           <Stack columns={2} gap={4}>
             <LabeledContent>
               <LabeledContent.Label>Last position</LabeledContent.Label>
@@ -41,10 +32,10 @@ export default function Example(): React.ReactNode {
             </LabeledContent>
           </Stack>
         </Tabs.Panel>
-        <Tabs.Panel value={'maintenance'}>
+        <Tabs.Panel value={'maintenance'} label={'Maintenance'} leading={<Wrench />} count={2} countLabel={'2 interventions due'}>
           <p className={'text-sm text-muted-foreground'}>Brake check and oil change, both due in November.</p>
         </Tabs.Panel>
-        <Tabs.Panel value={'refuels'}>
+        <Tabs.Panel value={'refuels'} label={'Refuels'} leading={<Fuel />} count={31} countLabel={'31 refuels'}>
           <p className={'text-sm text-muted-foreground'}>31 refuels this year, 4,120 litres in all.</p>
         </Tabs.Panel>
       </Tabs>

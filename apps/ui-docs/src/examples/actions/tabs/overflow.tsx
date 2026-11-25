@@ -22,14 +22,14 @@ export default function Example(): React.ReactNode {
     /* A narrow box, as in a drawer: what does not fit goes into More */
     <Tabs
       aria-label={'Customer'}
-      items={ITEMS}
       value={tab}
       onValueChange={setTab}
       labels={{ overflow: 'More' }}
       className={'w-full max-w-sm'}
     >
       {ITEMS.map((item) => (
-        <Tabs.Panel key={item.value} value={item.value}>
+        /* The panels may come from a map: an array of them is read like the panels written one by one */
+        <Tabs.Panel key={item.value} {...item}>
           <p className={'text-sm text-muted-foreground'}>{`The panel of ${String(item.label)}.`}</p>
         </Tabs.Panel>
       ))}

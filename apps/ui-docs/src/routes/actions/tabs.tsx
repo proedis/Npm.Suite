@@ -1,7 +1,6 @@
 import * as React from 'react';
 
 import { createFileRoute } from '@tanstack/react-router';
-import tabItemProps from 'virtual:ui-props/TabItem';
 import panelProps from 'virtual:ui-props/TabsPanelProps';
 import tabsProps from 'virtual:ui-props/TabsProps';
 import themeDoc from 'virtual:ui-theme/actions/tabs';
@@ -23,6 +22,7 @@ import inContext from '@/examples/actions/tabs/in-context.tsx?example';
 import kept from '@/examples/actions/tabs/kept.tsx?example';
 import overflow from '@/examples/actions/tabs/overflow.tsx?example';
 import sizes from '@/examples/actions/tabs/sizes.tsx?example';
+import variants from '@/examples/actions/tabs/variants.tsx?example';
 import { pageAt } from '@/nav';
 
 
@@ -51,7 +51,7 @@ function TabsPage(): React.ReactNode {
           </React.Fragment>
         )}
         imports={tsx`
-          import { Tabs, type TabItem } from '@proedis/ui/actions/tabs';
+          import { Tabs } from '@proedis/ui/actions/tabs';
         `}
       />
 
@@ -59,14 +59,15 @@ function TabsPage(): React.ReactNode {
         <Example of={basic} />
 
         <Section
-          title={'Tabs as data'}
+          title={'Each panel declares its tab'}
           lead={(
             <React.Fragment>
-              The tabs are an array of <InlineCode>TabItem</InlineCode>s in <InlineCode>items</InlineCode>, and the
-              panels are <InlineCode>Tabs.Panel</InlineCode> children matched by <InlineCode>value</InlineCode>. Data
-              rather than children on purpose: to fit the row, the component measures the tabs, moves some of them
-              into a menu and draws them again as menu items, which tabs wrapped in fragments or components would not
-              allow.
+              A <InlineCode>Tabs.Panel</InlineCode> carries its tab: <InlineCode>value</InlineCode>,{' '}
+              <InlineCode>label</InlineCode>, and <InlineCode>leading</InlineCode>, <InlineCode>count</InlineCode>,{' '}
+              <InlineCode>disabled</InlineCode> when it has them. Tabs reads the panels it holds while rendering, in
+              their order, so the first render already has every tab, on the server too. The panels sit straight in{' '}
+              <InlineCode>Tabs</InlineCode>, written one by one, in a fragment or from a <InlineCode>map</InlineCode>:
+              one inside a component of yours is not seen, since the overflow has to measure and redraw each tab.
             </React.Fragment>
           )}
         >
@@ -144,6 +145,19 @@ function TabsPage(): React.ReactNode {
         </Section>
 
         <Section
+          title={'Variants'}
+          lead={(
+            <React.Fragment>
+              The three of SegmentedControl, one look for the two: <InlineCode>elevated</InlineCode>, the default, a
+              white rail raised like a card; <InlineCode>contained</InlineCode>, the grey rail;{' '}
+              <InlineCode>plain</InlineCode>, no rail, only the fill that slides under the open tab.
+            </React.Fragment>
+          )}
+        >
+          <Example of={variants} />
+        </Section>
+
+        <Section
           title={'Panels'}
           lead={(
             <React.Fragment>
@@ -171,14 +185,17 @@ function TabsPage(): React.ReactNode {
           <Example of={inContext} />
         </Section>
 
-        <Section title={'Type safety'} lead={'A list of tabs with no name, or with no open tab, does not compile.'}>
+        <Section title={'Type safety'} lead={'A list of tabs with no name, with no open tab, or a panel with no label, does not compile.'}>
           <CodeBlock
             snippet={tsx`
               // @ts-expect-error: aria-label or aria-labelledby is required
-              <Tabs items={items} defaultValue={'data'} labels={labels} />
+              <Tabs defaultValue={'data'} labels={labels}>{panels}</Tabs>
 
               // @ts-expect-error: value or defaultValue is required
-              <Tabs aria-label={'Customer'} items={items} labels={labels} />
+              <Tabs aria-label={'Customer'} labels={labels}>{panels}</Tabs>
+
+              // @ts-expect-error: a panel declares its tab, so it has a label
+              <Tabs.Panel value={'data'}>…</Tabs.Panel>
             `}
           />
         </Section>
@@ -217,7 +234,7 @@ function TabsPage(): React.ReactNode {
             rows={[
               { slot: 'tabs', part: 'The root, where className lands' },
               { slot: 'tabs-row', part: 'The row that measures what fits' },
-              { slot: 'tabs-rail', part: 'The white rail', attributes: [ 'data-size' ] },
+              { slot: 'tabs-rail', part: 'The rail', attributes: [ 'data-size', 'data-variant' ] },
               { slot: 'tabs-list', part: 'The tab list' },
               { slot: 'tabs-indicator', part: 'The fill that slides under the open tab' },
               { slot: 'tabs-tab', part: 'A tab, and each tab of the hidden copy', attributes: [ 'data-active', 'data-disabled', 'data-orientation' ] },
@@ -244,9 +261,6 @@ function TabsPage(): React.ReactNode {
                 </React.Fragment>
               )}
             />
-          </SubSection>
-          <SubSection title={'TabItem'} id={'api-tab-item'}>
-            <PropsTable props={tabItemProps} />
           </SubSection>
           <SubSection title={'Tabs.Panel'} id={'api-tabs-panel'}>
             <PropsTable

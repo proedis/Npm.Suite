@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { List, Map, Table } from 'lucide-react';
+import { List, MapIcon, Table } from 'lucide-react';
 
 import { SegmentedControl } from '@proedis/ui/actions/segmented-control';
 import { Cluster } from '@proedis/ui/layout';
@@ -13,12 +13,12 @@ export default function Example(): React.ReactNode {
       <SegmentedControl aria-label={'View'} orientation={'vertical'} defaultValue={'table'}>
         <SegmentedControl.Item value={'table'} leading={<Table />}>Table</SegmentedControl.Item>
         <SegmentedControl.Item value={'list'} leading={<List />}>List</SegmentedControl.Item>
-        <SegmentedControl.Item value={'map'} leading={<Map />}>Map</SegmentedControl.Item>
+        <SegmentedControl.Item value={'map'} leading={<MapIcon />}>Map</SegmentedControl.Item>
       </SegmentedControl>
       <SegmentedControl aria-label={'View, plain'} orientation={'vertical'} variant={'plain'} defaultValue={'list'}>
         <SegmentedControl.Item value={'table'} leading={<Table />}>Table</SegmentedControl.Item>
         <SegmentedControl.Item value={'list'} leading={<List />}>List</SegmentedControl.Item>
-        <SegmentedControl.Item value={'map'} leading={<Map />}>Map</SegmentedControl.Item>
+        <SegmentedControl.Item value={'map'} leading={<MapIcon />}>Map</SegmentedControl.Item>
       </SegmentedControl>
     </Cluster>
   );

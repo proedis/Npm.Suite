@@ -16,8 +16,12 @@ const ITEMS: readonly TabItem[] = [
 export default function Example(): React.ReactNode {
   return (
     <Stack gap={5} className={'w-full max-w-md'}>
-      <Tabs aria-label={'Round, medium'} items={ITEMS} defaultValue={'data'} size={'md'} labels={{ overflow: 'More' }} />
-      <Tabs aria-label={'Round, small'} items={ITEMS} defaultValue={'data'} size={'sm'} labels={{ overflow: 'More' }} />
+      <Tabs aria-label={'Round, medium'} defaultValue={'data'} size={'md'} labels={{ overflow: 'More' }}>
+        {ITEMS.map((item) => <Tabs.Panel key={item.value} {...item}>{null}</Tabs.Panel>)}
+      </Tabs>
+      <Tabs aria-label={'Round, small'} defaultValue={'data'} size={'sm'} labels={{ overflow: 'More' }}>
+        {ITEMS.map((item) => <Tabs.Panel key={item.value} {...item}>{null}</Tabs.Panel>)}
+      </Tabs>
     </Stack>
   );
 }
