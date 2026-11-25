@@ -20,3 +20,19 @@ export const RAIL_SURFACE: Readonly<Record<RailVariant, string>> = {
   elevated : 'bg-card shadow-sm',
   plain    : 'bg-transparent'
 };
+
+
+/** The corner of a rail: the theme's, a step of the scale, or a pill. Its items follow it, concentric */
+export type RailRadius = 'default' | 'none' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
+
+/** What sets the corner of one rail; `default` sets nothing and the theme's variable is read */
+export const RAIL_RADIUS: Readonly<Record<RailRadius, string | undefined>> = {
+  default: undefined,
+  none   : 'rail-radius-none',
+  sm     : 'rail-radius-sm',
+  md     : 'rail-radius-md',
+  lg     : 'rail-radius-lg',
+  xl     : 'rail-radius-xl',
+  '2xl'  : 'rail-radius-2xl',
+  full   : 'rail-radius-full'
+};

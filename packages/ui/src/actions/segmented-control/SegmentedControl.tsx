@@ -16,7 +16,7 @@ import { Stack } from '../../layout/Stack';
 import { CONTROL_HEIGHT } from '../../internal/control';
 import { isPresent } from '../../internal/presence';
 
-import { RAIL_SURFACE } from '../rail/rail';
+import { RAIL_RADIUS, RAIL_SURFACE } from '../rail/rail';
 import { handleRovingKeyDown } from '../roving/roving';
 import { FOCUS_INSIDE, PRESSABLE_BASE, PRESSABLE_CONTENT, PRESSABLE_OFF } from '../toggle/toggleStyles';
 import { Tooltip } from '../tooltip/Tooltip';
@@ -26,7 +26,7 @@ import type { BoundValue } from '../../core/binding';
 import type { ControlSize } from '../../core/control';
 import type { SpacingValue } from '../../core/responsive';
 
-import type { RailVariant } from '../rail/rail';
+import type { RailRadius, RailVariant } from '../rail/rail';
 
 
 /* --------
@@ -38,6 +38,8 @@ export type SegmentedControlSize = ControlSize;
 export type SegmentedControlVariant = RailVariant;
 
 export type SegmentedControlOrientation = 'horizontal' | 'vertical';
+
+export type SegmentedControlRadius = RailRadius;
 
 export interface StrictSegmentedControlProps extends BaseProps {
   onValueChange?: (value: string) => void;
@@ -53,6 +55,12 @@ export interface StrictSegmentedControlProps extends BaseProps {
 
   /** `vertical` stacks the items in a column, each as wide as the widest. Defaults to `horizontal` */
   orientation?: SegmentedControlOrientation;
+
+  /**
+   * The corner of the rail; the items and the fill take it less the padding, concentric. Defaults to
+   * `default`, the theme's `--segmented-control-radius` (the control's corner undeclared)
+   */
+  radius?: SegmentedControlRadius;
 
   /** The whole control, with the reason, repeated in the tooltip of every item */
   disabled?: boolean;
@@ -146,7 +154,7 @@ interface SegmentedContextValue {
 const RAIL_SIZES: Readonly<Record<SegmentedControlSize, string>> = {
   lg: 'gap-1 p-1',
   md: 'gap-1 p-1',
-  sm: 'gap-0.75 p-0.75'
+  sm: 'gap-0.75 p-0.75 rail-inset-tight'
 };
 /* eslint-enable no-restricted-syntax */
 
@@ -168,7 +176,7 @@ const ITEM_HEIGHT_IN_COLUMN: Readonly<Record<SegmentedControlSize, string>> = {
  * flows into implicit columns, or rows in a column (`grid-flow-*`, `auto-*-fr`), which `columns` cannot say
  */
 // eslint-disable-next-line no-restricted-syntax -- implicit tracks from the items, not a count
-const RAIL = 'relative inline-grid shrink-0 items-stretch rounded-control';
+const RAIL = 'relative inline-grid shrink-0 items-stretch rounded-segmented';
 
 const RAIL_FLOW: Readonly<Record<SegmentedControlOrientation, string>> = {
   horizontal: 'grid-flow-col auto-cols-fr has-data-icon-only:auto-cols-auto',
@@ -197,7 +205,7 @@ const ITEM_ON = 'data-pressed:text-primary-foreground forced-colors:data-pressed
 
 const INDICATOR = [
   'pointer-events-none absolute top-(--indicator-top) left-(--indicator-left) h-(--indicator-height) w-(--indicator-width)',
-  'rounded-control-inner bg-primary data-disabled:bg-primary/50',
+  'rounded-segmented-inner bg-primary data-disabled:bg-primary/50',
   'transition-all duration-200 ease-out motion-reduce:transition-none forced-colors:hidden'
 ].join(' ');
 
@@ -309,7 +317,7 @@ function SegmentedControlItem(props: SegmentedControlItemProps, ref: React.Forwa
         ITEM_ON,
         ITEM_SIZES[size],
         vertical ? cn(ITEM_HEIGHT_IN_COLUMN[size], 'justify-start') : 'h-full',
-        'rounded-control-inner after:absolute',
+        'rounded-segmented-inner after:absolute',
         FOCUS_INSIDE,
         'data-pressed:cursor-default data-pressed:focus-visible:outline-offset-1',
         className
@@ -392,6 +400,7 @@ const SegmentedControlRoot = React.forwardRef<HTMLDivElement, SegmentedControlPr
     disabledReason,
     onValueChange,
     orientation = 'horizontal',
+    radius = 'default',
     size = 'md',
     value,
     variant = 'contained',
@@ -529,12 +538,14 @@ const SegmentedControlRoot = React.forwardRef<HTMLDivElement, SegmentedControlPr
         data-slot={'segmented-control'}
         data-size={size}
         data-variant={variant}
+        data-radius={radius}
         data-orientation={orientation}
         data-disabled={disabled || undefined}
         className={cn(
           RAIL,
           RAIL_FLOW[orientation],
           RAIL_SURFACE[variant],
+          RAIL_RADIUS[radius],
 
           /* Transparent until the system draws borders itself: then it becomes the frame */
           'outline-1 outline-transparent',

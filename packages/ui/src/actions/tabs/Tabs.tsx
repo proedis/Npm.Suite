@@ -19,13 +19,13 @@ import { CONTROL_HEIGHT } from '../../internal/control';
 import { Button } from '../button/Button';
 import { ChevronGlyph } from '../list-panel/listPanel';
 import { Menu } from '../menu/Menu';
-import { RAIL_SURFACE } from '../rail/rail';
+import { RAIL_RADIUS, RAIL_SURFACE } from '../rail/rail';
 import { Tooltip } from '../tooltip/Tooltip';
 
 import type { BaseProps } from '../../core/base';
 import type { SpacingValue } from '../../core/responsive';
 
-import type { RailVariant } from '../rail/rail';
+import type { RailRadius, RailVariant } from '../rail/rail';
 
 
 /* --------
@@ -35,6 +35,10 @@ import type { RailVariant } from '../rail/rail';
 export type TabsSize = 'sm' | 'md';
 
 export type TabsVariant = RailVariant;
+
+export type TabsRadius = RailRadius;
+
+export type TabsOrientation = 'horizontal' | 'vertical';
 
 /** A tab, as its panel declares it */
 export interface TabItem {
@@ -73,6 +77,18 @@ export interface StrictTabsProps extends BaseProps {
    * `plain`, no rail, only the fill that slides. Defaults to `elevated`
    */
   variant?: TabsVariant;
+
+  /**
+   * The corner of the rail; the tabs and the fill take it less the padding, concentric. Defaults to
+   * `default`, the theme's `--tabs-radius` (`lg` undeclared)
+   */
+  radius?: TabsRadius;
+
+  /**
+   * `vertical` puts the tabs in a column at the start and the panel beside them; every tab shows, with no
+   * "More", the arrows going up and down. Defaults to `horizontal`
+   */
+  orientation?: TabsOrientation;
 
   labels: TabsLabels;
 
@@ -122,8 +138,8 @@ interface TabsContextValue {
 
 /** No height of its own: a tab at the height of a control, and one step of padding around it. Its surface is the variant's */
 const RAIL: Readonly<Record<TabsSize, string>> = {
-  md: 'rounded-lg p-1',
-  sm: 'rounded-md p-1'
+  md: 'rounded-tabs p-1',
+  sm: 'rounded-tabs p-1'
 };
 
 /** A tab, real or measured: the row of a button, centred */
@@ -154,8 +170,8 @@ const TAB_BASE = [
 ].join(' ');
 
 const TAB_SIZES: Readonly<Record<TabsSize, string>> = {
-  md: `${CONTROL_HEIGHT.md} rounded-md px-4 text-sm has-[[data-slot=tabs-tab-leading]]:ps-3.5 [&_svg]:size-4 after:-inset-x-0.5 after:-inset-y-1`,
-  sm: `${CONTROL_HEIGHT.sm} rounded-sm px-3.5 text-xs has-[[data-slot=tabs-tab-leading]]:ps-3 [&_svg]:size-3.5 after:-inset-x-0.5 after:-inset-y-1`
+  md: `${CONTROL_HEIGHT.md} rounded-tabs-inner px-4 text-sm has-[[data-slot=tabs-tab-leading]]:ps-3.5 [&_svg]:size-4 after:-inset-x-0.5 after:-inset-y-1`,
+  sm: `${CONTROL_HEIGHT.sm} rounded-tabs-inner px-3.5 text-xs has-[[data-slot=tabs-tab-leading]]:ps-3 [&_svg]:size-3.5 after:-inset-x-0.5 after:-inset-y-1`
 };
 
 const CONTENT_GAP: Readonly<Record<TabsSize, SpacingValue>> = { md: 1.5, sm: 1 };
@@ -171,7 +187,7 @@ const INDICATOR = [
   'bg-primary transition-all duration-200 ease-out motion-reduce:transition-none forced-colors:hidden'
 ].join(' ');
 
-const INDICATOR_RADIUS: Readonly<Record<TabsSize, string>> = { md: 'rounded-md', sm: 'rounded-sm' };
+const INDICATOR_RADIUS: Readonly<Record<TabsSize, string>> = { md: 'rounded-tabs-inner', sm: 'rounded-tabs-inner' };
 
 const PILL = [
   'h-4 min-w-4 rounded-full px-1 text-xs leading-none font-semibold tabular-nums',
@@ -282,7 +298,13 @@ const TabsPanel = React.forwardRef<HTMLDivElement, TabsPanelProps>((props, ref) 
       aria-label={name}
       data-slot={'tabs-panel'}
       data-visited={visited || undefined}
-      className={cn('outline-none focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring', baseClasses, className)}
+      className={cn(
+        /* Beside a column of tabs the panel takes the rest of the row; under a row of them grow does nothing */
+        'min-w-0 grow outline-none',
+        'focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring',
+        baseClasses,
+        className
+      )}
     >
       {visited ? children : null}
     </TabsPrimitive.Panel>
@@ -378,11 +400,15 @@ const TabsRoot = React.forwardRef<HTMLDivElement, TabsProps>((props, ref) => {
     defaultValue,
     labels,
     onValueChange,
+    orientation = 'horizontal',
+    radius = 'default',
     size = 'md',
     value: valueProp,
     variant = 'elevated',
     ...others
   } = props;
+
+  const vertical = orientation === 'vertical';
 
   const items = collectTabs(children);
 
@@ -420,9 +446,13 @@ const TabsRoot = React.forwardRef<HTMLDivElement, TabsProps>((props, ref) => {
   // ----
   // Memoized Data
   // ----
+  /* A column shows every tab: the overflow measures a row, and has nothing to say about a column */
+  const shown = vertical ? items.map((_, index) => index) : visible;
+  const hiddenIndexes = vertical ? [] : overflow;
+
   const context: TabsContextValue = {
     value,
-    hidden: new Set(overflow.map((index) => items[index].value))
+    hidden: new Set(hiddenIndexes.map((index) => items[index].value))
   };
 
 
@@ -458,7 +488,7 @@ const TabsRoot = React.forwardRef<HTMLDivElement, TabsProps>((props, ref) => {
         disabled={item.disabled && !isActive}
         data-slot={'tabs-tab'}
         render={<Stack gap={0} as={'button'} {...TAB_LAYOUT} />}
-        className={cn(TAB_BASE, TAB_SIZES[size])}
+        className={cn(TAB_BASE, TAB_SIZES[size], vertical && 'w-full justify-start')}
       >
         <TabContent item={item} size={size} />
       </TabsPrimitive.Tab>
@@ -500,20 +530,29 @@ const TabsRoot = React.forwardRef<HTMLDivElement, TabsProps>((props, ref) => {
             select(next);
           }
         }}
+        orientation={orientation}
         data-slot={'tabs'}
-        render={<Stack gap={3} />}
+        data-orientation={orientation}
+        render={<Stack gap={vertical ? 'lg' : 3} direction={vertical ? 'horizontal' : 'vertical'} align={vertical ? 'start' : undefined} />}
         className={cn('min-w-0', baseClasses, className)}
       >
-        <Stack gap={0} ref={rowRef} data-slot={'tabs-row'} direction={'horizontal'} className={'relative w-full min-w-0'}>
+        <Stack
+          gap={0}
+          ref={rowRef}
+          data-slot={'tabs-row'}
+          direction={'horizontal'}
+          className={cn('relative min-w-0', vertical ? 'shrink-0' : 'w-full')}
+        >
           <Stack
             data-slot={'tabs-rail'}
             data-size={size}
             data-variant={variant}
+            data-radius={radius}
             inline
-            direction={'horizontal'}
-            align={'center'}
+            direction={vertical ? 'vertical' : 'horizontal'}
+            align={vertical ? 'stretch' : 'center'}
             gap={1}
-            className={cn('max-w-full', RAIL_SURFACE[variant], RAIL[size])}
+            className={cn('max-w-full', RAIL_SURFACE[variant], RAIL[size], RAIL_RADIUS[radius])}
           >
             <TabsPrimitive.List
               activateOnFocus={false}
@@ -521,21 +560,21 @@ const TabsRoot = React.forwardRef<HTMLDivElement, TabsProps>((props, ref) => {
               aria-label={ariaLabel}
               aria-labelledby={ariaLabelledBy}
               data-slot={'tabs-list'}
-              render={<Stack direction={'horizontal'} align={'center'} gap={1} />}
+              render={<Stack direction={vertical ? 'vertical' : 'horizontal'} align={vertical ? 'stretch' : 'center'} gap={1} />}
               className={'relative'}
               onFocus={() => setFocusInside(true)}
               onBlur={handleBlur}
             >
               {/* First, so every tab paints over it */}
               <TabsPrimitive.Indicator data-slot={'tabs-indicator'} className={cn(INDICATOR, INDICATOR_RADIUS[size])} />
-              {visible.map((index) => renderTab(items[index]))}
+              {shown.map((index) => renderTab(items[index]))}
             </TabsPrimitive.List>
 
-            {overflow.length > 0 && (
+            {hiddenIndexes.length > 0 && (
               <React.Fragment>
                 <span aria-hidden className={'mx-1 h-4 w-px shrink-0 bg-border'} />
                 <Menu trigger={moreButton} aria-label={labels.overflow} align={'start'}>
-                  {overflow.map((index) => {
+                  {hiddenIndexes.map((index) => {
                     const item = items[index];
 
                     return (
