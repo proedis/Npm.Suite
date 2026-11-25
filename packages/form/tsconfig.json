@@ -1,0 +1,11 @@
+{
+  "extends": "@proedis/tsconfig/react",
+  "include": [
+    "src"
+  ],
+  "compilerOptions": {
+    "paths": {
+      "@proedis/ui/*": [ "../ui/src/*" ]
+    }
+  }
+}
