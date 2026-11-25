@@ -118,7 +118,8 @@ function ConfirmationRows(props: { labels: NotificationsLabels; store: Notificat
       data-slot={'toast-confirmation'}
       render={<Stack direction={'horizontal'} align={'center'} gap={3} />}
       className={cn(
-        'pointer-events-auto max-w-120 min-h-12 rounded-md bg-popover py-2.5 ps-4 pe-2 text-sm text-popover-foreground shadow-lg outline-none wrap-anywhere',
+        'pointer-events-auto col-start-1 row-start-1 self-end justify-self-center',
+        'max-w-120 min-h-12 rounded-md bg-popover py-2.5 ps-4 pe-2 text-sm text-popover-foreground shadow-lg outline-none wrap-anywhere',
         'focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-ring',
         'transition duration-150 data-starting-style:translate-y-2 data-starting-style:opacity-0 data-ending-style:opacity-0 motion-reduce:transition-none'
       )}
@@ -515,7 +516,11 @@ export function NotificationsProvider(props: NotificationsProviderProps): React.
           <ToastPrimitive.Viewport
             aria-label={labels.confirmRegion}
             data-slot={'toast-viewport'}
-            render={<Stack gap={0} direction={'horizontal'} justify={'center'} />}
+            /*
+             * One cell for every toast: the one leaving and the one arriving overlap for the 150ms they
+             * share. In a centred row they stood side by side and both jumped sideways
+             */
+            render={<Stack gap={0} columns={1} />}
             className={'pointer-events-none fixed bottom-4 z-toast toast-span px-4 outline-none'}
           >
             <ConfirmationRows labels={labels} store={notifications.store} />
