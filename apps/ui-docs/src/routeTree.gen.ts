@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ActionsAccordionRouteImport } from './routes/actions/accordion'
 import { Route as ActionsButtonRouteImport } from './routes/actions/button'
+import { Route as ActionsCopyButtonRouteImport } from './routes/actions/copy-button'
 import { Route as ActionsMenuRouteImport } from './routes/actions/menu'
 import { Route as ActionsSegmentedControlRouteImport } from './routes/actions/segmented-control'
 import { Route as ActionsTabsRouteImport } from './routes/actions/tabs'
@@ -103,6 +104,11 @@ const ActionsAccordionRoute = ActionsAccordionRouteImport.update({
 const ActionsButtonRoute = ActionsButtonRouteImport.update({
   id: '/actions/button',
   path: '/actions/button',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ActionsCopyButtonRoute = ActionsCopyButtonRouteImport.update({
+  id: '/actions/copy-button',
+  path: '/actions/copy-button',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ActionsMenuRoute = ActionsMenuRouteImport.update({
@@ -497,6 +503,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/actions/accordion': typeof ActionsAccordionRoute
   '/actions/button': typeof ActionsButtonRoute
+  '/actions/copy-button': typeof ActionsCopyButtonRoute
   '/actions/menu': typeof ActionsMenuRoute
   '/actions/segmented-control': typeof ActionsSegmentedControlRoute
   '/actions/tabs': typeof ActionsTabsRoute
@@ -579,6 +586,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/actions/accordion': typeof ActionsAccordionRoute
   '/actions/button': typeof ActionsButtonRoute
+  '/actions/copy-button': typeof ActionsCopyButtonRoute
   '/actions/menu': typeof ActionsMenuRoute
   '/actions/segmented-control': typeof ActionsSegmentedControlRoute
   '/actions/tabs': typeof ActionsTabsRoute
@@ -662,6 +670,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/actions/accordion': typeof ActionsAccordionRoute
   '/actions/button': typeof ActionsButtonRoute
+  '/actions/copy-button': typeof ActionsCopyButtonRoute
   '/actions/menu': typeof ActionsMenuRoute
   '/actions/segmented-control': typeof ActionsSegmentedControlRoute
   '/actions/tabs': typeof ActionsTabsRoute
@@ -746,6 +755,7 @@ export interface FileRouteTypes {
     | '/'
     | '/actions/accordion'
     | '/actions/button'
+    | '/actions/copy-button'
     | '/actions/menu'
     | '/actions/segmented-control'
     | '/actions/tabs'
@@ -828,6 +838,7 @@ export interface FileRouteTypes {
     | '/'
     | '/actions/accordion'
     | '/actions/button'
+    | '/actions/copy-button'
     | '/actions/menu'
     | '/actions/segmented-control'
     | '/actions/tabs'
@@ -910,6 +921,7 @@ export interface FileRouteTypes {
     | '/'
     | '/actions/accordion'
     | '/actions/button'
+    | '/actions/copy-button'
     | '/actions/menu'
     | '/actions/segmented-control'
     | '/actions/tabs'
@@ -993,6 +1005,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ActionsAccordionRoute: typeof ActionsAccordionRoute
   ActionsButtonRoute: typeof ActionsButtonRoute
+  ActionsCopyButtonRoute: typeof ActionsCopyButtonRoute
   ActionsMenuRoute: typeof ActionsMenuRoute
   ActionsSegmentedControlRoute: typeof ActionsSegmentedControlRoute
   ActionsTabsRoute: typeof ActionsTabsRoute
@@ -1093,6 +1106,13 @@ declare module '@tanstack/react-router' {
       path: '/actions/button'
       fullPath: '/actions/button'
       preLoaderRoute: typeof ActionsButtonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/actions/copy-button': {
+      id: '/actions/copy-button'
+      path: '/actions/copy-button'
+      fullPath: '/actions/copy-button'
+      preLoaderRoute: typeof ActionsCopyButtonRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/actions/menu': {
@@ -1641,6 +1661,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ActionsAccordionRoute: ActionsAccordionRoute,
   ActionsButtonRoute: ActionsButtonRoute,
+  ActionsCopyButtonRoute: ActionsCopyButtonRoute,
   ActionsMenuRoute: ActionsMenuRoute,
   ActionsSegmentedControlRoute: ActionsSegmentedControlRoute,
   ActionsTabsRoute: ActionsTabsRoute,

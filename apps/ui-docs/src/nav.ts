@@ -14,6 +14,7 @@ import {
   CircleUserRound,
   Columns2,
   Compass,
+  Copy,
   Component,
   Contrast,
   Crop,
@@ -202,6 +203,7 @@ export const NAV: readonly NavGroup[] = [
     items      : [
       { title: 'Accordion', to: '/actions/accordion', subpath: '@proedis/ui/actions/accordion', peers: BASE_UI, description: 'Sections that open and close from their header, in four looks.', icon: ChevronsUpDown, ready: true },
       { title: 'Button', to: '/actions/button', subpath: '@proedis/ui/actions/button', peers: BASE_UI, description: 'Three fills, seven tones, three sizes, and IconButton with the tooltip it always carries.', icon: MousePointerClick, ready: true },
+      { title: 'CopyButton', to: '/actions/copy-button', subpath: '@proedis/ui/actions/copy-button', peers: BASE_UI, description: 'Copies a value to the clipboard and says so, in a field too.', icon: Copy, ready: true },
       { title: 'Menu', to: '/actions/menu', subpath: '@proedis/ui/actions/menu', peers: BASE_UI, description: 'The actions on a thing, with groups, view choices and one level of submenu.', icon: Ellipsis, ready: true },
       { title: 'SegmentedControl', to: '/actions/segmented-control', subpath: '@proedis/ui/actions/segmented-control', peers: BASE_UI, description: 'One choice among a few views of the same thing.', icon: Columns2, ready: true },
       { title: 'Tabs', to: '/actions/tabs', subpath: '@proedis/ui/actions/tabs', peers: BASE_UI, description: 'The sections of one thing read one at a time, with More for those that do not fit.', icon: PanelsTopLeft, ready: true },
