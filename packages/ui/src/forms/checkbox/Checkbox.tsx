@@ -9,6 +9,7 @@ import { Field as FieldPrimitive } from '@base-ui/react/field';
 import { optionalContextBuilder, useEnhancedEffect } from '@proedis/react';
 
 import { splitBaseProps } from '../../core/base';
+import { bindable } from '../../core/binding';
 import { cn } from '../../core/cn';
 
 import { Stack } from '../../layout/Stack';
@@ -24,6 +25,7 @@ import {
 } from '../field/fieldContext';
 
 import type { BaseProps } from '../../core/base';
+import type { BoundValue } from '../../core/binding';
 import type { Direction, Responsive } from '../../core/responsive';
 
 
@@ -161,7 +163,7 @@ const BOX = [ CHECKBOX_BOX, CHOICE_ALIGN, CHOICE_FOCUS ].join(' ');
  * Slots: `checkbox-group` (with `data-orientation`, `data-disabled`, `data-readonly`, `data-invalid`),
  * and the slots of each `Checkbox`.
  */
-export const CheckboxGroup = React.forwardRef<HTMLDivElement, CheckboxGroupProps>((props, ref) => {
+const CheckboxGroupBase = React.forwardRef<HTMLDivElement, CheckboxGroupProps>((props, ref) => {
 
   // ----
   // Props Deconstruct
@@ -268,7 +270,19 @@ export const CheckboxGroup = React.forwardRef<HTMLDivElement, CheckboxGroupProps
 
 });
 
-CheckboxGroup.displayName = 'CheckboxGroup';
+CheckboxGroupBase.displayName = 'CheckboxGroup';
+
+/** Bound to a form through `binding`: see `bindable` in core */
+export const CheckboxGroup = bindable(CheckboxGroupBase, {
+  kind: 'options',
+  bind: (field: BoundValue<string[]>) => ({
+    name         : field.name,
+    ref          : field.ref,
+    value        : field.value ?? [],
+    onValueChange: field.onChange,
+    onBlur       : field.onBlur
+  })
+});
 
 
 /* --------
@@ -299,7 +313,7 @@ CheckboxGroup.displayName = 'CheckboxGroup';
  * The ref and the native props reach the box, the element that takes the focus, so a checkbox can be
  * the trigger of a tooltip or the target of a form library; `className` and the shared props reach the row.
  */
-export const Checkbox = React.forwardRef<HTMLSpanElement, CheckboxProps>((props, ref) => {
+const CheckboxBase = React.forwardRef<HTMLSpanElement, CheckboxProps>((props, ref) => {
 
   // ----
   // Props Deconstruct
@@ -386,7 +400,11 @@ export const Checkbox = React.forwardRef<HTMLSpanElement, CheckboxProps>((props,
   const hasDescription = isPresent(description);
   const describedBy = [ ariaDescribedBy, hasDescription ? descriptionId : undefined ].filter(Boolean).join(' ') || undefined;
   const isIndeterminate = parentState ? parentState.indeterminate : indeterminate;
-  const showRequired = required && !group;
+  /*
+   * A single box is the whole field: required on its own, or by a field with no label of its own, which
+   * would otherwise carry the one asterisk
+   */
+  const showRequired = (required || (field.required && field.labelId === undefined)) && !group;
   /* Named by its label alone: the row is a `<label>` too, and would bring the description into the name */
   const labelledBy = ariaLabelledBy ?? (isPresent(children) ? labelId : undefined);
 
@@ -465,4 +483,16 @@ export const Checkbox = React.forwardRef<HTMLSpanElement, CheckboxProps>((props,
 
 });
 
-Checkbox.displayName = 'Checkbox';
+CheckboxBase.displayName = 'Checkbox';
+
+/** Bound to a form through `binding`: see `bindable` in core */
+export const Checkbox = bindable(CheckboxBase, {
+  kind: 'boolean',
+  bind: (field: BoundValue<boolean>) => ({
+    name           : field.name,
+    ref            : field.ref,
+    checked        : field.value === true,
+    onCheckedChange: field.onChange,
+    onBlur         : field.onBlur
+  })
+});

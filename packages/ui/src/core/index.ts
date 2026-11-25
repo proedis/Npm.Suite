@@ -1,5 +1,7 @@
 export * from './base';
 
+export * from './binding';
+
 export * from './cn';
 
 export * from './control';

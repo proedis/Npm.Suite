@@ -8,6 +8,7 @@ import { cva } from 'class-variance-authority';
 import { optionalContextBuilder } from '@proedis/react';
 
 import { splitBaseProps } from '../../core/base';
+import { bindable } from '../../core/binding';
 import { cn } from '../../core/cn';
 
 import { Spinner } from '../../primitives/Spinner';
@@ -21,6 +22,7 @@ import { FieldShell } from '../field-shell/FieldShell';
 import { TEXT_CONTROL_TEXT } from '../text-control/textControl';
 
 import type { BaseProps } from '../../core/base';
+import type { BoundValue } from '../../core/binding';
 
 import type { IconButtonProps } from '../../actions/button/IconButton';
 
@@ -337,4 +339,13 @@ TextInputBase.displayName = 'TextInput';
  * `text-input-trailing`, `text-input-prefix`, `text-input-suffix`, `text-input-spinner`,
  * `text-input-action`.
  */
-export const TextInput = Object.assign(TextInputBase, { Action: TextInputAction });
+export const TextInput = bindable(Object.assign(TextInputBase, { Action: TextInputAction }), {
+  kind: 'text',
+  bind: (field: BoundValue<string>) => ({
+    name    : field.name,
+    ref     : field.ref,
+    value   : field.value ?? '',
+    onChange: (event: React.ChangeEvent<HTMLInputElement>) => field.onChange(event.currentTarget.value),
+    onBlur  : field.onBlur
+  })
+});

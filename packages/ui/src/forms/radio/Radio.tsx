@@ -9,6 +9,7 @@ import { RadioGroup as RadioGroupPrimitive } from '@base-ui/react/radio-group';
 import { optionalContextBuilder } from '@proedis/react';
 
 import { splitBaseProps } from '../../core/base';
+import { bindable } from '../../core/binding';
 import { cn } from '../../core/cn';
 
 import { Stack } from '../../layout/Stack';
@@ -19,6 +20,7 @@ import { CHOICE_ALIGN, CHOICE_FOCUS, CHOICE_ROW, ChoiceText, GROUP_FOCUS_PROPS, 
 import { useFieldControl, useFieldRegistryContext, useNonNativeFieldLabel } from '../field/fieldContext';
 
 import type { BaseProps } from '../../core/base';
+import type { BoundValue } from '../../core/binding';
 import type { Direction, Responsive } from '../../core/responsive';
 
 
@@ -165,7 +167,7 @@ const CARD = [
  * `data-invalid`), `radio` (the row or card),
  * `radio-circle`, `radio-dot`, `label` (the text, with `label-text`, `label-description`).
  */
-export const RadioGroup = React.forwardRef<HTMLDivElement, RadioGroupProps>((props, ref) => {
+const RadioGroupBase = React.forwardRef<HTMLDivElement, RadioGroupProps>((props, ref) => {
 
   // ----
   // Props Deconstruct
@@ -246,7 +248,19 @@ export const RadioGroup = React.forwardRef<HTMLDivElement, RadioGroupProps>((pro
 
 });
 
-RadioGroup.displayName = 'RadioGroup';
+RadioGroupBase.displayName = 'RadioGroup';
+
+/** Bound to a form through `binding`: see `bindable` in core */
+export const RadioGroup = bindable(RadioGroupBase, {
+  kind: 'option',
+  bind: (field: BoundValue<string>) => ({
+    name         : field.name,
+    ref          : field.ref,
+    value        : field.value ?? '',
+    onValueChange: field.onChange,
+    onBlur       : field.onBlur
+  })
+});
 
 
 /* --------

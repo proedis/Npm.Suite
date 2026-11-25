@@ -7,6 +7,7 @@ import { NumberField as NumberFieldPrimitive } from '@base-ui/react/number-field
 import { useForkRef } from '@proedis/react';
 
 import { splitBaseProps } from '../../core/base';
+import { bindable } from '../../core/binding';
 import { cn } from '../../core/cn';
 
 import { Spinner } from '../../primitives/Spinner';
@@ -20,6 +21,7 @@ import { TEXT_CONTROL_TEXT } from '../text-control/textControl';
 import { acceptsTyping, cleanPaste, separatorsOf, widthClass } from './numberText';
 
 import type { BaseProps } from '../../core/base';
+import type { BoundValue } from '../../core/binding';
 
 import type { TextControlSize } from '../text-control/textControl';
 
@@ -133,7 +135,7 @@ function insertText(input: HTMLInputElement, text: string): void {
  * Slots: `number-input` (the frame, with `data-size` and the states), `number-input-control`,
  * `number-input-suffix`, `number-input-spinner`.
  */
-export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>((props, ref) => {
+const NumberInputBase = React.forwardRef<HTMLInputElement, NumberInputProps>((props, ref) => {
 
   // ----
   // Props Deconstruct
@@ -322,4 +324,16 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
 
 });
 
-NumberInput.displayName = 'NumberInput';
+NumberInputBase.displayName = 'NumberInput';
+
+/** Bound to a form through `binding`: see `bindable` in core */
+export const NumberInput = bindable(NumberInputBase, {
+  kind: 'number',
+  bind: (field: BoundValue<number | null>) => ({
+    name         : field.name,
+    ref          : field.ref,
+    value        : field.value ?? null,
+    onValueChange: field.onChange,
+    onBlur       : field.onBlur
+  })
+});

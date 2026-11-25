@@ -15,7 +15,7 @@ import { isPresent } from '../../internal/presence';
 import { CloseWhenAnchorHidden } from '../../actions/anchor/CloseWhenAnchorHidden';
 import { IconButton } from '../../actions/button/IconButton';
 
-import { FormHostContext } from '../../forms/field/fieldContext';
+import { FormHostContext, useHostedFormState } from '../../forms/field/fieldContext';
 import { FormSubmit } from '../../forms/form/Form';
 
 
@@ -176,7 +176,7 @@ function PopoverRoot(props: PopoverProps): React.ReactNode {
   // ----
   // Memoized Data
   // ----
-  const formHost = React.useMemo(() => ({ formId }), [ formId ]);
+  const [ hosted, reportHosted ] = useHostedFormState();
 
 
   // ----
@@ -189,6 +189,9 @@ function PopoverRoot(props: PopoverProps): React.ReactNode {
 
     onOpenChange?.(next);
   }, [ openProp, onOpenChange ]);
+
+  /* The Cancel of a form closes the popover; the Submit in its footer spins while the form is sent */
+  const formHost = { formId, state: hosted, report: reportHosted, requestClose: () => setOpen(false) };
 
   const handleOpenChange = (next: boolean, details: PopoverPrimitive.Root.ChangeEventDetails): void => {
     closeReasonRef.current = next ? null : details.reason;

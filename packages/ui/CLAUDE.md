@@ -260,6 +260,21 @@ Three things every component with behaviour does, on top of "Writing a new compo
 Three things taken from the `form-control` of PinTips, shaped to this package (the rest of it was
 weighed and left out: shortcut props, a `role="alert"` error, a state icon on the border):
 
+- **A form's state flows to its overlay, and nowhere else upward.** `Form` takes `submitting` and
+  `dirty` from the caller (never a state of its own) and reports them to the `FormHost` it sits in:
+  `Dialog`, `Drawer` and `Popover` keep the report with `useHostedFormState` and derive their `busy`
+  (`'submit'` while sent) and `dirty` from it, a prop of the caller still winning (`busy="load"`). The
+  host also carries the overlay's `requestClose`, which is how `Form.Cancel` leaves through the gate
+  (`forms` comes before `overlays`, so the form reaches the overlay through a context it owns, never an
+  import). `Form.Submit` reads the state from the form around it or, in a footer outside the
+  `<form>`, from the host; its `loadingLabel` is required because it may spin at any time. In a page
+  `Form.Cancel` is a `type="reset"`, which a form library turns into its own reset.
+- **Every control declares its binding** (`core/binding.ts`): `TextInput.binding` & co., through
+  `bindable`, the kind of its value (`text`, `number`, `date`, `option`, `options`, `boolean`, `files`)
+  and how a form's value becomes its props, the empty value included (`''`, `null`, `[]`), so a bound
+  control is controlled from its first render. `bind` is a method, not a property, so a binding of a
+  precise value fits where any binding is asked for. This is what lets `@proedis/form` import no
+  control, hence none of their optional peers. A new control declares its binding in the same commit.
 - **`FieldShell` is the one frame**, the package's and an application's. TextInput, NumberInput,
   Select, MultiSelect, the two Combobox, DatePicker and the field of ModalSelector render it with a slot
   of their own (`data-slot`, which also names `<slot>-leading` and `<slot>-trailing`), and the suite

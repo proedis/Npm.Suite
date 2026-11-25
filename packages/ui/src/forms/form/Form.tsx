@@ -28,9 +28,33 @@ import type { FormErrorEntry, FormErrorRegistry } from '../field/fieldContext';
 
 export type FormHeadingLevel = 2 | 3 | 4 | 5 | 6;
 
-export type StrictFormProps = BaseProps;
+export interface StrictFormProps extends BaseProps {
+  /**
+   * The form is being sent: `Form.Submit` spins and the dialog or drawer around the form waits, with
+   * nothing closing it. From the caller's state, never a state of its own: `isSubmitting` of a form library
+   */
+  submitting?: boolean;
+
+  /**
+   * The form was changed: the dialog or drawer around it asks before closing, with the texts of its
+   * `discard`. From the caller's state: `isDirty` of a form library
+   */
+  dirty?: boolean;
+}
 
 export type FormProps = StrictFormProps & Omit<React.ComponentProps<'form'>, keyof StrictFormProps | 'noValidate' | 'ref'>;
+
+/** The submit button of a form, wherever it sits: `loadingLabel` is required, since any submit may spin */
+export type FormSubmitProps = Omit<ButtonProps, 'type' | 'loading' | 'loadingLabel'> & {
+  /** Spins without the form saying so: a submit that is not the form's own */
+  loading?: boolean;
+
+  /** What the spinner says while the form is sent: "Saving" */
+  loadingLabel: string;
+};
+
+/** The way out of a form: through the overlay's gate in a dialog or a drawer, a reset in a page */
+export type FormCancelProps = Omit<ButtonProps, 'type'>;
 
 export interface StrictFormHeaderProps extends BaseProps {
   /** The title of a form in a page */
@@ -115,6 +139,27 @@ const SECTION_GRID = '@container grid grid-cols-6 gap-x-6 gap-y-5 border-border'
  * -------- */
 
 const [ FormErrorStateContext, useFormErrorStateContext ] = optionalContextBuilder<FormErrorState | null>('FormErrorState', null);
+
+/** The state of the form around a button, for `Form.Submit` and `Form.Cancel` inside it */
+interface FormStatus {
+  readonly formId: string | undefined;
+  readonly submitting: boolean;
+  readonly dirty: boolean;
+}
+
+const [ FormStatusContext, useFormStatusContext ] = optionalContextBuilder<FormStatus | null>('FormStatus', null);
+
+
+/**
+ * Where a button of a form reads it from: the form around it, or, in the footer of an overlay outside
+ * the `<form>`, what the form reported to the overlay.
+ */
+function useFormStatus(): FormStatus {
+  const own = useFormStatusContext();
+  const host = useFormHostContext();
+
+  return own ?? { formId: host?.formId, submitting: host?.state.submitting ?? false, dirty: host?.state.dirty ?? false };
+}
 
 
 /* --------
@@ -437,7 +482,7 @@ const FormRoot = React.forwardRef<HTMLFormElement, FormProps>((props, ref) => {
   // ----
   // Props Deconstruct
   // ----
-  const { className, onInput, onSubmit, ...others } = props;
+  const { className, dirty = false, onInput, onSubmit, submitting = false, ...others } = props;
 
   const { baseClasses, rest } = splitBaseProps(others);
 
@@ -483,6 +528,11 @@ const FormRoot = React.forwardRef<HTMLFormElement, FormProps>((props, ref) => {
 
   const errorState = React.useMemo<FormErrorState>(() => ({ errors, summaryRef }), [ errors ]);
 
+  const formId = rest.id ?? host?.formId;
+
+  /* Memoised by the compiler: a value written by hand here could not be kept */
+  const status: FormStatus = { formId, submitting, dirty };
+
 
   // ----
   // Lifecycle Events
@@ -519,6 +569,16 @@ const FormRoot = React.forwardRef<HTMLFormElement, FormProps>((props, ref) => {
   }, [ errors, submitCount ]);
 
 
+  /* The overlay around the form waits while it is sent and asks before closing it changed */
+  const report = host?.report;
+
+  React.useEffect(() => {
+    report?.({ submitting, dirty });
+  }, [ report, submitting, dirty ]);
+
+  React.useEffect(() => () => report?.({ submitting: false, dirty: false }), [ report ]);
+
+
   // ----
   // Handlers
   // ----
@@ -543,9 +603,11 @@ const FormRoot = React.forwardRef<HTMLFormElement, FormProps>((props, ref) => {
       as={'form'}
       {...rest}
       ref={ref}
-      id={rest.id ?? host?.formId}
+      id={formId}
       noValidate
       data-slot={'form'}
+      data-submitting={submitting || undefined}
+      data-dirty={dirty || undefined}
       gap={6}
       className={cn(baseClasses, className)}
       onSubmit={handleSubmit}
@@ -553,7 +615,9 @@ const FormRoot = React.forwardRef<HTMLFormElement, FormProps>((props, ref) => {
     >
       <FormErrorRegistryContext.Provider value={registry}>
         <FormErrorStateContext.Provider value={errorState}>
-          {rest.children}
+          <FormStatusContext.Provider value={status}>
+            {rest.children}
+          </FormStatusContext.Provider>
         </FormErrorStateContext.Provider>
       </FormErrorRegistryContext.Provider>
     </Stack>
@@ -563,28 +627,83 @@ const FormRoot = React.forwardRef<HTMLFormElement, FormProps>((props, ref) => {
 
 FormRoot.displayName = 'Form';
 
+/**
+ * The submit button of a form, inside it or in the footer of the dialog, drawer or popover it sits in:
+ * there it points at the form through the `form` attribute, and Enter in a field submits through it.
+ *
+ * ```tsx
+ * <Form submitting={isSubmitting} onSubmit={save}>…<Form.Submit loadingLabel={'Saving'}>Save</Form.Submit></Form>
+ * <Dialog footer={<Form.Submit loadingLabel={'Saving'}>Save</Form.Submit>}><Form …>…</Form></Dialog>
+ * ```
+ *
+ * It spins on its own while the form is `submitting`, which is why `loadingLabel` is required: a submit
+ * that turns into a spinner and says nothing is a button that went quiet.
+ */
+export const FormSubmit = React.forwardRef<HTMLButtonElement, FormSubmitProps>((props, ref) => {
+  const { loading = false, loadingLabel, ...rest } = props;
+  const status = useFormStatus();
+
+  return (
+    <Button
+      {...(rest as ButtonProps)}
+      ref={ref}
+      type={'submit'}
+      form={rest.form ?? status.formId}
+      loading={loading || status.submitting}
+      loadingLabel={loadingLabel}
+    />
+  );
+});
+
+FormSubmit.displayName = 'Form.Submit';
+
+
+/**
+ * The way out of a form. In a dialog, a drawer or a popover it goes through the overlay's gate: it
+ * closes, or asks first when the form was changed, and does nothing while the form is sent. In a page
+ * it is a reset of the form, which a form library listens to through `onReset`.
+ *
+ * The caller's click runs first, and a `preventDefault` in it keeps everything as it is.
+ */
+export const FormCancel = React.forwardRef<HTMLButtonElement, FormCancelProps>((props, ref) => {
+  const { onClick, ...rest } = props;
+  const status = useFormStatus();
+  const host = useFormHostContext();
+  const requestClose = host?.requestClose;
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>): void => {
+    onClick?.(event as Parameters<NonNullable<typeof onClick>>[0]);
+
+    if (event.defaultPrevented || !requestClose) {
+      return;
+    }
+
+    event.preventDefault();
+    requestClose();
+  };
+
+  return (
+    <Button
+      fill={'solid'}
+      tone={'secondary'}
+      {...(rest as ButtonProps)}
+      ref={ref}
+      type={requestClose ? 'button' : 'reset'}
+      form={requestClose ? undefined : (rest.form ?? status.formId)}
+      disabled={rest.disabled || status.submitting}
+      onClick={handleClick}
+    />
+  );
+});
+
+FormCancel.displayName = 'Form.Cancel';
+
+
 export const Form = Object.assign(FormRoot, {
   Header      : FormHeader,
   ErrorSummary: FormErrorSummary,
   Section     : FormSection,
-  Footer      : FormFooter
+  Footer      : FormFooter,
+  Submit      : FormSubmit,
+  Cancel      : FormCancel
 });
-
-
-/**
- * The submit button of the form of a popover, a dialog or a drawer: it sits in their footer, outside
- * the `<form>`, and points at it through the `form` attribute. Enter in a field submits through it.
- *
- * ```tsx
- * <Dialog footer={<FormSubmit loading={saving} loadingLabel={'Saving'}>Save</FormSubmit>}>
- *   <Form onSubmit={save}>…</Form>
- * </Dialog>
- * ```
- */
-export const FormSubmit = React.forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
-  const host = useFormHostContext();
-
-  return <Button {...props} ref={ref} type={'submit'} form={props.form ?? host?.formId} />;
-});
-
-FormSubmit.displayName = 'FormSubmit';

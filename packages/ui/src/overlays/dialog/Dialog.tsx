@@ -11,7 +11,7 @@ import { isPresent } from '../../internal/presence';
 
 import { IconButton } from '../../actions/button/IconButton';
 
-import { FormHostContext } from '../../forms/field/fieldContext';
+import { FormHostContext, useHostedFormState } from '../../forms/field/fieldContext';
 import { FormSubmit } from '../../forms/form/Form';
 
 import {
@@ -201,11 +201,11 @@ function DialogRoot(props: DialogProps): React.ReactNode {
   // Props Deconstruct
   // ----
   const {
-    busy = false,
+    busy: busyProp = false,
     children,
     className,
     description,
-    dirty = false,
+    dirty: dirtyProp = false,
     discard,
     error,
     footer,
@@ -236,6 +236,15 @@ function DialogRoot(props: DialogProps): React.ReactNode {
 
   const origin = useOrigin(open);
   const [ nudging, nudge ] = useNudge();
+
+  /*
+   * A Form inside reports whether it is being sent and whether it was changed: the overlay waits and
+   * asks on its own. A prop of the caller still wins, as `load` does over a form that is sent
+   */
+  const [ hosted, reportHosted ] = useHostedFormState();
+  const busy: OverlayBusy = busyProp === false && hosted.submitting ? 'submit' : busyProp;
+  const dirty = dirtyProp || hosted.dirty;
+
   const wait = useOverlayBusy(busy, SUBMIT_TIMEOUT, onSubmitTimeout);
 
 
@@ -321,7 +330,7 @@ function DialogRoot(props: DialogProps): React.ReactNode {
   // ----
   // Memoized Data
   // ----
-  const formHost = React.useMemo(() => ({ formId }), [ formId ]);
+  const formHost = { formId, state: hosted, report: reportHosted, requestClose };
 
 
   // ----

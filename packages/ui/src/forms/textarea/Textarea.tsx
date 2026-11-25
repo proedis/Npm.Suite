@@ -7,12 +7,14 @@ import { Field as FieldPrimitive } from '@base-ui/react/field';
 import { useEnhancedEffect, useForkRef } from '@proedis/react';
 
 import { splitBaseProps } from '../../core/base';
+import { bindable } from '../../core/binding';
 import { cn } from '../../core/cn';
 
 import { useFieldControl } from '../field/fieldContext';
 import { TEXT_CONTROL_SELF, TEXT_CONTROL_TEXT, textControlState } from '../text-control/textControl';
 
 import type { BaseProps } from '../../core/base';
+import type { BoundValue } from '../../core/binding';
 
 
 /* --------
@@ -76,7 +78,7 @@ function fitToContent(element: HTMLTextAreaElement): void {
  *
  * Slot: `textarea` (with `data-invalid`, `data-readonly`, `data-disabled`).
  */
-export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>((props, ref) => {
+const TextareaBase = React.forwardRef<HTMLTextAreaElement, TextareaProps>((props, ref) => {
 
   // ----
   // Props Deconstruct
@@ -176,4 +178,16 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>((pr
 
 });
 
-Textarea.displayName = 'Textarea';
+TextareaBase.displayName = 'Textarea';
+
+/** Bound to a form through `binding`: see `bindable` in core */
+export const Textarea = bindable(TextareaBase, {
+  kind: 'text',
+  bind: (field: BoundValue<string>) => ({
+    name    : field.name,
+    ref     : field.ref,
+    value   : field.value ?? '',
+    onChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => field.onChange(event.currentTarget.value),
+    onBlur  : field.onBlur
+  })
+});

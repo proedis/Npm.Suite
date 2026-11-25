@@ -740,7 +740,7 @@ its own peers; none of them is re-exported by the root barrel. Every module is c
 | `feedback/alert` | `Alert` |
 | `feedback/empty-state` | `EmptyState`, at most two actions |
 | `feedback/notifications` | `createNotifications`, `NotificationsProvider`, `JobsButton` |
-| `forms/form` | `Form` (`.Header`, `.ErrorSummary`, `.Section`, `.Footer`), `FormSubmit` |
+| `forms/form` | `Form` (`.Header`, `.ErrorSummary`, `.Section`, `.Footer`, `.Submit`, `.Cancel`), `FormSubmit`, `FormCancel` |
 | `forms/field` | `Field`, `FIELD_SPAN`, `useFieldControl`, the types `FieldStatus` and `FieldControlState` |
 | `forms/field-shell` | `FieldShell`, the frame of every bordered control, the package's and yours |
 | `forms/text-input` | `TextInput` (`.Action`) |
@@ -813,7 +813,15 @@ What is worth knowing before using them:
   a new tab still work. No router and no provider in the package.
 - **The form does not validate.** Errors come from the caller as the `error` of each `Field`; after a
   submit the focus goes to the summary with two or more of them, to the field with one. `noValidate` is
-  always on.
+  always on. Its state comes from the caller too: `submitting` spins `Form.Submit` and disables
+  `Form.Cancel`, `dirty` marks it changed, and a `Dialog`, `Drawer` or `Popover` around the form reads
+  both on its own, waiting while it is sent and asking before closing it changed. `Form.Submit` takes a
+  required `loadingLabel`, since it may spin at any time. `Form.Cancel` leaves through the overlay's gate
+  in an overlay and is a reset in a page. With react-hook-form and Zod, `@proedis/form` binds all of it.
+- **Every control declares how it binds to a form** (`TextInput.binding`, a `ControlBinding` from
+  `core`): the kind of its value and how a form's value becomes its props. A form library reads it from
+  the component and imports no control; `bindable(Component, binding)` declares it on a control of your
+  own.
 - **A field is props, and the control is its one child.** Three rows: the `label` (with an `icon`
   before it and the asterisk of `required` or the word of `optional` after it) with its `description`
   under it; the control; one line under the control, the `hint` or, in its place, the message of a
@@ -1209,6 +1217,7 @@ another package. A recessed surface is `--muted`.
 | `<Label>` rendered as the `<label>` itself | a `span` root (`as` changes it) with the name inside, `label-text`, a `<label>` when `htmlFor` is given. The description no longer sits inside the `<label>`, where it became part of the name of the control: its id is `<textId>-description` or `descriptionId`, for the control's `aria-describedby` |
 | the slots `checkbox-label`, `radio-label`, `switch-label`, `detail-label`, `checkbox-text`, `radio-text`, `switch-text` | `label`, the root of every label of the package, with `label-text` inside; `checkbox-description`, `radio-description`, `switch-description` are `label-description`; `field-required` and `field-optional` are `label-required` and `label-optional`. A description is `text-xs` everywhere, where an option wrote `text-sm` |
 | `Field.Label`, `Field.Description`, `Field.Error`, `Field.Counter` | props of `Field`: `label` (with `required`, `optional`), `description`, `error` (with `errorSummary` for `summary`), `counter` (with `counterExceeded`). `description` now sits under the label, above the control; what sat under the control and disappeared with an error is `hint`. Slots: `field-description` and `field-error` are `field-message` |
+| `<FormSubmit>`, `<Dialog.Submit>` with no `loadingLabel` | `loadingLabel` is required: the button spins on its own while the form is `submitting` |
 | `useMediaQuery`, `usePrefersReducedMotion` from `@proedis/ui/hooks` | from `@proedis/react`, same signatures; `@proedis/ui/hooks` keeps `useBreakpoint` and `useIsMobile` |
 | `tailwindcss` `^4.0.0` | `^4.1.5`, see Compatibility |
 | a `Badge` with text renders the text as its child | the text is wrapped in `badge-label` and truncates with an ellipsis when the badge is too narrow |

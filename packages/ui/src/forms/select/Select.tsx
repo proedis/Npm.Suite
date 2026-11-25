@@ -9,6 +9,7 @@ import { Select as SelectPrimitive } from '@base-ui/react/select';
 import { useForkRef } from '@proedis/react';
 
 import { splitBaseProps } from '../../core/base';
+import { bindable } from '../../core/binding';
 import { cn } from '../../core/cn';
 
 import { Stack } from '../../layout/Stack';
@@ -38,6 +39,7 @@ import { LIST_ITEM_LAYOUT, LIST_PANEL_LAYOUT, toggleFromFrame } from '../list-fi
 import { TEXT_CONTROL_TEXT } from '../text-control/textControl';
 
 import type { BaseProps } from '../../core/base';
+import type { BoundValue } from '../../core/binding';
 
 import type { TextControlSize } from '../text-control/textControl';
 
@@ -176,7 +178,7 @@ function firstStartingWith(options: readonly SelectOption[], key: string): Selec
  * `select-clear`, `list-field-end`, `list-chevron`, `select-panel`, `select-search`, `select-item`,
  * `select-empty`.
  */
-export const Select = React.forwardRef<HTMLButtonElement, SelectProps>((props, forwardedRef) => {
+const SelectBase = React.forwardRef<HTMLButtonElement, SelectProps>((props, forwardedRef) => {
 
   // ----
   // Props Deconstruct
@@ -533,4 +535,16 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>((props, f
 
 });
 
-Select.displayName = 'Select';
+SelectBase.displayName = 'Select';
+
+/** Bound to a form through `binding`: see `bindable` in core */
+export const Select = bindable(SelectBase, {
+  kind: 'option',
+  bind: (field: BoundValue<string | null>) => ({
+    name         : field.name,
+    ref          : field.ref,
+    value        : field.value ?? null,
+    onValueChange: field.onChange,
+    onBlur       : field.onBlur
+  })
+});

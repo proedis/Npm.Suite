@@ -1,8 +1,8 @@
 'use client';
 
-import { optionalContextBuilder, useEnhancedEffect } from '@proedis/react';
+import * as React from 'react';
 
-import type * as React from 'react';
+import { optionalContextBuilder, useEnhancedEffect } from '@proedis/react';
 
 
 /* --------
@@ -101,13 +101,50 @@ export const [ FieldLabelNativeContext, useFieldLabelNativeContext ] = optionalC
 export const [ FormErrorRegistryContext, useFormErrorRegistryContext ] = optionalContextBuilder<FormErrorRegistry | null>('FormErrorRegistry', null);
 
 
+/** What a form tells the overlay it sits in, and what the buttons of its footer read */
+export interface FormHostState {
+  /** The form is being sent: the overlay waits, its submit button spins */
+  readonly submitting: boolean;
+
+  /** The form was changed: leaving asks first */
+  readonly dirty: boolean;
+}
+
 /**
- * The id a `Form` takes when it sits in a popover, a dialog or a drawer. They render their submit
- * button in their footer, outside the `<form>`, and point it at this id: nobody writes an id by hand
- * and two forms never end up nested. Owned here for the same reason as the registry above.
+ * The overlay a `Form` sits in: a popover, a dialog, a drawer. They render the buttons of the form in
+ * their footer, outside the `<form>`, and point them at this id: nobody writes an id by hand and two
+ * forms never end up nested. The form reports its state here, so the overlay waits while it is sent
+ * and asks before a changed form is closed, with nobody wiring either by hand. Owned here for the same
+ * reason as the registry above.
  */
 export interface FormHost {
   readonly formId: string;
+
+  /** What the form inside reported last */
+  readonly state: FormHostState;
+
+  /** Where the form reports, on every change of its state */
+  readonly report: (state: FormHostState) => void;
+
+  /** The gate of the overlay: closes it, or asks first when the form was changed */
+  readonly requestClose?: () => void;
+}
+
+const IDLE: FormHostState = { submitting: false, dirty: false };
+
+/**
+ * The state a form reports to the overlay around it, and the function it reports through. Called by
+ * the overlays, before they decide how busy and how dirty they are.
+ */
+export function useHostedFormState(): [ FormHostState, (state: FormHostState) => void ] {
+  const [ state, setState ] = React.useState<FormHostState>(IDLE);
+
+  /* A report that changes nothing keeps the same object, so it renders nothing */
+  const report = React.useCallback((next: FormHostState) => {
+    setState((current) => (current.submitting === next.submitting && current.dirty === next.dirty ? current : next));
+  }, []);
+
+  return [ state, report ];
 }
 
 export const [ FormHostContext, useFormHostContext ] = optionalContextBuilder<FormHost | null>('FormHost', null);

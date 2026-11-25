@@ -8,6 +8,7 @@ import { Input } from '@base-ui/react/input';
 import { useDelayedBusy, useForkRef } from '@proedis/react';
 
 import { splitBaseProps } from '../../core/base';
+import { bindable } from '../../core/binding';
 import { cn } from '../../core/cn';
 
 import { Stack } from '../../layout/Stack';
@@ -34,6 +35,8 @@ import { LIST_ITEM_LAYOUT, LIST_PANEL_LAYOUT, LIST_RETRY, remoteListMessages } f
 import { TEXT_CONTROL_TEXT } from '../text-control/textControl';
 
 import { MultipleCombobox } from './MultipleCombobox';
+
+import type { BoundValue } from '../../core/binding';
 
 import type { ComboboxItem, ComboboxProps, SingleComboboxProps } from './comboboxTypes';
 
@@ -538,10 +541,22 @@ SingleCombobox.displayName = 'SingleCombobox';
  * See the two variants above and in `MultipleCombobox`.
  */
 /** The ref is the element that takes the focus: the text of the single field, the button of the multiple one */
-export const Combobox = React.forwardRef<HTMLElement, ComboboxProps>((props, ref) => (
+const ComboboxBase = React.forwardRef<HTMLElement, ComboboxProps>((props, ref) => (
   props.multiple
     ? <MultipleCombobox {...props} ref={ref as React.Ref<HTMLButtonElement>} />
     : <SingleCombobox {...props} ref={ref as React.Ref<HTMLInputElement>} />
 ));
 
-Combobox.displayName = 'Combobox';
+ComboboxBase.displayName = 'Combobox';
+
+/** Bound to a form through `binding`: see `bindable` in core */
+export const Combobox = bindable(ComboboxBase, {
+  kind: (props) => (props.multiple === true ? 'options' : 'option'),
+  bind: (field: BoundValue<string | string[] | null>, props) => ({
+    name         : field.name,
+    ref          : field.ref,
+    value        : field.value ?? (props.multiple === true ? [] : null),
+    onValueChange: field.onChange,
+    onBlur       : field.onBlur
+  })
+});

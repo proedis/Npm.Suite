@@ -8,6 +8,7 @@ import { ToggleGroup as ToggleGroupPrimitive } from '@base-ui/react/toggle-group
 import { optionalContextBuilder, useEnhancedEffect, useForkRef } from '@proedis/react';
 
 import { splitBaseProps } from '../../core/base';
+import { bindable } from '../../core/binding';
 import { cn } from '../../core/cn';
 
 import { Stack } from '../../layout/Stack';
@@ -20,6 +21,7 @@ import { FOCUS_INSIDE, PRESSABLE_BASE, PRESSABLE_CONTENT, PRESSABLE_OFF } from '
 import { Tooltip } from '../tooltip/Tooltip';
 
 import type { BaseProps } from '../../core/base';
+import type { BoundValue } from '../../core/binding';
 import type { ControlSize } from '../../core/control';
 import type { SpacingValue } from '../../core/responsive';
 
@@ -514,8 +516,15 @@ const SegmentedControlRoot = React.forwardRef<HTMLDivElement, SegmentedControlPr
 });
 
 
-export const SegmentedControl = Object.assign(SegmentedControlRoot, {
+export const SegmentedControl = bindable(Object.assign(SegmentedControlRoot, {
   Item: React.forwardRef<HTMLButtonElement, SegmentedControlItemProps>(SegmentedControlItem)
+}), {
+  kind: 'option',
+  bind: (field: BoundValue<string>) => ({
+    value        : field.value ?? undefined,
+    onValueChange: field.onChange,
+    onBlur       : field.onBlur
+  })
 });
 
 SegmentedControlRoot.displayName = 'SegmentedControl';

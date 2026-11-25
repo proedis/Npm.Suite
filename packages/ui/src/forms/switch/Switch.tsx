@@ -5,6 +5,7 @@ import * as React from 'react';
 import { Switch as SwitchPrimitive } from '@base-ui/react/switch';
 
 import { splitBaseProps } from '../../core/base';
+import { bindable } from '../../core/binding';
 import { cn } from '../../core/cn';
 
 import { Stack } from '../../layout/Stack';
@@ -14,6 +15,7 @@ import { isPresent } from '../../internal/presence';
 import { CHOICE_ALIGN, CHOICE_FOCUS, CHOICE_ROW, ChoiceText } from '../choice/choice';
 
 import type { BaseProps } from '../../core/base';
+import type { BoundValue } from '../../core/binding';
 
 
 /* --------
@@ -102,7 +104,7 @@ const THUMB = [
  * The ref and the native props reach the track, the element that takes the focus; `className` and the
  * shared props reach the row.
  */
-export const Switch = React.forwardRef<HTMLSpanElement, SwitchProps>((props, ref) => {
+const SwitchBase = React.forwardRef<HTMLSpanElement, SwitchProps>((props, ref) => {
 
   // ----
   // Props Deconstruct
@@ -184,4 +186,16 @@ export const Switch = React.forwardRef<HTMLSpanElement, SwitchProps>((props, ref
 
 });
 
-Switch.displayName = 'Switch';
+SwitchBase.displayName = 'Switch';
+
+/** Bound to a form through `binding`: see `bindable` in core */
+export const Switch = bindable(SwitchBase, {
+  kind: 'boolean',
+  bind: (field: BoundValue<boolean>) => ({
+    name           : field.name,
+    ref            : field.ref,
+    checked        : field.value === true,
+    onCheckedChange: field.onChange,
+    onBlur         : field.onBlur
+  })
+});

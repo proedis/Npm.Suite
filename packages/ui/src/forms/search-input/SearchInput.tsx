@@ -4,9 +4,13 @@ import * as React from 'react';
 
 import { useForkRef } from '@proedis/react';
 
+import { bindable } from '../../core/binding';
+
 import { ClearGlyph, SearchGlyph } from '../../internal/glyphs';
 
 import { TextInput } from '../text-input/TextInput';
+
+import type { BoundValue } from '../../core/binding';
 
 import type { TextInputLoadingProps, TextInputProps } from '../text-input/TextInput';
 
@@ -57,7 +61,7 @@ export type SearchInputProps = Omit<
  * that has a value and stops there; on an empty field it goes through, so a dialog around it closes.
  * `type="search"`, with the browser's own clear button hidden: there is one already.
  */
-export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>((props, ref) => {
+const SearchInputBase = React.forwardRef<HTMLInputElement, SearchInputProps>((props, ref) => {
 
   // ----
   // Props Deconstruct
@@ -133,4 +137,16 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
 
 });
 
-SearchInput.displayName = 'SearchInput';
+SearchInputBase.displayName = 'SearchInput';
+
+/** Bound to a form through `binding`: see `bindable` in core */
+export const SearchInput = bindable(SearchInputBase, {
+  kind: 'text',
+  bind: (field: BoundValue<string>) => ({
+    name         : field.name,
+    ref          : field.ref,
+    value        : field.value ?? '',
+    onValueChange: field.onChange,
+    onBlur       : field.onBlur
+  })
+});

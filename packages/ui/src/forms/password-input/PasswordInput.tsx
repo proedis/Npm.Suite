@@ -2,9 +2,13 @@
 
 import * as React from 'react';
 
+import { bindable } from '../../core/binding';
+
 import { EyeGlyph, EyeOffGlyph } from '../../internal/glyphs';
 
 import { TextInput } from '../text-input/TextInput';
+
+import type { BoundValue } from '../../core/binding';
 
 import type { TextInputLoadingProps, TextInputProps } from '../text-input/TextInput';
 
@@ -48,7 +52,7 @@ export type PasswordInputProps = Omit<TextInputProps, 'type' | 'trailing' | 'aut
  * The name of the action and its icon change together, so the button says what it will do next.
  * No `aria-pressed` on top: with a name that changes, a pressed state would say the same thing twice.
  */
-export const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>((props, ref) => {
+const PasswordInputBase = React.forwardRef<HTMLInputElement, PasswordInputProps>((props, ref) => {
 
   // ----
   // Props Deconstruct
@@ -82,4 +86,16 @@ export const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputPro
 
 });
 
-PasswordInput.displayName = 'PasswordInput';
+PasswordInputBase.displayName = 'PasswordInput';
+
+/** Bound to a form through `binding`: see `bindable` in core */
+export const PasswordInput = bindable(PasswordInputBase, {
+  kind: 'text',
+  bind: (field: BoundValue<string>) => ({
+    name    : field.name,
+    ref     : field.ref,
+    value   : field.value ?? '',
+    onChange: (event: React.ChangeEvent<HTMLInputElement>) => field.onChange(event.currentTarget.value),
+    onBlur  : field.onBlur
+  })
+});

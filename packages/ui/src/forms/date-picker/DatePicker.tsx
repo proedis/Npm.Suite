@@ -9,6 +9,7 @@ import dayjs from 'dayjs';
 import { useForkRef } from '@proedis/react';
 
 import { splitBaseProps } from '../../core/base';
+import { bindable } from '../../core/binding';
 import { cn } from '../../core/cn';
 
 import { Stack } from '../../layout/Stack';
@@ -26,6 +27,7 @@ import { FieldShell } from '../field-shell/FieldShell';
 import { TEXT_CONTROL_TEXT } from '../text-control/textControl';
 
 import type { BaseProps } from '../../core/base';
+import type { BoundValue } from '../../core/binding';
 import type { ControlSize } from '../../core/control';
 
 import type { CalendarLabels, CalendarRange, DayMeta } from '../calendar/Calendar';
@@ -204,7 +206,7 @@ function CalendarGlyph(): React.ReactNode {
  * `calendar-year`). The footer holds `date-picker-footer-text` and `date-picker-footer-actions`, the row of
  * `date-picker-today` and `date-picker-footer-clear`.
  */
-export const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>((props, forwardedRef) => {
+const DatePickerBase = React.forwardRef<HTMLInputElement, DatePickerProps>((props, forwardedRef) => {
 
   // ----
   // Props Deconstruct
@@ -737,4 +739,16 @@ export const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>((p
 
 });
 
-DatePicker.displayName = 'DatePicker';
+DatePickerBase.displayName = 'DatePicker';
+
+/** Bound to a form through `binding`: see `bindable` in core */
+export const DatePicker = bindable(DatePickerBase, {
+  kind: 'date',
+  bind: (field: BoundValue<string | CalendarRange | null>, props) => ({
+    name         : field.name,
+    ref          : field.ref,
+    value        : field.value ?? (props.mode === 'range' ? { from: null, to: null } : null),
+    onValueChange: field.onChange,
+    onBlur       : field.onBlur
+  })
+});

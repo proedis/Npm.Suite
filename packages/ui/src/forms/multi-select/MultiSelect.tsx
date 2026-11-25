@@ -8,6 +8,7 @@ import { Select as SelectPrimitive } from '@base-ui/react/select';
 import { useForkRef } from '@proedis/react';
 
 import { splitBaseProps } from '../../core/base';
+import { bindable } from '../../core/binding';
 import { cn } from '../../core/cn';
 
 import { Stack } from '../../layout/Stack';
@@ -38,6 +39,7 @@ import { FieldShell } from '../field-shell/FieldShell';
 import { LIST_ITEM_LAYOUT, LIST_PANEL_LAYOUT, ListChips, toggleFromFrame } from '../list-field/listField';
 
 import type { BaseProps } from '../../core/base';
+import type { BoundValue } from '../../core/binding';
 
 import type { SelectOption } from '../select/Select';
 import type { TextControlSize } from '../text-control/textControl';
@@ -152,7 +154,7 @@ const DEFAULT_THRESHOLD = 8;
  * `multi-select-more`, `multi-select-trigger`, `multi-select-panel`, `multi-select-item`,
  * `multi-select-footer`.
  */
-export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>((props, forwardedRef) => {
+const MultiSelectBase = React.forwardRef<HTMLButtonElement, MultiSelectProps>((props, forwardedRef) => {
 
   // ----
   // Props Deconstruct
@@ -476,4 +478,16 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
 
 });
 
-MultiSelect.displayName = 'MultiSelect';
+MultiSelectBase.displayName = 'MultiSelect';
+
+/** Bound to a form through `binding`: see `bindable` in core */
+export const MultiSelect = bindable(MultiSelectBase, {
+  kind: 'options',
+  bind: (field: BoundValue<string[]>) => ({
+    name         : field.name,
+    ref          : field.ref,
+    value        : field.value ?? [],
+    onValueChange: field.onChange,
+    onBlur       : field.onBlur
+  })
+});

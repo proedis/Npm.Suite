@@ -5,6 +5,7 @@ import * as React from 'react';
 import { useAnnouncer } from '@proedis/react';
 
 import { splitBaseProps } from '../../core/base';
+import { bindable } from '../../core/binding';
 import { cn } from '../../core/cn';
 
 import { Stack } from '../../layout/Stack';
@@ -20,6 +21,7 @@ import { FileRow, FileThumbnail, UploadGlyph } from './FileRow';
 import { acceptsFile, guardDocumentDrop, validateFiles } from './fileRules';
 
 import type { BaseProps } from '../../core/base';
+import type { BoundValue } from '../../core/binding';
 
 import type { FileEntry, FileLimits, FileRejection } from './fileRules';
 
@@ -166,7 +168,7 @@ function readDrop(event: React.DragEvent): { files: File[]; folders: Set<File> }
  * `file-upload-choose`, `file-upload-list`, `file-upload-row` (with `data-rejected`), `file-upload-row-text`,
  * `file-upload-row-label`, `file-upload-row-detail`, `file-upload-row-actions`, `file-thumbnail`.
  */
-export const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>((props, ref) => {
+const FileUploadBase = React.forwardRef<HTMLDivElement, FileUploadProps>((props, ref) => {
 
   // ----
   // Props Deconstruct
@@ -448,4 +450,16 @@ export const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>((pro
 
 });
 
-FileUpload.displayName = 'FileUpload';
+FileUploadBase.displayName = 'FileUpload';
+
+/** Bound to a form through `binding`: see `bindable` in core */
+export const FileUpload = bindable(FileUploadBase, {
+  kind: 'files',
+  bind: (field: BoundValue<readonly FileEntry[]>) => ({
+    ref     : field.ref,
+    files   : field.value ?? [],
+    onAdd   : (entries: FileEntry[]) => field.onChange([ ...(field.value ?? []), ...entries ]),
+    onRemove: (id: string) => field.onChange((field.value ?? []).filter((entry) => entry.id !== id)),
+    onBlur  : field.onBlur
+  })
+});
