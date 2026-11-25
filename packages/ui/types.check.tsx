@@ -179,23 +179,20 @@ const wrongSpinnerLabel = <Spinner label={<span>no</span>} />;
  * A compound reached through the dot keeps every check
  * -------- */
 const pair = (
-  <Heading gap={2}>
+  <Heading gap={2} size={'xl'}>
     <Heading.Eyebrow>Eyebrow</Heading.Eyebrow>
-    <Heading.Title size={'xl'} lines={2}>Title</Heading.Title>
-    <Heading.Description size={'xs'}>Description</Heading.Description>
+    <Heading.Title lines={2}>Title</Heading.Title>
+    <Heading.Description>Description</Heading.Description>
   </Heading>
 );
 
-/** @ts-expect-error the eyebrow has two steps, and it never goes up to a title size */
-const eyebrowWrongSize = <Heading.Eyebrow size={'md'}>no</Heading.Eyebrow>;
+/** @ts-expect-error the size is the root's: the three texts move together, a part has none of its own */
+const partSize = <Heading.Title size={'xl'}>no</Heading.Title>;
+
+/** @ts-expect-error four steps, sm to xl */
+const headingWrongSize = <Heading size={'2xl'}>no</Heading>;
 
 const headingAs = <Heading as={'hgroup'}><Heading.Title as={'h2'}>T</Heading.Title></Heading>;
-
-/** @ts-expect-error the title has four steps and 'xs' is not one of them: that one belongs to the description */
-const titleWrongSize = <Heading.Title size={'xs'}>no</Heading.Title>;
-
-/** @ts-expect-error and the description does not go up to 'xl' */
-const descriptionWrongSize = <Heading.Description size={'xl'}>no</Heading.Description>;
 
 /** @ts-expect-error the clamp is a closed set, not a number */
 const wrongLines = <Heading.Title lines={4}>no</Heading.Title>;
@@ -234,7 +231,7 @@ const spinnerNoDefault = <Spinner size={'default'} />;
 const card = (
   <Surface elevation={'raised'} radius={'2xl'} loading loadingLabel={'Caricamento'}>
     <Surface.Header>
-      <Heading><Heading.Title size={'lg'}>Mezzi</Heading.Title></Heading>
+      <Heading size={'lg'}><Heading.Title>Mezzi</Heading.Title></Heading>
     </Surface.Header>
     <Surface.Separator />
     <Surface.Section flush>{null}</Surface.Section>
@@ -529,7 +526,7 @@ export const CHECKED = [
   chromeDefaults, iconBoxNoDefault, titleNoDefault, itemNoDefault, spinnerNoDefault,
   card, noOpinion, modalSurface, wrongLoadingLabel, wrongSeparator, wrongSeparatorSpace,
   headerIsAnItem, listRow, buttonRow, emptyStateRow, divWithType, itemWrongGap, itemWrongTone,
-  pair, eyebrowWrongSize, headingAs, titleWrongSize, descriptionWrongSize, wrongLines, wrongGapValue, flatPart,
+  pair, partSize, headingWrongSize, headingAs, wrongLines, wrongGapValue, flatPart,
   softMuted, solidDestructive, emptyState, wrongToneName, wrongFill, spinner, wrongSpinnerLabel,
   anchorStack, sectionStack, plainStack, wrongAttribute, wrongAttributeToo,
   scaleRespected, outsideTheScale, outsideTheColumns, outsideTheScaleResponsive,

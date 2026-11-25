@@ -377,6 +377,52 @@
  * all with reduced motion. A utility because a transition of `height` has no Tailwind class but an
  * arbitrary one.
  */
+/*
+ * The three texts of a Heading, one scale for the three: the root sets the size of each through
+ * `heading-size-*` and the parts read it, so the eyebrow, the title and the description move together. A
+ * part used alone falls back on the `sm` row. Read through `text-heading-*`, a utility of the same group as
+ * `text-xl`, so a size written on a part in `className` still replaces it.
+ */
+@theme inline {
+  --text-heading-eyebrow: var(--heading-eyebrow-size, var(--text-2xs));
+  --text-heading-eyebrow--line-height: var(--heading-eyebrow-line-height, var(--text-2xs--line-height));
+  --text-heading-title: var(--heading-title-size, var(--text-sm));
+  --text-heading-description: var(--heading-description-size, var(--text-xs));
+  --font-weight-heading-title: var(--heading-title-weight, var(--font-weight-semibold));
+}
+
+@utility heading-size-sm {
+  --heading-eyebrow-size: var(--text-2xs);
+  --heading-eyebrow-line-height: var(--text-2xs--line-height);
+  --heading-title-size: var(--text-sm);
+  --heading-title-weight: var(--font-weight-semibold);
+  --heading-description-size: var(--text-xs);
+}
+
+@utility heading-size-md {
+  --heading-eyebrow-size: var(--text-2xs);
+  --heading-eyebrow-line-height: var(--text-2xs--line-height);
+  --heading-title-size: var(--text-base);
+  --heading-title-weight: var(--font-weight-semibold);
+  --heading-description-size: var(--text-sm);
+}
+
+@utility heading-size-lg {
+  --heading-eyebrow-size: var(--text-xs);
+  --heading-eyebrow-line-height: var(--text-xs--line-height);
+  --heading-title-size: var(--text-lg);
+  --heading-title-weight: var(--font-weight-semibold);
+  --heading-description-size: var(--text-sm);
+}
+
+@utility heading-size-xl {
+  --heading-eyebrow-size: var(--text-xs);
+  --heading-eyebrow-line-height: var(--text-xs--line-height);
+  --heading-title-size: var(--text-xl);
+  --heading-title-weight: var(--font-weight-bold);
+  --heading-description-size: var(--text-base);
+}
+
 @utility accordion-panel {
   height: var(--accordion-panel-height);
   overflow: hidden;

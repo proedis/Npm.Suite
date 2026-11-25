@@ -17,26 +17,46 @@ import type { Spacing } from '../../core/responsive';
  * Constants Definition
  * -------- */
 
-/** One source per part, read by `cva` to apply and by the component to report */
-const DEFAULT_TITLE_SIZE = 'sm';
-
-const DEFAULT_DESCRIPTION_SIZE = 'sm';
-
-const DEFAULT_EYEBROW_SIZE = 'xs';
+/** One source, read to apply the size and to report it */
+const DEFAULT_SIZE = 'sm';
 
 /**
- * The line heights, appended **after** the size rather than declared in the `cva` base.
+ * The size of the three texts, set once on the root: each `heading-size-*` declares the eyebrow, the title
+ * and the description in proportion (`theme.css`), and every part reads its own line of it through
+ * `text-heading-*`.
+ *
+ * | size | eyebrow | title | description |
+ * | --- | --- | --- | --- |
+ * | `sm` | `2xs` | `sm`, semibold | `xs` |
+ * | `md` | `2xs` | `base`, semibold | `sm` |
+ * | `lg` | `xs` | `lg`, semibold | `sm` |
+ * | `xl` | `xs` | `xl`, bold | `base` |
+ */
+const SIZE = {
+  sm: 'heading-size-sm',
+  md: 'heading-size-md',
+  lg: 'heading-size-lg',
+  xl: 'heading-size-xl'
+} as const;
+
+/**
+ * The line heights, appended **after** the size rather than declared with it.
  *
  * ⚠️ Not a style choice, a correctness one. A Tailwind size carries a line height of its own, so
- * `tailwind-merge` treats `text-base` as conflicting with `leading-*` and drops whichever comes first.
- * With these in the base the emitted class list was `text-foreground text-base font-semibold` — the
- * `leading-tight` gone, silently, and the title rendering at the size's default line height. Caught by
- * a render assertion, not by reading the code. Anything that sets a line height next to a size in this
- * package has to come after it, and `className` still comes after both.
+ * `tailwind-merge` treats a `text-*` size as conflicting with `leading-*` and drops whichever comes first.
+ * With these first the title rendered at the size's default line height, silently. Caught by a render
+ * assertion, not by reading the code. Anything that sets a line height next to a size in this package
+ * has to come after it, and `className` still comes after both.
  */
 const LINE_HEIGHT_TITLE = 'leading-tight';
 
 const LINE_HEIGHT_DESCRIPTION = 'leading-snug';
+
+const LINES = {
+  1: 'line-clamp-1',
+  2: 'line-clamp-2',
+  3: 'line-clamp-3'
+} as const;
 
 
 /* --------
@@ -44,105 +64,52 @@ const LINE_HEIGHT_DESCRIPTION = 'leading-snug';
  * -------- */
 
 /**
- * The title, in four declared steps.
+ * The title. Its size and weight are the root's (`text-heading-title`, `font-heading-title`), every one a
+ * **named step of Tailwind's scale**, never a length: the reference implementations wrote `text-[17px]`,
+ * `text-[15px]` and `tracking-[-0.014em]`, typographic decisions no theme can reach. Weight rises with size
+ * because both references do the same independently: semibold up to `lg`, bold at `xl`.
  *
- * Every one is a **named step of Tailwind's scale**, never a length, and that is deliberate: the four
- * reference implementations this comes from write `text-[17px]`, `text-[15px]`, `text-[13px]` and
- * `tracking-[-0.014em]`, which is four typographic decisions that no theme can reach and no reader can
- * find. Naming the step instead means the day a typographic scale lands here, every heading in every
- * application follows it without a single call site changing — exactly how they already follow
- * `--radius-scale`.
- *
- * Weight rises with size because both references do the same thing independently: a small title is
- * `font-semibold`, a large one is `font-bold`. It is not exposed as its own axis until something needs
- * the combination the pair does not offer.
+ * `min-w-0` so the title is the element that absorbs the pressure when something sits beside it: a
+ * `Badge`, a count, an icon. A flex child refuses to shrink below its content without it.
  */
-/**
- * `min-w-0` so the title is the element that absorbs the pressure when something sits beside it — a
- * `Badge`, a count, an icon. A flex child refuses to shrink below its content without it, so the
- * sibling would be pushed out of the row instead of the title truncating.
- */
-const titleVariants = cva('min-w-0 font-heading text-foreground', {
-  variants       : {
-    lines: {
-      1: 'line-clamp-1',
-      2: 'line-clamp-2',
-      3: 'line-clamp-3'
-    },
-    size : {
-      sm: 'text-sm font-semibold',
-      md: 'text-base font-semibold',
-      lg: 'text-lg font-semibold',
-      xl: 'text-xl font-bold'
-    }
-  },
-  defaultVariants: {
-    size: DEFAULT_TITLE_SIZE
-  }
+const titleVariants = cva('min-w-0 font-heading text-heading-title font-heading-title text-foreground', {
+  variants: { lines: LINES }
 });
 
 
 /**
- * The second line: quieter, smaller, and `text-pretty`.
- *
- * `text-pretty` is the default rather than an option because a description is prose and a single
- * orphan word on the last line is never what anyone wanted. One of the references reaches for it as
- * `[text-wrap:pretty]`, which is the same decision written as an arbitrary value.
+ * The second line: quieter, smaller, and `text-pretty`, since a description is prose and a single orphan
+ * word on the last line is never what anyone wanted.
  */
-const descriptionVariants = cva('text-pretty text-muted-foreground', {
-  variants       : {
-    lines: {
-      1: 'line-clamp-1',
-      2: 'line-clamp-2',
-      3: 'line-clamp-3'
-    },
-    size : {
-      xs: 'text-2xs',
-      sm: 'text-xs',
-      md: 'text-sm'
-    }
-  },
-  defaultVariants: {
-    size: DEFAULT_DESCRIPTION_SIZE
-  }
+const descriptionVariants = cva('text-heading-description text-pretty text-muted-foreground', {
+  variants: { lines: LINES }
 });
 
 
 /**
- * The eyebrow: the small uppercase line **above** the title.
- *
- * Both reference implementations have it in their list row, spelt almost identically
- * (`truncate text-[0.625rem] tracking-wider uppercase`), and one of them uses the same register for
- * the title of a card section. It reads as an eyebrow because of the case and the tracking, not
- * because of the size — which is why it shares `--text-2xs` with the smallest description instead of
- * asking for a step of its own.
+ * The eyebrow: the small uppercase line **above** the title. It reads as an eyebrow because of the case and
+ * the tracking, not because of the size.
  *
  * ⚠️ Muted, not coloured. One reference tints it `text-primary` and the other mutes it, and a tinted
- * eyebrow is a product decision rather than a semantic: `className={'text-primary'}` is one class
- * away, and a `tone` prop would be a knob added before anything needs it.
+ * eyebrow is a product decision rather than a semantic: `className={'text-primary'}` is one class away.
  */
-const eyebrowVariants = cva('font-medium tracking-wider text-muted-foreground uppercase', {
-  variants       : {
-    lines: {
-      1: 'line-clamp-1',
-      2: 'line-clamp-2',
-      3: 'line-clamp-3'
-    },
-    size : {
-      xs: 'text-2xs',
-      sm: 'text-xs'
-    }
-  },
-  defaultVariants: {
-    size: DEFAULT_EYEBROW_SIZE
-  }
+const eyebrowVariants = cva('text-heading-eyebrow font-medium tracking-wider text-muted-foreground uppercase', {
+  variants: { lines: LINES }
 });
 
 
 /* --------
  * Types Definition
  * -------- */
+export type HeadingSize = keyof typeof SIZE;
+
 export interface StrictHeadingProps extends BaseProps {
+  /**
+   * The size of the eyebrow, the title and the description together, in proportion: `sm` is a list row,
+   * `lg` the header of a card, `xl` an empty state. Defaults to `sm`
+   */
+  size?: HeadingSize;
+
   /**
    * Space between the title and the description: a step of the spacing scale by name, or a Tailwind
    * spacing step by number. Defaults to `0.5`, moved by the theme with `--heading-gap`
@@ -194,7 +161,6 @@ function HeadingEyebrow<E extends React.ElementType = 'div'>(
     as: Component = 'div',
     className,
     lines,
-    size = DEFAULT_EYEBROW_SIZE,
     ...others
   } = props as HeadingEyebrowProps<'div'>;
 
@@ -208,8 +174,7 @@ function HeadingEyebrow<E extends React.ElementType = 'div'>(
     <Component
       data-slot={'heading-eyebrow'}
       data-lines={lines}
-      data-size={size}
-      className={cn(eyebrowVariants({ lines, size }), baseClasses, className)}
+      className={cn(eyebrowVariants({ lines }), baseClasses, className)}
       {...rest}
     />
   );
@@ -236,7 +201,6 @@ function HeadingTitle<E extends React.ElementType = 'div'>(props: HeadingTitlePr
     as: Component = 'div',
     className,
     lines,
-    size = DEFAULT_TITLE_SIZE,
     ...others
   } = props as HeadingTitleProps<'div'>;
 
@@ -250,8 +214,7 @@ function HeadingTitle<E extends React.ElementType = 'div'>(props: HeadingTitlePr
     <Component
       data-slot={'heading-title'}
       data-lines={lines}
-      data-size={size}
-      className={cn(titleVariants({ lines, size }), LINE_HEIGHT_TITLE, baseClasses, className)}
+      className={cn(titleVariants({ lines }), LINE_HEIGHT_TITLE, baseClasses, className)}
       {...rest}
     />
   );
@@ -273,7 +236,6 @@ function HeadingDescription<E extends React.ElementType = 'div'>(
     as: Component = 'div',
     className,
     lines,
-    size = DEFAULT_DESCRIPTION_SIZE,
     ...others
   } = props as HeadingDescriptionProps<'div'>;
 
@@ -287,8 +249,7 @@ function HeadingDescription<E extends React.ElementType = 'div'>(
     <Component
       data-slot={'heading-description'}
       data-lines={lines}
-      data-size={size}
-      className={cn(descriptionVariants({ lines, size }), LINE_HEIGHT_DESCRIPTION, baseClasses, className)}
+      className={cn(descriptionVariants({ lines }), LINE_HEIGHT_DESCRIPTION, baseClasses, className)}
       {...rest}
     />
   );
@@ -313,46 +274,30 @@ HeadingDescription.displayName = 'Heading.Description';
  *   <Heading.Description>Ultimo passaggio 12:04</Heading.Description>
  * </Heading>
  *
- * <Heading>                                              // the header of a card
- *   <Heading.Title size={'lg'}>Mezzi in servizio</Heading.Title>
+ * <Heading size={'lg'}>                                  // the header of a card
+ *   <Heading.Title>Mezzi in servizio</Heading.Title>
  *   <Heading.Description>Aggiornato 2 minuti fa</Heading.Description>
- * </Heading>
- *
- * <Heading gap={2}>                                      // an empty state
- *   <Heading.Title size={'xl'}>Nessun risultato</Heading.Title>
- *   <Heading.Description size={'md'} lines={2}>Prova a rimuovere un filtro</Heading.Description>
  * </Heading>
  * ```
  *
- * ⚠️ The default title size is `sm`, and it is measured rather than chosen: both reference
- * implementations write `text-sm font-semibold` for the title of a list row and something larger for
- * the title of a card header. A list row is by far the more frequent of the two, so the frequent case
- * writes no props and a header states `size={'lg'}`. A default of `md` — which is what this had at
- * first — served neither.
+ * ## One size for the three
  *
- * It exists because the pair is everywhere and the row it usually sits in is not: measured across the
- * two reference frontends, the pair appears in the header of a card, in a list row (as title plus
- * `meta`) and in an empty state — six places — while the *row* arrangement appears in only four of
- * them. An empty state stacks and centres, so it needs the typography without the row. Extracting
- * only the row would have left it re-implementing the type scale, which is exactly what both projects
- * did: one of them carries a per-size table of `text-[17px]` / `text-xl` / `text-2xl` inside its empty
- * state.
+ * `size` is the root's, and it moves the eyebrow, the title and the description together, in proportion:
+ * a larger title with the description of a list row is a heading out of scale, and that is what a size per
+ * part allowed. The default is `sm` because a list row is by far the most frequent place.
  *
- * ## Why each part carries its own `size`
- *
- * A single knob on the pair looks nicer and cannot work here. Sharing it downwards needs either a
- * context, which is client-only and would take the whole tier out of a Server Component, or a
- * descendant class on the parent (`[&>[data-slot=heading-title]]:text-lg`) — and that one is worse
- * than it looks: a descendant selector has more specificity than the child's own utility, so the
- * parent would silently **win** over an explicit `size` on the child. Two explicit props beat one
- * knob that cannot be overridden.
+ * It travels as variables, not as a context nor as a descendant class: a context is client-only and would
+ * take the tier out of a Server Component, and a class on the parent (`[&>[data-slot=heading-title]]:text-lg`)
+ * has more specificity than the part's own utility, so a `className` on the part would lose. The root sets
+ * `--heading-title-size` & co. (`heading-size-*`), each part reads its own through a `text-*` utility, and a
+ * `className={'text-2xl'}` on a part replaces it like any other size. A stylesheet retunes one size for every
+ * heading with `[data-slot='heading'][data-size='lg'] { --heading-title-size: … }`.
  *
  * ## The `min-w-0`
  *
  * ⚠️ Load-bearing, and the reason `lines` works at all. A flex child refuses to shrink below its
  * content, so without it `line-clamp` never engages and a long title pushes whatever sits next to it
- * out of the container instead of truncating. All four reference implementations carry it, three times
- * per file; here it is the pair's own business and no caller has to remember it.
+ * out of the container instead of truncating.
  */
 export function Heading<E extends React.ElementType = 'div'>(props: HeadingProps<E>): React.ReactNode {
 
@@ -363,6 +308,7 @@ export function Heading<E extends React.ElementType = 'div'>(props: HeadingProps
     as: Component = 'div',
     className,
     gap,
+    size = DEFAULT_SIZE,
     ...others
   } = props as HeadingProps<'div'>;
 
@@ -377,8 +323,9 @@ export function Heading<E extends React.ElementType = 'div'>(props: HeadingProps
       as={Component}
       data-slot={'heading'}
       data-gap={gap}
+      data-size={size}
       gap={gap ?? 0}
-      className={cn('min-w-0', gap === undefined && DEFAULT_GAP_CLASS.heading, baseClasses, className)}
+      className={cn('min-w-0', SIZE[size], gap === undefined && DEFAULT_GAP_CLASS.heading, baseClasses, className)}
       {...rest}
     />
   );

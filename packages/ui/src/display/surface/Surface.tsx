@@ -155,8 +155,8 @@ export type SurfaceFooterProps<E extends React.ElementType = 'div'> =
  * ```tsx
  * <Surface.Header>
  *   <IconBox tone={'primary'}><Truck /></IconBox>
- *   <Heading>
- *     <Heading.Title size={'lg'}>Mezzi in servizio</Heading.Title>
+ *   <Heading size={'lg'}>
+ *     <Heading.Title>Mezzi in servizio</Heading.Title>
  *     <Heading.Description>Aggiornato 2 minuti fa</Heading.Description>
  *   </Heading>
  *   <Item.Actions>{…}</Item.Actions>

@@ -477,21 +477,30 @@ For the row with an icon, compose: `Item` grows a `LabeledContent` exactly as it
   <Heading.Description>Ultimo passaggio 12:04</Heading.Description>
 </Heading>
 
-<Heading>                                          {/* the header of a card */}
-  <Heading.Title size={'lg'}>Mezzi in servizio</Heading.Title>
+<Heading size={'lg'}>                              {/* the header of a card */}
+  <Heading.Title>Mezzi in servizio</Heading.Title>
   <Heading.Description>Aggiornato 2 minuti fa</Heading.Description>
 </Heading>
 ```
 
 | | Values |
 | --- | --- |
-| `Heading` | `gap`, a spacing step. Defaults to `0.5` |
-| `.Eyebrow` | `size`: `xs` · `sm`. Uppercase, tracked, muted |
-| `.Title` | `size`: `sm` · `md` · `lg` · `xl`. Weight rises with size |
-| `.Description` | `size`: `xs` · `sm` · `md`. `text-pretty` by default |
+| | Values |
+| --- | --- |
+| `Heading` | `size`: `sm` · `md` · `lg` · `xl`, the three texts together. `gap`, a spacing step, defaults to `0.5` |
+| `.Eyebrow` | Uppercase, tracked, muted |
+| `.Title` | Weight rises with size |
+| `.Description` | `text-pretty` by default |
 | all three | `lines`: `1` · `2` · `3` to clamp |
 
-⚠️ The default title size is **`sm`**, and it is measured rather than chosen: both reference
+| `size` | Eyebrow | Title | Description |
+| --- | --- | --- | --- |
+| `sm` | 11px | 14px, semibold | 12px |
+| `md` | 11px | 16px, semibold | 14px |
+| `lg` | 12px | 18px, semibold | 14px |
+| `xl` | 12px | 20px, bold | 16px |
+
+⚠️ The default size is **`sm`**, and it is measured rather than chosen: both reference
 implementations write `text-sm font-semibold` for the title of a list row and something larger for the
 title of a card header. A list row is by far the more frequent, so the frequent case writes no props
 and a header states `size={'lg'}`.
@@ -514,11 +523,13 @@ document outline around it, which the component cannot see: the same card is an 
 and an `h3` inside a section. Pass `as={'h2'}` where the outline is known, and nothing where the text
 is a label rather than a heading — a wrong level is worse for a screen reader than no level at all.
 
-Each part carries its **own** `size` rather than inheriting one from the pair, and that is not an
-oversight: sharing it downwards would need a context, which is client-only and would take the tier out
-of a Server Component, or a descendant class on the parent — and a descendant selector has more
-specificity than the child's own utility, so the parent would silently win over an explicit `size`.
-Two explicit props beat one knob that cannot be overridden.
+The size is the **pair's**, and the three texts move together in proportion: a size per part let a
+large title sit over the description of a list row. It travels as variables (`heading-size-*` on the
+root sets `--heading-title-size` & co., each part reads its own through `text-heading-*`), not as a
+context, which is client-only, nor as a class on the parent, whose specificity would beat the part's.
+So the component stays renderable from a Server Component, and a size in the `className` of one part
+still replaces its own: `<Heading.Title className={'text-2xl'}>`. A stylesheet retunes a size for every
+heading with `[data-slot='heading'][data-size='lg'] { --heading-title-size: var(--text-xl); }`.
 
 ### `Badge`, and one table for every tone
 
@@ -1234,6 +1245,7 @@ another package. A recessed surface is `--muted`.
 | `Cluster` `gap` defaults to `2`, `Grid` to `4`, `Surface.Separator` `space` to `6` | `sm`, `md` and `lg`: the same lengths, now following the theme's `--space-*` |
 | `<Skeleton className={'size-4'} />` for a box, and a line of text 10px tall | `shape={'block'}` for a box; a line of text is as tall as a line of its `size` (20px at `sm`) with the 10px bar in its middle, inside a `skeleton` element holding a `skeleton-bar` |
 | `Divider` drawn as a 1px box filled with `--border` | drawn as a border, so `lineStyle` can dash it: a rule targeting its `background-color` targets nothing now, its `border-color` is the line |
+| `size` on `Heading.Title`, `Heading.Description`, `Heading.Eyebrow` | `size` on `Heading`, for the three together (`sm` · `md` · `lg` · `xl`, the title's steps); `data-size` moves from the parts to the root. A part that has to step out of the scale takes a size in its `className` |
 | `CollapsibleSection` from `@proedis/ui/actions/collapsible` | `Accordion` from `@proedis/ui/actions/accordion`: a section is an `Accordion.Item` in an `Accordion`, `open` / `defaultOpen` / `onOpenChange` are the item's `value` in `value` / `defaultValue` / `onValueChange` of the accordion, and the slots `collapsible-section-*` are `accordion-*`. The body opens on its height; the last item draws no rule under it |
 | `data-mode`, `data-inline`, `data-wrap`, `data-divided`, `data-fill` on the parts of a component laid out by `Stack`, `Cluster`, `Center` or `Grid` | written only on a primitive that renders as itself; a rule matching them on a component part matches nothing now |
 

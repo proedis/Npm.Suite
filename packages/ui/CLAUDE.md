@@ -804,12 +804,16 @@ narrower stylesheet is the one you have to ask for.
   icon and the row belong to `Item`, whose plumbing grows a `[data-slot='labeled-content']` exactly as
   it grows a `[data-slot='heading']`. `inline` stayed, because putting the label and the value on one
   line is an arrangement of the pair itself and not of a row around it.
-- **A compound's parts carry their own variants; nothing is inherited.** `Heading.Title` and
-  `Heading.Description` each take a `size`, and the pair does not hand one down. The two ways to share
-  it are both worse: a context is client-only and takes the tier out of a Server Component, and a
-  descendant class on the parent (`[&>[data-slot=heading-title]]:text-lg`) has more specificity than
-  the child's own utility, so the parent would silently beat an explicit `size` on the child. Two
-  explicit props beat one knob that cannot be overridden.
+- **A size shared by the parts of a compound travels as variables.** `Heading` takes one `size` for
+  its three texts (Marco, 2026-11-25: they are in proportion, and a size per part let a large title sit
+  over a list row's description). The two obvious ways to share it are both wrong, and that is why each
+  part used to carry its own: a context is client-only and takes the tier out of a Server Component, and
+  a descendant class on the parent (`[&>[data-slot=heading-title]]:text-lg`) has more specificity than
+  the child's own utility, so a `className` on the part would lose. The root sets variables instead
+  (`heading-size-*` in `theme.css`), each part reads its own through a utility of the same group as the
+  one a caller would write (`text-heading-title` is a `text-*` size, `font-heading-title` a weight), and
+  `cn` knows those names, so `className={'text-2xl'}` on a part replaces it. Measured in the browser at
+  the four sizes, `sm` identical to the sizes the parts had by default.
 - **`useMediaQuery` is the primitive; the breakpoint pair is vocabulary on top of it.** The
   subscription used to be duplicated inside `useBreakpoint`, which is how a generic query stayed
   unreachable. The primitive now lives in `@proedis/react`, with `usePrefersReducedMotion`, whose

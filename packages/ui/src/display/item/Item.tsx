@@ -219,9 +219,9 @@ ItemTrailing.displayName = 'Item.Trailing';
  * ```tsx
  * <Item direction={'vertical'} gap={6} className={'text-center'}>
  *   <IconBox size={'2xl'} tone={'primary'} halo><Inbox /></IconBox>
- *   <Heading gap={2}>
- *     <Heading.Title size={'xl'}>Nessun risultato</Heading.Title>
- *     <Heading.Description size={'md'}>Prova a rimuovere un filtro</Heading.Description>
+ *   <Heading size={'xl'} gap={2}>
+ *     <Heading.Title>Nessun risultato</Heading.Title>
+ *     <Heading.Description>Prova a rimuovere un filtro</Heading.Description>
  *   </Heading>
  *   <Item.Actions>{…}</Item.Actions>
  * </Item>
