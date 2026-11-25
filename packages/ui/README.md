@@ -785,6 +785,8 @@ its own peers; none of them is re-exported by the root barrel. Every module is c
 | `forms/number-input` | `NumberInput` |
 | `forms/textarea` | `Textarea` |
 | `forms/select` | `Select`, with a search past `searchThreshold` options |
+| `forms/slider` | `Slider`, one number on a scale, as a line with a thumb or a bar the height of a field |
+| `forms/range-slider` | `RangeSlider`, the two ends of a range, in the same two looks |
 | `forms/multi-select` | `MultiSelect`, and the `SelectOption` type its options take |
 | `forms/combobox` | `Combobox`, one record or several (`multiple`) among results from the server |
 | `forms/date-picker` | `DatePicker`, a date typed or picked; needs `dayjs` |
