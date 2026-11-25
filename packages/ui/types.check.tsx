@@ -232,6 +232,19 @@ const spinnerNoDefault = <Spinner size={'default'} />;
 
 
 /* --------
+ * A link is an address, or an address that knows how to go there
+ * -------- */
+const linkAsString = <Button to={'/rounds/14'}>Open</Button>;
+
+const linkAsDestination = <Button to={{ href: '/rounds/14', go: () => undefined }}>Open</Button>;
+
+/** @ts-expect-error a destination without its href is not one */
+const linkWithoutHref = <Button to={{ go: () => undefined }}>Open</Button>;
+
+/** @ts-expect-error an address is a string */
+const linkAsNumber = <Button to={14}>Open</Button>;
+
+/* --------
  * The card, and the 'default' that is not a step
  * -------- */
 const card = (
@@ -530,6 +543,7 @@ const multiplePendingEnter = (
 export const CHECKED = [
   badges, titleWithBadge, badgeWrongTone, badgeWrongFill, badgeNoDefault,
   chromeDefaults, iconBoxNoDefault, titleNoDefault, itemNoDefault, spinnerNoDefault,
+  linkAsString, linkAsDestination, linkWithoutHref, linkAsNumber,
   card, noOpinion, modalSurface, wrongLoadingLabel, oldElevation, wrongGroupGap,
   headerIsAnItem, listRow, buttonRow, emptyStateRow, divWithType, itemWrongGap, itemWrongTone,
   pair, partSize, headingWrongSize, headingAs, wrongLines, wrongGapValue, flatPart,

@@ -245,6 +245,16 @@ improvable and are not:
   and only the caller knows their text. The grid template is an inline style, a free measure: its
   number of columns comes from the data.
 
+**A link is an address, and the router arrives once** (Marco, 2026-11-25: `{ href, go }` at every call
+site was verbose for what is a string nine times in ten). `LinkTarget` is `string | LinkDestination`;
+`linkProps(target, navigate)` and `resolveLink` in `core/link.ts` resolve either. The `navigate` comes from
+`LinkProvider` in `@proedis/ui/actions/link`, a context of `@proedis/react`, and it lives in `actions`
+because that is the lowest section rendering a link and `core` holds no React: every component that
+renders one (Button, Menu, Person, the cells of the table, the notifications) reads it with
+`useLinkNavigate()` at its top, outside any condition. Without a provider a string is a plain anchor, a
+page load; a `LinkDestination`'s own `go` always wins. Verified on the site: a string navigates with the
+document kept, the long form runs its `go`.
+
 Two engines under one look, on purpose: `Select` and `MultiSelect` run on Base UI's `Select` up to
 `searchThreshold` and on its `Combobox` past it, because a Select cannot hold a search. Never switch
 engine while a list is open.

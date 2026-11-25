@@ -7,6 +7,8 @@ import { linkProps } from '../../core/link';
 
 import { Stack } from '../../layout/Stack';
 
+import { useLinkNavigate } from '../../actions/link/LinkProvider';
+
 import { Badge } from '../../display/badge/Badge';
 import { AvatarGroup, Person } from '../../display/person/Person';
 
@@ -181,6 +183,7 @@ export function CellContent<TData>(props: {
   labels: TableCellLabels;
 }): React.ReactNode {
   const { column, formats, labels, row } = props;
+  const navigate = useLinkNavigate();
 
   if (column.kind === 'custom') {
     return column.cell(row);
@@ -222,7 +225,7 @@ export function CellContent<TData>(props: {
 
       return (
         <a
-          {...linkProps(target)}
+          {...linkProps(target, navigate)}
           data-grid-target
           data-truncate
           className={cn(

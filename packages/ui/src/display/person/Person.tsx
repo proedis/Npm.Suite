@@ -14,6 +14,7 @@ import { linkProps } from '../../core/link';
 
 import { Stack } from '../../layout/Stack';
 
+import { useLinkNavigate } from '../../actions/link/LinkProvider';
 import { Tooltip } from '../../actions/tooltip/Tooltip';
 
 import type { BaseProps } from '../../core/base';
@@ -298,6 +299,12 @@ export const Person = React.forwardRef<HTMLSpanElement, PersonProps>((props, ref
 
 
   // ----
+  // Internal Hooks
+  // ----
+  const navigate = useLinkNavigate();
+
+
+  // ----
   // Component Render
   // ----
   const stacked = layout === 'stacked';
@@ -315,7 +322,7 @@ export const Person = React.forwardRef<HTMLSpanElement, PersonProps>((props, ref
 
   if (target && !muted) {
     nameElement = (
-      <a {...linkProps(target)} data-slot={'person-name'} className={cn(nameClasses, 'hover:underline')}>
+      <a {...linkProps(target, navigate)} data-slot={'person-name'} className={cn(nameClasses, 'hover:underline')}>
         {name}
       </a>
     );

@@ -5,11 +5,13 @@ import * as React from 'react';
 import { Menu as MenuPrimitive } from '@base-ui/react/menu';
 
 import { cn } from '../../core/cn';
+import { isPlainClick, resolveLink } from '../../core/link';
 
 import { Stack } from '../../layout/Stack';
 
 import { CheckGlyph } from '../../internal/glyphs';
 
+import { useLinkNavigate } from '../link/LinkProvider';
 import { LIST_ITEM } from '../list-panel/listPanel';
 
 import { MenuContext, Panel, useAfterClose, useMenuContext } from './menuPanel';
@@ -312,6 +314,7 @@ const MenuItem = React.forwardRef<HTMLElement, MenuItemProps>((props, ref) => {
   // ----
   const { afterClose } = useMenuContext();
   const descriptionId = React.useId();
+  const navigate = useLinkNavigate();
 
 
   // ----
@@ -334,20 +337,23 @@ const MenuItem = React.forwardRef<HTMLElement, MenuItemProps>((props, ref) => {
 
   /* A link that is off has no href: Base UI's link item has no disabled state, a plain item does */
   if (to && !disabled) {
+    const link = resolveLink(to, navigate);
+
     return (
       <MenuPrimitive.LinkItem
         {...shared}
         render={LINK_ITEM_LAYOUT}
         ref={ref as React.Ref<HTMLAnchorElement>}
         closeOnClick
-        href={to.href}
+        href={link.href}
         onClick={(event: React.MouseEvent<HTMLAnchorElement>) => {
-          if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+          /* A string with no provider is the browser's to follow: the page that loads closes the menu */
+          if (!link.go || !isPlainClick(event)) {
             return;
           }
 
           event.preventDefault();
-          afterClose(to.go);
+          afterClose(link.go);
         }}
       >
         {content}

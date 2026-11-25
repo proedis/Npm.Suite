@@ -16,6 +16,7 @@ import { ClearGlyph, ToneGlyph } from '../../internal/glyphs';
 
 import { Button } from '../../actions/button/Button';
 import { IconButton } from '../../actions/button/IconButton';
+import { useLinkNavigate } from '../../actions/link/LinkProvider';
 
 import { NotificationsContext, StatusMark, useNotificationsState } from './toastShared';
 
@@ -146,6 +147,7 @@ function ConfirmationRows(props: { labels: NotificationsLabels; store: Notificat
 
 function JobRow(props: { job: Job; labels: NotificationsLabels; store: Notifications['store'] }): React.ReactNode {
   const { job, labels, store } = props;
+  const navigate = useLinkNavigate();
   const concluded = job.status !== 'running';
   const { action } = job;
 
@@ -156,7 +158,7 @@ function JobRow(props: { job: Job; labels: NotificationsLabels; store: Notificat
       <Stack
         gap={0}
         as={'a'}
-        {...linkProps(action.target)}
+        {...linkProps(action.target, navigate)}
         data-slot={'toast-job-link'}
         inline
         direction={'horizontal'}

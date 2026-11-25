@@ -17,6 +17,8 @@ import { Spinner } from '../../primitives/Spinner';
 
 import { CONTROL_HEIGHT } from '../../internal/control';
 
+import { useLinkNavigate } from '../link/LinkProvider';
+
 import type { BaseProps } from '../../core/base';
 import type { ControlSize } from '../../core/control';
 import type { LinkTarget } from '../../core/link';
@@ -296,6 +298,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, r
 
   const { baseClasses, rest } = splitBaseProps(others);
 
+  /* The router's navigation, for a `to` written as a string */
+  const navigate = useLinkNavigate();
+
 
   // ----
   // Style Computation
@@ -382,7 +387,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, r
     } = rest as typeof rest & { form?: unknown; formAction?: unknown; value?: unknown };
 
     const { onClick: onAnchorClick, ...anchorRest } = anchorProps as React.ComponentProps<'a'>;
-    const link = linkProps(to);
+    const link = linkProps(to, navigate);
 
     /*
      * The caller's click runs first, so a `preventDefault` in it keeps the navigation from happening,

@@ -13,6 +13,7 @@ import { Stack } from '../../layout/Stack';
 
 import { Button } from '../../actions/button/Button';
 import { IconButton } from '../../actions/button/IconButton';
+import { useLinkNavigate } from '../../actions/link/LinkProvider';
 
 import { BadgeCounter } from '../../display/badge-counter/BadgeCounter';
 
@@ -71,10 +72,11 @@ function HistoryRow(props: {
   onUndo: (id: string) => void;
 }): React.ReactNode {
   const { entry, labels, now, onUndo, unseen } = props;
+  const navigate = useLinkNavigate();
   const undoOpen = entry.undo && (!entry.undo.until || entry.undo.until.getTime() > now);
 
   const title = entry.target
-    ? <a {...linkProps(entry.target)} className={'outline-none hover:underline focus-visible:underline'}>{entry.title}</a>
+    ? <a {...linkProps(entry.target, navigate)} className={'outline-none hover:underline focus-visible:underline'}>{entry.title}</a>
     : entry.title;
 
   return (

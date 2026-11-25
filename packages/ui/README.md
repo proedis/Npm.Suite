@@ -698,7 +698,7 @@ components build their classes with, for a primitive of your own that wants to b
 | `breakpointPrefix(bp)`, `responsiveEntries(value)`, `toResponsiveMap(value)` | the pieces `responsiveClasses` is made of |
 | `BREAKPOINTS`, `BREAKPOINT_WIDTHS`, `mediaQuery(bp)` | the scale as data, and the media query behind a named breakpoint |
 | `TONE_CLASSES`, `TONE_COMPOUNDS`, `TONES` | the one tone table, ready to hand to a `cva` call of your own |
-| `LinkTarget`, `linkProps(target)` | a place to go, as `{ href, go() }`, and the two anchor attributes that follow it on a plain click only |
+| `LinkTarget`, `linkProps(target, navigate?)`, `resolveLink` | a place to go, an address or `{ href, go() }`, and the two anchor attributes that follow it on a plain click only |
 
 ⚠️ A class these builders produce needs a **safelist entry** in the stylesheet to have any CSS
 behind it, exactly as it does inside this package. They cover the scale declared in `ui.css` and
@@ -823,9 +823,12 @@ What is worth knowing before using them:
 
   Every part is derived from the tone, so one theme serves a `primary`, a `success` and a
   `destructive` button alike, and the focus ring still draws over the glow.
-- **A button that leads somewhere is a link.** `to` takes a `LinkTarget` from `@proedis/ui/core`
-  (`{ href, go() }`): the button renders an `<a href>`, a plain click calls `go()`, the middle click and
-  a new tab still work. No router and no provider in the package.
+- **A button that leads somewhere is a link.** `to` takes a `LinkTarget` from `@proedis/ui/core`, an
+  address most of the time (`to={'/rounds/14'}`) or `{ href, go() }` for a link that goes somewhere its
+  own way: the button renders an `<a href>`, the middle click and a new tab still work. An address is an
+  ordinary anchor until `LinkProvider` (`@proedis/ui/actions/link`) hands the router's `navigate` to the
+  application once; then a plain click navigates in the page. The same holds for a menu item, the name
+  of a `Person`, a cell of a table, the action of a notification.
 - **The form does not validate.** Errors come from the caller as the `error` of each `Field`; after a
   submit the focus goes to the summary with two or more of them, to the field with one. `noValidate` is
   always on. Its state comes from the caller too: `submitting` spins `Form.Submit` and disables
@@ -1249,6 +1252,7 @@ another package. A recessed surface is `--muted`.
 | `Cluster` `gap` defaults to `2`, `Grid` to `4` | `sm` and `md`: the same lengths, now following the theme's `--space-*` |
 | `<Skeleton className={'size-4'} />` for a box, and a line of text 10px tall | `shape={'block'}` for a box; a line of text is as tall as a line of its `size` (20px at `sm`) with the 10px bar in its middle, inside a `skeleton` element holding a `skeleton-bar` |
 | `Divider` drawn as a 1px box filled with `--border` | drawn as a border, so `lineStyle` can dash it: a rule targeting its `background-color` targets nothing now, its `border-color` is the line |
+| `LinkTarget` as `{ href, go }` only | an address string as well, the short form; `{ href, go }` still works. A string navigates in the page under a `LinkProvider` (`@proedis/ui/actions/link`), and is a plain anchor without one. The type of the long form is `LinkDestination` |
 | `Surface.Separator` | `Surface.SectionGroup`, a `Stack` with no gap: `divided` for the lines, sections straight in the card for room |
 | `Surface` `elevation`: `flat` · `soft` · `raised`, `radius` `4xl` by default, `p-5` in the parts, a `bg-muted/40` muted footer | `elevation`: `none` · `xs` → `lg` (`default` is `--surface-shadow`, none); `radius` `lg` by default (`--surface-radius`), `4xl` gone; a 1px border by default (`border`, `--surface-border-color`); the parts padded by `--surface-padding` (24px), a part under another without its top padding; the muted footer on `bg-muted` with `text-muted-foreground` |
 | a `Heading`, an `IconBox` or an `Avatar` as a direct child of `Item` or `Surface.Header` | `Item.Heading` (which is a `Heading`) and `Item.Icon` around the visual. A plain `Heading` in the row no longer grows: the rule that made it was a descendant selector on the row |
