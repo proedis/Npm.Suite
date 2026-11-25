@@ -382,12 +382,12 @@ mind:
 
 ```tsx
 <Item interactive inset>
-  <IconBox><Truck /></IconBox>
-  <Heading>
+  <Item.Icon><IconBox><Truck /></IconBox></Item.Icon>
+  <Item.Heading>
     <Heading.Eyebrow>In servizio</Heading.Eyebrow>
     <Heading.Title>FT-234-KL</Heading.Title>
     <Heading.Description>Ultimo passaggio 12:04</Heading.Description>
-  </Heading>
+  </Item.Heading>
   <Item.Actions>{actions}</Item.Actions>
   <Item.Trailing><ChevronRight /></Item.Trailing>
 </Item>
@@ -397,11 +397,11 @@ Turn the axis and the same component is an empty state:
 
 ```tsx
 <Item direction={'vertical'} gap={6} className={'text-center'}>
-  <IconBox size={'2xl'} tone={'primary'} halo><Inbox /></IconBox>
-  <Heading gap={2}>
-    <Heading.Title size={'xl'}>Nessun risultato</Heading.Title>
-    <Heading.Description size={'md'}>Prova a rimuovere un filtro</Heading.Description>
-  </Heading>
+  <Item.Icon><IconBox size={'2xl'} tone={'primary'} halo><Inbox /></IconBox></Item.Icon>
+  <Item.Heading size={'xl'} gap={2}>
+    <Heading.Title>Nessun risultato</Heading.Title>
+    <Heading.Description>Prova a rimuovere un filtro</Heading.Description>
+  </Item.Heading>
 </Item>
 ```
 
@@ -413,10 +413,12 @@ Turn the axis and the same component is an empty state:
 | `inset` | row padding on the item itself, so an interactive hover fills the row edge to edge |
 | `interactive` | cursor, hover and focus ring. **Not** the semantics — see below |
 
-The leading visual needs no slot: `IconBox` and `Spinner` already refuse to shrink, so anything from
-this package is a direct child. What the component owns is the plumbing — `grow min-w-0` on the
-heading and `shrink-0` on the tail — which is what makes a long title **truncate** instead of pushing
-the actions out of the row. Both reference implementations carry it three times per file, and it is
+Four parts, each with its slot: `Item.Icon` holds the leading visual, whatever it is (`IconBox`,
+`Avatar`, `Spinner`); `Item.Heading` **is** a `Heading`, with its props and its parts; `Item.Actions`
+the controls; `Item.Trailing` the quiet mark at the end. What the parts carry is the plumbing,
+`grow min-w-0` on the heading and `shrink-0` on the visual and the tail, which is what makes a long
+title **truncate** instead of pushing the actions out of the row. The classes are the parts' own, so a
+`className` on a part still wins; a `LabeledContent` placed straight in the row grows the same way. Both reference implementations carry it three times per file, and it is
 the part that is silently wrong when a caller forgets: nothing breaks, the row just overflows at some
 content length nobody tested.
 
@@ -1245,6 +1247,7 @@ another package. A recessed surface is `--muted`.
 | `Cluster` `gap` defaults to `2`, `Grid` to `4`, `Surface.Separator` `space` to `6` | `sm`, `md` and `lg`: the same lengths, now following the theme's `--space-*` |
 | `<Skeleton className={'size-4'} />` for a box, and a line of text 10px tall | `shape={'block'}` for a box; a line of text is as tall as a line of its `size` (20px at `sm`) with the 10px bar in its middle, inside a `skeleton` element holding a `skeleton-bar` |
 | `Divider` drawn as a 1px box filled with `--border` | drawn as a border, so `lineStyle` can dash it: a rule targeting its `background-color` targets nothing now, its `border-color` is the line |
+| a `Heading`, an `IconBox` or an `Avatar` as a direct child of `Item` or `Surface.Header` | `Item.Heading` (which is a `Heading`) and `Item.Icon` around the visual. A plain `Heading` in the row no longer grows: the rule that made it was a descendant selector on the row |
 | `shape` on `IconBox` | `radius`: `round` is `radius={'full'}`. A `soft` box has no hairline; the glyph is half the box at every size (larger from `lg` up) and the corner scales with it; `icon-box-halo` is no longer a slot, the rings are shadows of the box (`data-halo`) |
 | `size` on `Heading.Title`, `Heading.Description`, `Heading.Eyebrow` | `size` on `Heading`, for the three together (`sm` · `md` · `lg` · `xl`, the title's steps); `data-size` moves from the parts to the root. A part that has to step out of the scale takes a size in its `className` |
 | `CollapsibleSection` from `@proedis/ui/actions/collapsible` | `Accordion` from `@proedis/ui/actions/accordion`: a section is an `Accordion.Item` in an `Accordion`, `open` / `defaultOpen` / `onOpenChange` are the item's `value` in `value` / `defaultValue` / `onValueChange` of the accordion, and the slots `collapsible-section-*` are `accordion-*`. The body opens on its height; the last item draws no rule under it |

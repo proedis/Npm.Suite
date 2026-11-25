@@ -8,9 +8,13 @@ import { cn } from '../../core/cn';
 import { DEFAULT_GAP_CLASS } from '../../layout/defaultGap';
 import { Stack } from '../../layout/Stack';
 
+import { Heading } from '../heading/Heading';
+
 import type { BaseProps } from '../../core/base';
 import type { PolymorphicProps } from '../../core/polymorphic';
 import type { Align, Direction, Responsive, Spacing } from '../../core/responsive';
+
+import type { HeadingProps } from '../heading/Heading';
 
 
 /* --------
@@ -22,28 +26,19 @@ const DEFAULT_DIRECTION: Direction = 'horizontal';
 
 
 /**
- * The plumbing, and the only reason this component exists rather than a `Cluster` with three children.
- *
- * `grow min-w-0` on the text block — a `Heading` or a `LabeledContent`, whichever the caller put there
- * — and `shrink-0` on the tail is what makes a long title **truncate**
- * instead of pushing the actions out of the row. Both reference implementations carry it, three times
- * per file, and it is the part that is silently wrong when a caller forgets it: nothing breaks, the row
- * just overflows its container at some content length nobody tested.
+ * The plumbing for a `LabeledContent` placed straight in the row, the one text block without a part of
+ * its own: `grow min-w-0`, so a long value truncates instead of pushing the tail out.
  *
  * ⚠️ `grow`, not `flex-1`, and the difference is what lets `direction` be responsive for free.
  * `flex-1` sets `flex-basis: 0`, whose behaviour in an auto-height column depends on intrinsic sizing;
  * `grow` leaves the basis alone and only distributes **positive free space**, of which an auto-height
- * column has none. So the same two classes are correct in a row and inert in a column, and the
- * direction needs no per-breakpoint plumbing — which would have been 12 safelist entries.
+ * column has none. So the same two classes are correct in a row and inert in a column.
  *
- * ⚠️ A descendant selector has higher specificity than the child's own utility (`0,2,0` against
- * `0,1,0`), so these beat a `grow-0` written in the heading's `className`. That is the price of the
- * caller not having to know about them; the escape hatch is `className` on the `Item` itself.
+ * The heading has a part instead, `Item.Heading`, which carries the same two classes as its own: a
+ * descendant selector here beat a `grow-0` written on the heading (`0,2,0` against `0,1,0`), and nothing
+ * on the page said why the heading grew.
  */
-const SLOT_PLUMBING = cn(
-  '[&>[data-slot=heading]]:min-w-0 [&>[data-slot=heading]]:grow',
-  '[&>[data-slot=labeled-content]]:min-w-0 [&>[data-slot=labeled-content]]:grow'
-);
+const SLOT_PLUMBING = '[&>[data-slot=labeled-content]]:min-w-0 [&>[data-slot=labeled-content]]:grow';
 
 
 /* --------
@@ -101,6 +96,17 @@ export interface StrictItemProps extends BaseProps, VariantProps<typeof itemVari
 export type ItemProps<E extends React.ElementType = 'div'> = PolymorphicProps<E, StrictItemProps>;
 
 
+export interface StrictItemIconProps extends BaseProps {
+  /** The leading visual: an `IconBox`, an `Avatar`, a `Spinner`, anything */
+  children?: React.ReactNode;
+}
+
+export type ItemIconProps<E extends React.ElementType = 'span'> = PolymorphicProps<E, StrictItemIconProps>;
+
+
+export type ItemHeadingProps<E extends React.ElementType = 'div'> = HeadingProps<E>;
+
+
 export interface StrictItemActionsProps extends BaseProps {}
 
 export type ItemActionsProps<E extends React.ElementType = 'div'> =
@@ -116,6 +122,61 @@ export type ItemTrailingProps<E extends React.ElementType = 'span'> =
 /* --------
  * Parts Definition
  * -------- */
+
+/**
+ * The leading visual, whatever it is: an `IconBox`, an `Avatar`, a `Spinner`. A box around it that never
+ * shrinks and centres it, with a slot of its own, so a stylesheet reaches the visual of a row whatever
+ * the row put there.
+ */
+function ItemIcon<E extends React.ElementType = 'span'>(props: ItemIconProps<E>): React.ReactNode {
+
+  // ----
+  // Props Deconstruct
+  // ----
+  const {
+    as: Component = 'span',
+    className,
+    ...others
+  } = props as ItemIconProps<'span'>;
+
+  const { baseClasses, rest } = splitBaseProps(others);
+
+
+  // ----
+  // Component Render
+  // ----
+  return (
+    <Stack
+      gap={0}
+      as={Component}
+      data-slot={'item-icon'}
+      inline
+      direction={'horizontal'}
+      align={'center'}
+      justify={'center'}
+      className={cn('shrink-0', baseClasses, className)}
+      {...rest}
+    />
+  );
+
+}
+
+ItemIcon.displayName = 'Item.Icon';
+
+
+/**
+ * The text of the row, which **is** a `Heading`: every prop of it, `size` included, and the parts through
+ * its dot (`Heading.Title` & co.). It takes the room the row has left (`grow`) and lets a long title
+ * truncate (`min-w-0`) instead of pushing the tail out. Its slot is `item-heading`, the parts keep theirs.
+ */
+function ItemHeading<E extends React.ElementType = 'div'>(props: ItemHeadingProps<E>): React.ReactNode {
+  const { className, ...rest } = props as ItemHeadingProps<'div'>;
+
+  return <Heading data-slot={'item-heading'} className={cn('grow', className)} {...rest} />;
+}
+
+ItemHeading.displayName = 'Item.Heading';
+
 
 /** The controls at the end of the row: buttons, a menu trigger, a switch. Never shrinks */
 function ItemActions<E extends React.ElementType = 'div'>(props: ItemActionsProps<E>): React.ReactNode {
@@ -203,12 +264,12 @@ ItemTrailing.displayName = 'Item.Trailing';
  *
  * ```tsx
  * <Item interactive inset>
- *   <IconBox><Truck /></IconBox>
- *   <Heading>
+ *   <Item.Icon><IconBox><Truck /></IconBox></Item.Icon>
+ *   <Item.Heading>
  *     <Heading.Eyebrow>In servizio</Heading.Eyebrow>
  *     <Heading.Title>FT-234-KL</Heading.Title>
  *     <Heading.Description>Ultimo passaggio 12:04</Heading.Description>
- *   </Heading>
+ *   </Item.Heading>
  *   <Item.Actions>{…}</Item.Actions>
  *   <Item.Trailing><ChevronRight /></Item.Trailing>
  * </Item>
@@ -218,19 +279,19 @@ ItemTrailing.displayName = 'Item.Trailing';
  *
  * ```tsx
  * <Item direction={'vertical'} gap={6} className={'text-center'}>
- *   <IconBox size={'2xl'} tone={'primary'} halo><Inbox /></IconBox>
- *   <Heading size={'xl'} gap={2}>
+ *   <Item.Icon><IconBox size={'2xl'} tone={'primary'} halo><Inbox /></IconBox></Item.Icon>
+ *   <Item.Heading size={'xl'} gap={2}>
  *     <Heading.Title>Nessun risultato</Heading.Title>
  *     <Heading.Description>Prova a rimuovere un filtro</Heading.Description>
- *   </Heading>
+ *   </Item.Heading>
  *   <Item.Actions>{…}</Item.Actions>
  * </Item>
  * ```
  *
- * The leading visual needs no slot of its own: `IconBox` and `Spinner` already carry `shrink-0`, so
- * anything from this package can be a direct child. `text-center` is a literal class rather than a
- * prop because it is one class the caller can write, which is the criterion for what does not become
- * part of the API.
+ * Four parts, each with its slot: `Item.Icon` holds the leading visual, whatever it is; `Item.Heading`
+ * is the text, a `Heading` that grows and truncates; `Item.Actions` the controls; `Item.Trailing` the
+ * quiet mark at the end. `text-center` is a literal class rather than a prop because it is one class the
+ * caller can write, which is the criterion for what does not become part of the API.
  *
  * ## No chrome, on purpose
  *
@@ -309,4 +370,6 @@ export function Item<E extends React.ElementType = 'div'>(props: ItemProps<E>): 
 
 Item.displayName = 'Item';
 Item.Actions = ItemActions;
+Item.Heading = ItemHeading;
+Item.Icon = ItemIcon;
 Item.Trailing = ItemTrailing;

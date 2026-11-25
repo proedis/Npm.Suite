@@ -777,9 +777,12 @@ narrower stylesheet is the one you have to ask for.
   So one pair of classes is correct in a row and inert in a column, and no per-breakpoint plumbing is
   needed — which would have cost 12 safelist entries for a single prop.
 
-  ⚠️ The plumbing is a descendant selector, so its specificity (`0,2,0`) beats the child's own utility
-  (`0,1,0`): a `grow-0` in the heading's `className` loses. That is the price of the caller not having
-  to know the plumbing exists; the escape hatch is `className` on the `Item`.
+  ⚠️ The plumbing lives on the parts, not on the row (Marco, 2026-11-25). `Item.Heading` **is** a
+  `Heading` with `grow` (and the `min-w-0` every Heading has); `Item.Icon` is a box around any leading
+  visual, `shrink-0`, centred. It used to be a descendant selector on the row,
+  `[&>[data-slot=heading]]:grow`, which beat a `grow-0` on the heading (`0,2,0` against `0,1,0`) and
+  left the leading visual with no slot. Only `LabeledContent` keeps the descendant rule, having no part.
+  `Item.Heading` replaces the `heading` slot with `item-heading`, as `Surface.Header` replaces `item`.
 - **`interactive` is an affordance and never a semantic.** Both references derive it from
   `clickable || onClick` and then put `role="button"`, `tabIndex` and a hand-written Enter/Space
   handler on a `div`. That re-implements a button badly and breaks the moment the row holds a control
