@@ -3,15 +3,15 @@ import * as React from 'react';
 import { Inbox, SearchX } from 'lucide-react';
 
 import { IconBox } from '@proedis/ui/display/icon-box';
-import { Cluster } from '@proedis/ui/layout';
+import { Center, Stack } from '@proedis/ui/layout';
 
 
-/** For an empty state: the rings scale from the box, so they follow any size */
+/** For an empty state: the rings are a quarter and a half of the side, so they need that much room around */
 export default function Example(): React.ReactNode {
   return (
-    <Cluster gap={16} className={'py-8'}>
-      <IconBox size={'2xl'} tone={'primary'} halo><Inbox /></IconBox>
-      <IconBox size={'xl'} tone={'muted'} halo><SearchX /></IconBox>
-    </Cluster>
+    <Stack columns={2} className={'w-full py-12'}>
+      <Center><IconBox size={'2xl'} tone={'primary'} halo><Inbox /></IconBox></Center>
+      <Center><IconBox size={'xl'} tone={'muted'} halo><SearchX /></IconBox></Center>
+    </Stack>
   );
 }

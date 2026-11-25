@@ -87,7 +87,7 @@ function SlotsPage(): React.ReactNode {
               { slot: 'surface', part: 'The card', attributes: [ 'data-elevation', 'data-radius' ] },
               { slot: 'surface-body', part: 'Everything inside it, dimmed while the card loads' },
               { slot: 'surface-header', part: 'Its header, an Item that names its own part', attributes: [ 'data-inset' ] },
-              { slot: 'icon-box', part: 'The framed icon', attributes: [ 'data-fill', 'data-tone', 'data-size', 'data-shape' ] },
+              { slot: 'icon-box', part: 'The framed icon', attributes: [ 'data-fill', 'data-tone', 'data-size', 'data-radius', 'data-halo' ] },
               { slot: 'heading', part: 'The block of text', attributes: [ 'data-gap' ] },
               { slot: 'heading-title', part: 'Its title', attributes: [ 'data-size' ] },
               { slot: 'heading-description', part: 'The line under it', attributes: [ 'data-size' ] },

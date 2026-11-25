@@ -50,7 +50,7 @@ export function Guidance(props: GuidanceProps): React.ReactNode {
   return (
     <Stack gap={3} className={'rounded-xl border border-border bg-card p-5'}>
       <Stack direction={'horizontal'} align={'center'} gap={2}>
-        <IconBox size={'xs'} shape={'round'} fill={'soft'} tone={isDo ? 'success' : 'destructive'}>
+        <IconBox size={'xs'} radius={'full'} fill={'soft'} tone={isDo ? 'success' : 'destructive'}>
           {isDo ? <Check /> : <X />}
         </IconBox>
         <span className={isDo ? 'text-sm font-semibold text-success' : 'text-sm font-semibold text-destructive'}>

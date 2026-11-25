@@ -8,7 +8,7 @@ import { Cluster } from '@proedis/ui/layout';
 
 export default function Example(): React.ReactNode {
   return (
-    <Cluster gap={4}>
+    <Cluster gap={'md'} align={'end'}>
       <IconBox size={'xs'} tone={'success'}><Recycle /></IconBox>
       <IconBox size={'sm'} tone={'success'}><Recycle /></IconBox>
       <IconBox size={'md'} tone={'success'}><Recycle /></IconBox>

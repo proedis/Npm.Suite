@@ -18,7 +18,7 @@ import { DocTable, PropsTable } from '@/docs/Tables';
 import basic from '@/examples/display/icon-box/basic.tsx?example';
 import halo from '@/examples/display/icon-box/halo.tsx?example';
 import rows from '@/examples/display/icon-box/rows.tsx?example';
-import shape from '@/examples/display/icon-box/shape.tsx?example';
+import radius from '@/examples/display/icon-box/radius.tsx?example';
 import sizes from '@/examples/display/icon-box/sizes.tsx?example';
 import tones from '@/examples/display/icon-box/tones.tsx?example';
 import { pageAt } from '@/nav';
@@ -65,8 +65,8 @@ function IconBoxPage(): React.ReactNode {
           title={'Tones and fills'}
           lead={(
             <React.Fragment>
-              Three independent axes: how it is filled, which tone, how big. <InlineCode>soft</InlineCode> carries a
-              hairline so a tinted box holds its edge on any surface; <InlineCode>solid</InlineCode> is the full colour
+              Three independent axes: how it is filled, which tone, how big. <InlineCode>soft</InlineCode> is the tint of
+              the tone and nothing around it; <InlineCode>solid</InlineCode> is the full colour
               with the foreground as the glyph; <InlineCode>plain</InlineCode> has no surface and keeps the footprint.
             </React.Fragment>
           )}
@@ -74,17 +74,25 @@ function IconBoxPage(): React.ReactNode {
           <Example of={tones} />
         </Section>
 
-        <Section title={'Sizes'}>
+        <Section
+          title={'Sizes'}
+          lead={(
+            <React.Fragment>
+              One number per size scales everything: the side, the glyph (always half of it), the corner and the halo.
+              A box keeps the same proportions at every size.
+            </React.Fragment>
+          )}
+        >
           <Example of={sizes} />
           <DocTable
-            head={[ 'size', 'Box', 'Glyph', 'Where' ]}
+            head={[ 'size', 'Scale', 'Box', 'Glyph', 'Corner by default', 'Where' ]}
             rows={[
-              [ <InlineCode key={'s'}>xs</InlineCode>, '24px', '14px', 'A dense row, a mark next to a label' ],
-              [ <InlineCode key={'s'}>sm</InlineCode>, '32px', '16px', 'A compact list' ],
-              [ <InlineCode key={'s'}>md</InlineCode>, '40px', '20px', 'The default: a list row, a card header' ],
-              [ <InlineCode key={'s'}>lg</InlineCode>, '56px', '24px', 'A summary tile' ],
-              [ <InlineCode key={'s'}>xl</InlineCode>, '72px', '28px', 'An empty state in a card' ],
-              [ <InlineCode key={'s'}>2xl</InlineCode>, '88px', '36px', 'An empty state on a page' ]
+              [ <InlineCode key={'s'}>xs</InlineCode>, '0.6', '24px', '12px', '9.6px', 'A dense row, a mark next to a label' ],
+              [ <InlineCode key={'s'}>sm</InlineCode>, '0.8', '32px', '16px', '12.8px', 'A compact list' ],
+              [ <InlineCode key={'s'}>md</InlineCode>, '1', '40px', '20px', '16px', 'The default: a list row, a card header' ],
+              [ <InlineCode key={'s'}>lg</InlineCode>, '1.4', '56px', '28px', '22.4px', 'A summary tile' ],
+              [ <InlineCode key={'s'}>xl</InlineCode>, '1.8', '72px', '36px', '28.8px', 'An empty state in a card' ],
+              [ <InlineCode key={'s'}>2xl</InlineCode>, '2.2', '88px', '44px', '35.2px', 'An empty state on a page' ]
             ]}
           />
           <Prose>
@@ -96,23 +104,26 @@ function IconBoxPage(): React.ReactNode {
         </Section>
 
         <Section
-          title={'Shape'}
+          title={'Radius'}
           lead={(
             <React.Fragment>
-              Square by default, with a radius that grows with the size. <InlineCode>round</InlineCode> makes it a circle at
-              any size.
+              <InlineCode>radius</InlineCode> is the step a <InlineCode>md</InlineCode> box would show, scaled with the size,
+              so a smaller box has a smaller corner in the same proportion. <InlineCode>default</InlineCode> is the theme’s{' '}
+              <InlineCode>--icon-box-radius</InlineCode>, <InlineCode>2xl</InlineCode> when undeclared;{' '}
+              <InlineCode>none</InlineCode> and <InlineCode>full</InlineCode> are the same at every size, a square and a circle.
             </React.Fragment>
           )}
         >
-          <Example of={shape} />
+          <Example of={radius} />
         </Section>
 
         <Section
           title={'Halo'}
           lead={(
             <React.Fragment>
-              <InlineCode>halo</InlineCode> draws two concentric rings behind the box in its tone, scaled from the box
-              itself so they follow any size. It belongs to an empty state, never to a header or a row.
+              <InlineCode>halo</InlineCode> draws two rings around the box in its tone, a quarter and a half of its side
+              wide, following its corner. They are shadows of the box itself, so no background around it covers them. It
+              belongs to an empty state, never to a header or a row.
             </React.Fragment>
           )}
         >
@@ -165,8 +176,7 @@ function IconBoxPage(): React.ReactNode {
         <Section title={'Slots and data attributes'}>
           <SlotsInspector of={halo}
             rows={[
-              { slot: 'icon-box', part: 'The box', attributes: [ 'data-fill', 'data-tone', 'data-size', 'data-shape' ] },
-              { slot: 'icon-box-halo', part: 'Each of the two rings, with halo' }
+              { slot: 'icon-box', part: 'The box, its rings with halo', attributes: [ 'data-fill', 'data-tone', 'data-size', 'data-radius', 'data-halo' ] }
             ]}
           />
         </Section>
