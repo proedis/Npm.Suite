@@ -18,19 +18,20 @@ export default function Example(): React.ReactNode {
   return (
     <Stack gap={4} className={'w-full max-w-lg'}>
       <div ref={ref}>
-        <Surface className={'border border-border'}>
-          <Surface.Header inset>
-            <Item.Icon><IconBox fill={'soft'} tone={'primary'}><Truck /></IconBox></Item.Icon>
-            <Item.Heading>
-              <Heading.Title>FT-234-KL</Heading.Title>
-              <Heading.Description>Compactor, 18 t</Heading.Description>
-            </Item.Heading>
-            <Item.Actions>
-              <IconButton label={'Edit'} icon={<Pencil />} />
-            </Item.Actions>
-          </Surface.Header>
-          <Surface.Separator />
-          <Surface.Section>Next service in 420 km.</Surface.Section>
+        <Surface>
+          <Surface.SectionGroup divided>
+            <Surface.Header inset>
+              <Item.Icon><IconBox fill={'soft'} tone={'primary'}><Truck /></IconBox></Item.Icon>
+              <Item.Heading>
+                <Heading.Title>FT-234-KL</Heading.Title>
+                <Heading.Description>Compactor, 18 t</Heading.Description>
+              </Item.Heading>
+              <Item.Actions>
+                <IconButton label={'Edit'} icon={<Pencil />} />
+              </Item.Actions>
+            </Surface.Header>
+            <Surface.Section>Next service in 420 km.</Surface.Section>
+          </Surface.SectionGroup>
         </Surface>
       </div>
 

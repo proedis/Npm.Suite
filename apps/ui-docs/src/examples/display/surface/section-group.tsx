@@ -7,33 +7,47 @@ import { Surface } from '@proedis/ui/display/surface';
 import { Stack } from '@proedis/ui/layout';
 
 
-/** A line where the content changes subject, room where it only takes a breath */
 export default function Example(): React.ReactNode {
   return (
-    <Surface className={'w-full max-w-md'}>
+    <Surface className={'w-full max-w-lg'}>
       <Surface.Header>
         <Item.Heading size={'lg'}>
           <Heading.Title>Vehicle FT-234-KL</Heading.Title>
           <Heading.Description>Compactor, Chieri depot</Heading.Description>
         </Item.Heading>
       </Surface.Header>
-      <Surface.Separator />
-      <Surface.Section>
-        <Stack columns={2} gap={4}>
-          <LabeledContent>
-            <LabeledContent.Label>Capacity</LabeledContent.Label>
-            <LabeledContent.Value>18 t</LabeledContent.Value>
-          </LabeledContent>
-          <LabeledContent>
-            <LabeledContent.Label>Kilometres</LabeledContent.Label>
-            <LabeledContent.Value>142,380</LabeledContent.Value>
-          </LabeledContent>
-        </Stack>
-      </Surface.Section>
-      <Surface.Separator type={'gap'} space={2} />
-      <Surface.Section className={'pt-0'}>
-        <p className={'text-sm text-muted-foreground'}>Next service in 1,200 km.</p>
-      </Surface.Section>
+
+      {/* A line between the sections of the group, room on both sides of it */}
+      <Surface.SectionGroup divided>
+        <Surface.Section>
+          <Stack columns={2} gap={'md'}>
+            <LabeledContent>
+              <LabeledContent.Label>Capacity</LabeledContent.Label>
+              <LabeledContent.Value>18 t</LabeledContent.Value>
+            </LabeledContent>
+            <LabeledContent>
+              <LabeledContent.Label>Kilometres</LabeledContent.Label>
+              <LabeledContent.Value>142,380</LabeledContent.Value>
+            </LabeledContent>
+          </Stack>
+        </Surface.Section>
+
+        {/* Side by side, the line between them vertical */}
+        <Surface.SectionGroup divided direction={'horizontal'}>
+          <Surface.Section className={'grow'}>
+            <LabeledContent>
+              <LabeledContent.Label>Next service</LabeledContent.Label>
+              <LabeledContent.Value>In 1,200 km</LabeledContent.Value>
+            </LabeledContent>
+          </Surface.Section>
+          <Surface.Section className={'grow'}>
+            <LabeledContent>
+              <LabeledContent.Label>Inspection</LabeledContent.Label>
+              <LabeledContent.Value>March 2027</LabeledContent.Value>
+            </LabeledContent>
+          </Surface.Section>
+        </Surface.SectionGroup>
+      </Surface.SectionGroup>
     </Surface>
   );
 }

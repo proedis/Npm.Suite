@@ -28,7 +28,6 @@ export default function Example(): React.ReactNode {
           <IconButton label={'More actions on FT-234-KL'} icon={<Ellipsis />} />
         </Item.Actions>
       </Surface.Header>
-      <Surface.Separator />
       <Surface.Section>
         <Stack columns={{ base: 2, sm: 3 }} gap={5}>
           <LabeledContent>
@@ -46,7 +45,7 @@ export default function Example(): React.ReactNode {
         </Stack>
       </Surface.Section>
       <Surface.Footer muted justify={'between'}>
-        <span className={'text-xs text-muted-foreground'}>Updated two minutes ago</span>
+        <span className={'text-xs'}>Updated two minutes ago</span>
         <Button size={'sm'} fill={'soft'}>Open the round</Button>
       </Surface.Footer>
     </Surface>

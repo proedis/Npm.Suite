@@ -12,7 +12,7 @@ import { Stack } from '@proedis/ui/layout';
 
 export default function Example(): React.ReactNode {
   return (
-    <Surface className={'w-full max-w-lg border border-border'}>
+    <Surface className={'w-full max-w-lg'}>
       <Surface.Header inset>
         <Item.Heading>
           <Heading.Title>Collection round 14</Heading.Title>

@@ -10,7 +10,7 @@ import { Label, Skeleton } from '@proedis/ui/primitives';
 /** The real frame, title and labels from the start; only the values are shapes */
 export default function Example(): React.ReactNode {
   return (
-    <Surface className={'w-full max-w-md border border-border'} aria-busy>
+    <Surface className={'w-full max-w-md'} aria-busy>
       <Surface.Header>
         <Item.Heading size={'lg'}>
           <Heading.Title>Vehicle</Heading.Title>

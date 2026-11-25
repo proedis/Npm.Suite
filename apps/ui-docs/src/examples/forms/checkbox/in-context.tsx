@@ -9,7 +9,7 @@ import { Stack } from '@proedis/ui/layout';
 
 export default function Example(): React.ReactNode {
   return (
-    <Surface className={'w-full max-w-lg border border-border'}>
+    <Surface className={'w-full max-w-lg'}>
       <Surface.Section>
         <Stack gap={6}>
           <Field

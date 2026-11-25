@@ -32,7 +32,7 @@ export default function Example(): React.ReactNode {
     </Stack>
   );
 
-  const detail = <Surface className={'border border-border p-6'}>The stops of {selected}</Surface>;
+  const detail = <Surface className={'p-6'}>The stops of {selected}</Surface>;
 
   /* Two different trees, not one tree hidden by CSS: below lg the list alone, a tap opens the detail elsewhere */
   return (

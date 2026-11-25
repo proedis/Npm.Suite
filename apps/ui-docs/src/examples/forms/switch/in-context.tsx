@@ -16,7 +16,7 @@ const SETTINGS = [
 
 export default function Example(): React.ReactNode {
   return (
-    <Surface className={'w-full max-w-lg border border-border'}>
+    <Surface className={'w-full max-w-lg'}>
       <Stack gap={0} divided>
         {SETTINGS.map((setting) => (
           <Item key={setting.id} inset>

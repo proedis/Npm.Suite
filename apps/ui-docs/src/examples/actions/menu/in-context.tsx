@@ -20,7 +20,7 @@ const ROUTES = [
 
 export default function Example(): React.ReactNode {
   return (
-    <Surface className={'w-full max-w-lg border border-border'}>
+    <Surface className={'w-full max-w-lg'}>
       {ROUTES.map((route, index) => (
         <React.Fragment key={route.code}>
           {index > 0 && <Divider />}

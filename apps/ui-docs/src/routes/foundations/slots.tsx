@@ -28,7 +28,7 @@ const CODE = {
   softFill           : 'data-fill="soft"',
   mutedTone          : 'data-tone="muted"',
   defaultElevation   : 'data-elevation="default"',
-  soft               : '"soft"',
+  none               : '"none"',
   defaultSelector    : "[data-elevation='default']",
   mediumSize         : 'data-size="md"',
   destructiveSelector: "[data-slot='button'][data-tone='destructive']"
@@ -84,8 +84,9 @@ function SlotsPage(): React.ReactNode {
         >
           <SlotsTable
             rows={[
-              { slot: 'surface', part: 'The card', attributes: [ 'data-elevation', 'data-radius' ] },
+              { slot: 'surface', part: 'The card', attributes: [ 'data-border', 'data-elevation', 'data-radius' ] },
               { slot: 'surface-body', part: 'Everything inside it, dimmed while the card loads' },
+              { slot: 'surface-section-group', part: 'The header and the section, a line between them', attributes: [ 'data-divided' ] },
               { slot: 'surface-header', part: 'Its header, an Item that names its own part', attributes: [ 'data-inset' ] },
               { slot: 'item-icon', part: 'The box of the leading visual' },
               { slot: 'icon-box', part: 'The framed icon', attributes: [ 'data-fill', 'data-tone', 'data-size', 'data-radius', 'data-halo' ] },
@@ -95,7 +96,6 @@ function SlotsPage(): React.ReactNode {
               { slot: 'item-actions', part: 'The controls at the end of the row' },
               { slot: 'button', part: 'The icon button', attributes: [ 'data-fill', 'data-tone', 'data-size', 'data-icon-only' ] },
               { slot: 'button-content', part: 'The content of the button' },
-              { slot: 'surface-separator', part: 'The rule between two sections', attributes: [ 'data-type', 'data-orientation' ] },
               { slot: 'surface-section', part: 'A section of the card' }
             ]}
           />
@@ -143,7 +143,7 @@ function SlotsPage(): React.ReactNode {
           lead={(
             <React.Fragment>
               The two surfaces of the example look the same, and the attributes tell them apart: the first says{' '}
-              <InlineCode>{CODE.defaultElevation}</InlineCode>, the second <InlineCode>{CODE.soft}</InlineCode>, because
+              <InlineCode>{CODE.defaultElevation}</InlineCode>, the second <InlineCode>{CODE.none}</InlineCode>, because
               someone asked for it. A rule on <InlineCode>{CODE.defaultSelector}</InlineCode> restyles the cards
               nobody had an opinion about, and keeps meaning that the day the package changes its default.
             </React.Fragment>

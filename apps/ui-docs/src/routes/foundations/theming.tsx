@@ -74,7 +74,6 @@ const SPACING_ROWS: readonly (readonly [ string, string, string ])[] = [
 const SPACING_DEFAULTS: readonly (readonly [ string, string ])[] = [
   [ 'Stack, Grid, Split: gap', 'md' ],
   [ 'Cluster: gap', 'sm' ],
-  [ 'Surface.Separator: space', 'lg' ],
   [ 'Sticky: offset', '0' ],
   [ 'Item: gap', '3, its own geometry: the leading visual and the text' ],
   [ 'Heading: gap', '0.5, its own geometry: the title and the line under it' ]

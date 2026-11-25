@@ -170,8 +170,8 @@ function DividerPage(): React.ReactNode {
               One or two words, in the language of the interface, passed already translated.
             </Guidance>
             <Guidance kind={'dont'} title={'Put a Divider between the sections of a card'}>
-              Between the sections of a card, <InlineCode>Surface.Separator</InlineCode> is the divider, and it can be
-              room instead of a line where the card wants it.
+              Between the sections of a card, a <InlineCode>Surface.SectionGroup</InlineCode> with{' '}
+              <InlineCode>divided</InlineCode> draws the lines, with the room of the card on both sides of each.
             </Guidance>
           </GuidanceGrid>
         </Section>

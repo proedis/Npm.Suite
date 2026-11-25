@@ -14,7 +14,7 @@ export default function Example(): React.ReactNode {
   const [ query, setQuery ] = React.useState('FT-999');
 
   return (
-    <Surface className={'w-full max-w-xl border border-border'}>
+    <Surface className={'w-full max-w-xl'}>
       <Surface.Header inset>
         <Item.Heading>
           <Heading.Title>Vehicles</Heading.Title>

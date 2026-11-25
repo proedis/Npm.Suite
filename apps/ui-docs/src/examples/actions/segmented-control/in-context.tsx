@@ -15,7 +15,7 @@ export default function Example(): React.ReactNode {
   const titleId = React.useId();
 
   return (
-    <Surface className={'w-full max-w-xl border border-border'}>
+    <Surface className={'w-full max-w-xl'}>
       <Surface.Header inset>
         <Item.Heading>
           <Heading.Title id={titleId}>Collection points</Heading.Title>

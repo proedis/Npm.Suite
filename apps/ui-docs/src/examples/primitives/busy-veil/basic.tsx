@@ -19,7 +19,7 @@ export default function Example(): React.ReactNode {
   }, []);
 
   return (
-    <Surface className={'w-full max-w-md border border-border'}>
+    <Surface className={'w-full max-w-md'}>
       {/* The container blocks the clicks and says it is busy; the veil is only the look */}
       <div className={'relative'} aria-busy={wait.busy} inert={inertValue(wait.busy)}>
         <Surface.Section>

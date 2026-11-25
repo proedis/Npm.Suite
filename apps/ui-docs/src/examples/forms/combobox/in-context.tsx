@@ -29,7 +29,7 @@ export default function Example(): React.ReactNode {
   const handleValueChange = React.useCallback((_value: string | null, item: ComboboxItem | null) => setContract(item), []);
 
   return (
-    <Surface className={'w-full max-w-lg border border-border'}>
+    <Surface className={'w-full max-w-lg'}>
       <Surface.Section>
         <Stack gap={5}>
           <Field required label={'Contract'} description={'The contract the container is delivered to.'}>

@@ -20,7 +20,7 @@ export default function Example(): React.ReactNode {
   }, []);
 
   return (
-    <Surface className={'w-full max-w-sm border border-border'}>
+    <Surface className={'w-full max-w-sm'}>
       <Surface.Section>
         <Form onSubmit={handleSubmit}>
           <Heading size={'lg'}>

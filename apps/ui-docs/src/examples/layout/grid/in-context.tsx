@@ -26,7 +26,7 @@ export default function Example(): React.ReactNode {
   return (
     <Grid minColWidth={240} gap={4} className={'w-full'}>
       {VEHICLES.map((vehicle) => (
-        <Surface key={vehicle.plate} radius={'xl'} className={'border border-border'}>
+        <Surface key={vehicle.plate} radius={'xl'}>
           <Surface.Header inset align={'start'}>
             <Item.Icon><IconBox size={'sm'} fill={'soft'} tone={'secondary'}><Truck /></IconBox></Item.Icon>
             <Item.Heading>

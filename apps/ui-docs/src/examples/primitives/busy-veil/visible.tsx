@@ -7,7 +7,7 @@ import { BusyVeil } from '@proedis/ui/primitives';
 
 export default function Example(): React.ReactNode {
   return (
-    <Surface className={'w-full max-w-md border border-border'}>
+    <Surface className={'w-full max-w-md'}>
       <div className={'relative'} aria-busy>
         <Surface.Section>
           <Heading size={'lg'}>

@@ -7,7 +7,7 @@ import { Divider } from '@proedis/ui/primitives';
 
 export default function Example(): React.ReactNode {
   return (
-    <Surface radius={'xl'} className={'w-full max-w-sm border border-border p-6'}>
+    <Surface radius={'xl'} className={'w-full max-w-sm p-6'}>
       <Stack gap={4}>
         <p className={'font-semibold text-foreground'}>Order 2026/1184</p>
         {/* The card pads by 6 steps: inset={6} takes the line to its edges */}

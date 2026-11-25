@@ -5,7 +5,6 @@ import { createFileRoute } from '@tanstack/react-router';
 import surfaceFooterProps from 'virtual:ui-props/StrictSurfaceFooterProps';
 import surfaceProps from 'virtual:ui-props/StrictSurfaceProps';
 import surfaceSectionProps from 'virtual:ui-props/StrictSurfaceSectionProps';
-import surfaceSeparatorProps from 'virtual:ui-props/StrictSurfaceSeparatorProps';
 import themeDoc from 'virtual:ui-theme/display/surface';
 import { Callout } from '@/docs/Callout';
 import { CodeBlock } from '@/docs/CodeBlock';
@@ -23,7 +22,7 @@ import chrome from '@/examples/display/surface/chrome.tsx?example';
 import flush from '@/examples/display/surface/flush.tsx?example';
 import inContext from '@/examples/display/surface/in-context.tsx?example';
 import loading from '@/examples/display/surface/loading.tsx?example';
-import separators from '@/examples/display/surface/separators.tsx?example';
+import sectionGroup from '@/examples/display/surface/section-group.tsx?example';
 import { pageAt } from '@/nav';
 
 
@@ -34,12 +33,8 @@ import { pageAt } from '@/nav';
 const PAGE = pageAt('/display/surface');
 
 const PROPS = refineProps(surfaceProps, {
-  elevation: { description: 'The shadow. default draws the house shadow and reports itself as default, apart from an explicit soft.' },
-  radius   : { description: 'The corners. default draws the house radius and reports itself as default, apart from an explicit 4xl.' }
-});
-
-const SEPARATOR_PROPS = refineProps(surfaceSeparatorProps, {
-  space: { default: '6' }
+  elevation: { description: 'The shadow, a step of the scale. default is the theme’s --surface-shadow, none undeclared.' },
+  radius   : { description: 'The corners, a step of the scale. default is the theme’s --surface-radius, lg undeclared.' }
 });
 
 
@@ -56,7 +51,7 @@ function SurfacePage(): React.ReactNode {
           <React.Fragment>
             The card, the panel, the box: one anatomy that carries information, tables, forms and charts. A compound,
             reached through the dot: <InlineCode>Surface.Header</InlineCode>, <InlineCode>Surface.Section</InlineCode>,{' '}
-            <InlineCode>Surface.Separator</InlineCode>, <InlineCode>Surface.Footer</InlineCode>.
+            <InlineCode>Surface.SectionGroup</InlineCode>, <InlineCode>Surface.Footer</InlineCode>.
           </React.Fragment>
         )}
         imports={tsx`
@@ -71,9 +66,12 @@ function SurfacePage(): React.ReactNode {
           title={'No padding of its own'}
           lead={(
             <React.Fragment>
-              The surface draws the background, the corners and the shadow, and stops there. The room lives in the parts,
-              each with the same padding, which is what lets one section go <InlineCode>flush</InlineCode> and give its
-              edges to a table without fighting a padding one level up.
+              The surface draws the background, the border, the corners and the shadow, and stops there. The room lives in
+              the parts, each with the same padding, <InlineCode>--surface-padding</InlineCode> (the{' '}
+              <InlineCode>lg</InlineCode> step, the room of a dialog and of the table’s card): that is what lets one
+              section go <InlineCode>flush</InlineCode> and give its edges to a table without fighting a padding one level
+              up. A section right under the header, or a footer of actions under a section, does not repeat its top
+              padding: twice the room read as two cards.
             </React.Fragment>
           )}
         />
@@ -84,25 +82,26 @@ function SurfacePage(): React.ReactNode {
             <React.Fragment>
               <InlineCode>Surface.Header</InlineCode> renders an <InlineCode>Item</InlineCode> with the padding of the card and
               takes every one of its props: a card header and a list row are the same three slots with the same truncation,
-              and only the register of the title changes. So the header takes an <InlineCode>IconBox</InlineCode>, a{' '}
-              <InlineCode>Heading</InlineCode> with <InlineCode>size={'{\'lg\'}'}</InlineCode> and an{' '}
+              and only the register of the title changes. So the header takes an <InlineCode>Item.Icon</InlineCode>, an{' '}
+              <InlineCode>Item.Heading</InlineCode> with <InlineCode>size={'{\'lg\'}'}</InlineCode> and an{' '}
               <InlineCode>Item.Actions</InlineCode>, as the card in context below does.
             </React.Fragment>
           )}
         />
 
         <Section
-          title={'Separators'}
+          title={'Section groups'}
           lead={(
             <React.Fragment>
-              What goes between two sections is a part, placed where it happens. <InlineCode>Surface.Separator</InlineCode>{' '}
-              draws a hairline by default, a <InlineCode>Divider</InlineCode> with its separator role, or empty room with{' '}
-              <InlineCode>type={'{\'gap\'}'}</InlineCode> and a <InlineCode>space</InlineCode> from the scale. A line where
-              the content changes subject, room where it only takes a breath.
+              <InlineCode>Surface.SectionGroup</InlineCode> is a <InlineCode>Stack</InlineCode> with no gap: every prop of
+              it, so a group of sections looks exactly like the same sections placed straight in the card.{' '}
+              <InlineCode>divided</InlineCode> draws a line between them, with room on both sides;{' '}
+              <InlineCode>direction={'{\'horizontal\'}'}</InlineCode> sets them side by side, the line between them
+              vertical. A group can hold the header too, for a line under it, and another group.
             </React.Fragment>
           )}
         >
-          <Example of={separators} />
+          <Example of={sectionGroup} />
         </Section>
 
         <Section
@@ -111,8 +110,8 @@ function SurfacePage(): React.ReactNode {
             <React.Fragment>
               <InlineCode>flush</InlineCode> drops the padding of a section so a table or a map reaches the edges.{' '}
               <InlineCode>Surface.Footer</InlineCode> is the last row, its actions at the end by default;{' '}
-              <InlineCode>muted</InlineCode> recesses it, for a row that carries a pagination or a total rather than an
-              action.
+              <InlineCode>muted</InlineCode> recesses it, quieter in its surface and in its ink, for a row that carries a
+              pagination or a total rather than an action.
             </React.Fragment>
           )}
         >
@@ -120,14 +119,16 @@ function SurfacePage(): React.ReactNode {
         </Section>
 
         <Section
-          title={'Elevation and radius'}
+          title={'Border, elevation and radius'}
           lead={(
             <React.Fragment>
-              Two chrome variants with a <InlineCode>default</InlineCode> of their own. A bare surface reports{' '}
-              <InlineCode>data-elevation</InlineCode> and <InlineCode>data-radius</InlineCode> as{' '}
-              <InlineCode>default</InlineCode>,
-              not as the step it currently equals, so a product can restyle every card nobody had an opinion about and leave
-              alone the ones that asked for a step on purpose.
+              Three props, each with a default the theme decides. A bare surface draws a line in{' '}
+              <InlineCode>--surface-border-color</InlineCode> (<InlineCode>--border</InlineCode> undeclared), the shadow of{' '}
+              <InlineCode>--surface-shadow</InlineCode> (none) and the corner of <InlineCode>--surface-radius</InlineCode>{' '}
+              (<InlineCode>lg</InlineCode>). <InlineCode>border</InlineCode> turns the line on or off for one card,{' '}
+              <InlineCode>elevation</InlineCode> and <InlineCode>radius</InlineCode> take a step of their scale. A bare
+              surface reports <InlineCode>default</InlineCode> in each attribute, not the step it equals, so a rule can
+              restyle the cards nobody had an opinion about.
             </React.Fragment>
           )}
         >
@@ -135,14 +136,11 @@ function SurfacePage(): React.ReactNode {
           <CodeBlock
             title={'app.css'}
             snippet={css`
-              /* Our cards: flatter and less round, unless one asked otherwise */
-              [data-slot='surface'][data-elevation='default'] {
-                box-shadow: none;
-                border: 1px solid var(--border);
-              }
-
-              [data-slot='surface'][data-radius='default'] {
-                border-radius: var(--radius-xl);
+              /* Our cards: no line, a soft shadow, a rounder corner, unless one asked otherwise */
+              :root {
+                --surface-border-color: transparent;
+                --surface-shadow: var(--shadow-sm);
+                --surface-radius: var(--radius-xl);
               }
             `}
           />
@@ -188,12 +186,12 @@ function SurfacePage(): React.ReactNode {
         <Section title={'Slots and data attributes'}>
           <SlotsInspector of={basic}
             rows={[
-              { slot: 'surface', part: 'The card', attributes: [ 'data-elevation', 'data-radius', 'data-loading' ] },
+              { slot: 'surface', part: 'The card', attributes: [ 'data-border', 'data-elevation', 'data-radius', 'data-loading' ] },
               { slot: 'surface-body', part: 'The column holding the parts, dimmed while loading' },
               { slot: 'surface-loading', part: 'The overlay while loading' },
               { slot: 'surface-header', part: 'The header, an Item' },
+              { slot: 'surface-section-group', part: 'A group of sections', attributes: [ 'data-divided' ] },
               { slot: 'surface-section', part: 'A section', attributes: [ 'data-flush' ] },
-              { slot: 'surface-separator', part: 'A separator', attributes: [ 'data-type', 'data-orientation' ] },
               { slot: 'surface-footer', part: 'The footer', attributes: [ 'data-muted' ] }
             ]}
           />
@@ -215,8 +213,14 @@ function SurfacePage(): React.ReactNode {
           <SubSection title={'Surface.Section'} id={'api-surface-section'}>
             <PropsTable props={surfaceSectionProps} rest={'Polymorphic, a div by default.'} />
           </SubSection>
-          <SubSection title={'Surface.Separator'} id={'api-surface-separator'}>
-            <PropsTable props={SEPARATOR_PROPS} rest={'Every other prop goes to the divider, or to the empty div of a gap.'} />
+          <SubSection title={'Surface.SectionGroup'} id={'api-surface-section-group'}>
+            <Prose>
+              <p>
+                The props of <InlineCode>Stack</InlineCode>, documented on its page, with <InlineCode>gap</InlineCode> at{' '}
+                <InlineCode>0</InlineCode> by default: <InlineCode>divided</InlineCode>, <InlineCode>direction</InlineCode>,{' '}
+                <InlineCode>gap</InlineCode>, <InlineCode>align</InlineCode>, <InlineCode>as</InlineCode>.
+              </p>
+            </Prose>
           </SubSection>
           <SubSection title={'Surface.Footer'} id={'api-surface-footer'}>
             <PropsTable props={surfaceFooterProps} rest={'Polymorphic, a div by default.'} />
@@ -231,12 +235,12 @@ function SurfacePage(): React.ReactNode {
             <Guidance kind={'dont'} title={'Pad the surface itself'}>
               A padding on the card fights every flush section and doubles the padding of every part.
             </Guidance>
-            <Guidance kind={'do'} title={'Decide each seam'}>
-              A line between two subjects, room between two blocks of the same one, nothing between a header and a short
-              body.
+            <Guidance kind={'do'} title={'Divide where the subject changes'}>
+              A divided group between two subjects, sections straight in the card between two blocks of the same one,
+              nothing between a header and a short body.
             </Guidance>
             <Guidance kind={'dont'} title={'Nest cards'}>
-              A card inside a card is a section with a separator. Two shadows on top of each other read as a mistake.
+              A card inside a card is a section of a divided group. Two borders on top of each other read as a mistake.
             </Guidance>
           </GuidanceGrid>
         </Section>

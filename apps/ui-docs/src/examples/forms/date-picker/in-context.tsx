@@ -22,7 +22,7 @@ export default function Example(): React.ReactNode {
   const [ suspension, setSuspension ] = React.useState<DateRange>({ from: null, to: null });
 
   return (
-    <Surface className={'w-full max-w-lg border border-border'}>
+    <Surface className={'w-full max-w-lg'}>
       <Surface.Section>
         <Stack gap={5}>
           <Field

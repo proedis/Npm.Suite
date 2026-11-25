@@ -14,7 +14,7 @@ export default function Example(): React.ReactNode {
       </Alert>
 
       {/* sm: inside a card, a drawer or a dialog, with a line */}
-      <Surface className={'border border-border p-4'}>
+      <Surface className={'p-4'}>
         <Alert size={'sm'} tone={'warning'} toneLabel={'Warning'} title={'Two stops without coordinates'}>
           They are left out of the map until an address is fixed.
         </Alert>

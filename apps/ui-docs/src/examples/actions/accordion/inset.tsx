@@ -8,7 +8,7 @@ import { Surface } from '@proedis/ui/display/surface';
 
 export default function Example(): React.ReactNode {
   return (
-    <Surface className={'w-full max-w-lg border border-border'}>
+    <Surface className={'w-full max-w-lg'}>
       <Surface.Header inset>
         <Item.Heading>
           <Heading.Title>Permissions</Heading.Title>

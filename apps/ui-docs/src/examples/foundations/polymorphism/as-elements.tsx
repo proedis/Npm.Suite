@@ -14,7 +14,7 @@ export default function Example(): React.ReactNode {
   return (
     <Stack gap={4} className={'w-full max-w-md'}>
       <div ref={ref}>
-        <Surface as={'article'} className={'border border-border'}>
+        <Surface as={'article'}>
           <Surface.Header inset>
             <Item.Heading>
               <Heading.Title as={'h3'}>Round 14</Heading.Title>

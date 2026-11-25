@@ -18,8 +18,8 @@ export default function Example(): React.ReactNode {
         <Badge>Draft</Badge>
         <Badge fill={'solid'} tone={'success'} dot>Completed</Badge>
         <Button size={'sm'} loading loadingLabel={'Saving'}>Save</Button>
-        <Surface className={'border border-border px-4 py-2 text-sm'}>A surface</Surface>
-        <Surface elevation={'soft'} className={'border border-border px-4 py-2 text-sm'}>Soft, asked for</Surface>
+        <Surface className={'px-4 py-2 text-sm'}>A surface</Surface>
+        <Surface elevation={'none'} className={'px-4 py-2 text-sm'}>None, asked for</Surface>
       </Cluster>
 
       <DomReadout of={ref} selector={'[data-slot=badge], [data-slot=button], [data-slot=surface]'} />

@@ -15,7 +15,6 @@ export default function Example(): React.ReactNode {
           <Heading.Description>Monday 16 to Sunday 22 November</Heading.Description>
         </Item.Heading>
       </Surface.Header>
-      <Surface.Separator />
       <Surface.Section>
         <p className={'text-sm text-muted-foreground'}>
           The rounds covered 96% of the planned stops. Two skips were not reachable and are planned again for Monday.

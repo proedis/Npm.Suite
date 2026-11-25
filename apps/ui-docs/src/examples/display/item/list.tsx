@@ -19,7 +19,7 @@ const ORDERS = [
 /** A row that IS a button: no control inside it, so the whole row can be one */
 export default function Example(): React.ReactNode {
   return (
-    <Surface className={'w-full max-w-md border border-border'}>
+    <Surface className={'w-full max-w-md'}>
       <Stack gap={0} as={'ul'} divided>
         {ORDERS.map((order) => (
           <li key={order.code}>

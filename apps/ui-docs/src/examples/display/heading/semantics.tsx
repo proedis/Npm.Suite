@@ -8,7 +8,7 @@ import { Surface } from '@proedis/ui/display/surface';
 /** The parts render a div: give the title the level it has in the page */
 export default function Example(): React.ReactNode {
   return (
-    <Surface as={'section'} aria-labelledby={'fleet-title'} className={'w-full max-w-md border border-border'}>
+    <Surface as={'section'} aria-labelledby={'fleet-title'} className={'w-full max-w-md'}>
       <Surface.Header>
         <Item.Heading size={'lg'}>
           <Heading.Title as={'h2'} id={'fleet-title'}>Fleet</Heading.Title>
