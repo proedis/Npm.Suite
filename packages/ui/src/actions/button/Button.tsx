@@ -163,7 +163,7 @@ const buttonVariants = cva(
   [
     'relative shrink-0 cursor-pointer',
     'border font-medium whitespace-nowrap select-none',
-    'transition-colors duration-100 motion-reduce:transition-none',
+    'transition duration-100 motion-reduce:transition-none button-press',
 
     /* A 2px outline 2px away, and a halo of the same colour reaching 3px past it. Keyboard only */
     'outline-none focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:ring-7',

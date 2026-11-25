@@ -509,6 +509,22 @@
   }
 }
 
+/*
+ * The press of a button: it gives under the pointer, `--button-press-scale` of its size (0.98, 1 for
+ * none), and comes back when released. A functional movement, none under reduced motion.
+ */
+@utility button-press {
+  &:active:not([data-disabled]) {
+    scale: var(--button-press-scale, 0.98);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &:active:not([data-disabled]) {
+      scale: none;
+    }
+  }
+}
+
 @utility button-finish {
   isolation: isolate;
   border-color: color-mix(in oklab, var(--tone), black var(--button-border-shade, 0%));

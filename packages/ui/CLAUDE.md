@@ -768,6 +768,13 @@ narrower stylesheet is the one you have to ask for.
   written through `--tw-inset-shadow` and `--tw-shadow` into the same `box-shadow` list Tailwind
   composes, so `focus-visible:ring-*` still draws on top of the glow instead of replacing it.
   A size past `lg` is deliberately absent: a hero CTA is a `className`, not a control height.
+  Every button also gives under the pointer, `button-press` (`scale: var(--button-press-scale, 0.98)` on
+  `:active` when not disabled, none under reduced motion), which is why its transition is `transition`
+  and not `transition-colors`: the scale has to animate too.
+- **`muted` is the neutral tone and writes with the standard ink** on its solid and soft fills (Marco,
+  2026-11-25): `bg-muted text-foreground`, where grey on grey read as a disabled control. Its plain row
+  keeps the quiet ink. In the neutral defaults it looks like `secondary`, and that is intended:
+  `primary` and `secondary` are the application's own colours, `muted` is the package's grey.
 - **One table paints every tone, in `core/tone.ts`.** `TONE_CLASSES` and the `TONE_COMPOUNDS` built
   from it are what every `fill × tone` component reads, so a `success` badge and a `success` icon box
   are the same green at the same strength. Two hand-maintained 21-row tables is the shape of the
