@@ -175,7 +175,12 @@ export function describeSchema(schema: z.ZodType | ZodTypeLike): FieldDescriptor
   // ----
   // Return
   // ----
-  const described = applyConstraints(descriptor, resolved.schema);
+  const attached = unwrapped.constraint ?? resolved.constraint;
+
+  /* The schema's own bounds, then those of the refinement a validator of this package attached */
+  const described = attached
+    ? applyConstraints(applyConstraints(descriptor, resolved.schema), attached)
+    : applyConstraints(descriptor, resolved.schema);
 
   /** An array's element is described in turn, so a list control can drive its own inputs */
   if (described.kind === 'array' && resolved.schema.def.element) {

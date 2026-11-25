@@ -183,11 +183,13 @@ Dates are truncated in the **runtime's timezone**, deliberately: a user picking 
 their own 20 August, and truncating in UTC would drop the first or the last hours of it depending on
 the season. The backend still receives an instant.
 
-⚠️ **The two halves interact, up to a point.** A constraint declared inside a `refine` callback is
-enforced but **invisible** to `describeField`: it lives in a function, and no introspection can read
-it. So `nullableString(s => s.max(256))` validates at 256 characters while the descriptor reports no
-`maxLength`, and a control driven by the descriptor will not show the limit. When the control must
-display it, declare it on the field as well.
+**The two halves meet.** A constraint declared inside the `refine` of `nullableString` and
+`nullableNumber` is enforced on the values that are there, and **read** by `describeField` all the
+same: `nullableString(s => s.max(256))` validates at 256 characters and its descriptor reports
+`maxLength: 256`, so a control driven by the descriptor shows the limit. The validator builds the
+refined schema once and leaves it on the schema it returns, where `describeField` finds it through
+`.describe()` and any wrapper. A `refine` of your own, outside these validators, stays a function no
+introspection can read: declare its limit on the field as well.
 
 ## 🔒 Where the boundary is
 
