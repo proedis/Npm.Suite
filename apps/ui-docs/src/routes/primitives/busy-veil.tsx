@@ -65,8 +65,10 @@ function BusyVeilPage(): React.ReactNode {
             <React.Fragment>
               The veil is driven by <InlineCode>useDelayedBusy</InlineCode> from <InlineCode>@proedis/react</InlineCode>,
               which splits one boolean in two. <InlineCode>busy</InlineCode> is true at once and is what blocks the
-              container: no double submit in the first 300ms. <InlineCode>visible</InlineCode> turns on after 300ms and
-              stays at least 400ms, so a fast answer flashes nothing and a slow one never blinks.
+              container: no double submit. <InlineCode>visible</InlineCode> drives the veil and stays at least 400ms, so
+              an answer never blinks. A veil answers a press, so it comes with <InlineCode>{'{ delay: 0 }'}</InlineCode>,
+              as in every overlay of the package: the default 300ms delay, right for a list refreshing on its own, reads
+              after a click as an interface slow to react.
             </React.Fragment>
           )}
         >

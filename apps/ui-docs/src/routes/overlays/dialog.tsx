@@ -53,7 +53,7 @@ function DialogPage(): React.ReactNode {
           <React.Fragment>
             A modal panel over a veil, its top edge held 64px from the window so it grows downwards and the title
             never moves. For a form born from an action of the page, a choice from a long list, a detail with several
-            sections. One gate for every way out, a discard prompt for unsaved changes, a waiting veil that comes late
+            sections. One gate for every way out, a discard prompt for unsaved changes, a waiting veil that answers at once
             and a save that cannot hang forever.
           </React.Fragment>
         )}
@@ -213,7 +213,8 @@ function DialogPage(): React.ReactNode {
           lead={(
             <React.Fragment>
               <InlineCode>busy</InlineCode> makes the dialog inert at once, so a second click or a second Enter cannot
-              send twice, and shows the veil only after 300ms, for at least 400ms: a fast answer flashes nothing. The
+              send twice, and shows the veil at once, fading in over 150ms and held at least 400ms, so a fast answer does
+              not blink and a press never looks unanswered. The
               veil says its label, <InlineCode>busySubmit</InlineCode> or <InlineCode>busyLoad</InlineCode>, and a save
               moves the focus onto it, so the keyboard has somewhere to stay while the rest is inert. When the wait ends
               with the dialog still open, a save that keeps it open for the next one, the focus goes back to the first

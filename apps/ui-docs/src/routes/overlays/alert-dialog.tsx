@@ -151,12 +151,12 @@ function AlertDialogPage(): React.ReactNode {
           title={'Running, failing, and the uncertain outcome'}
           lead={(
             <React.Fragment>
-              <InlineCode>{'busy={\'action\'}'}</InlineCode> makes the dialog inert while the action runs, with a veil
-              after 300ms, and nothing closes it. An <InlineCode>error</InlineCode> worth retrying shows at the top of the
-              body and takes the focus. <InlineCode>result</InlineCode> turns the dialog into an outcome, partly done or
-              impossible, where only the exit stays, renamed with <InlineCode>labels.close</InlineCode>, and the focus
-              moves from the veil to that exit, so Enter closes it. After{' '}
-              <InlineCode>timeoutMs</InlineCode>, 15 seconds by default and 4 in this example, the outcome becomes
+              <InlineCode>{'busy={\'action\'}'}</InlineCode> makes the dialog inert while the action runs, under a veil
+              over the whole panel from the first moment, and nothing closes it. An <InlineCode>error</InlineCode> worth
+              retrying shows at the top of the body and takes the focus. <InlineCode>result</InlineCode> turns the dialog
+              into an outcome, partly done or impossible, where only the exit stays, renamed with{' '}
+              <InlineCode>labels.close</InlineCode>, and the focus moves from the veil to that exit, so Enter closes it.
+              After <InlineCode>timeoutMs</InlineCode>, 15 seconds by default and 4 in this example, the outcome becomes
               uncertain: the server may have done it anyway, and <InlineCode>onTimeout</InlineCode> tells the page to
               reload what it shows.
             </React.Fragment>

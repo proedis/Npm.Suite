@@ -8,9 +8,9 @@ import { BusyVeil } from '@proedis/ui/primitives';
 
 export default function Example(): React.ReactNode {
   const [ busy, setBusy ] = React.useState(false);
-  const wait = useDelayedBusy(busy);
+  const wait = useDelayedBusy(busy, { delay: 0 });
 
-  /** A request that lasts `ms`: under 300ms the veil never shows */
+  /** A request that lasts `ms`: a fast one still shows the veil for 400ms, so it never blinks */
   const run = React.useCallback((ms: number) => {
     setBusy(true);
     window.setTimeout(() => setBusy(false), ms);

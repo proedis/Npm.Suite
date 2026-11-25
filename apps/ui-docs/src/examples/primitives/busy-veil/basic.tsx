@@ -10,8 +10,8 @@ import { BusyVeil } from '@proedis/ui/primitives';
 export default function Example(): React.ReactNode {
   const [ saving, setSaving ] = React.useState(false);
 
-  /** `busy` at once, `visible` after 300ms and for at least 400ms */
-  const wait = useDelayedBusy(saving);
+  /** `busy` at once, and `visible` too: the veil answers the press, and stays at least 400ms */
+  const wait = useDelayedBusy(saving, { delay: 0 });
 
   const handleSave = React.useCallback(() => {
     setSaving(true);
