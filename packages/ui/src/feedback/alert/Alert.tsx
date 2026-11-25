@@ -8,6 +8,7 @@ import { useForkRef } from '@proedis/react';
 
 import { splitBaseProps } from '../../core/base';
 import { cn } from '../../core/cn';
+import { TONE_CLASSES } from '../../core/tone';
 
 import { Stack } from '../../layout/Stack';
 
@@ -31,9 +32,25 @@ import type { SpacingValue } from '../../core/responsive';
 
 export type AlertSize = 'md' | 'sm';
 
+/**
+ * `flat`: no surface, no line, no room around it, for an alert inside a card or a section. `soft`: the soft
+ * fill of the tone, its ink on the icon, the title and the text. `solid`: the fill of the tone, its
+ * foreground on everything
+ */
+export type AlertVariant = 'flat' | 'soft' | 'solid';
+
 interface CommonAlertProps {
-  /** `md` on the page background, with the shadow; `sm` inside a card, a drawer or a dialog, with the line */
+  /** Defaults to `flat` */
+  variant?: AlertVariant;
+
+  /** The room and the icon: `md` in a page, `sm` inside a card, a drawer or a dialog. Defaults to `md` */
   size?: AlertSize;
+
+  /**
+   * The icon. Defaults to the mark of the tone; a node of yours replaces it, `false` takes it away. In a
+   * `flat` alert it sits in a box of the tone, on a fill it is drawn in the ink of the alert
+   */
+  icon?: React.ReactNode;
 
   /** The text: the consequence, in one or two sentences */
   children: React.ReactNode;
@@ -88,31 +105,53 @@ export type AlertTone = AlertProps['tone'];
  * Variants Definition
  * -------- */
 
-/** The default size, one source for `cva` and for the reported `data-size` */
-const DEFAULT_VARIANTS = { size: 'md' } as const;
+/** The defaults, one source for `cva` and for the reported `data-*` */
+const DEFAULT_VARIANTS = { size: 'md', variant: 'flat' } as const;
+
+/** The tones an alert takes, a subset of the package's */
+type AlertToneName = 'info' | 'success' | 'warning' | 'destructive';
+
+const ALERT_TONES: readonly AlertToneName[] = [ 'info', 'success', 'warning', 'destructive' ];
 
 const alertVariants = cva(
   [
-    '@container bg-card text-sm text-foreground',
+    /*
+     * `w-full` is load-bearing: the root is a size container (`@container`, for the action that moves under
+     * the text), and a size container has no width of its own. Placed where nothing stretches it, it
+     * collapsed to nothing and every word went to a line of its own
+     */
+    '@container w-full text-sm',
 
     /* Transparent until the system draws borders itself: then it becomes the frame */
     'outline-1 -outline-offset-1 outline-transparent'
   ],
   {
     variants: {
+      variant: {
+        flat : 'text-foreground',
+        soft : '',
+        solid: ''
+      },
       size: {
-        md: 'rounded-lg border border-transparent px-4 py-3 shadow-sm',
-        sm: 'rounded-md border border-border p-2'
+        md: '',
+        sm: ''
       },
 
-      /** The two severe tones also say it with the line, at half their ink */
+      /* The colour comes from the compounds below: flat has none of its own, the fills take the tone table's */
       tone: {
         info       : '',
         success    : '',
-        warning    : 'border-warning-soft-foreground/50',
-        destructive: 'border-destructive-soft-foreground/50'
-      }
+        warning    : '',
+        destructive: ''
+      } satisfies Record<AlertToneName, string>
     },
+    compoundVariants: [
+      /* A fill has its room and its corner; a flat alert has neither, it sits in the room of what holds it */
+      { variant: [ 'soft', 'solid' ], size: 'md', class: 'rounded-lg px-4 py-3' },
+      { variant: [ 'soft', 'solid' ], size: 'sm', class: 'rounded-md p-2' },
+      ...ALERT_TONES.map((tone) => ({ variant: 'soft' as const, tone, class: TONE_CLASSES.soft[tone] })),
+      ...ALERT_TONES.map((tone) => ({ variant: 'solid' as const, tone, class: TONE_CLASSES.solid[tone] }))
+    ],
     defaultVariants: DEFAULT_VARIANTS
   }
 );
@@ -126,6 +165,12 @@ const ROW_GAP: Readonly<Record<AlertSize, SpacingValue>> = {
 const ICON_BOX: Readonly<Record<AlertSize, { size: 'sm' | 'xs'; className: string }>> = {
   md: { size: 'sm', className: 'rounded-md' },
   sm: { size: 'xs', className: 'rounded-sm' }
+};
+
+/** On a fill the icon has no box: the glyph, one line tall, in the ink of the alert */
+const BARE_ICON: Readonly<Record<AlertSize, string>> = {
+  md: 'h-5 [&_svg]:size-5',
+  sm: 'h-5 [&_svg]:size-4'
 };
 
 /**
@@ -177,8 +222,10 @@ function focusAfter(root: HTMLElement): void {
  * -------- */
 
 /**
- * The page alert: a white card like the others, with a coloured box for the icon. It says a state that
- * lasts, of the record or the page, and what to do: "Signal closed · Reopen". Four tones, two sizes.
+ * The page alert: a state that lasts, of the record or the page, and what to do: "Signal closed ·
+ * Reopen". Four tones, two sizes, three variants: `flat` (no surface, the icon in a box of the tone, for
+ * an alert inside a card), `soft` (the soft fill of the tone, its ink on everything) and `solid` (the
+ * fill of the tone). The icon is the mark of the tone unless `icon` says otherwise.
  *
  * ```tsx
  * <Alert tone={'warning'} toneLabel={'Warning'} title={'Container with no contract'} action={<Button …>Assign</Button>}>
@@ -186,8 +233,7 @@ function focusAfter(root: HTMLElement): void {
  * </Alert>
  * ```
  *
- * The tone is in the box and, for `warning` and `destructive`, in the line too; the text stays black
- * and grey. Only `info` and `success` close, and before `onDismiss` the focus moves to the first
+ * Only `info` and `success` close, and before `onDismiss` the focus moves to the first
  * element that follows, or to the `main`. The surface is not interactive: only the action and the x.
  *
  * An alert known when the page opens renders with it and has no role. One that appears later takes
@@ -195,7 +241,7 @@ function focusAfter(root: HTMLElement): void {
  * `destructive`). `toneLabel` is read before the title. Under a 448px container the action goes under
  * the text.
  *
- * Parts with a slot: `alert` (with `data-tone`, `data-size`), `alert-icon`, `alert-body`,
+ * Parts with a slot: `alert` (with `data-tone`, `data-size`, `data-variant`), `alert-icon`, `alert-body`,
  * `alert-title`, `alert-text`, `alert-action`, `alert-dismiss`.
  */
 export const Alert = React.forwardRef<HTMLDivElement, AlertProps>((props, ref) => {
@@ -208,12 +254,14 @@ export const Alert = React.forwardRef<HTMLDivElement, AlertProps>((props, ref) =
     children,
     className,
     dismissLabel,
+    icon,
     live = false,
     onDismiss,
     size = DEFAULT_VARIANTS.size,
     title,
     tone,
     toneLabel,
+    variant = DEFAULT_VARIANTS.variant,
     ...others
   } = props;
 
@@ -268,6 +316,9 @@ export const Alert = React.forwardRef<HTMLDivElement, AlertProps>((props, ref) =
   const hasTitle = isPresent(title);
   const role = live ? (tone === 'destructive' ? 'alert' : 'status') : undefined;
   const box = ICON_BOX[size];
+  const flat = variant === 'flat';
+  const glyph = icon === undefined ? <ToneGlyph tone={tone} /> : icon;
+  const hasIcon = icon !== false && icon !== null;
 
   return (
     <Stack
@@ -277,26 +328,35 @@ export const Alert = React.forwardRef<HTMLDivElement, AlertProps>((props, ref) =
       data-slot={'alert'}
       data-tone={tone}
       data-size={size}
+      data-variant={variant}
       direction={'horizontal'}
       align={'start'}
       gap={ROW_GAP[size]}
-      className={cn(alertVariants({ size, tone }), baseClasses, className)}
+      className={cn(alertVariants({ size, variant, tone }), baseClasses, className)}
     >
       {filled && (
         <React.Fragment>
-          <IconBox data-slot={'alert-icon'} size={box.size} fill={'soft'} tone={tone} className={box.className}>
-            <ToneGlyph tone={tone} />
-          </IconBox>
+          {hasIcon && (flat
+            ? (
+              <IconBox data-slot={'alert-icon'} size={box.size} fill={'soft'} tone={tone} className={box.className}>
+                {glyph}
+              </IconBox>
+            )
+            : (
+              <Stack gap={0} as={'span'} data-slot={'alert-icon'} inline direction={'horizontal'} align={'center'} className={cn('shrink-0', BARE_ICON[size])}>
+                {glyph}
+              </Stack>
+            ))}
 
           <Stack data-slot={'alert-body'} gap={2} className={cn('min-w-0 flex-1', BODY_WIDE)}>
-            <div className={cn('min-w-0 flex-1 max-w-prose wrap-anywhere', TEXT_OFFSET[size])}>
+            <div className={cn('min-w-0 flex-1 max-w-prose wrap-anywhere', flat && hasIcon && TEXT_OFFSET[size])}>
               {hasTitle && (
-                <div data-slot={'alert-title'} className={'font-heading font-semibold text-foreground'}>
+                <div data-slot={'alert-title'} className={cn('font-heading font-semibold', flat && 'text-foreground')}>
                   {toneLabel && <VisuallyHidden>{`${toneLabel}: `}</VisuallyHidden>}
                   {title}
                 </div>
               )}
-              <div data-slot={'alert-text'} className={hasTitle ? 'text-muted-foreground' : 'text-foreground'}>
+              <div data-slot={'alert-text'} className={flat ? (hasTitle ? 'text-muted-foreground' : 'text-foreground') : undefined}>
                 {!hasTitle && toneLabel && <VisuallyHidden>{`${toneLabel}: `}</VisuallyHidden>}
                 {children}
               </div>
@@ -320,7 +380,7 @@ export const Alert = React.forwardRef<HTMLDivElement, AlertProps>((props, ref) =
               icon={<ClearGlyph />}
               size={'sm'}
               data-slot={'alert-dismiss'}
-              className={cn('-me-1', size === 'md' ? '-ms-2 mt-0.5' : '-my-0.5 -ms-1')}
+              className={cn('-me-1', size === 'md' ? '-ms-2 mt-0.5' : '-my-0.5 -ms-1', !flat && 'text-current')}
               onClick={handleDismiss}
             />
           )}
