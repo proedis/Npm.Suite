@@ -52,8 +52,10 @@ import { Route as FormsOverviewRouteImport } from './routes/forms/overview'
 import { Route as FormsPasswordInputRouteImport } from './routes/forms/password-input'
 import { Route as FormsRadioRouteImport } from './routes/forms/radio'
 import { Route as FormsRangeDatePickerRouteImport } from './routes/forms/range-date-picker'
+import { Route as FormsRangeSliderRouteImport } from './routes/forms/range-slider'
 import { Route as FormsSearchInputRouteImport } from './routes/forms/search-input'
 import { Route as FormsSelectRouteImport } from './routes/forms/select'
+import { Route as FormsSliderRouteImport } from './routes/forms/slider'
 import { Route as FormsSwitchRouteImport } from './routes/forms/switch'
 import { Route as FormsTextInputRouteImport } from './routes/forms/text-input'
 import { Route as FormsTextareaRouteImport } from './routes/forms/textarea'
@@ -307,6 +309,11 @@ const FormsRangeDatePickerRoute = FormsRangeDatePickerRouteImport.update({
   path: '/forms/range-date-picker',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FormsRangeSliderRoute = FormsRangeSliderRouteImport.update({
+  id: '/forms/range-slider',
+  path: '/forms/range-slider',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FormsSearchInputRoute = FormsSearchInputRouteImport.update({
   id: '/forms/search-input',
   path: '/forms/search-input',
@@ -315,6 +322,11 @@ const FormsSearchInputRoute = FormsSearchInputRouteImport.update({
 const FormsSelectRoute = FormsSelectRouteImport.update({
   id: '/forms/select',
   path: '/forms/select',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FormsSliderRoute = FormsSliderRouteImport.update({
+  id: '/forms/slider',
+  path: '/forms/slider',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FormsSwitchRoute = FormsSwitchRouteImport.update({
@@ -549,8 +561,10 @@ export interface FileRoutesByFullPath {
   '/forms/password-input': typeof FormsPasswordInputRoute
   '/forms/radio': typeof FormsRadioRoute
   '/forms/range-date-picker': typeof FormsRangeDatePickerRoute
+  '/forms/range-slider': typeof FormsRangeSliderRoute
   '/forms/search-input': typeof FormsSearchInputRoute
   '/forms/select': typeof FormsSelectRoute
+  '/forms/slider': typeof FormsSliderRoute
   '/forms/switch': typeof FormsSwitchRoute
   '/forms/text-input': typeof FormsTextInputRoute
   '/forms/textarea': typeof FormsTextareaRoute
@@ -633,8 +647,10 @@ export interface FileRoutesByTo {
   '/forms/password-input': typeof FormsPasswordInputRoute
   '/forms/radio': typeof FormsRadioRoute
   '/forms/range-date-picker': typeof FormsRangeDatePickerRoute
+  '/forms/range-slider': typeof FormsRangeSliderRoute
   '/forms/search-input': typeof FormsSearchInputRoute
   '/forms/select': typeof FormsSelectRoute
+  '/forms/slider': typeof FormsSliderRoute
   '/forms/switch': typeof FormsSwitchRoute
   '/forms/text-input': typeof FormsTextInputRoute
   '/forms/textarea': typeof FormsTextareaRoute
@@ -718,8 +734,10 @@ export interface FileRoutesById {
   '/forms/password-input': typeof FormsPasswordInputRoute
   '/forms/radio': typeof FormsRadioRoute
   '/forms/range-date-picker': typeof FormsRangeDatePickerRoute
+  '/forms/range-slider': typeof FormsRangeSliderRoute
   '/forms/search-input': typeof FormsSearchInputRoute
   '/forms/select': typeof FormsSelectRoute
+  '/forms/slider': typeof FormsSliderRoute
   '/forms/switch': typeof FormsSwitchRoute
   '/forms/text-input': typeof FormsTextInputRoute
   '/forms/textarea': typeof FormsTextareaRoute
@@ -804,8 +822,10 @@ export interface FileRouteTypes {
     | '/forms/password-input'
     | '/forms/radio'
     | '/forms/range-date-picker'
+    | '/forms/range-slider'
     | '/forms/search-input'
     | '/forms/select'
+    | '/forms/slider'
     | '/forms/switch'
     | '/forms/text-input'
     | '/forms/textarea'
@@ -888,8 +908,10 @@ export interface FileRouteTypes {
     | '/forms/password-input'
     | '/forms/radio'
     | '/forms/range-date-picker'
+    | '/forms/range-slider'
     | '/forms/search-input'
     | '/forms/select'
+    | '/forms/slider'
     | '/forms/switch'
     | '/forms/text-input'
     | '/forms/textarea'
@@ -972,8 +994,10 @@ export interface FileRouteTypes {
     | '/forms/password-input'
     | '/forms/radio'
     | '/forms/range-date-picker'
+    | '/forms/range-slider'
     | '/forms/search-input'
     | '/forms/select'
+    | '/forms/slider'
     | '/forms/switch'
     | '/forms/text-input'
     | '/forms/textarea'
@@ -1057,8 +1081,10 @@ export interface RootRouteChildren {
   FormsPasswordInputRoute: typeof FormsPasswordInputRoute
   FormsRadioRoute: typeof FormsRadioRoute
   FormsRangeDatePickerRoute: typeof FormsRangeDatePickerRoute
+  FormsRangeSliderRoute: typeof FormsRangeSliderRoute
   FormsSearchInputRoute: typeof FormsSearchInputRoute
   FormsSelectRoute: typeof FormsSelectRoute
+  FormsSliderRoute: typeof FormsSliderRoute
   FormsSwitchRoute: typeof FormsSwitchRoute
   FormsTextInputRoute: typeof FormsTextInputRoute
   FormsTextareaRoute: typeof FormsTextareaRoute
@@ -1401,6 +1427,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FormsRangeDatePickerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/forms/range-slider': {
+      id: '/forms/range-slider'
+      path: '/forms/range-slider'
+      fullPath: '/forms/range-slider'
+      preLoaderRoute: typeof FormsRangeSliderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/forms/search-input': {
       id: '/forms/search-input'
       path: '/forms/search-input'
@@ -1413,6 +1446,13 @@ declare module '@tanstack/react-router' {
       path: '/forms/select'
       fullPath: '/forms/select'
       preLoaderRoute: typeof FormsSelectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forms/slider': {
+      id: '/forms/slider'
+      path: '/forms/slider'
+      fullPath: '/forms/slider'
+      preLoaderRoute: typeof FormsSliderRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forms/switch': {
@@ -1721,8 +1761,10 @@ const rootRouteChildren: RootRouteChildren = {
   FormsPasswordInputRoute: FormsPasswordInputRoute,
   FormsRadioRoute: FormsRadioRoute,
   FormsRangeDatePickerRoute: FormsRangeDatePickerRoute,
+  FormsRangeSliderRoute: FormsRangeSliderRoute,
   FormsSearchInputRoute: FormsSearchInputRoute,
   FormsSelectRoute: FormsSelectRoute,
+  FormsSliderRoute: FormsSliderRoute,
   FormsSwitchRoute: FormsSwitchRoute,
   FormsTextInputRoute: FormsTextInputRoute,
   FormsTextareaRoute: FormsTextareaRoute,
