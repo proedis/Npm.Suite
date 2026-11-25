@@ -1,8 +1,8 @@
 # Proedis Internal Platform, built from the root of the monorepo and served by nginx.
 #
 # The build context is the root of the repository: the site compiles the source of the workspace packages
-# it documents, so it needs the whole workspace, not only apps/platform. CapRover builds from the root
-# too, through apps/platform/captain-definition.
+# it documents, so it needs the whole workspace, not only apps/platform. CapRover builds from the folder
+# of its captain-definition, which is why that file sits at the root of the repository.
 
 # ---- Build -------------------------------------------------------------------------------------------
 FROM node:22-alpine AS build

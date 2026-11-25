@@ -554,9 +554,12 @@ compile.
 monorepo (the site compiles the source of the workspace packages, so the context is the whole repository,
 which `.dockerignore` trims) in a Node 22 stage with Yarn through corepack, and serves `build/` with
 nginx (`apps/platform/nginx.conf`: the fallback of a single page application, the hashed assets cached for
-a year, the page never). CapRover keeps the root of the repository as the build context whatever the path
-of the definition, so `apps/platform/captain-definition` names the Dockerfile from the root; the app
-points its "Captain Definition Path" at it. nginx listens on 80. Deploying is Marco's to start: nothing
+a year, the page never). **`captain-definition` sits at the root of the repository, and must stay
+there.** CapRover resolves `dockerfilePath` against the folder of the definition and uses that same folder
+as the build context, whatever its documentation says: read in its `ImageMaker.ts`, and proved by the first
+deploy, which looked for `apps/platform/apps/platform/Dockerfile`. A definition inside `apps/platform`
+would build with that folder alone, without the packages the site compiles. The app's "Captain
+Definition Path" is `./captain-definition`. nginx listens on 80. Deploying is Marco's to start: nothing
 in this repository pushes or deploys.
 
 **It reads the package's source, not a build.** `@proedis/ui` and every `@proedis/ui/<subpath>` are
