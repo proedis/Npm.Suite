@@ -68,7 +68,7 @@ export default function Example(): React.ReactNode {
         footer={(
           <React.Fragment>
             <Drawer.Cancel>Cancel</Drawer.Cancel>
-            <Drawer.Submit>Create vehicle</Drawer.Submit>
+            <Drawer.Submit loadingLabel={'Saving'}>Create vehicle</Drawer.Submit>
           </React.Fragment>
         )}
         labels={{ close: 'Close', sections: 'Sections of the vehicle' }}

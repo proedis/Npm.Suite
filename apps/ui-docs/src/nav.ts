@@ -1,4 +1,7 @@
 import {
+  BookOpen,
+  FileCheck2,
+  Link2,
   AppWindow,
   AlignVerticalSpaceAround,
   BadgeCheck,
@@ -214,9 +217,12 @@ export const NAV: readonly NavGroup[] = [
     title      : 'Forms',
     description: 'The form, its fields and every control, with the same frame, states and errors.',
     items      : [
-      { title: 'Form', to: '/forms/form', subpath: '@proedis/ui/forms/form', peers: BASE_UI, description: 'Header, error summary, sections on a grid of six, footer.', icon: FileText, ready: true },
-      { title: 'Field', to: '/forms/field', subpath: '@proedis/ui/forms/field', peers: BASE_UI, description: 'Label, description, error and counter around any control.', icon: FormInput, ready: true },
-      { title: 'FieldShell', to: '/forms/field-shell', subpath: '@proedis/ui/forms/field-shell', peers: BASE_UI, description: 'The frame of every text control, for a control of your own.', icon: Frame, ready: true },
+      { title: 'Overview', to: '/forms/overview', description: 'The six pieces of a form, what each one does, and which one to reach for.', icon: BookOpen, ready: true },
+      { title: 'Form', to: '/forms/form', subpath: '@proedis/ui/forms/form', peers: BASE_UI, description: 'Header, error summary, sections on a grid of six, footer, Submit and Cancel.', icon: FileText, ready: true },
+      { title: 'BoundForm', to: '/forms/bound-form', subpath: '@proedis/form', description: 'The Form bound to react-hook-form and a Zod schema, with useSchemaForm.', icon: FileCheck2, ready: true },
+      { title: 'BoundField', to: '/forms/bound-field', subpath: '@proedis/form', description: 'A Field bound by name: value, error, label and bounds from the form and its schema.', icon: Link2, ready: true },
+      { title: 'Field', to: '/forms/field', subpath: '@proedis/ui/forms/field', peers: BASE_UI, description: 'The label above a control, the hint or the message under it, the state handed down.', icon: FormInput, ready: true },
+      { title: 'FieldShell', to: '/forms/field-shell', subpath: '@proedis/ui/forms/field-shell', peers: BASE_UI, description: 'The frame of every bordered control, the package’s and yours.', icon: Frame, ready: true },
       { title: 'TextInput', to: '/forms/text-input', subpath: '@proedis/ui/forms/text-input', peers: BASE_UI, description: 'The single line text field, with its actions.', icon: TextCursorInput, ready: true },
       { title: 'PasswordInput', to: '/forms/password-input', subpath: '@proedis/ui/forms/password-input', peers: BASE_UI, description: 'A text field that shows and hides its value.', icon: KeyRound, ready: true },
       { title: 'SearchInput', to: '/forms/search-input', subpath: '@proedis/ui/forms/search-input', peers: BASE_UI, description: 'A lens, a clear action, and Esc that empties it.', icon: Search, ready: true },

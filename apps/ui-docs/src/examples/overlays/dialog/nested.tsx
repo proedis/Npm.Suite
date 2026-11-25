@@ -51,7 +51,7 @@ export default function Example(): React.ReactNode {
           footer={(
             <React.Fragment>
               <Dialog.Cancel>Cancel</Dialog.Cancel>
-              <Dialog.Submit>Create customer</Dialog.Submit>
+              <Dialog.Submit loadingLabel={'Saving'}>Create customer</Dialog.Submit>
             </React.Fragment>
           )}
           labels={{ close: 'Close' }}

@@ -24,6 +24,12 @@ declare module 'virtual:ui-props/*' {
   export default props;
 }
 
+/** The props of a type of @proedis/form, read the same way */
+declare module 'virtual:form-props/*' {
+  const props: readonly import('./docs/propDoc').PropDoc[];
+  export default props;
+}
+
 /** The variables of the theme a component reads, from its source: see `plugins/theme.ts` */
 declare module 'virtual:ui-theme/*' {
   const theme: import('./docs/themeDoc').ThemeDoc;

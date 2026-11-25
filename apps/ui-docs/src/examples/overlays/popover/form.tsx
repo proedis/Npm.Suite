@@ -24,7 +24,7 @@ export default function Example(): React.ReactNode {
       title={'Capacity of FT-234-KL'}
       width={'md'}
       trigger={<Button fill={'soft'} tone={'secondary'}>Capacity: {capacity} m³</Button>}
-      footer={<Popover.Submit size={'sm'}>Save</Popover.Submit>}
+      footer={<Popover.Submit loadingLabel={'Saving'} size={'sm'}>Save</Popover.Submit>}
       labels={{ close: 'Close' }}
     >
       {/* A footer keeps the focus inside, and Popover.Submit submits the form of the popover */}

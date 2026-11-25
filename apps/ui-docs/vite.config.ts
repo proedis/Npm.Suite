@@ -19,6 +19,9 @@ import { uiTheme } from './plugins/theme.ts';
 /** The source of the package, read directly: the site documents what is on the branch, not a release */
 const UI_SOURCE = path.resolve(import.meta.dirname, '../../packages/ui/src');
 
+/** @proedis/form, documented with the package it binds: its pages read its source the same way */
+const FORM_SOURCE = path.resolve(import.meta.dirname, '../../packages/form/src');
+
 
 /**
  * The modules of the optional peers the package imports, found in its source. Vite only meets them
@@ -49,6 +52,7 @@ export default defineConfig({
     examples(),
     snippets(),
     uiProps(UI_SOURCE),
+    uiProps(FORM_SOURCE, 'virtual:form-props/'),
     uiTheme(UI_SOURCE),
     react(),
     tailwindcss()
@@ -64,7 +68,8 @@ export default defineConfig({
        * writes them.
        */
       { find: /^@proedis\/ui$/, replacement: path.join(UI_SOURCE, 'index.ts') },
-      { find: /^@proedis\/ui\/(.+)$/, replacement: `${UI_SOURCE}/$1` }
+      { find: /^@proedis\/ui\/(.+)$/, replacement: `${UI_SOURCE}/$1` },
+      { find: /^@proedis\/form$/, replacement: path.join(FORM_SOURCE, 'index.ts') }
     ],
 
     /** The package's source and the site must share one React, or every hook of the package throws */

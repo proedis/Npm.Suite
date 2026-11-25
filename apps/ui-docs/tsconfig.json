@@ -6,7 +6,8 @@
     "paths": {
       "@/*": [ "./src/*" ],
       "@proedis/ui": [ "../../packages/ui/src/index.ts" ],
-      "@proedis/ui/*": [ "../../packages/ui/src/*" ]
+      "@proedis/ui/*": [ "../../packages/ui/src/*" ],
+      "@proedis/form": [ "../../packages/form/src/index.ts" ]
     }
   },
   "include": [

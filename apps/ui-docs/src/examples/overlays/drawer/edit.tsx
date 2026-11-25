@@ -81,7 +81,7 @@ export default function Example(): React.ReactNode {
           : (
             <React.Fragment>
               <Drawer.Cancel>Cancel</Drawer.Cancel>
-              <Drawer.Submit>Save</Drawer.Submit>
+              <Drawer.Submit loadingLabel={'Saving'}>Save</Drawer.Submit>
             </React.Fragment>
           )}
         labels={{ close: 'Close', busySubmit: 'Saving the vehicle' }}

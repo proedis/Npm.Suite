@@ -94,7 +94,7 @@ export default function Example(): React.ReactNode {
         footer={(
           <React.Fragment>
             <Dialog.Cancel>Cancel</Dialog.Cancel>
-            <Dialog.Submit>Create vehicle</Dialog.Submit>
+            <Dialog.Submit loadingLabel={'Saving'}>Create vehicle</Dialog.Submit>
           </React.Fragment>
         )}
         labels={LABELS}

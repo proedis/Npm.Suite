@@ -11,9 +11,8 @@ import type { PropDoc } from '../src/docs/propDoc';
  * Constants Definition
  * -------- */
 
-const PREFIX = 'virtual:ui-props/';
+const DEFAULT_PREFIX = 'virtual:ui-props/';
 
-const RESOLVED = `\0${PREFIX}`;
 
 /** "Defaults to `md`", or a bare number or boolean: "Defaults to 3" */
 const DEFAULTS_TO = /Defaults? to (?:`([^`]+)`|(-?\d+(?:\.\d+)?|true|false)\b)/;
@@ -350,22 +349,23 @@ class PropsReader {
  * Nothing is written to disk. In development an edit to the package's source drops the program and
  * reloads the pages that read a table.
  */
-export function uiProps(sourceRoot: string): Plugin {
+export function uiProps(sourceRoot: string, prefix: string = DEFAULT_PREFIX): Plugin {
   const reader = new PropsReader(sourceRoot);
+  const resolved = `\0${prefix}`;
 
   return {
-    name: 'ui-docs:props',
+    name: `ui-docs:props:${prefix}`,
 
     resolveId(id) {
-      return id.startsWith(PREFIX) ? `\0${id}` : null;
+      return id.startsWith(prefix) ? `\0${id}` : null;
     },
 
     load(id) {
-      if (!id.startsWith(RESOLVED)) {
+      if (!id.startsWith(resolved)) {
         return null;
       }
 
-      return `export default ${JSON.stringify(reader.read(id.slice(RESOLVED.length)))};`;
+      return `export default ${JSON.stringify(reader.read(id.slice(resolved.length)))};`;
     },
 
     configureServer(server: ViteDevServer) {
@@ -376,7 +376,7 @@ export function uiProps(sourceRoot: string): Plugin {
 
         reader.invalidate();
 
-        const stale = [ ...server.moduleGraph.idToModuleMap.values() ].filter((module) => module.id?.startsWith(RESOLVED));
+        const stale = [ ...server.moduleGraph.idToModuleMap.values() ].filter((module) => module.id?.startsWith(resolved));
 
         for (const module of stale) {
           server.moduleGraph.invalidateModule(module);

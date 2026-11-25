@@ -57,7 +57,7 @@ export default function Example(): React.ReactNode {
           <React.Fragment>
             <Dialog.Cancel>Cancel</Dialog.Cancel>
             <Button fill={'soft'} onClick={handleSilentSave}>Save, no answer</Button>
-            <Dialog.Submit>Save, refused</Dialog.Submit>
+            <Dialog.Submit loadingLabel={'Saving'}>Save, refused</Dialog.Submit>
           </React.Fragment>
         )}
         labels={{
