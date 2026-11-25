@@ -169,6 +169,17 @@ function AlertDialogPage(): React.ReactNode {
           </Callout>
         </Section>
 
+        <Section
+          title={'Radius'}
+          lead={(
+            <React.Fragment>
+              The corner Dialog and Drawer share, <InlineCode>--overlay-radius</InlineCode>, <InlineCode>lg</InlineCode>{' '}
+              when undeclared; <InlineCode>--alert-dialog-radius</InlineCode> refines it for the alert dialogs alone, and{' '}
+              <InlineCode>radius</InlineCode> for one of them, a step of the scale or <InlineCode>none</InlineCode>.
+            </React.Fragment>
+          )}
+        />
+
         <Section title={'Accessibility'}>
           <Prose>
             <p>
@@ -198,7 +209,7 @@ function AlertDialogPage(): React.ReactNode {
         <Section title={'Slots and data attributes'} lead={'Every part a stylesheet can reach, and what each one reports.'}>
           <SlotsInspector modal of={basic}
             rows={[
-              { slot: 'alert-dialog', part: 'The panel', attributes: [ 'data-tone', 'data-size', 'data-open' ] },
+              { slot: 'alert-dialog', part: 'The panel', attributes: [ 'data-tone', 'data-size', 'data-radius', 'data-open' ] },
               { slot: 'alert-dialog-backdrop', part: 'The veil behind it' },
               { slot: 'alert-dialog-viewport', part: 'The fixed layer that places the panel' },
               { slot: 'alert-dialog-header', part: 'The header' },

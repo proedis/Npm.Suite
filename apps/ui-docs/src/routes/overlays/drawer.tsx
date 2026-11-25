@@ -12,13 +12,14 @@ import { InlineCode } from '@/docs/InlineCode';
 import { CodeBlock } from '@/docs/CodeBlock';
 import { Customization } from '@/docs/Customization';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
-import { tsx } from '@/docs/snippet';
+import { css, tsx } from '@/docs/snippet';
 import { SlotsInspector } from '@/docs/SlotsInspector';
 import { DocTable, PropsTable } from '@/docs/Tables';
 import basic from '@/examples/overlays/drawer/basic.tsx?example';
 import create from '@/examples/overlays/drawer/create.tsx?example';
 import edit from '@/examples/overlays/drawer/edit.tsx?example';
 import navigation from '@/examples/overlays/drawer/navigation.tsx?example';
+import variants from '@/examples/overlays/drawer/variants.tsx?example';
 import { pageAt } from '@/nav';
 
 
@@ -47,7 +48,9 @@ function DrawerPage(): React.ReactNode {
         )}
         imports={tsx`
           import { Drawer } from '@proedis/ui/overlays/drawer';
-          import type { DrawerBusy, DrawerLabels, DrawerSection, DrawerSize } from '@proedis/ui/overlays/drawer';
+          import type {
+            DrawerBusy, DrawerLabels, DrawerRadius, DrawerSection, DrawerSize, DrawerVariant
+          } from '@proedis/ui/overlays/drawer';
         `}
       />
 
@@ -58,7 +61,7 @@ function DrawerPage(): React.ReactNode {
           title={'Anatomy'}
           lead={(
             <React.Fragment>
-              A modal panel the full height of the window, 8px from its edges and rounded on every corner, over a veil.
+              A modal panel the full height of the window over a veil, by default 8px from its edges and rounded.
               The header, toolbar, body and footer of a Dialog, with no lines. On a phone it takes the whole width; from{' '}
               <InlineCode>sm</InlineCode> it keeps 56px of the page visible on its left, so the list it came from is
               still in sight.
@@ -74,6 +77,31 @@ function DrawerPage(): React.ReactNode {
               (the default) and <InlineCode>lg</InlineCode> 800px, and stay the same between the detail and its edit.
             </p>
           </Prose>
+        </Section>
+
+        <Section
+          title={'Floating or attached'}
+          lead={(
+            <React.Fragment>
+              <InlineCode>variant</InlineCode>: <InlineCode>floating</InlineCode>, the default, stands 8px from the edges
+              of the window with its corners; <InlineCode>attached</InlineCode> lies against the right edge, the top and
+              the bottom, square. The corner of a floating drawer is the one Dialog and AlertDialog share,{' '}
+              <InlineCode>--overlay-radius</InlineCode> (<InlineCode>lg</InlineCode> when undeclared), which{' '}
+              <InlineCode>--drawer-radius</InlineCode> refines for the drawers alone and{' '}
+              <InlineCode>radius</InlineCode> for one of them.
+            </React.Fragment>
+          )}
+        >
+          <Example of={variants} />
+          <CodeBlock
+            title={'app.css'}
+            snippet={css`
+              :root {
+                --overlay-radius: var(--radius-xl);   /* Dialog, Drawer and AlertDialog */
+                --drawer-radius: var(--radius-md);    /* the floating drawers alone */
+              }
+            `}
+          />
         </Section>
 
         <Section
@@ -203,7 +231,7 @@ function DrawerPage(): React.ReactNode {
         >
           <SlotsInspector modal of={basic}
             rows={[
-              { slot: 'drawer', part: 'The panel', attributes: [ 'data-size', 'data-mode', 'data-open' ] },
+              { slot: 'drawer', part: 'The panel', attributes: [ 'data-size', 'data-mode', 'data-variant', 'data-radius', 'data-open' ] },
               { slot: 'drawer-backdrop', part: 'The veil behind it' },
               { slot: 'drawer-viewport', part: 'The fixed layer that places the panel' },
               { slot: 'drawer-header', part: 'The header' },

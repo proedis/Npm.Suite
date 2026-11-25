@@ -13,7 +13,7 @@ import { Example } from '@/docs/Example';
 import { Guidance, GuidanceGrid } from '@/docs/Guidance';
 import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section, SubSection } from '@/docs/Page';
-import { tsx } from '@/docs/snippet';
+import { css, tsx } from '@/docs/snippet';
 import { SlotsInspector } from '@/docs/SlotsInspector';
 import { DocTable, PropsTable } from '@/docs/Tables';
 import basic from '@/examples/overlays/dialog/basic.tsx?example';
@@ -24,6 +24,7 @@ import header from '@/examples/overlays/dialog/header.tsx?example';
 import inContext from '@/examples/overlays/dialog/in-context.tsx?example';
 import loading from '@/examples/overlays/dialog/loading.tsx?example';
 import nested from '@/examples/overlays/dialog/nested.tsx?example';
+import radius from '@/examples/overlays/dialog/radius.tsx?example';
 import returnFocus from '@/examples/overlays/dialog/return-focus.tsx?example';
 import saving from '@/examples/overlays/dialog/saving.tsx?example';
 import sections from '@/examples/overlays/dialog/sections.tsx?example';
@@ -58,7 +59,9 @@ function DialogPage(): React.ReactNode {
         )}
         imports={tsx`
           import { Dialog } from '@proedis/ui/overlays/dialog';
-          import type { DialogBusy, DialogDiscard, DialogLabels, DialogSection, DialogSize } from '@proedis/ui/overlays/dialog';
+          import type {
+            DialogBusy, DialogDiscard, DialogLabels, DialogRadius, DialogSection, DialogSize
+          } from '@proedis/ui/overlays/dialog';
         `}
       />
 
@@ -99,6 +102,31 @@ function DialogPage(): React.ReactNode {
           )}
         >
           <Example of={sizes} />
+        </Section>
+
+        <Section
+          title={'Radius'}
+          lead={(
+            <React.Fragment>
+              Dialog, Drawer and AlertDialog share one corner, <InlineCode>--overlay-radius</InlineCode>,{' '}
+              <InlineCode>lg</InlineCode> when undeclared: declared once on <InlineCode>:root</InlineCode>, every overlay
+              of the application follows it. <InlineCode>--dialog-radius</InlineCode> lets the dialogs alone differ and
+              falls back to it. <InlineCode>radius</InlineCode> sets the corner of one dialog, a step of the scale or{' '}
+              <InlineCode>none</InlineCode>; <InlineCode>default</InlineCode>, the default, is the theme’s. The waiting
+              veil follows the corner it covers.
+            </React.Fragment>
+          )}
+        >
+          <Example of={radius} />
+          <CodeBlock
+            title={'app.css'}
+            snippet={css`
+              :root {
+                --overlay-radius: var(--radius-xl);   /* Dialog, Drawer and AlertDialog */
+                --dialog-radius: var(--radius-2xl);   /* the dialogs alone */
+              }
+            `}
+          />
         </Section>
 
         <Section
@@ -346,7 +374,7 @@ function DialogPage(): React.ReactNode {
         <Section title={'Slots and data attributes'} lead={'Every part a stylesheet can reach, and what each one reports.'}>
           <SlotsInspector modal of={basic}
             rows={[
-              { slot: 'dialog', part: 'The panel', attributes: [ 'data-size', 'data-open', 'data-nested' ] },
+              { slot: 'dialog', part: 'The panel', attributes: [ 'data-size', 'data-radius', 'data-open', 'data-nested' ] },
               { slot: 'dialog-backdrop', part: 'The veil behind it' },
               { slot: 'dialog-viewport', part: 'The fixed layer that places the panel' },
               { slot: 'dialog-header', part: 'The header' },

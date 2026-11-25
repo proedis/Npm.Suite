@@ -4,10 +4,9 @@ import { Button } from '@proedis/ui/actions/button';
 import { Cluster } from '@proedis/ui/layout';
 import { Drawer } from '@proedis/ui/overlays/drawer';
 
+import type { DrawerVariant } from '@proedis/ui/overlays/drawer';
 import { VehicleFacts } from './VehicleFacts';
 import { VEHICLES } from './vehicles';
-
-import type { DrawerVariant } from '@proedis/ui/overlays/drawer';
 
 
 const VARIANTS: readonly DrawerVariant[] = [ 'floating', 'attached' ];
