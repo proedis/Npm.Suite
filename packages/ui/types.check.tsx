@@ -29,9 +29,10 @@ import { Detail } from './src/data/detail';
 import { Field } from './src/forms/field';
 import { FiltersBar } from './src/data/filters-bar';
 import { FieldShell } from './src/forms/field-shell';
-import { PasswordInput } from './src/forms/password-input';
+import { PasswordInput, passwordRules } from './src/forms/password-input';
 import { Radio, RadioGroup } from './src/forms/radio';
 import { RangeDatePicker } from './src/forms/range-date-picker';
+import { RangeSlider } from './src/forms/range-slider';
 import { SegmentedControl } from './src/actions/segmented-control';
 import { Switch } from './src/forms/switch';
 import { Tabs } from './src/actions/tabs';
@@ -603,8 +604,15 @@ const multiplePendingEnter = (
  * -------- */
 
 const CALENDAR_TEXT = {
-  format: 'dd/mm/yyyy', calendar: 'Calendar', clear: 'Clear', previousMonth: 'Previous month', nextMonth: 'Next month',
-  chooseMonth: 'Month', chooseYear: 'Year', previousYears: 'Earlier years', nextYears: 'Later years'
+  format       : 'dd/mm/yyyy',
+  calendar     : 'Calendar',
+  clear        : 'Clear',
+  previousMonth: 'Previous month',
+  nextMonth    : 'Next month',
+  chooseMonth  : 'Month',
+  chooseYear   : 'Year',
+  previousYears: 'Earlier years',
+  nextYears    : 'Later years'
 };
 
 const oneDate = <DatePicker value={null} labels={{ ...CALENDAR_TEXT, today: 'Today' }} />;
@@ -624,6 +632,25 @@ const dateWithMode = <DatePicker mode={'range'} labels={{ ...CALENDAR_TEXT, toda
 // @ts-expect-error pickEnd and rangeSummary are required
 const periodWithoutFooter = <RangeDatePicker labels={{ ...CALENDAR_TEXT }} />;
 
+/* --------
+ * PasswordInput rules and RangeSlider thumbs: names a screen reader cannot do without
+ * -------- */
+
+const RULES = [ passwordRules.minLength(12, 'At least 12 characters') ];
+
+const checkedPassword = (
+  <PasswordInput autoComplete={'new-password'} rules={RULES} labels={{ show: 'Show', hide: 'Hide', met: 'Done', unmet: 'Missing' }} />
+);
+
+/* Rules ask for the words read before each line */
+// @ts-expect-error met and unmet are required with rules
+const silentRules = <PasswordInput autoComplete={'new-password'} rules={RULES} labels={{ show: 'Show', hide: 'Hide' }} />;
+
+const namedThumbs = <RangeSlider labels={{ start: 'From', end: 'To' }} />;
+
+/* Each thumb is a control of its own */
+// @ts-expect-error labels is required
+const namelessThumbs = <RangeSlider />;
 
 
 /* --------
@@ -655,5 +682,6 @@ export const CHECKED = [
   composedEmptyState, emptyStateKind, emptyStateIconSize,
   filtersBarRoot, filtersBarChildren, singlePendingEnter, multiplePendingEnter,
   namedSteps, unknownStep, unknownStepResponsive, controlsAtLarge, controlOffTheScale,
-  oneDate, period, dateWithMode, periodWithoutFooter
+  oneDate, period, dateWithMode, periodWithoutFooter,
+  checkedPassword, silentRules, namedThumbs, namelessThumbs
 ];
