@@ -76,6 +76,7 @@
       "actions/tooltip",
       "feedback/alert",
       "feedback/empty-state",
+      "feedback/jobs",
       "feedback/notifications",
       "feedback/progress-bar",
       "forms/checkbox",

@@ -774,7 +774,8 @@ its own peers; none of them is re-exported by the root barrel. Every module is c
 | `actions/copy-button` | `CopyButton`, a copy to the clipboard with a tick for a moment |
 | `feedback/alert` | `Alert` |
 | `feedback/empty-state` | `EmptyState` (`.Icon`, `.Title`, `.Description`, `.Actions`): a size and a tone, the parts composed |
-| `feedback/notifications` | `createNotifications`, `NotificationsProvider`, `JobsButton` |
+| `feedback/notifications` | `createNotifications`, the store of the confirmations and the jobs; `NotificationsProvider`, the confirmations and the announcements |
+| `feedback/jobs` | `JobsPanel`, the jobs that run in the background, and `JobsButton`, their history, on the store of the notifications |
 | `feedback/progress-bar` | `ProgressBar`, how far a piece of work has gone, and `Meter`, a quantity in a range: one bar |
 | `forms/form` | `Form` (`.Header`, `.ErrorSummary`, `.Section`, `.Footer`, `.Submit`, `.Cancel`), `FormSubmit`, `FormCancel` |
 | `forms/field` | `Field`, `FIELD_SPAN`, `useFieldControl`, the types `FieldStatus` and `FieldControlState` |
@@ -1296,6 +1297,7 @@ another package. A recessed surface is `--muted`.
 | `size` on `Heading.Title`, `Heading.Description`, `Heading.Eyebrow` | `size` on `Heading`, for the three together (`sm` · `md` · `lg` · `xl`, the title's steps); `data-size` moves from the parts to the root. A part that has to step out of the scale takes a size in its `className` |
 | `CollapsibleSection` from `@proedis/ui/actions/collapsible` | `Accordion` from `@proedis/ui/actions/accordion`: a section is an `Accordion.Item` in an `Accordion`, `open` / `defaultOpen` / `onOpenChange` are the item's `value` in `value` / `defaultValue` / `onValueChange` of the accordion, and the slots `collapsible-section-*` are `accordion-*`. The body opens on its height; the last item draws no rule under it |
 | `<DatePicker mode={'range'}>`, `DatePickerProps` as a union of `DateModeProps` and `RangeModeProps` | `RangeDatePicker` from `@proedis/ui/forms/range-date-picker`, with the same props but `mode`. The labels are split: `DatePickerLabels` keeps `today`, `RangeDatePickerLabels` has `pickEnd` and `rangeSummary`; `onValidityChange` is told `'date'` by one and `'from'` or `'to'` by the other |
+| `NotificationsProvider` drew the jobs panel, `JobsButton` from `feedback/notifications`, `NotificationsLabels` with the texts of the jobs | the provider draws the confirmations only: place `<JobsPanel labels={…} />` from `@proedis/ui/feedback/jobs` inside it, with `JobsPanelLabels` (`jobsRegion` is `region`); `JobsButton` is imported from `feedback/jobs`; `NotificationsLabels` keeps `confirmRegion` and `undo` |
 | `data-mode`, `data-inline`, `data-wrap`, `data-divided`, `data-fill` on the parts of a component laid out by `Stack`, `Cluster`, `Center` or `Grid` | written only on a primitive that renders as itself; a rule matching them on a component part matches nothing now |
 
 ## 🤝 Compatibility

@@ -17,11 +17,11 @@ import { useLinkNavigate } from '../../actions/link/LinkProvider';
 
 import { BadgeCounter } from '../../display/badge-counter/BadgeCounter';
 
-import { StatusMark, useNotificationsContext } from './toastShared';
+import { StatusMark, useNotificationsContext } from '../notifications/toastShared';
 
 import type { BaseProps } from '../../core/base';
 
-import type { HistoryEntry } from './notificationsStore';
+import type { HistoryEntry } from '../notifications/notificationsStore';
 
 
 /* --------

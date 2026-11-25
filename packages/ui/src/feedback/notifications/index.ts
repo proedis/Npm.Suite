@@ -1,12 +1,10 @@
 /**
  * @proedis/ui/feedback/notifications
  *
- * `createNotifications` (the `notify` and `jobs` an application calls), `NotificationsProvider` (the
- * confirmation and the jobs panel) and `JobsButton` (the history in the top bar). Runs on
+ * `createNotifications`, the store of the confirmations and of the jobs, and `NotificationsProvider`, which
+ * draws the confirmations and announces both; the jobs are drawn by `@proedis/ui/feedback/jobs`. Runs on
  * `@base-ui/react`, an optional peer of this package.
  */
-
-export * from './JobsButton';
 
 export * from './Notifications';
 

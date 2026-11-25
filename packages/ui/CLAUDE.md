@@ -171,6 +171,11 @@ Three choices of tranche 3 that look improvable and are not:
   veil. The discard prompt of `dirty` is rendered inside its dialog for that reason.
 - **The jobs panel of the notifications is a list of ours**, not a second Base UI toast viewport: its
   rows would be dialogs that Esc closes, swipe, and stop at three. The confirmation is Base UI's toast.
+- **Jobs and notifications are two subpaths on one store** (Marco, 2026-11-25). `feedback/notifications`
+  owns `createNotifications`, the confirmations and the live regions, so a job is announced even with no
+  panel on screen; `feedback/jobs` draws them, `JobsPanel` placed by the application inside the provider and
+  `JobsButton`, both reading its context, which throws outside it. One store keeps one history and one pair
+  of live regions: two would have to be kept in step.
 - **Each `Tabs.Panel` declares its tab** (Marco, 2026-11-25, in place of an `items` array beside the
   panels): `value`, `label`, `leading`, `count`, `disabled`. Tabs reads them from its children while
   rendering (`collectTabs`, `React.Children`, fragments opened), never from a registry filled by effects,
