@@ -13,9 +13,9 @@ export default function Example(): React.ReactNode {
   return (
     <Item direction={'vertical'} gap={5} className={'max-w-sm text-center'}>
       <IconBox size={'xl'} tone={'primary'} halo><Route /></IconBox>
-      <Heading gap={1.5}>
-        <Heading.Title size={'lg'}>No round yet</Heading.Title>
-        <Heading.Description size={'md'}>A round groups the stops a vehicle covers in one shift.</Heading.Description>
+      <Heading size={'lg'} gap={1.5}>
+        <Heading.Title>No round yet</Heading.Title>
+        <Heading.Description>A round groups the stops a vehicle covers in one shift.</Heading.Description>
       </Heading>
       <Item.Actions>
         <Button>Plan a round</Button>

@@ -18,8 +18,8 @@ export default function Example(): React.ReactNode {
   return (
     <Surface loading={loading} loadingLabel={'Refreshing the totals'} className={'w-full max-w-md'}>
       <Surface.Header>
-        <Heading>
-          <Heading.Title size={'lg'}>Totals of the day</Heading.Title>
+        <Heading size={'lg'}>
+          <Heading.Title>Totals of the day</Heading.Title>
         </Heading>
       </Surface.Header>
       <Surface.Section>

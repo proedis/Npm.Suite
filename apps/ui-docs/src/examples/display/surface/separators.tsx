@@ -11,8 +11,8 @@ export default function Example(): React.ReactNode {
   return (
     <Surface className={'w-full max-w-md'}>
       <Surface.Header>
-        <Heading>
-          <Heading.Title size={'lg'}>Vehicle FT-234-KL</Heading.Title>
+        <Heading size={'lg'}>
+          <Heading.Title>Vehicle FT-234-KL</Heading.Title>
           <Heading.Description>Compactor, Chieri depot</Heading.Description>
         </Heading>
       </Surface.Header>

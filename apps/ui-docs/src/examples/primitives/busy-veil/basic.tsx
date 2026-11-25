@@ -23,8 +23,8 @@ export default function Example(): React.ReactNode {
       {/* The container blocks the clicks and says it is busy; the veil is only the look */}
       <div className={'relative'} aria-busy={wait.busy} inert={inertValue(wait.busy)}>
         <Surface.Section>
-          <Heading>
-            <Heading.Title size={'lg'}>Collection round 14</Heading.Title>
+          <Heading size={'lg'}>
+            <Heading.Title>Collection round 14</Heading.Title>
             <Heading.Description>North district, 38 stops, vehicle FT-234-KL</Heading.Description>
           </Heading>
         </Surface.Section>

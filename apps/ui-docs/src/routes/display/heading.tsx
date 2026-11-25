@@ -33,20 +33,11 @@ const PAGE = pageAt('/display/heading');
 
 const LINES = { description: 'Clamp the part to that many lines, with an ellipsis on the last one.' };
 
-const TITLE_PROPS = refineProps(headingTitleProps, {
-  lines: LINES,
-  size : { description: 'sm for a list row, lg for the header of a card, xl for a page or an empty state.' }
-});
+const TITLE_PROPS = refineProps(headingTitleProps, { lines: LINES });
 
-const DESCRIPTION_PROPS = refineProps(headingDescriptionProps, {
-  lines: LINES,
-  size : { description: 'The size of the line under the title: 11, 12 or 14 pixels.' }
-});
+const DESCRIPTION_PROPS = refineProps(headingDescriptionProps, { lines: LINES });
 
-const EYEBROW_PROPS = refineProps(headingEyebrowProps, {
-  lines: LINES,
-  size : { description: 'The small capitals over the title: 11 or 12 pixels.' }
-});
+const EYEBROW_PROPS = refineProps(headingEyebrowProps, { lines: LINES });
 
 
 /* --------
@@ -78,25 +69,28 @@ function HeadingPage(): React.ReactNode {
           title={'Sizes'}
           lead={(
             <React.Fragment>
-              Each part takes its own <InlineCode>size</InlineCode>, and the pair hands nothing down. The default title is{' '}
-              <InlineCode>sm</InlineCode>, measured rather than chosen: a list row is by far the most frequent heading, so the
-              frequent case writes no prop and a card header says <InlineCode>size={'{\'lg\'}'}</InlineCode>.
+              <InlineCode>size</InlineCode> is the Heading’s, and it moves the eyebrow, the title and the description
+              together, in proportion. The default is <InlineCode>sm</InlineCode>, measured rather than chosen: a list row
+              is by far the most frequent heading, so the frequent case writes no prop and a card header says{' '}
+              <InlineCode>size={'{\'lg\'}'}</InlineCode>.
             </React.Fragment>
           )}
         >
           <Example of={sizes} />
           <DocTable
-            head={[ 'Part', 'Sizes', 'Default' ]}
+            head={[ 'Size', 'Eyebrow', 'Title', 'Description' ]}
             rows={[
-              [ <InlineCode key={'p'}>Heading.Title</InlineCode>, 'sm 14px, md 16px, lg 18px semibold; xl 20px bold', <InlineCode key={'d'}>sm</InlineCode> ],
-              [ <InlineCode key={'p'}>Heading.Description</InlineCode>, 'xs 11px, sm 12px, md 14px', <InlineCode key={'d'}>sm</InlineCode> ],
-              [ <InlineCode key={'p'}>Heading.Eyebrow</InlineCode>, 'xs 11px, sm 12px, in small capitals', <InlineCode key={'d'}>xs</InlineCode> ]
+              [ <InlineCode key={'s'}>sm</InlineCode>, '11px', '14px, semibold', '12px' ],
+              [ <InlineCode key={'s'}>md</InlineCode>, '11px', '16px, semibold', '14px' ],
+              [ <InlineCode key={'s'}>lg</InlineCode>, '12px', '18px, semibold', '14px' ],
+              [ <InlineCode key={'s'}>xl</InlineCode>, '12px', '20px, bold', '16px' ]
             ]}
           />
-          <Callout title={'Why every part has its own size'}>
-            A single knob on the pair would need a context, which is client only and would take the component out of a
-            Server Component, or a descendant class on the parent, whose specificity would silently beat an explicit{' '}
-            <InlineCode>size</InlineCode> on the child. Two explicit props are better than one that cannot be overridden.
+          <Callout title={'One part out of the scale'}>
+            The size travels as variables the root sets and each part reads, not as a context (the component stays
+            renderable from a Server Component) nor as a class on the parent. So a size in the{' '}
+            <InlineCode>className</InlineCode> of one part still replaces its own, for the rare title that has to step out
+            of the scale: <InlineCode>{'<Heading.Title className={\'text-2xl\'}>'}</InlineCode>.
           </Callout>
         </Section>
 
@@ -152,10 +146,10 @@ function HeadingPage(): React.ReactNode {
         <Section title={'Slots and data attributes'}>
           <SlotsInspector of={basic}
             rows={[
-              { slot: 'heading', part: 'The block', attributes: [ 'data-gap' ] },
-              { slot: 'heading-eyebrow', part: 'The line above the title', attributes: [ 'data-size', 'data-lines' ] },
-              { slot: 'heading-title', part: 'The title', attributes: [ 'data-size', 'data-lines' ] },
-              { slot: 'heading-description', part: 'The line under the title', attributes: [ 'data-size', 'data-lines' ] }
+              { slot: 'heading', part: 'The block', attributes: [ 'data-size', 'data-gap' ] },
+              { slot: 'heading-eyebrow', part: 'The line above the title', attributes: [ 'data-lines' ] },
+              { slot: 'heading-title', part: 'The title', attributes: [ 'data-lines' ] },
+              { slot: 'heading-description', part: 'The line under the title', attributes: [ 'data-lines' ] }
             ]}
           />
         </Section>

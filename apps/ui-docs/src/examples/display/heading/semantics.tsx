@@ -9,8 +9,8 @@ export default function Example(): React.ReactNode {
   return (
     <Surface as={'section'} aria-labelledby={'fleet-title'} className={'w-full max-w-md border border-border'}>
       <Surface.Header>
-        <Heading>
-          <Heading.Title as={'h2'} id={'fleet-title'} size={'lg'}>Fleet</Heading.Title>
+        <Heading size={'lg'}>
+          <Heading.Title as={'h2'} id={'fleet-title'}>Fleet</Heading.Title>
           <Heading.Description as={'p'}>Twelve vehicles, nine in service</Heading.Description>
         </Heading>
       </Surface.Header>

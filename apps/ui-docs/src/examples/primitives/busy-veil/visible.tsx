@@ -10,8 +10,8 @@ export default function Example(): React.ReactNode {
     <Surface className={'w-full max-w-md border border-border'}>
       <div className={'relative'} aria-busy>
         <Surface.Section>
-          <Heading>
-            <Heading.Title size={'lg'}>Order 2026/1184</Heading.Title>
+          <Heading size={'lg'}>
+            <Heading.Title>Order 2026/1184</Heading.Title>
             <Heading.Description>Skip hire, 12 m³, Via Roma 21, Chieri</Heading.Description>
           </Heading>
         </Surface.Section>

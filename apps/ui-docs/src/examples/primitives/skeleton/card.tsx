@@ -11,8 +11,8 @@ export default function Example(): React.ReactNode {
   return (
     <Surface className={'w-full max-w-md border border-border'} aria-busy>
       <Surface.Header>
-        <Heading>
-          <Heading.Title size={'lg'}>Vehicle</Heading.Title>
+        <Heading size={'lg'}>
+          <Heading.Title>Vehicle</Heading.Title>
           <Skeleton className={'mt-1.5 w-32'} />
         </Heading>
         <Skeleton shape={'pill'} />

@@ -3,28 +3,27 @@ import * as React from 'react';
 import { Heading } from '@proedis/ui/display/heading';
 import { Stack } from '@proedis/ui/layout';
 
+import type { HeadingSize } from '@proedis/ui/display/heading';
+
+
+const SIZES: readonly { size: HeadingSize; title: string; description: string }[] = [
+  { size: 'sm', title: 'Skip 1204', description: 'A list row: no prop, the frequent case' },
+  { size: 'md', title: 'Route 14, north district', description: 'A section of a page' },
+  { size: 'lg', title: 'Vehicles in service', description: 'The header of a card' },
+  { size: 'xl', title: 'No round planned today', description: 'A page, or an empty state' }
+];
+
 
 export default function Example(): React.ReactNode {
   return (
-    <Stack gap={8} className={'w-full max-w-md'}>
-      {/* A list row: no props, the frequent case */}
-      <Heading>
-        <Heading.Title>Skip 1204</Heading.Title>
-        <Heading.Description>Paper, 1.1 m³</Heading.Description>
-      </Heading>
-
-      {/* The header of a card */}
-      <Heading>
-        <Heading.Title size={'lg'}>Vehicles in service</Heading.Title>
-        <Heading.Description>Updated two minutes ago</Heading.Description>
-      </Heading>
-
-      {/* A page or an empty state */}
-      <Heading gap={2}>
-        <Heading.Eyebrow size={'sm'}>Rounds</Heading.Eyebrow>
-        <Heading.Title size={'xl'}>No round planned today</Heading.Title>
-        <Heading.Description size={'md'}>Plan one from the calendar, or copy last week’s.</Heading.Description>
-      </Heading>
+    <Stack gap={'xl'} className={'w-full max-w-md'}>
+      {SIZES.map((entry) => (
+        <Heading key={entry.size} size={entry.size}>
+          <Heading.Eyebrow>{`size="${entry.size}"`}</Heading.Eyebrow>
+          <Heading.Title>{entry.title}</Heading.Title>
+          <Heading.Description>{entry.description}</Heading.Description>
+        </Heading>
+      ))}
     </Stack>
   );
 }

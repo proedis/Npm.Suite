@@ -22,8 +22,8 @@ function Panel(props: { demo: string; caption: string }): React.ReactNode {
   return (
     <Stack data-font-demo={props.demo} className={'rounded-xl border border-border bg-card p-4'}>
       <code className={'font-mono text-xs text-muted-foreground'}>{props.caption}</code>
-      <Heading>
-        <Heading.Title size={'lg'}>Vehicles in service</Heading.Title>
+      <Heading size={'lg'}>
+        <Heading.Title>Vehicles in service</Heading.Title>
         <Heading.Description>Updated two minutes ago, 14 of 18 on the road.</Heading.Description>
       </Heading>
       <Cluster>

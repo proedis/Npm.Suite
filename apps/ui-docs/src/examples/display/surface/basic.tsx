@@ -9,8 +9,8 @@ export default function Example(): React.ReactNode {
   return (
     <Surface className={'w-full max-w-md'}>
       <Surface.Header>
-        <Heading>
-          <Heading.Title size={'lg'}>Weekly report</Heading.Title>
+        <Heading size={'lg'}>
+          <Heading.Title>Weekly report</Heading.Title>
           <Heading.Description>Monday 16 to Sunday 22 November</Heading.Description>
         </Heading>
       </Surface.Header>

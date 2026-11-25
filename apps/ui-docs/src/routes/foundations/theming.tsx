@@ -57,7 +57,7 @@ const WEIGHT_ROWS: readonly (readonly [ string, string, string ])[] = [
   [ '400', '--font-weight-normal', 'Body text, a description, a value of a field' ],
   [ '500', '--font-weight-medium', 'A label, a button, a tab, a badge, an eyebrow' ],
   [ '600', '--font-weight-semibold', 'Every title, a value that leads' ],
-  [ '700', '--font-weight-bold', 'The largest title, Heading.Title size xl' ]
+  [ '700', '--font-weight-bold', 'The largest title, a Heading of size xl' ]
 ];
 
 /** The named steps of the spacing scale */

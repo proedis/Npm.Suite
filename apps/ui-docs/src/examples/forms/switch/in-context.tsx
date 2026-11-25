@@ -21,7 +21,7 @@ export default function Example(): React.ReactNode {
         {SETTINGS.map((setting) => (
           <Item key={setting.id} inset>
             <Heading>
-              <Heading.Title as={'h3'} size={'sm'} id={`setting-${setting.id}`}>{setting.title}</Heading.Title>
+              <Heading.Title as={'h3'} id={`setting-${setting.id}`}>{setting.title}</Heading.Title>
               <Heading.Description>{setting.description}</Heading.Description>
             </Heading>
             <Item.Actions>

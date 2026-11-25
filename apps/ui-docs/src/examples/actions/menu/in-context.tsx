@@ -26,7 +26,7 @@ export default function Example(): React.ReactNode {
           {index > 0 && <Divider />}
           <Item inset>
             <Heading>
-              <Heading.Title size={'sm'}>{`${route.code}, ${route.zone}`}</Heading.Title>
+              <Heading.Title>{`${route.code}, ${route.zone}`}</Heading.Title>
               <Heading.Description>{`${route.stops} stops`}</Heading.Description>
             </Heading>
             <Item.Actions>

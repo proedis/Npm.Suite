@@ -23,8 +23,8 @@ export default function Example(): React.ReactNode {
     <Surface className={'w-full max-w-sm border border-border'}>
       <Surface.Section>
         <Form onSubmit={handleSubmit}>
-          <Heading>
-            <Heading.Title size={'lg'}>Sign in</Heading.Title>
+          <Heading size={'lg'}>
+            <Heading.Title>Sign in</Heading.Title>
             <Heading.Description>Cantieri Digitali, north depot</Heading.Description>
           </Heading>
           <Stack gap={4}>

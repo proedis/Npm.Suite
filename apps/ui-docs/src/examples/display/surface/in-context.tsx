@@ -17,9 +17,9 @@ export default function Example(): React.ReactNode {
     <Surface as={'article'} aria-labelledby={'vehicle-card'} className={'w-full max-w-lg'}>
       <Surface.Header>
         <IconBox tone={'primary'}><Truck /></IconBox>
-        <Heading>
+        <Heading size={'lg'}>
           <Stack direction={'horizontal'} align={'center'} gap={2}>
-            <Heading.Title as={'h3'} id={'vehicle-card'} size={'lg'} lines={1}>FT-234-KL</Heading.Title>
+            <Heading.Title as={'h3'} id={'vehicle-card'} lines={1}>FT-234-KL</Heading.Title>
             <Badge tone={'success'} dot>In service</Badge>
           </Stack>
           <Heading.Description>Compactor, round 14, north district</Heading.Description>
