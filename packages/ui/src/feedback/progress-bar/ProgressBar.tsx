@@ -230,11 +230,14 @@ function ProgressImpl(props: ProgressBarProps & { kind: ProgressKind }): React.R
   /* The two roots take the same props but for `value`, which a Meter never leaves `null`: one cast, here */
   const Root = Primitive.Root as typeof ProgressPrimitive.Root;
 
-  /* The widest the value gets, invisible: the column of a value after the bar does not move as it grows */
+  /*
+   * The widest the value gets, invisible: the column of a value after the bar does not move as it grows,
+   * and the value sits at its end, as a number in a column does
+   */
   const widest = formatNumber(max, min, max, format, locale);
 
   const endValue = (
-    <Stack gap={0} data-slot={slot('value')} aria-hidden className={cn('shrink-0 text-sm font-medium text-foreground', NUMBER)}>
+    <Stack gap={0} data-slot={slot('value')} aria-hidden align={'end'} className={cn('shrink-0 text-sm font-medium text-foreground', NUMBER)}>
       <span>{shown}</span>
       <span className={'invisible h-0 overflow-hidden'}>{valueText ? valueText(widest, max) : widest}</span>
     </Stack>
