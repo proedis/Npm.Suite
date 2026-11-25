@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Plus, Search } from 'lucide-react';
+import { Plus, Search, X } from 'lucide-react';
 
 import { Button } from '@proedis/ui/actions/button';
 import { Heading } from '@proedis/ui/display/heading';
@@ -27,13 +27,16 @@ export default function Example(): React.ReactNode {
       </Surface.Section>
       {query
         ? (
-          <EmptyState
-            kind={'no-results'}
-            icon={<Search />}
-            title={`No vehicle for “${query}”`}
-            description={'Check the plate, or search by model.'}
-            actions={[ { role: 'clear', label: 'Clear the search', onClick: () => setQuery('') } ]}
-          />
+          <EmptyState>
+            <EmptyState.Icon><Search /></EmptyState.Icon>
+            <EmptyState.Title>{`No vehicle for “${query}”`}</EmptyState.Title>
+            <EmptyState.Description>Check the plate, or search by model.</EmptyState.Description>
+            <EmptyState.Actions>
+              <Button size={'sm'} fill={'plain'} tone={'destructive'} leading={<X />} onClick={() => setQuery('')}>
+                Clear the search
+              </Button>
+            </EmptyState.Actions>
+          </EmptyState>
         )
         : (
           <Surface.Section>

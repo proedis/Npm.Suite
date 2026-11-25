@@ -8,7 +8,7 @@ import { Stack } from '@proedis/ui/layout';
 
 
 export default function Example(): React.ReactNode {
-  const titleRef = React.useRef<HTMLElement>(null);
+  const titleRef = React.useRef<HTMLDivElement>(null);
   const [ failed, setFailed ] = React.useState(false);
 
   /* The load fails: the empty state replaces the content and its title takes the focus */
@@ -25,14 +25,12 @@ export default function Example(): React.ReactNode {
     <Stack align={'center'} gap={3} className={'w-full'}>
       {failed
         ? (
-          <EmptyState
-            ref={titleRef}
-            kind={'error'}
-            icon={<CircleAlert />}
-            title={'The stops did not load'}
-            description={'The server did not answer. Your data is safe.'}
-            actions={[ { role: 'retry', label: 'Try again', onClick: handleRetry } ]}
-          />
+          <EmptyState tone={'destructive'}>
+            <EmptyState.Icon><CircleAlert /></EmptyState.Icon>
+            <EmptyState.Title ref={titleRef}>The stops did not load</EmptyState.Title>
+            <EmptyState.Description>The server did not answer. Your data is safe.</EmptyState.Description>
+            <EmptyState.Actions><Button size={'sm'} tone={'muted'} onClick={handleRetry}>Try again</Button></EmptyState.Actions>
+          </EmptyState>
         )
         : <Button fill={'soft'} onClick={handleLoad}>Load the stops</Button>}
     </Stack>
