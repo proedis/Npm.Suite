@@ -73,6 +73,8 @@ const SINGLE: Readonly<Record<string, string>> = {
   '--surface-border-color': 'The line around a Surface that declares no border. Undeclared, --border; transparent for none.',
   '--icon-box-radius' : 'The corner of an IconBox that declares no radius, as a md box shows it: scaled with every size. Undeclared, --radius-2xl.',
   '--list-panel-radius': 'The corner of every floating list: a menu, the list of a Select, a Combobox, a filter. Its items take it less 4px. Undeclared, --radius-md.',
+  '--segmented-control-radius': 'The corner of a SegmentedControl that declares no radius; its items take it less the padding. Undeclared, --control-radius.',
+  '--tabs-radius'     : 'The corner of the rail of Tabs that declares no radius; its tabs take it less the padding. Undeclared, --radius-lg.',
   '--accordion-radius': 'The corner of a contained, filled or separated Accordion that declares no radius. Undeclared, --radius-lg.',
   '--accordion-gap'   : 'The room between the items of a separated Accordion. Undeclared, the sm step of the scale.',
   '--accordion-filled-background': 'The surface of the open item of a filled Accordion. Undeclared, --muted.',

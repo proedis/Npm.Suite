@@ -22,7 +22,9 @@ import inContext from '@/examples/actions/tabs/in-context.tsx?example';
 import kept from '@/examples/actions/tabs/kept.tsx?example';
 import overflow from '@/examples/actions/tabs/overflow.tsx?example';
 import sizes from '@/examples/actions/tabs/sizes.tsx?example';
+import radius from '@/examples/actions/tabs/radius.tsx?example';
 import variants from '@/examples/actions/tabs/variants.tsx?example';
+import vertical from '@/examples/actions/tabs/vertical.tsx?example';
 import { pageAt } from '@/nav';
 
 
@@ -158,6 +160,32 @@ function TabsPage(): React.ReactNode {
         </Section>
 
         <Section
+          title={'Radius'}
+          lead={(
+            <React.Fragment>
+              <InlineCode>radius</InlineCode> sets the corner of the rail; the tabs and the fill take it less its
+              padding, concentric. <InlineCode>default</InlineCode> is the theme’s <InlineCode>--tabs-radius</InlineCode>,{' '}
+              <InlineCode>lg</InlineCode> when undeclared.
+            </React.Fragment>
+          )}
+        >
+          <Example of={radius} />
+        </Section>
+
+        <Section
+          title={'Vertical'}
+          lead={(
+            <React.Fragment>
+              <InlineCode>orientation={'{\'vertical\'}'}</InlineCode> puts the tabs in a column at the start and the
+              panel beside them, the shape of a page of settings. Every tab shows, with no “More”: a column grows with
+              the page instead of running out of room. The arrows go up and down.
+            </React.Fragment>
+          )}
+        >
+          <Example of={vertical} />
+        </Section>
+
+        <Section
           title={'Panels'}
           lead={(
             <React.Fragment>
@@ -232,9 +260,9 @@ function TabsPage(): React.ReactNode {
         <Section title={'Slots and data attributes'} lead={'Every part a stylesheet can reach, and what each one reports.'}>
           <SlotsInspector of={counts}
             rows={[
-              { slot: 'tabs', part: 'The root, where className lands' },
+              { slot: 'tabs', part: 'The root, where className lands', attributes: [ 'data-orientation' ] },
               { slot: 'tabs-row', part: 'The row that measures what fits' },
-              { slot: 'tabs-rail', part: 'The rail', attributes: [ 'data-size', 'data-variant' ] },
+              { slot: 'tabs-rail', part: 'The rail', attributes: [ 'data-size', 'data-variant', 'data-radius' ] },
               { slot: 'tabs-list', part: 'The tab list' },
               { slot: 'tabs-indicator', part: 'The fill that slides under the open tab' },
               { slot: 'tabs-tab', part: 'A tab, and each tab of the hidden copy', attributes: [ 'data-active', 'data-disabled', 'data-orientation' ] },

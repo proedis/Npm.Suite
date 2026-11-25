@@ -20,6 +20,7 @@ import disabled from '@/examples/actions/segmented-control/disabled.tsx?example'
 import icons from '@/examples/actions/segmented-control/icons.tsx?example';
 import inContext from '@/examples/actions/segmented-control/in-context.tsx?example';
 import period from '@/examples/actions/segmented-control/period.tsx?example';
+import radius from '@/examples/actions/segmented-control/radius.tsx?example';
 import sizes from '@/examples/actions/segmented-control/sizes.tsx?example';
 import variants from '@/examples/actions/segmented-control/variants.tsx?example';
 import vertical from '@/examples/actions/segmented-control/vertical.tsx?example';
@@ -119,6 +120,20 @@ function SegmentedControlPage(): React.ReactNode {
         </Section>
 
         <Section
+          title={'Radius'}
+          lead={(
+            <React.Fragment>
+              <InlineCode>radius</InlineCode> sets the corner of the rail, and the items and the fill take it less the
+              padding of the rail, so the two stay concentric; <InlineCode>full</InlineCode> makes a pill of both.{' '}
+              <InlineCode>default</InlineCode> is the theme’s <InlineCode>--segmented-control-radius</InlineCode>, the
+              corner of the controls when undeclared.
+            </React.Fragment>
+          )}
+        >
+          <Example of={radius} />
+        </Section>
+
+        <Section
           title={'Vertical'}
           lead={(
             <React.Fragment>
@@ -215,7 +230,7 @@ function SegmentedControlPage(): React.ReactNode {
         <Section title={'Slots and data attributes'} lead={'Every part a stylesheet can reach, and what each one reports.'}>
           <SlotsInspector of={icons}
             rows={[
-              { slot: 'segmented-control', part: 'The rail', attributes: [ 'data-size', 'data-variant', 'data-orientation', 'data-disabled' ] },
+              { slot: 'segmented-control', part: 'The rail', attributes: [ 'data-size', 'data-variant', 'data-radius', 'data-orientation', 'data-disabled' ] },
               { slot: 'segmented-control-indicator', part: 'The fill that slides under the chosen item', attributes: [ 'data-disabled' ] },
               { slot: 'segmented-control-item', part: 'An item', attributes: [ 'data-value', 'data-pressed', 'data-disabled', 'data-icon-only' ] },
               { slot: 'segmented-control-content', part: 'The icon and the label, on one line' },
