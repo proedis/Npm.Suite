@@ -1,24 +1,11 @@
 import * as React from 'react';
 
-import { useNavigate } from '@tanstack/react-router';
-
 import { LabeledContent } from '@proedis/ui/display/labeled-content';
 import { Person } from '@proedis/ui/display/person';
 import { Stack } from '@proedis/ui/layout';
 
-import type { LinkTarget } from '@proedis/ui/core';
-
 
 export default function Example(): React.ReactNode {
-  const navigate = useNavigate();
-
-  const profile: LinkTarget = {
-    href: '/',
-    go  : () => {
-      navigate({ to: '/' }).catch(() => undefined);
-    }
-  };
-
   /** What the card shows under the head, rendered for preview only: nothing in it is a Tab stop */
   const card = (
     <React.Fragment>
@@ -36,7 +23,7 @@ export default function Example(): React.ReactNode {
   return (
     <Stack gap={3} align={'start'}>
       {/* A page and a card: the name is a link, and the card opens on hover and on focus */}
-      <Person avatar={{ kind: 'person', name: 'Rossi Mario', initials: 'RM' }} name={'Rossi Mario'} target={profile} preview={card} />
+      <Person avatar={{ kind: 'person', name: 'Rossi Mario', initials: 'RM' }} name={'Rossi Mario'} target={'/'} preview={card} />
 
       {/* Only the card: the name is a button that looks like text */}
       <Person avatar={{ kind: 'person', name: 'Bianchi Laura', initials: 'BL', current: true }} name={'Bianchi Laura'} preview={card} />
@@ -49,7 +36,7 @@ export default function Example(): React.ReactNode {
       />
 
       {/* The system and an unreadable reference are muted, with no link and no card */}
-      <Person avatar={{ kind: 'system', name: 'Automatic import' }} name={'Automatic import'} target={profile} />
+      <Person avatar={{ kind: 'system', name: 'Automatic import' }} name={'Automatic import'} target={'/'} />
     </Stack>
   );
 }

@@ -194,18 +194,32 @@ function ButtonPage(): React.ReactNode {
           lead={(
             <React.Fragment>
               Navigation is a link, not a click handler. Give the button a <InlineCode>to</InlineCode> and it renders a
-              real <InlineCode>{'<a href>'}</InlineCode>: the middle click, a new tab and the status bar keep working,
-              and a plain click calls <InlineCode>go()</InlineCode> instead of loading the page again.
+              real <InlineCode>{'<a href>'}</InlineCode>: the middle click, a new tab and the status bar keep working.
+              An address is enough, and with a <InlineCode>LinkProvider</InlineCode> around the application a plain
+              click navigates in the page instead of loading it again.
             </React.Fragment>
           )}
         >
           <Example of={link} />
+          <CodeBlock
+            title={'main.tsx'}
+            snippet={tsx`
+              import { LinkProvider } from '@proedis/ui/actions/link';
+
+              <LinkProvider navigate={(href) => router.navigate({ href })}>
+                <RouterProvider router={router} />
+              </LinkProvider>
+            `}
+          />
           <Prose>
             <p>
-              <InlineCode>LinkTarget</InlineCode> is a structural type, <InlineCode>{'{ href, go }'}</InlineCode>, so the
-              package knows no router: whatever the application navigates with, it hands over an address and a
-              function. Disabled or loading, the anchor loses its <InlineCode>href</InlineCode>, is announced as a
-              disabled link, and neither your <InlineCode>onClick</InlineCode> nor <InlineCode>go()</InlineCode> runs.
+              A <InlineCode>LinkTarget</InlineCode> is a string, most of the time, or{' '}
+              <InlineCode>{'{ href, go }'}</InlineCode> for the one link that goes somewhere its own way: its{' '}
+              <InlineCode>go()</InlineCode> wins over the provider. The package knows no router; the application hands
+              its navigation over once, from{' '}
+              <InlineCode>@proedis/ui/actions/link</InlineCode>. Disabled or loading, the anchor loses its{' '}
+              <InlineCode>href</InlineCode>, is announced as a disabled link, and neither your{' '}
+              <InlineCode>onClick</InlineCode> nor the navigation runs.
             </p>
           </Prose>
         </Section>

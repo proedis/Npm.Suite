@@ -11,8 +11,8 @@ import type { Round } from '../fixtures';
 
 /** One column of every kind, and the number formats side by side */
 const COLUMNS: readonly TableColumn<Round>[] = [
-  { id: 'code', header: 'code', kind: 'code', width: 'sm', target: (round) => ({ href: `#${round.id}`, go: () => undefined }) },
-  { id: 'district', header: 'reference', kind: 'reference', width: 'md', target: (round) => ({ href: `#${round.district}`, go: () => undefined }) },
+  { id: 'code', header: 'code', kind: 'code', width: 'sm', target: (round) => `#${round.id}` },
+  { id: 'district', header: 'reference', kind: 'reference', width: 'md', target: (round) => `#${round.district}` },
   {
     id      : 'driver',
     header  : 'person',
