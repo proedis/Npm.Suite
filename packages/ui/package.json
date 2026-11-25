@@ -82,6 +82,7 @@
       "forms/checkbox-grid",
       "forms/combobox",
       "forms/date-picker",
+      "forms/duration-input",
       "forms/field",
       "forms/field-shell",
       "forms/file-upload",

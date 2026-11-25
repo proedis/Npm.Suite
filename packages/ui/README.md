@@ -780,7 +780,7 @@ its own peers; none of them is re-exported by the root barrel. Every module is c
 | `forms/field` | `Field`, `FIELD_SPAN`, `useFieldControl`, the types `FieldStatus` and `FieldControlState` |
 | `forms/field-shell` | `FieldShell`, the frame of every bordered control, the package's and yours |
 | `forms/text-input` | `TextInput` (`.Action`, `.Copy`) |
-| `forms/password-input` | `PasswordInput` |
+| `forms/password-input` | `PasswordInput`, with its `rules` and `strength`; `passwordRules`, `checkPassword` |
 | `forms/search-input` | `SearchInput` |
 | `forms/number-input` | `NumberInput` |
 | `forms/textarea` | `Textarea` |
@@ -791,6 +791,7 @@ its own peers; none of them is re-exported by the root barrel. Every module is c
 | `forms/combobox` | `Combobox`, one record or several (`multiple`) among results from the server |
 | `forms/date-picker` | `DatePicker`, a date typed or picked; needs `dayjs` |
 | `forms/range-date-picker` | `RangeDatePicker`, a period in one field; needs `dayjs` |
+| `forms/duration-input` | `DurationInput`, a duration in hours, minutes and seconds, as seconds; `durationFromTimeSpan`, `durationToTimeSpan` |
 | `forms/checkbox` | `Checkbox`, `CheckboxGroup` (with a computed parent box) |
 | `forms/checkbox-grid` | `CheckboxGrid`: boxes in sections that open and close, a row of parent boxes in each open group |
 | `forms/radio` | `RadioGroup`, `Radio` (classic or `variant="card"`) |
