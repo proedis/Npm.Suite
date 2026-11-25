@@ -59,9 +59,16 @@ export const TEXT_CONTROL_FRAME = [
   'not-has-[[data-popup-open]]:has-[[data-field-control]:focus]:ring-4',
   'not-has-[[data-popup-open]]:has-[[data-field-control]:focus]:ring-ring/20',
   'has-[[data-popup-open]]:border-ring has-[[data-popup-open]]:outline-1 has-[[data-popup-open]]:outline-solid has-[[data-popup-open]]:outline-ring',
+  /* A status keeps its colour under the focus: the border, the outline and the halo, not the grey of the ring */
   'data-invalid:has-[[data-field-control]:focus]:border-destructive data-invalid:has-[[data-popup-open]]:border-destructive',
+  'data-invalid:has-[[data-field-control]:focus]:outline-destructive data-invalid:has-[[data-popup-open]]:outline-destructive',
+  'data-invalid:has-[[data-field-control]:focus]:ring-destructive/20',
   'data-[status=warning]:has-[[data-field-control]:focus]:border-warning-soft-foreground',
-  'data-[status=success]:has-[[data-field-control]:focus]:border-success-soft-foreground'
+  'data-[status=warning]:has-[[data-field-control]:focus]:outline-warning-soft-foreground',
+  'data-[status=warning]:has-[[data-field-control]:focus]:ring-warning/20',
+  'data-[status=success]:has-[[data-field-control]:focus]:border-success-soft-foreground',
+  'data-[status=success]:has-[[data-field-control]:focus]:outline-success-soft-foreground',
+  'data-[status=success]:has-[[data-field-control]:focus]:ring-success/20'
 ].join(' ');
 
 
@@ -70,8 +77,11 @@ export const TEXT_CONTROL_SELF = [
   BASE,
   'outline-none',
   'focus:border-ring focus:outline-1 focus:outline-solid focus:outline-ring focus:ring-4 focus:ring-ring/20',
-  'data-invalid:focus:border-destructive',
-  'data-[status=warning]:focus:border-warning-soft-foreground data-[status=success]:focus:border-success-soft-foreground'
+  'data-invalid:focus:border-destructive data-invalid:focus:outline-destructive data-invalid:focus:ring-destructive/20',
+  'data-[status=warning]:focus:border-warning-soft-foreground data-[status=warning]:focus:outline-warning-soft-foreground',
+  'data-[status=warning]:focus:ring-warning/20',
+  'data-[status=success]:focus:border-success-soft-foreground data-[status=success]:focus:outline-success-soft-foreground',
+  'data-[status=success]:focus:ring-success/20'
 ].join(' ');
 
 

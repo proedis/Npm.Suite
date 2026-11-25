@@ -34,7 +34,8 @@ export const CHOICE_ROW = [
 /** The focus of a box, a circle or a track: 2px outline 2px away and a halo, keyboard only */
 export const CHOICE_FOCUS = [
   'outline-none focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring',
-  'focus-visible:ring-7 focus-visible:ring-ring/20'
+  'focus-visible:ring-7 focus-visible:ring-ring/20',
+  'data-invalid:focus-visible:outline-destructive data-invalid:focus-visible:ring-destructive/20'
 ].join(' ');
 
 /** Box, circle and track sit on the first line of the label: 16 on a line of 20 */
