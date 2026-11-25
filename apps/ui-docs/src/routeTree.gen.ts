@@ -51,6 +51,7 @@ import { Route as FormsNumberInputRouteImport } from './routes/forms/number-inpu
 import { Route as FormsOverviewRouteImport } from './routes/forms/overview'
 import { Route as FormsPasswordInputRouteImport } from './routes/forms/password-input'
 import { Route as FormsRadioRouteImport } from './routes/forms/radio'
+import { Route as FormsRangeDatePickerRouteImport } from './routes/forms/range-date-picker'
 import { Route as FormsSearchInputRouteImport } from './routes/forms/search-input'
 import { Route as FormsSelectRouteImport } from './routes/forms/select'
 import { Route as FormsSwitchRouteImport } from './routes/forms/switch'
@@ -301,6 +302,11 @@ const FormsRadioRoute = FormsRadioRouteImport.update({
   path: '/forms/radio',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FormsRangeDatePickerRoute = FormsRangeDatePickerRouteImport.update({
+  id: '/forms/range-date-picker',
+  path: '/forms/range-date-picker',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FormsSearchInputRoute = FormsSearchInputRouteImport.update({
   id: '/forms/search-input',
   path: '/forms/search-input',
@@ -542,6 +548,7 @@ export interface FileRoutesByFullPath {
   '/forms/overview': typeof FormsOverviewRoute
   '/forms/password-input': typeof FormsPasswordInputRoute
   '/forms/radio': typeof FormsRadioRoute
+  '/forms/range-date-picker': typeof FormsRangeDatePickerRoute
   '/forms/search-input': typeof FormsSearchInputRoute
   '/forms/select': typeof FormsSelectRoute
   '/forms/switch': typeof FormsSwitchRoute
@@ -625,6 +632,7 @@ export interface FileRoutesByTo {
   '/forms/overview': typeof FormsOverviewRoute
   '/forms/password-input': typeof FormsPasswordInputRoute
   '/forms/radio': typeof FormsRadioRoute
+  '/forms/range-date-picker': typeof FormsRangeDatePickerRoute
   '/forms/search-input': typeof FormsSearchInputRoute
   '/forms/select': typeof FormsSelectRoute
   '/forms/switch': typeof FormsSwitchRoute
@@ -709,6 +717,7 @@ export interface FileRoutesById {
   '/forms/overview': typeof FormsOverviewRoute
   '/forms/password-input': typeof FormsPasswordInputRoute
   '/forms/radio': typeof FormsRadioRoute
+  '/forms/range-date-picker': typeof FormsRangeDatePickerRoute
   '/forms/search-input': typeof FormsSearchInputRoute
   '/forms/select': typeof FormsSelectRoute
   '/forms/switch': typeof FormsSwitchRoute
@@ -794,6 +803,7 @@ export interface FileRouteTypes {
     | '/forms/overview'
     | '/forms/password-input'
     | '/forms/radio'
+    | '/forms/range-date-picker'
     | '/forms/search-input'
     | '/forms/select'
     | '/forms/switch'
@@ -877,6 +887,7 @@ export interface FileRouteTypes {
     | '/forms/overview'
     | '/forms/password-input'
     | '/forms/radio'
+    | '/forms/range-date-picker'
     | '/forms/search-input'
     | '/forms/select'
     | '/forms/switch'
@@ -960,6 +971,7 @@ export interface FileRouteTypes {
     | '/forms/overview'
     | '/forms/password-input'
     | '/forms/radio'
+    | '/forms/range-date-picker'
     | '/forms/search-input'
     | '/forms/select'
     | '/forms/switch'
@@ -1044,6 +1056,7 @@ export interface RootRouteChildren {
   FormsOverviewRoute: typeof FormsOverviewRoute
   FormsPasswordInputRoute: typeof FormsPasswordInputRoute
   FormsRadioRoute: typeof FormsRadioRoute
+  FormsRangeDatePickerRoute: typeof FormsRangeDatePickerRoute
   FormsSearchInputRoute: typeof FormsSearchInputRoute
   FormsSelectRoute: typeof FormsSelectRoute
   FormsSwitchRoute: typeof FormsSwitchRoute
@@ -1381,6 +1394,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FormsRadioRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/forms/range-date-picker': {
+      id: '/forms/range-date-picker'
+      path: '/forms/range-date-picker'
+      fullPath: '/forms/range-date-picker'
+      preLoaderRoute: typeof FormsRangeDatePickerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/forms/search-input': {
       id: '/forms/search-input'
       path: '/forms/search-input'
@@ -1700,6 +1720,7 @@ const rootRouteChildren: RootRouteChildren = {
   FormsOverviewRoute: FormsOverviewRoute,
   FormsPasswordInputRoute: FormsPasswordInputRoute,
   FormsRadioRoute: FormsRadioRoute,
+  FormsRangeDatePickerRoute: FormsRangeDatePickerRoute,
   FormsSearchInputRoute: FormsSearchInputRoute,
   FormsSelectRoute: FormsSelectRoute,
   FormsSwitchRoute: FormsSwitchRoute,

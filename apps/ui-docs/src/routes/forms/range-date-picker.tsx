@@ -135,8 +135,9 @@ function RangeDatePickerPage(): React.ReactNode {
           />
           <Prose>
             <p>
-              The slots are the DatePicker’s, with <InlineCode>data-mode="range"</InlineCode> on the wrapper, so one
-              stylesheet reaches both and a rule can still tell them apart.
+              The slots are the DatePicker’s, with <InlineCode>data-mode</InlineCode> at{' '}
+              <InlineCode>range</InlineCode> on the wrapper, so one stylesheet reaches both and a rule can still tell
+              them apart.
             </p>
           </Prose>
         </Section>

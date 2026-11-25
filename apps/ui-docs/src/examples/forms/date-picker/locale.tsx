@@ -19,9 +19,7 @@ const labels: DatePickerLabels = {
   chooseMonth  : 'Scegli il mese',
   chooseYear   : 'Scegli l’anno',
   previousYears: 'Anni precedenti',
-  nextYears    : 'Anni successivi',
-  pickEnd      : (from) => `Dal ${from} · scegli la fine`,
-  rangeSummary : (from, to, days) => `Dal ${from} al ${to} · ${days} ${days === 1 ? 'giorno' : 'giorni'}`
+  nextYears    : 'Anni successivi'
 };
 
 

@@ -2,8 +2,7 @@ import * as React from 'react';
 
 import { createFileRoute } from '@tanstack/react-router';
 
-import dateModeProps from 'virtual:ui-props/DateModeProps';
-import rangeModeProps from 'virtual:ui-props/RangeModeProps';
+import datePickerProps from 'virtual:ui-props/StrictDatePickerProps';
 import themeDoc from 'virtual:ui-theme/forms/date-picker';
 import { Callout } from '@/docs/Callout';
 import { CodeBlock } from '@/docs/CodeBlock';
@@ -20,8 +19,6 @@ import inContext from '@/examples/forms/date-picker/in-context.tsx?example';
 import labels from '@/examples/forms/date-picker/labels.ts?source';
 import limits from '@/examples/forms/date-picker/limits.tsx?example';
 import locale from '@/examples/forms/date-picker/locale.tsx?example';
-import openRange from '@/examples/forms/date-picker/open-range.tsx?example';
-import range from '@/examples/forms/date-picker/range.tsx?example';
 import states from '@/examples/forms/date-picker/states.tsx?example';
 import validity from '@/examples/forms/date-picker/validity.tsx?example';
 import { pageAt } from '@/nav';
@@ -32,9 +29,6 @@ import { pageAt } from '@/nav';
  * -------- */
 
 const PAGE = pageAt('/forms/date-picker');
-
-/** What the period adds to the shared props, which the date table already lists */
-const RANGE_OWN = rangeModeProps.filter((prop) => [ 'mode', 'value', 'defaultValue', 'onValueChange', 'allowOpenRange' ].includes(prop.name));
 
 
 /* --------
@@ -48,14 +42,15 @@ function DatePickerPage(): React.ReactNode {
         page={PAGE}
         lead={(
           <React.Fragment>
-            A date or a period, typed or picked. The separators arrive on their own while typing, the button at the
-            end opens a calendar, and a period is one field with both dates in it. The value is a string,{' '}
-            <InlineCode>2026-11-16</InlineCode>, never a <InlineCode>Date</InlineCode>.
+            A date, typed or picked. The separators arrive on their own while typing, the button at the end opens a
+            calendar, and the value is a string, <InlineCode>2026-11-16</InlineCode>, never a{' '}
+            <InlineCode>Date</InlineCode>. A period is <InlineCode>RangeDatePicker</InlineCode>, which shares everything
+            else.
           </React.Fragment>
         )}
         imports={tsx`
           import { DatePicker } from '@proedis/ui/forms/date-picker';
-          import type { DatePickerLabels, DateRange, DateValidity, DayMeta } from '@proedis/ui/forms/date-picker';
+          import type { DatePickerLabels, DateValidity, DayMeta } from '@proedis/ui/forms/date-picker';
         `}
       />
 
@@ -78,38 +73,6 @@ function DatePickerPage(): React.ReactNode {
             value is the ISO day, <InlineCode>2026-11-16</InlineCode>, in and out, and nothing in the field converts
             it to a moment in time.
           </Callout>
-        </Section>
-
-        <Section
-          title={'A period'}
-          lead={(
-            <React.Fragment>
-              <InlineCode>{'mode={\'range\'}'}</InlineCode> holds both dates in one field, “09/11/2026 – 22/11/2026”, and
-              one calendar. The first click picks the start, the second the end, with a preview under the pointer;
-              closing after one click gives back the period there was. The value is{' '}
-              <InlineCode>{'{ from, to }'}</InlineCode>.
-            </React.Fragment>
-          )}
-        >
-          <Example of={range} />
-          <Prose>
-            <p>
-              The end typed before the start is reported, never swapped: someone who typed it that way may have meant
-              something else, and only they know what.
-            </p>
-          </Prose>
-
-          <SubSection
-            title={'Open periods'}
-            lead={(
-              <React.Fragment>
-                In a filter one end may stay empty, “since” or “until”: <InlineCode>allowOpenRange</InlineCode> accepts
-                it. Without it a period with one end is reported as <InlineCode>open</InlineCode>.
-              </React.Fragment>
-            )}
-          >
-            <Example of={openRange} />
-          </SubSection>
         </Section>
 
         <Section
@@ -142,9 +105,7 @@ function DatePickerPage(): React.ReactNode {
             rows={[
               [ <InlineCode key={'c'}>incomplete</InlineCode>, <React.Fragment key={'w'}>A part is missing, named in <InlineCode>missing</InlineCode>: day, month or year.</React.Fragment> ],
               [ <InlineCode key={'c'}>impossible</InlineCode>, 'The date does not exist: 31 February.' ],
-              [ <InlineCode key={'c'}>outOfRange</InlineCode>, 'Before min or after max. The value is kept.' ],
-              [ <InlineCode key={'c'}>order</InlineCode>, 'A period whose end comes before its start.' ],
-              [ <InlineCode key={'c'}>open</InlineCode>, 'A period with one end only, without allowOpenRange.' ]
+              [ <InlineCode key={'c'}>outOfRange</InlineCode>, 'Before min or after max. The value is kept.' ]
             ]}
           />
         </Section>
@@ -176,7 +137,7 @@ function DatePickerPage(): React.ReactNode {
 
         <Section
           title={'In context'}
-          lead={'Suspending a service: a period that cannot start in the past.'}
+          lead={'Moving a collection: a date that cannot be in the past.'}
         >
           <Example of={inContext} />
         </Section>
@@ -185,8 +146,7 @@ function DatePickerPage(): React.ReactNode {
           <Prose>
             <p>
               The text is the control, and the label of its <InlineCode>Field</InlineCode> names it. The format, “dd/mm/yyyy”,
-              shows in the empty field. The calendar is a grid of buttons with the arrows of a grid, and the footer says in
-              words what is chosen, so a period is read as one sentence.
+              shows in the empty field. The calendar is a grid of buttons with the arrows of a grid.
             </p>
           </Prose>
           <DocTable
@@ -240,9 +200,9 @@ function DatePickerPage(): React.ReactNode {
         </Section>
 
         <Section title={'API'}>
-          <SubSection title={'A date'} id={'api-date'}>
+          <SubSection title={'DatePicker'} id={'api-date-picker'}>
             <PropsTable
-              props={dateModeProps}
+              props={datePickerProps}
               rest={(
                 <React.Fragment>
                   The wrapper takes <InlineCode>className</InlineCode> and the shared props; every other prop an{' '}
@@ -253,9 +213,6 @@ function DatePickerPage(): React.ReactNode {
               )}
             />
           </SubSection>
-          <SubSection title={'A period'} id={'api-range'}>
-            <PropsTable props={RANGE_OWN} rest={'Every other prop is the one of a date, above.'} />
-          </SubSection>
         </Section>
 
         <Section title={'Guidelines'}>
@@ -265,8 +222,8 @@ function DatePickerPage(): React.ReactNode {
               time and a zone the value never had.
             </Guidance>
             <Guidance kind={'dont'} title={'Two fields for a period'}>
-              A start and an end in two fields drift apart and allow an end before the start. One field with
-              <InlineCode>mode={'\'range\''}</InlineCode> keeps the period together.
+              A start and an end in two fields drift apart and allow an end before the start. One{' '}
+              <InlineCode>RangeDatePicker</InlineCode> keeps the period together.
             </Guidance>
             <Guidance kind={'do'} title={'Name the holidays'}>
               A muted day with its name tells why a date is unusual without forbidding it.

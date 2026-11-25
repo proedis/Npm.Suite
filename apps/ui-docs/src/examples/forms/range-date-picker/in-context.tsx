@@ -2,11 +2,11 @@ import * as React from 'react';
 
 import { Button } from '@proedis/ui/actions/button';
 import { Surface } from '@proedis/ui/display/surface';
-import { DatePicker } from '@proedis/ui/forms/date-picker';
 import { Field } from '@proedis/ui/forms/field';
+import { RangeDatePicker } from '@proedis/ui/forms/range-date-picker';
 import { Stack } from '@proedis/ui/layout';
 
-import type { DateRange } from '@proedis/ui/forms/date-picker';
+import type { DateRange } from '@proedis/ui/forms/range-date-picker';
 import labels from './labels';
 
 
@@ -30,7 +30,7 @@ export default function Example(): React.ReactNode {
             label={'Suspend the service'}
             description={'The bins are not emptied in these days, both included.'}
           >
-            <DatePicker mode={'range'} locale={'en-GB'} min={todayIso()} value={suspension} onValueChange={setSuspension} labels={labels} />
+            <RangeDatePicker locale={'en-GB'} min={todayIso()} value={suspension} onValueChange={setSuspension} labels={labels} />
           </Field>
         </Stack>
       </Surface.Section>
