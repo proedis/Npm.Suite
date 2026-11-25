@@ -17,9 +17,11 @@ import { DocTable, PropsTable } from '@/docs/Tables';
 import actions from '@/examples/feedback/alert/actions.tsx?example';
 import basic from '@/examples/feedback/alert/basic.tsx?example';
 import dismiss from '@/examples/feedback/alert/dismiss.tsx?example';
+import icon from '@/examples/feedback/alert/icon.tsx?example';
 import live from '@/examples/feedback/alert/live.tsx?example';
 import sizes from '@/examples/feedback/alert/sizes.tsx?example';
 import tones from '@/examples/feedback/alert/tones.tsx?example';
+import variants from '@/examples/feedback/alert/variants.tsx?example';
 import { pageAt } from '@/nav';
 
 
@@ -58,8 +60,8 @@ function AlertPage(): React.ReactNode {
           title={'Tones'}
           lead={(
             <React.Fragment>
-              The tone is in the box and, for <InlineCode>warning</InlineCode> and <InlineCode>destructive</InlineCode>,
-              in the line around the card too; the text stays black and grey. The two severe tones always have a{' '}
+              Four tones, in the box of the icon on a flat alert and in the whole alert on a fill. The two severe tones
+              always have a{' '}
               <InlineCode>title</InlineCode> and a <InlineCode>toneLabel</InlineCode>, by the type. The mild ones,{' '}
               <InlineCode>info</InlineCode> and <InlineCode>success</InlineCode>, may go without.
             </React.Fragment>
@@ -73,6 +75,39 @@ function AlertPage(): React.ReactNode {
               of it, so it comes from your translations.
             </p>
           </Prose>
+        </Section>
+
+        <Section
+          title={'Variants'}
+          lead={(
+            <React.Fragment>
+              <InlineCode>flat</InlineCode>, the default, has no surface, no line and no room around it: the alert of a
+              card, a section, a dialog, where the box of the icon carries the tone and the text stays the page’s.{' '}
+              <InlineCode>soft</InlineCode> fills the alert with the soft of the tone and writes the icon, the title and
+              the text in its ink; <InlineCode>solid</InlineCode> fills it with the tone and writes in its foreground.
+            </React.Fragment>
+          )}
+        >
+          <Example of={variants} />
+          <Prose>
+            <p>
+              On <InlineCode>soft</InlineCode> the ink is the soft ink of the tone, <InlineCode>--warning-soft-foreground</InlineCode>{' '}
+              & co., which falls back to the tone itself: a product whose yellow is too light on its pale fill darkens
+              that one variable, and every soft warning of the interface follows.
+            </p>
+          </Prose>
+        </Section>
+
+        <Section
+          title={'Icon'}
+          lead={(
+            <React.Fragment>
+              The mark of the tone by default. <InlineCode>icon</InlineCode> takes an icon of yours, in the box of the tone
+              on a flat alert, bare in the ink of a filled one; <InlineCode>{'icon={false}'}</InlineCode> takes it away.
+            </React.Fragment>
+          )}
+        >
+          <Example of={icon} />
         </Section>
 
         <Section
@@ -112,8 +147,8 @@ function AlertPage(): React.ReactNode {
           title={'Sizes'}
           lead={(
             <React.Fragment>
-              <InlineCode>md</InlineCode> on the page background, with a shadow; <InlineCode>sm</InlineCode> inside a
-              card, a drawer or a dialog, with a line, where a shadow on a white surface would float.
+              <InlineCode>md</InlineCode> in a page, <InlineCode>sm</InlineCode> inside a card, a drawer or a dialog: a
+              smaller icon and, on a fill, less room around the text.
             </React.Fragment>
           )}
         >
@@ -179,8 +214,8 @@ function AlertPage(): React.ReactNode {
         <Section title={'Slots and data attributes'} lead={'Every part a stylesheet can reach, and what each one reports.'}>
           <SlotsInspector of={actions}
             rows={[
-              { slot: 'alert', part: 'The card', attributes: [ 'data-tone', 'data-size' ] },
-              { slot: 'alert-icon', part: 'The coloured box of the icon', attributes: [ 'data-tone', 'data-fill', 'data-size' ] },
+              { slot: 'alert', part: 'The alert', attributes: [ 'data-tone', 'data-size', 'data-variant' ] },
+              { slot: 'alert-icon', part: 'The icon, in a box of the tone on a flat alert', attributes: [ 'data-tone', 'data-fill', 'data-size' ] },
               { slot: 'alert-body', part: 'The text and the action' },
               { slot: 'alert-title', part: 'The title' },
               { slot: 'alert-text', part: 'The text' },
