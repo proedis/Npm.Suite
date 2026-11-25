@@ -774,6 +774,7 @@ its own peers; none of them is re-exported by the root barrel. Every module is c
 | `feedback/alert` | `Alert` |
 | `feedback/empty-state` | `EmptyState`, at most two actions |
 | `feedback/notifications` | `createNotifications`, `NotificationsProvider`, `JobsButton` |
+| `feedback/progress-bar` | `ProgressBar`, how far a piece of work has gone, and `Meter`, a quantity in a range: one bar |
 | `forms/form` | `Form` (`.Header`, `.ErrorSummary`, `.Section`, `.Footer`, `.Submit`, `.Cancel`), `FormSubmit`, `FormCancel` |
 | `forms/field` | `Field`, `FIELD_SPAN`, `useFieldControl`, the types `FieldStatus` and `FieldControlState` |
 | `forms/field-shell` | `FieldShell`, the frame of every bordered control, the package's and yours |
@@ -973,6 +974,13 @@ What is worth knowing before using them:
   editable items only. Tab goes from header to header and enters each open grid once, the arrows move
   inside. `locked` columns are decided by the system, `savedValue` marks the boxes and groups that
   changed, every change is announced, `readOnly` is for consultation.
+- **A bar that says how far, or how much.** `ProgressBar` (Base UI's `Progress`) and `Meter` (its `Meter`)
+  are one implementation: `size` `xs` to `xl`, `radius` (`--progress-radius`, round), `track` (the ground,
+  `--progress-track` or the soft of the tone), the seven tones, `valuePosition` (`top`, `end`, `inside` from
+  `lg`, `floating`, `none`), `showBounds`. Numbers go through `Intl.NumberFormat` (a percentage of the
+  range by default, `format` for a unit or a currency) and `valueText` adds words around them; a change of
+  value slides, `null` runs a segment across a ProgressBar, heard through `indeterminateLabel`. A bar is
+  named by `label` or `aria-label`, by the type.
 - **The filters hold no value either.** `FiltersBar` takes each filter's value and change from the
   page: a list (one value or several), a list searched on the server (the panel of the Combobox),
   a period from the calendar alone. The buttons never shrink: the ones that do not fit go into "More

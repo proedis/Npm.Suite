@@ -255,6 +255,24 @@ renders one (Button, Menu, Person, the cells of the table, the notifications) re
 page load; a `LinkDestination`'s own `go` always wins. Verified on the site: a string navigates with the
 document kept, the long form runs its `go`.
 
+**`ProgressBar` and `Meter` are one implementation on two primitives** (Marco, 2026-11-25: a real
+component, not a bar with `min`, `max` and `value`). What a screen reader hears is the only difference,
+`progressbar` or `meter`, so the choice is in the name, and a Meter is never indeterminate by its type.
+Three choices that look improvable and are not:
+
+- **The numbers are formatted here, with Base UI's rule** (with `format` the value, without it the
+  percentage of the range), because the bounds, the bubble and the copy on the fill need the same string
+  Base UI writes for `aria-valuetext`. The written value is `aria-hidden`: the root already says it.
+  Base UI's own text for an indeterminate bar is English, so it is replaced by `indeterminateLabel`, or
+  dropped.
+- **Inside, the value is written twice**, centred on the whole track: once in the ink of the track, once in
+  the ink of the fill inside the fill, as wide as the track (`10000 / percentage` %, an inline style, a free
+  measure). The fill clips the second, so the text changes colour where the fill passes and reads at any
+  value. `inside` needs `lg` or `xl`, a union of the props: a smaller track does not compile with it.
+- **The bubble of `floating` moves by its own share** (`inset-inline-start: p%` and `translateX(-p%)`), so it
+  is centred in the middle and flush with the bar at both ends, with no measurement. After the bar, the
+  value column holds an invisible copy of the largest value, so the bar does not move as the number grows.
+
 Two engines under one look, on purpose: `Select` and `MultiSelect` run on Base UI's `Select` up to
 `searchThreshold` and on its `Combobox` past it, because a Select cannot hold a search. Never switch
 engine while a list is open.

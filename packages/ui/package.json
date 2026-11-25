@@ -76,6 +76,7 @@
       "feedback/alert",
       "feedback/empty-state",
       "feedback/notifications",
+      "feedback/progress-bar",
       "forms/checkbox",
       "forms/checkbox-grid",
       "forms/combobox",

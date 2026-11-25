@@ -20,6 +20,7 @@ import { AlertDialog } from './src/overlays/alert-dialog';
 import { Button, IconButton } from './src/actions/button';
 import { Dialog } from './src/overlays/dialog';
 import { EmptyState } from './src/feedback/empty-state';
+import { Meter, ProgressBar } from './src/feedback/progress-bar';
 import { Drawer } from './src/overlays/drawer';
 import { Checkbox, CheckboxGroup } from './src/forms/checkbox';
 import { Combobox } from './src/forms/combobox';
@@ -254,6 +255,27 @@ const dotWithChildren = <BadgeDot>3</BadgeDot>;
 
 /** @ts-expect-error an avatar's corner is a step, not a length */
 const avatarRadiusLength = <Avatar kind={'system'} name={'Import'} radius={12} />;
+
+/* --------
+ * A bar has a name, a meter a value, and the value inside a bar needs its room
+ * -------- */
+const progressBars = (
+  <Stack>
+    <ProgressBar label={'Stops'} value={29} max={38} valuePosition={'end'} showBounds />
+    <ProgressBar aria-label={'Import'} value={null} indeterminateLabel={'Waiting'} />
+    <ProgressBar label={'Upload'} value={40} size={'lg'} valuePosition={'inside'} />
+    <Meter label={'Load'} value={14200} max={18000} format={{ style: 'unit', unit: 'kilogram' }} />
+  </Stack>
+);
+
+/** @ts-expect-error inside the bar only from lg: a smaller track has no room for a line of text */
+const insideTooSmall = <ProgressBar label={'Upload'} value={40} size={'md'} valuePosition={'inside'} />;
+
+/** @ts-expect-error a bar is named: a label, an aria-label or an aria-labelledby */
+const unnamedBar = <ProgressBar value={40} />;
+
+/** @ts-expect-error a meter measures something that is there: never indeterminate */
+const unknownMeter = <Meter label={'Load'} value={null} />;
 
 /* --------
  * A link is an address, or an address that knows how to go there
@@ -567,6 +589,7 @@ const multiplePendingEnter = (
 export const CHECKED = [
   badges, titleWithBadge, badgeWrongTone, badgeWrongFill, badgeNoDefault,
   chromeDefaults, iconBoxNoDefault, titleNoDefault, itemNoDefault, spinnerNoDefault,
+  progressBars, insideTooSmall, unnamedBar, unknownMeter,
   presence, dotWrongSize, dotWithChildren, avatarRadiusLength,
   linkAsString, linkAsDestination, linkWithoutHref, linkAsNumber,
   card, noOpinion, modalSurface, wrongLoadingLabel, oldElevation, wrongGroupGap,

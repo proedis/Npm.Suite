@@ -307,6 +307,8 @@
   --radius-accordion: var(--accordion-radius, var(--radius-lg));
   --radius-loading-bar: var(--loading-bar-radius, 0px);
   --radius-avatar: var(--avatar-radius, calc(infinity * 1px));
+  --radius-progress: var(--progress-radius, calc(infinity * 1px));
+  --color-progress-track: var(--progress-track, var(--muted));
   --gap-accordion: var(--accordion-gap, var(--space-sm));
   --color-accordion-filled: var(--accordion-filled-background, var(--muted));
   --color-accordion-item: var(--accordion-item-background, var(--muted));
