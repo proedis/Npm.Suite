@@ -15,33 +15,41 @@ both.** 📐
 
 ## ✨ What's in the box
 
-Twenty-seven primitives, the interactive components, the machinery behind them, and the stylesheet
-they read:
+The layout primitives, the components on top of them, the stylesheet they read, and the machinery
+behind all of it, in sections that build on each other:
 
 ```ts
-import { Stack, Divider } from '@proedis/ui';              // everything except hooks and interactive
-import { Stack } from '@proedis/ui/layout';                // …or say which tier you are in
-import { Divider } from '@proedis/ui/components';
+import { Stack, Surface } from '@proedis/ui';                 // core, layout, primitives, static display
+import { Stack } from '@proedis/ui/layout';                   // …or say which section you are in
+import { Divider } from '@proedis/ui/primitives';
 import { cn, type Responsive } from '@proedis/ui/core';
-import { useIsMobile } from '@proedis/ui/hooks';           // client-only, its own entry point
-import { Button } from '@proedis/ui/interactive/button';   // one subpath per interactive component
+import { useIsMobile } from '@proedis/ui/hooks';              // client-only, its own entry point
+import { Button } from '@proedis/ui/actions/button';          // one subpath per component above primitives
+import { Dialog } from '@proedis/ui/overlays/dialog';
 ```
 
-`core` holds **no JSX**: the class machinery, the shared props and the types. `layout` answers *where
-things are*, `components` answers *what they look like*, and `hooks` is the client-only half. 🧱
+| Section | Subpath | What it answers |
+| --- | --- | --- |
+| **core** | `@proedis/ui/core` | the class machinery, the shared props, the responsive types, the tones. **No JSX** |
+| **layout** | `@proedis/ui/layout` | *where things are*: `Box` · `Stack` · `Cluster` · `Grid` · `Center` · `Container` · `Split` · `Spacer` · `Sticky` · `AspectRatio` · `Bleed` · `SafeArea` |
+| **primitives** | `@proedis/ui/primitives` | the small pieces with a look: `BusyVeil` · `Divider` · `Label` · `LoadingBar` · `ScrollArea` · `Skeleton` · `Spinner` · `VisuallyHidden` |
+| **display** | `@proedis/ui/display/<name>` | what things look like: `Badge` · `BadgeCounter` · `BadgeDot` · `Heading` · `IconBox` · `Item` · `LabeledContent` · `Surface`, and `Person` on Base UI |
+| **actions** | `@proedis/ui/actions/<name>` | what a user presses: `Accordion` · `Button` · `IconButton` · `CopyButton` · `Menu` · `SegmentedControl` · `Tabs` · `Toggle` · `Tooltip` |
+| **feedback** | `@proedis/ui/feedback/<name>` | what the interface says back: `Alert` · `EmptyState` · notifications |
+| **forms** | `@proedis/ui/forms/<name>` | `Form`, `Field` and every control |
+| **overlays** | `@proedis/ui/overlays/<name>` | `Dialog` · `Drawer` · `AlertDialog` · `Popover` |
+| **data** | `@proedis/ui/data/<name>` | `Table` · `FiltersBar` · `ModalSelector` · `Detail` |
+| **hooks** | `@proedis/ui/hooks` | `useBreakpoint`, `useIsMobile`, client-only; the generic ones (`useMediaQuery`, `useDelayedBusy`, `useOverflowItems`…) are in `@proedis/react` |
+| **tokens** | `@proedis/ui` (CSS) | the full vocabulary, or the five tokens of the layout through `ui.css` |
 
-| | |
-| --- | --- |
-| **Layout** | `Box` · `Stack` · `Grid` · `Cluster` · `Center` · `Container` · `Split` · `Spacer` · `Sticky` · `AspectRatio` |
-| **Visibility** | `hideBelow` / `hideFrom` on every primitive, plus `VisuallyHidden` |
-| **Escapes** | `Bleed` · `SafeArea` — out of a padding, and out of the notch |
-| **Components** | `Surface` · `Item` · `Heading` · `Badge` · `BadgeCounter` · `IconBox` · `Spinner` · `Skeleton` · `LoadingBar` · `BusyVeil` · `Divider` · `ScrollArea` · `Label` · `LabeledContent` |
-| **Responsive** | `Responsive<T>`, the typed scales, and the class builders behind every prop |
-| **Utilities** | `cn` — class composition where the last conflicting utility wins |
-| **Types** | `PolymorphicProps` — `as` typed by the element it renders, not by `div` |
-| **Hooks** | `useMediaQuery`, `useBreakpoint`, `useIsMobile`, `usePrefersReducedMotion`, `useDelayedBusy`, `useOverflowItems` |
-| **Interactive** | `Tooltip` · `Button` · `IconButton` · `Form` · `Field` · `TextInput` · `PasswordInput` · `SearchInput` · `Textarea` · `NumberInput` · `Checkbox` · `RadioGroup` · `Switch` · `Select` · `MultiSelect` · `Combobox` · `DatePicker` · `FileUpload` · `AttachmentList` · `Toggle` · `ToggleGroup` · `SegmentedControl` · `Popover` · `Menu` · `Dialog` · `AlertDialog` · `Drawer` · `Alert` · `EmptyState` · `Tabs` · `Avatar` · `AvatarGroup` · `Person` · notifications (`NotificationsProvider`, `JobsButton`), on Base UI |
-| **Tokens** | a five token contract, or the **full vocabulary** through `theme.css` |
+Each section imports only from the ones above it in this table, and every container of every
+component is a layout primitive: a lint rule checks both. 🧱 The package root re-exports core, layout,
+primitives and the static display components, so `@proedis/ui` alone is enough to start and stays
+renderable from a React Server Component. Everything with behaviour lives on its own subpath, so each
+one brings only its own optional peers.
+
+📚 Every component has a page with live examples, the accessibility, the slots and the generated API
+in the documentation site, the UI section of `apps/platform` in this repository: `yarn workspace @proedis/platform dev`.
 
 ## 📦 Installation
 
@@ -64,7 +72,7 @@ That single line does three things: it lets Tailwind see the classes this packag
 the **full token contract**, and it declares neutral defaults for all of it. Nothing else to configure:
 no safelist to copy, no `@source` to add.
 
-The full contract is the default because the `components` tier reads it — `IconBox` alone needs
+The full contract is the default because the components read it: `IconBox` alone needs
 `primary`, `secondary`, `success`, `warning`, `destructive` and `info`. A project that wants **only**
 the layout tier and its five tokens asks for the narrower sheet by name:
 
@@ -77,11 +85,11 @@ One or the other, never both: the full sheet imports the narrow one itself. See
 
 | Peer | Range |
 | --- | --- |
-| `react` | `>=18.0.0 <20.0.0` |
+| `react` | `>=19.0.0 <20.0.0` |
 | `tailwindcss` | `^4.1.5` |
-| `@base-ui/react` | `^1.7.0`, **optional**: only for the `interactive/*` subpaths |
-| `dayjs` | `^1.11.0`, **optional**: only for `interactive/date-picker`, `interactive/filters-bar` and `interactive/modal-selector`, with the locale loaded by the application |
-| `@tanstack/react-table` | `^9.3.1`, **optional**: only for `interactive/table` |
+| `@base-ui/react` | `^1.7.0`, **optional**: for `display/person` and every subpath of actions, feedback, forms, overlays and data |
+| `dayjs` | `^1.11.0`, **optional**: only for `forms/date-picker`, `forms/range-date-picker`, `data/filters-bar` and `data/modal-selector`, with the locale loaded by the application |
+| `@tanstack/react-table` | `^9.3.1`, **optional**: only for `data/table` |
 
 ⚠️ The stylesheet uses Tailwind directives. Loaded as a plain `<link>` it does nothing — it has to be
 imported where Tailwind compiles.
@@ -92,12 +100,12 @@ imported where Tailwind compiles.
 import { Cluster, Container, Divider, Stack } from '@proedis/ui';
 
 <Container size={'lg'}>
-  <Stack gap={6}>
-    <Cluster gap={2}>{filters}</Cluster>
+  <Stack gap={'lg'}>
+    <Cluster>{filters}</Cluster>
 
     <Divider />
 
-    <Stack direction={{ base: 'vertical', lg: 'horizontal' }} gap={{ base: 4, lg: 8 }} divided>
+    <Stack direction={{ base: 'vertical', lg: 'horizontal' }} gap={{ base: 'md', lg: 'xl' }} divided>
       {panels}
     </Stack>
   </Stack>
@@ -105,26 +113,78 @@ import { Cluster, Container, Divider, Stack } from '@proedis/ui';
 ```
 
 Every spacing, direction and column prop takes **one value or one per breakpoint**, mobile first:
-`base` carries no prefix and applies until a wider breakpoint overrides it.
+`base` carries no prefix and applies until a wider breakpoint overrides it. A spacing is a step of the
+scale **by name**, `xs` to `2xl`, and a theme retunes each name with one variable.
 
 ## 📖 API
 
-### The responsive scale is a type
+### The spacing scale, by name
 
 ```tsx
-<Stack gap={4} />        // ok
-<Stack gap={13} />       // does not compile
+<Stack gap={'md'} />                     // a step of the scale: the default
+<Stack gap={{ base: 'sm', lg: 'lg' }} /> // per breakpoint
+<Stack gap={0} />                        // children that touch
+<Stack gap={3} />                        // a Tailwind step, for the length no name covers
+<Stack gap={'3xl'} />                    // does not compile
+<Stack gap={13} />                       // does not compile
 ```
 
-That is the whole reason `gap` is not a `number`. The classes these props build are declared once in
-the stylesheet, so a value outside the scale would produce a class with **no CSS behind it** — a
-component silently losing its gap, with no error anywhere. The scale:
+Six names, each a variable of the theme. The defaults are Tailwind's own steps, so `md` is `gap-4`:
+
+| Name | `xs` | `sm` | `md` | `lg` | `xl` | `2xl` |
+| --- | --- | --- | --- | --- | --- | --- |
+| Tailwind step | 1 | 2 | 4 | 6 | 8 | 12 |
+| Default | 0.25rem | 0.5rem | 1rem | 1.5rem | 2rem | 3rem |
+
+Every spacing prop takes them: the `gap` of `Stack`, `Cluster`, `Grid`, `Split`, `Item` and
+`Heading`, the `inset` of `Bleed`, the `offset` of `Sticky`. So do
+five families of classes, for what a prop does not cover: `gap-md`, `p-md` and its sides, `m-md` and
+`-mx-md`, `top-md` and the other insets, `h-md`. One vocabulary in the props and in the classes.
+
+```css
+:root {
+  --space-md: 1.25rem;   /* every gap, padding and inset named md, at once */
+}
+```
+
+The class carries the variable itself, `gap: var(--space-md)`, so an element that redeclares the scale
+changes only what is inside it: a denser toolbar or table panel, with no prop changed in it.
+
+A number is a Tailwind step, still accepted, and it is a measure written in the code: it does **not**
+move with the theme. Prefer the names, and keep a number for the one place no name fits.
+
+⚠️ The names are not `--spacing-md` in Tailwind's theme, which would have been one line: the width
+utilities read `--spacing-*` before `--container-*`, so `max-w-md` would turn from 28rem into 1rem in
+your application. They go through the keys each property reads first (`--gap-*`, `--padding-*`,
+`--margin-*`, `--inset-*`, `--height-*`), and every utility Tailwind already had keeps its value.
+
+Both kinds of value are a union, never a `number`: the classes these props build are declared once in
+the stylesheet, so a value outside the scale would produce a class with **no CSS behind it**, a
+component silently losing its gap with no error anywhere.
 
 | Prop | Values |
 | --- | --- |
-| `gap` (`SpacingValue`) | 0 · 0.5 · 1 · 1.5 · 2 · 2.5 · 3 · 3.5 · 4 · 5 · 6 · 7 · 8 · 9 · 10 · 12 · 14 · 16 |
+| `gap`, `space`, `inset`, `offset` (`Spacing`) | `xs` · `sm` · `md` · `lg` · `xl` · `2xl`, or a `SpacingValue`: 0 · 0.5 · 1 · 1.5 · 2 · 2.5 · 3 · 3.5 · 4 · 5 · 6 · 7 · 8 · 9 · 10 · 12 · 14 · 16 |
 | `columns` (`ColumnsValue`) | 1 → 12 |
 | breakpoints | `base` · `sm` · `md` · `lg` · `xl` · `2xl` |
+
+### One height per control size
+
+A control is anything you type into, pick from or press, and every one of them takes the same three
+sizes, `sm`, `md` and `lg` (`ControlSize`). **Two controls of the same size have the same height**,
+whatever they are: a `TextInput`, a `Select`, a `DatePicker`, a `SegmentedControl`, a `Toggle`, an
+`IconButton` and a `Button` at `md`, side by side, line up on both edges.
+
+| Size | Height | Under a finger |
+| --- | --- | --- |
+| `sm` | 2rem | 2.25rem |
+| `md` | 2.25rem | 2.5rem |
+| `lg` | 2.5rem | 2.75rem |
+
+Each height is one variable, `--spacing-control-md`, so retuning it moves every control of that size.
+Inside the package it is written in one place and the lint of the repository rejects it anywhere
+else, which is what keeps a new control from being a step off. A control of your own reads the same
+height through the class `h-control-md`, or wears `FieldShell`.
 
 ### Two props every primitive takes
 
@@ -196,7 +256,7 @@ The workhorse. Children on an axis, with a responsive direction, gap and optiona
 | --- | --- |
 | `direction` | `vertical` (default) or `horizontal`. Responsive |
 | `columns` | equal columns. Declaring it switches to a grid, and `direction` no longer applies. Responsive |
-| `gap` | responsive |
+| `gap` | a step of the scale, `md` by default. Responsive. `0` for children that touch |
 | `divided` | a hairline between children, **following the active axis** |
 | `align` / `justify` | `items-*` / `justify-*`. Responsive, which is what lets alignment follow a `direction` that changes |
 | `wrap` | let a horizontal stack wrap |
@@ -224,9 +284,11 @@ for when the count per breakpoint *is* the design.
 | `Spacer` | the flexible filler that pushes siblings apart. `aria-hidden`, because it carries nothing |
 | `Sticky` | pins to an edge of the nearest scroll container. ⚠️ does nothing when an ancestor clips its overflow |
 | `AspectRatio` | holds an image, a map, a video or an embed at a fixed ratio |
-| `Divider` | a standalone hairline, optionally with a centred caption |
-| `ScrollArea` | native overflow with a thin themed scrollbar. No dependency, no virtual scrollbar |
-| `Split` | the two pane frame: one pane of a fixed width, one taking the rest. `collapseBelow` stacks them |
+| `Divider` | a standalone line, optionally with a centred caption. `lineTone`, `lineWidth` (1, 2, 4px) and `lineStyle` (solid, dashed, dotted, double) shape the line; `spacing`, a responsive step of the scale, is the room across it, `0` by default so a divider in a Stack takes only the gap |
+| `ScrollArea` | native overflow with a themed scrollbar. `scrollbar`: `thin` (default), `hover` (transparent until hovered or focused) or `none`; `stableGutter` keeps the room of the bar where the system reserves one (Windows). No dependency, no virtual scrollbar. The same classes, `scrollbar-thin`, `scrollbar-hover`, `scrollbar-none`, `scrollbar-gutter-stable`, work on any element, `html` included |
+| `Split` | the two pane frame: one pane of a fixed width, one taking the rest. `collapseBelow` stacks them, `railHide` (responsive) hides the rail and gives the content the whole width, `railWidth` takes one width per breakpoint |
+| `Skeleton` | the shape of what is coming: `text` (one line of `size`, xs to 2xl, as tall as a line of that text; `lines` for a paragraph), `block` (sized by `className`), `pill`, `field`, `item` (the row of an `Item`) |
+| `LoadingBar` | the bar of a content that is updating. `lineWidth` (1 to 4px) and `lineTone` |
 | `Box` | any element with the shared props and nothing else: the bottom of the package |
 | `VisuallyHidden` | for a screen reader and not for the eye. `focusable` is the skip-link shape |
 | `Bleed` | escapes the parent's horizontal padding, so a band can reach the edge inside a padded page |
@@ -237,7 +299,7 @@ for when the count per breakpoint *is* the design.
 | `Badge` | a compact label: `fill × tone × size`, plus a leading `dot` |
 | `IconBox` | the frame around a single icon: `fill × tone × size`, plus `shape` and a `halo` |
 | `Spinner` | a CSS ring, no icon library. `label` makes it announced, its absence makes it decorative |
-| `Label` | the name of something, with an optional line of detail. Two emphases, `strong` and `quiet` |
+| `Label` | the name of anything, of a field, an option or a value, and every label of the package: the asterisk of `required`, the word of `optional`, four emphases (`default`, `strong`, `regular` for the text of an option, `quiet` over data). `description` adds a second line and `leading` a glyph before the name. Two elements inside: the root, and the name, a `<label>` when `htmlFor` points it at a control; the description sits beside the name, never inside it, so it cannot join the name of the control |
 | `LabeledContent` | a value with a quiet label: `LabeledContent.Label` and `.Value` |
 
 For a rule *between* the children of a stack use `<Stack divided>`, not `Divider`: it draws with
@@ -246,21 +308,20 @@ For a rule *between* the children of a stack use `<Stack divided>`, not `Divider
 ### `Surface`, the card
 
 ```tsx
-<Surface elevation={'raised'}>
+<Surface>
   <Surface.Header>
-    <IconBox tone={'primary'}><Truck /></IconBox>
-    <Heading>
-      <Heading.Title size={'lg'}>Mezzi in servizio</Heading.Title>
+    <Item.Icon><IconBox tone={'primary'}><Truck /></IconBox></Item.Icon>
+    <Item.Heading size={'lg'}>
+      <Heading.Title>Mezzi in servizio</Heading.Title>
       <Heading.Description>Aggiornato 2 minuti fa</Heading.Description>
-    </Heading>
+    </Item.Heading>
     <Item.Actions>{actions}</Item.Actions>
   </Surface.Header>
 
-  <Surface.Separator />
-  <Surface.Section>{content}</Surface.Section>
-
-  <Surface.Separator type={'gap'} space={8} />
-  <Surface.Section flush><DataTable /></Surface.Section>
+  <Surface.SectionGroup divided>
+    <Surface.Section>{content}</Surface.Section>
+    <Surface.Section flush><DataTable /></Surface.Section>
+  </Surface.SectionGroup>
 
   <Surface.Footer justify={'between'}>{pagination}</Surface.Footer>
 </Surface>
@@ -268,20 +329,23 @@ For a rule *between* the children of a stack use `<Stack divided>`, not `Divider
 
 | | |
 | --- | --- |
-| `Surface` | `elevation`: `default` · `flat` · `soft` · `raised` — `radius`: `default` · `none` · `lg` → `4xl` — `loading`, `loadingLabel` |
+| `Surface` | `border` (a boolean; undeclared, the theme's) · `elevation`: `default` · `none` · `xs` → `lg` · `radius`: `default` · `none` · `sm` → `3xl` · `loading`, `loadingLabel` |
 | `.Header` | **an `Item`**, with the card's padding: every `Item` prop works on it |
 | `.Section` | the body. `flush` drops the padding so a table can reach the edges |
-| `.Separator` | `type`: `divider` (a hairline) or `gap` (`space`, a spacing step) |
-| `.Footer` | `justify`, and `muted` for a recessed row |
+| `.SectionGroup` | **a `Stack`** with no gap: `divided` draws a line between its sections, `direction` sets them side by side |
+| `.Footer` | `justify`, and `muted` for a recessed row, quieter in its surface and its ink |
 
-**The Surface has no padding and no vertical rhythm of its own.** The room lives in the parts, which
-is what lets a section go `flush` without fighting a padding one level up, and the space between two
-parts is a `Separator` you place. The two implementations this comes from each encoded that decision
-once for the whole card — one with a `divide-y` nobody can opt out of, the other with nine descendant
-margin rules — and neither could put a line in one seam and room in the next.
+The look is the theme's, with a hairline by default: `--surface-border-color` (`--border`, `transparent`
+for none), `--surface-shadow` (none), `--surface-radius` (`lg`), `--surface-padding` (the `lg` step, the
+room of a dialog and of the table's card).
+
+**The Surface has no padding of its own.** The room lives in the parts, which is what lets a section
+go `flush` without fighting a padding one level up. A part right under another does not repeat its top
+padding (a section under the header, a footer of actions under a section), except in a `divided`
+group, where the line wants room on both sides.
 
 `Surface.Header` **is** an `Item`, which is the finding this tier was built on: a card header and a
-list row are the same three slots with the same truncation plumbing, and the only difference is the
+list row are the same slots with the same truncation plumbing, and the only difference is the
 register of the title. So the header takes `direction`, `align`, `gap`, `interactive` and everything
 else a row takes.
 
@@ -289,7 +353,7 @@ else a row takes.
 
 ```tsx
 <Surface />                        // data-elevation="default"  data-radius="default"
-<Surface elevation={'soft'} />     // data-elevation="soft"      — identical on screen
+<Surface elevation={'none'} />     // data-elevation="none"      identical on screen
 ```
 
 Both render the same shadow. They are **not** the same set to a stylesheet, and that is the point:
@@ -299,20 +363,20 @@ Both render the same shadow. They are **not** the same set to a stylesheet, and 
 ```
 
 That rule owns every card nobody had an opinion about, and leaves alone every card that deliberately
-asked for `soft`. Reporting the resolved step would have made the two indistinguishable.
+asked for `none`. Reporting the resolved step would have made the two indistinguishable.
 
 There is a second reason, and it is the stronger one: your rule keeps meaning "the ones we did not
 decide" even if this package later changes which step the default is. A rule against
-`[data-elevation='soft']` would silently stop matching.
+`[data-elevation='none']` would silently stop matching.
 
-⚠️ Only **four** props have it, and the list is deliberately short. A prop earns a `default` when its
+⚠️ Only a few props have it, and the list is deliberately short. A prop earns a `default` when its
 default is a **choice among named options** (not a step of a themeable scale), when you would plausibly
 write a rule for the unspecified case, and when that rule should survive this package changing its
 mind:
 
 | Has `default` | Does not, and why |
 | --- | --- |
-| `Surface.elevation` · `Surface.radius` · `Container.size` · `Label.emphasis` | `IconBox`'s `size` / `fill` / `tone` / `shape`, `Spinner.size`, every `Heading` size and every `gap` are **steps of a scale** — `--spacing`, `--radius-scale`, `--text-*` are the better lever, and `data-size="md"` says what the thing *is* |
+| `Surface.elevation` · `Surface.radius` · `Container.size` · `Label.emphasis` · the `radius` of `Button`, `Accordion`, `IconBox`, `LoadingBar` | `IconBox`'s `size` / `fill` / `tone`, `Spinner.size`, every `Heading` size and every `gap` are **steps of a scale** — `--space-*`, `--radius-scale`, `--text-*` are the better lever, and `data-size="md"` says what the thing *is* |
 | | `Divider.orientation`, `ScrollArea.orientation`, `Sticky.position`, `Split.side`, `SafeArea.sides`, `Item.direction`, `Grid.fill` are **what you meant**, not a house look: nobody restyles "the dividers we did not give an orientation" |
 | | every boolean: `data-inset` is present or absent, and there is no third state to name |
 
@@ -320,12 +384,12 @@ mind:
 
 ```tsx
 <Item interactive inset>
-  <IconBox><Truck /></IconBox>
-  <Heading>
+  <Item.Icon><IconBox><Truck /></IconBox></Item.Icon>
+  <Item.Heading>
     <Heading.Eyebrow>In servizio</Heading.Eyebrow>
     <Heading.Title>FT-234-KL</Heading.Title>
     <Heading.Description>Ultimo passaggio 12:04</Heading.Description>
-  </Heading>
+  </Item.Heading>
   <Item.Actions>{actions}</Item.Actions>
   <Item.Trailing><ChevronRight /></Item.Trailing>
 </Item>
@@ -335,11 +399,11 @@ Turn the axis and the same component is an empty state:
 
 ```tsx
 <Item direction={'vertical'} gap={6} className={'text-center'}>
-  <IconBox size={'2xl'} tone={'primary'} halo><Inbox /></IconBox>
-  <Heading gap={2}>
-    <Heading.Title size={'xl'}>Nessun risultato</Heading.Title>
-    <Heading.Description size={'md'}>Prova a rimuovere un filtro</Heading.Description>
-  </Heading>
+  <Item.Icon><IconBox size={'2xl'} tone={'primary'} halo><Inbox /></IconBox></Item.Icon>
+  <Item.Heading size={'xl'} gap={2}>
+    <Heading.Title>Nessun risultato</Heading.Title>
+    <Heading.Description>Prova a rimuovere un filtro</Heading.Description>
+  </Item.Heading>
 </Item>
 ```
 
@@ -351,10 +415,12 @@ Turn the axis and the same component is an empty state:
 | `inset` | row padding on the item itself, so an interactive hover fills the row edge to edge |
 | `interactive` | cursor, hover and focus ring. **Not** the semantics — see below |
 
-The leading visual needs no slot: `IconBox` and `Spinner` already refuse to shrink, so anything from
-this package is a direct child. What the component owns is the plumbing — `grow min-w-0` on the
-heading and `shrink-0` on the tail — which is what makes a long title **truncate** instead of pushing
-the actions out of the row. Both reference implementations carry it three times per file, and it is
+Four parts, each with its slot: `Item.Icon` holds the leading visual, whatever it is (`IconBox`,
+`Avatar`, `Spinner`); `Item.Heading` **is** a `Heading`, with its props and its parts; `Item.Actions`
+the controls; `Item.Trailing` the quiet mark at the end. What the parts carry is the plumbing,
+`grow min-w-0` on the heading and `shrink-0` on the visual and the tail, which is what makes a long
+title **truncate** instead of pushing the actions out of the row. The classes are the parts' own, so a
+`className` on a part still wins; a `LabeledContent` placed straight in the row grows the same way. Both reference implementations carry it three times per file, and it is
 the part that is silently wrong when a caller forgets: nothing breaks, the row just overflows at some
 content length nobody tested.
 
@@ -415,21 +481,30 @@ For the row with an icon, compose: `Item` grows a `LabeledContent` exactly as it
   <Heading.Description>Ultimo passaggio 12:04</Heading.Description>
 </Heading>
 
-<Heading>                                          {/* the header of a card */}
-  <Heading.Title size={'lg'}>Mezzi in servizio</Heading.Title>
+<Heading size={'lg'}>                              {/* the header of a card */}
+  <Heading.Title>Mezzi in servizio</Heading.Title>
   <Heading.Description>Aggiornato 2 minuti fa</Heading.Description>
 </Heading>
 ```
 
 | | Values |
 | --- | --- |
-| `Heading` | `gap`, a spacing step. Defaults to `0.5` |
-| `.Eyebrow` | `size`: `xs` · `sm`. Uppercase, tracked, muted |
-| `.Title` | `size`: `sm` · `md` · `lg` · `xl`. Weight rises with size |
-| `.Description` | `size`: `xs` · `sm` · `md`. `text-pretty` by default |
+| | Values |
+| --- | --- |
+| `Heading` | `size`: `sm` · `md` · `lg` · `xl`, the three texts together. `gap`, a spacing step, defaults to `0.5` |
+| `.Eyebrow` | Uppercase, tracked, muted |
+| `.Title` | Weight rises with size |
+| `.Description` | `text-pretty` by default |
 | all three | `lines`: `1` · `2` · `3` to clamp |
 
-⚠️ The default title size is **`sm`**, and it is measured rather than chosen: both reference
+| `size` | Eyebrow | Title | Description |
+| --- | --- | --- | --- |
+| `sm` | 11px | 14px, semibold | 12px |
+| `md` | 11px | 16px, semibold | 14px |
+| `lg` | 12px | 18px, semibold | 14px |
+| `xl` | 12px | 20px, bold | 16px |
+
+⚠️ The default size is **`sm`**, and it is measured rather than chosen: both reference
 implementations write `text-sm font-semibold` for the title of a list row and something larger for the
 title of a card header. A list row is by far the more frequent, so the frequent case writes no props
 and a header states `size={'lg'}`.
@@ -452,11 +527,13 @@ document outline around it, which the component cannot see: the same card is an 
 and an `h3` inside a section. Pass `as={'h2'}` where the outline is known, and nothing where the text
 is a label rather than a heading — a wrong level is worse for a screen reader than no level at all.
 
-Each part carries its **own** `size` rather than inheriting one from the pair, and that is not an
-oversight: sharing it downwards would need a context, which is client-only and would take the tier out
-of a Server Component, or a descendant class on the parent — and a descendant selector has more
-specificity than the child's own utility, so the parent would silently win over an explicit `size`.
-Two explicit props beat one knob that cannot be overridden.
+The size is the **pair's**, and the three texts move together in proportion: a size per part let a
+large title sit over the description of a list row. It travels as variables (`heading-size-*` on the
+root sets `--heading-title-size` & co., each part reads its own through `text-heading-*`), not as a
+context, which is client-only, nor as a class on the parent, whose specificity would beat the part's.
+So the component stays renderable from a Server Component, and a size in the `className` of one part
+still replaces its own: `<Heading.Title className={'text-2xl'}>`. A stylesheet retunes a size for every
+heading with `[data-slot='heading'][data-size='lg'] { --heading-title-size: var(--text-xl); }`.
 
 ### `Badge`, and one table for every tone
 
@@ -497,6 +574,25 @@ Not here either, each for a reason: `loading` (a badge as a live region), `pulse
 stylesheet does not declare) and `count` / `iconOnly` (a second geometry where one digit is a circle).
 `dot` is here because it needs none of the three.
 
+### `BadgeDot`, a state with no words
+
+```tsx
+<BadgeDot tone={'success'} pulse label={'Online'} />
+<Avatar kind={'person'} name={'Rossi Mario'} initials={'RM'} stateLabel={'online'} indicator={<BadgeDot pulse ring />} />
+```
+
+| | |
+| --- | --- |
+| `tone` | the seven tones, `success` by default; `muted` and `secondary` in their ink |
+| `size` | `xs` 6 · `sm` 8 · `md` 10 · `lg` 12 |
+| `pulse` | a copy of the dot that grows and fades, for a state that is live; still under reduced motion |
+| `ring` | the card's colour around it, for a dot over a photo or a box |
+| `placement` | `inline`, or a corner of the positioned parent |
+| `label` | its name when nothing beside it says it; without it, the dot is hidden from assistive technology |
+
+On an `Avatar` the dot goes in `indicator`, which places it on the bottom-end corner outside the circle
+(the circle clips what it holds). `Avatar` also takes `radius`, a circle by default (`--avatar-radius`).
+
 ### `IconBox`, and the tone vocabulary
 
 Three independent axes: **how** it is filled, **which** tone, **how big**.
@@ -505,15 +601,15 @@ Three independent axes: **how** it is filled, **which** tone, **how big**.
 <IconBox><Truck /></IconBox>                                      // soft · muted · 40px
 <IconBox fill={'solid'} tone={'destructive'}><Trash /></IconBox>
 <IconBox size={'2xl'} tone={'primary'} halo><Inbox /></IconBox>   // an empty state
-<IconBox shape={'round'} fill={'plain'}><Check /></IconBox>
+<IconBox radius={'full'} fill={'plain'}><Check /></IconBox>
 ```
 
 | Axis | Values |
 | --- | --- |
-| `fill` | `solid` (the tone carries the surface) · `soft` (a tenth of it, plus a hairline) · `plain` (no surface, same footprint) |
+| `fill` | `solid` (the tone carries the surface) · `soft` (a tenth of it, nothing around) · `plain` (no surface, same footprint) |
 | `tone` | `muted` · `secondary` · `primary` · `success` · `warning` · `destructive` · `info` |
-| `size` | `sm` 32 · `md` 40 · `lg` 56 · `xl` 72 · `2xl` 88 — box, radius and glyph move together |
-| `shape` | `square` (the radius its size gives it) · `round` |
+| `size` | `xs` 24 · `sm` 32 · `md` 40 · `lg` 56 · `xl` 72 · `2xl` 88, one scale for the box, the glyph (half of it), the corner and the halo |
+| `radius` | `default` (the theme's `--icon-box-radius`, `2xl` undeclared) · `none` · `xs` … `3xl` · `full`. A step is what a `md` box shows, scaled with the size |
 
 `Tone` is exported from `@proedis/ui/core` and is **the** tone vocabulary of the package: every
 component that offers a tone offers these seven, and each name is the name of the token pair behind it.
@@ -525,8 +621,8 @@ The icon arrives as a **child**, which is what keeps an icon library out of this
 is **non-interactive by design**: no hover, no press, no focus. A clickable icon is a button with an
 icon in it, and it needs a focus ring and an accessible name that a frame has no business owning.
 
-`halo` draws two concentric rings echoing the tone, for an empty state. They are `scale-150` and
-`scale-200` of the box rather than a measured geometry, so they follow whatever the size scale says.
+`halo` draws two rings around the box in its tone, for an empty state: a quarter and a half of the side
+wide, as shadows of the box, so they follow its size and its corner and no background covers them.
 
 #### Retuning a variant, without wrapping the component
 
@@ -544,11 +640,11 @@ in the application:
 
 It wins with no `!important` and no specificity contest: Tailwind emits its utilities inside
 `@layer utilities`, and an unlayered rule beats any layered one. The attributes are `data-fill`,
-`data-tone`, `data-size` and `data-shape`, and they always carry the **resolved** value, defaults
+`data-tone`, `data-size`, `data-radius` and `data-halo`, and they always carry the **resolved** value, defaults
 included.
 
-Two knobs sit one level above that and cost nothing: `size-*` resolves through `--spacing` and every
-radius through `--radius-scale`, so a project that wants the whole interface denser or rounder turns
+Knobs sit one level above that and cost nothing: `size-*` resolves through `--spacing`, every named
+spacing through `--space-*` and every radius through `--radius-scale`, so a project that wants the whole interface denser or rounder turns
 one variable instead of enumerating components. Reach for the attribute when *one* component in *one*
 variant has to differ, and for a wrapper when your application simply has different defaults — that is
 a decision of your app, not a value of the theme.
@@ -616,10 +712,12 @@ components build their classes with, for a primitive of your own that wants to b
 | `splitBaseProps(props)` | pulls `hideBelow` / `hideFrom` out of a props object and hands back `{ baseClasses, rest }` |
 | `responsiveClasses(value, build)` | turns a `Responsive<T>` into the per-breakpoint classes, in cascade order |
 | `gapClasses`, `alignClasses`, `justifyClasses`, `directionClasses`, `columnsClasses`, `divideClasses` | the same, specialised per prop |
+| `Spacing`, `SpacingToken`, `SPACING_TOKENS`, `spacingLength(value)` | the spacing scale as types and data, and the length of a step for a style no class can carry (`var(--space-md)`) |
+| `ControlSize` | `sm` · `md` · `lg`, the sizes of every control, for a wrapper of your own |
 | `breakpointPrefix(bp)`, `responsiveEntries(value)`, `toResponsiveMap(value)` | the pieces `responsiveClasses` is made of |
 | `BREAKPOINTS`, `BREAKPOINT_WIDTHS`, `mediaQuery(bp)` | the scale as data, and the media query behind a named breakpoint |
 | `TONE_CLASSES`, `TONE_COMPOUNDS`, `TONES` | the one tone table, ready to hand to a `cva` call of your own |
-| `LinkTarget`, `linkProps(target)` | a place to go, as `{ href, go() }`, and the two anchor attributes that follow it on a plain click only |
+| `LinkTarget`, `linkProps(target, navigate?)`, `resolveLink` | a place to go, an address or `{ href, go() }`, and the two anchor attributes that follow it on a plain click only |
 
 ⚠️ A class these builders produce needs a **safelist entry** in the stylesheet to have any CSS
 behind it, exactly as it does inside this package. They cover the scale declared in `ui.css` and
@@ -628,96 +726,95 @@ nothing beyond it, which is also why the value types are unions rather than `num
 ### Hooks — `@proedis/ui/hooks`
 
 ```tsx
-import { useBreakpoint, useIsMobile, useMediaQuery, usePrefersReducedMotion } from '@proedis/ui/hooks';
+import { useBreakpoint, useIsMobile } from '@proedis/ui/hooks';
 
 const isDesktop = useBreakpoint('lg');            // at or above lg
 const isMobile = useIsMobile();                   // below md
-const canHover = useMediaQuery('(hover: hover)'); // any query at all
-const still = usePrefersReducedMotion();          // for animation driven from JavaScript
 ```
 
-`useMediaQuery` is the primitive the other three are built on, and it is exported because a named
-breakpoint is not the only question worth asking: `print`, `(orientation: landscape)`,
-`(prefers-contrast: more)` and a width outside the theme's scale all end there.
+Two hooks, the ones that speak the vocabulary of the Tailwind breakpoints. They are built on
+`useMediaQuery` from `@proedis/react`, which answers any other query (`print`, `(hover: hover)`, a
+width outside the theme's scale), next to `usePrefersReducedMotion`, `useDelayedBusy` and
+`useOverflowItems`: hooks that know nothing of this package live there.
 
 The breakpoint pair reads the widths from the `--breakpoint-*` theme variables first, so a project
-that moved the scale is followed instead of drifting from it, and falls back to Tailwind's defaults.
-Both answer `false` on the server and on the first client render: the layout settles after hydration
-rather than mismatching it.
-
-⚠️ `usePrefersReducedMotion` answers **`true`** there instead, and the asymmetry is deliberate: the
-two possible mistakes are not equivalent. Guessing "reduce" and correcting costs one frame of
-stillness; guessing the other way plays the animation this preference exists to prevent, to the
-person who asked for it not to.
-
-`useDelayedBusy(busy)` is the timing every wait shares: `{ busy, visible }`, the block at once and the
-look after 300ms, held at least 400 once shown, so a fast answer flashes nothing. `useOverflowItems`
-says which items of a row fit and which go into a "More" menu, from a hidden copy of the row; Tabs use
-it, and a header with tabs can.
+that moved the scale is followed instead of drifting from it. The stylesheet keeps all five in the
+output: Tailwind writes a breakpoint straight into each media query and would otherwise emit none of
+them. On the server and while hydrating, `useBreakpoint` answers `false` and `useIsMobile` `true`, so
+the first render is the mobile one and the wide layout settles after hydration; an application
+rendered on the client only gets the real answer from its first render.
 
 They live behind their own entry point on purpose — everything exported from the package root is
 renderable from a React Server Component, and a barrel re-exporting a hook would take that away.
 Reach for them only where CSS cannot do the job: a bottom sheet instead of a dialog, not a padding.
 
-### The interactive tier — `@proedis/ui/interactive/*`
+### The components with behaviour
 
-The components with behaviour: keyboard, focus, state, accessibility. Their **logic and structure**
-are shared; their **look** is a neutral default every application retunes from its own stylesheet,
-through the `data-slot` on every part and the `data-*` that reports every resolved variant (see
+Everything above the primitives that has keyboard, focus, state or a portal: the actions, the
+feedback, the forms, the overlays, the data, and `Person`. Their **logic and structure** are shared;
+their **look** is a neutral default every application retunes from its own stylesheet, through the
+`data-slot` on every part and the `data-*` that reports every resolved variant (see
 [Customizing a component](#️-customizing-a-component)). The slot names are public API.
 
 They run on [Base UI](https://base-ui.com), an **optional** peer: a project that never imports from
-these subpaths installs nothing new. One subpath per component, so each brings only its own peers, and
-none of them is re-exported by the root barrel. Every module is client-only (`'use client'`).
+these subpaths installs nothing new. One subpath per component, under its section, so each brings only
+its own peers; none of them is re-exported by the root barrel. Every module is client-only
+(`'use client'`). Each subpath also exports the types of its props, labels and values.
 
 | Subpath | Exports |
 | --- | --- |
-| `interactive/tooltip` | `Tooltip`, `TooltipProvider` |
-| `interactive/button` | `Button`, `IconButton`, `buttonVariants` |
-| `interactive/field` | `Field` (`.Label`, `.Description`, `.Error`, `.Counter`), `FIELD_SPAN`, `useFieldControl` |
-| `interactive/field-shell` | `FieldShell`, the frame of every text control, for a control of your own |
-| `interactive/form` | `Form` (`.Header`, `.ErrorSummary`, `.Section`, `.Footer`) |
-| `interactive/text-input` | `TextInput` (`.Action`), `textInputVariants` |
-| `interactive/password-input` | `PasswordInput` |
-| `interactive/search-input` | `SearchInput` |
-| `interactive/textarea` | `Textarea` |
-| `interactive/number-input` | `NumberInput` |
-| `interactive/checkbox` | `Checkbox`, `CheckboxGroup` (with a computed parent box) |
-| `interactive/checkbox-grid` | `CheckboxGrid`: boxes in sections that open and close, a row of parent boxes in each open group |
-| `interactive/radio` | `RadioGroup`, `Radio` (classic or `variant="card"`) |
-| `interactive/switch` | `Switch` |
-| `interactive/select` | `Select`, with a search past `searchThreshold` options |
-| `interactive/multi-select` | `MultiSelect` |
-| `interactive/combobox` | `Combobox`, one record or several (`multiple`) among results from the server |
-| `interactive/date-picker` | `DatePicker`, a date or a period (`mode="range"`); needs `dayjs` |
-| `interactive/file-upload` | `FileUpload`, `AttachmentList`, `validateFiles`, `acceptsFile` |
-| `interactive/toggle` | `Toggle`, `ToggleGroup` |
-| `interactive/segmented-control` | `SegmentedControl` (`.Item`) |
-| `interactive/popover` | `Popover` (`.Submit`) |
-| `interactive/menu` | `Menu` (`.Item`, `.Group`, `.Separator`, `.RadioGroup`, `.RadioItem`, `.CheckboxItem`, `.Submenu`) |
-| `interactive/dialog` | `Dialog` (`.Submit`, `.Cancel`, `.Section`) |
-| `interactive/alert-dialog` | `AlertDialog`, in three grades |
-| `interactive/drawer` | `Drawer` (`.Submit`, `.Cancel`, `.Section`) |
-| `interactive/alert` | `Alert`, `alertVariants` |
-| `interactive/empty-state` | `EmptyState` |
-| `interactive/detail` | `Detail` (`.Section`, `.Grid`, `.Item`), `DETAIL_SPAN`: the read-only content of a record |
-| `interactive/collapsible` | `CollapsibleSection`: a section that opens and closes from its header |
-| `interactive/tabs` | `Tabs` (`.Panel`), with "More" for the tabs that do not fit |
-| `interactive/person` | `Avatar`, `AvatarGroup`, `Person` |
-| `interactive/toast` | `createNotifications`, `NotificationsProvider`, `JobsButton` |
-| `interactive/table` | `Table`, `TableFormatsProvider`, `useTableFormats`, `sortingToFields`; needs `@tanstack/react-table` |
-| `interactive/filters-bar` | `FiltersBar`: search, a button per filter, "More filters", "Clear filters"; needs `dayjs` |
-| `interactive/modal-selector` | `ModalSelector`, `ModalSelectorField`: one record or several from a list, in a Dialog; needs `dayjs` |
+| `display/person` | `Avatar` (with `radius` and an `indicator` on its corner), `AvatarGroup`, `Person` |
+| `actions/accordion` | `Accordion` (`.Item`): sections that open and close from their header, in four variants |
+| `actions/button` | `Button`, `IconButton` |
+| `actions/menu` | `Menu` (`.Item`, `.Group`, `.Separator`, `.RadioGroup`, `.RadioItem`, `.CheckboxItem`, `.Submenu`) |
+| `actions/segmented-control` | `SegmentedControl` (`.Item`) |
+| `actions/tabs` | `Tabs` (`.Panel`), with "More" for the tabs that do not fit |
+| `actions/toggle` | `Toggle`, `ToggleGroup` |
+| `actions/tooltip` | `Tooltip`, `TooltipProvider` |
+| `actions/copy-button` | `CopyButton`, a copy to the clipboard with a tick for a moment |
+| `feedback/alert` | `Alert` |
+| `feedback/empty-state` | `EmptyState` (`.Icon`, `.Title`, `.Description`, `.Actions`): a size and a tone, the parts composed |
+| `feedback/notifications` | `createNotifications`, the store of the confirmations and the jobs; `NotificationsProvider`, the confirmations and the announcements |
+| `feedback/jobs` | `JobsPanel`, the jobs that run in the background, and `JobsButton`, their history, on the store of the notifications |
+| `feedback/progress-bar` | `ProgressBar`, how far a piece of work has gone, and `Meter`, a quantity in a range: one bar |
+| `forms/form` | `Form` (`.Header`, `.ErrorSummary`, `.Section`, `.Footer`, `.Submit`, `.Cancel`), `FormSubmit`, `FormCancel` |
+| `forms/field` | `Field`, `FIELD_SPAN`, `useFieldControl`, the types `FieldStatus` and `FieldControlState` |
+| `forms/field-shell` | `FieldShell`, the frame of every bordered control, the package's and yours |
+| `forms/text-input` | `TextInput` (`.Action`, `.Copy`) |
+| `forms/password-input` | `PasswordInput`, with its `rules` and `strength`; `passwordRules`, `checkPassword` |
+| `forms/search-input` | `SearchInput` |
+| `forms/number-input` | `NumberInput` |
+| `forms/textarea` | `Textarea` |
+| `forms/select` | `Select`, with a search past `searchThreshold` options |
+| `forms/slider` | `Slider`, one number on a scale, as a line with a thumb or a bar the height of a field |
+| `forms/range-slider` | `RangeSlider`, the two ends of a range, in the same two looks |
+| `forms/multi-select` | `MultiSelect`, and the `SelectOption` type its options take |
+| `forms/combobox` | `Combobox`, one record or several (`multiple`) among results from the server |
+| `forms/date-picker` | `DatePicker`, a date typed or picked; needs `dayjs` |
+| `forms/range-date-picker` | `RangeDatePicker`, a period in one field; needs `dayjs` |
+| `forms/duration-input` | `DurationInput`, a duration in hours, minutes and seconds, as seconds; `durationFromTimeSpan`, `durationToTimeSpan` |
+| `forms/checkbox` | `Checkbox`, `CheckboxGroup` (with a computed parent box) |
+| `forms/checkbox-grid` | `CheckboxGrid`: boxes in sections that open and close, a row of parent boxes in each open group |
+| `forms/radio` | `RadioGroup`, `Radio` (classic or `variant="card"`) |
+| `forms/switch` | `Switch` |
+| `forms/file-upload` | `FileUpload`, `AttachmentList`, `validateFiles`, `acceptsFile` |
+| `overlays/dialog` | `Dialog` (`.Submit`, `.Cancel`, `.Section`) |
+| `overlays/drawer` | `Drawer` (`.Submit`, `.Cancel`, `.Section`) |
+| `overlays/alert-dialog` | `AlertDialog`, in three grades |
+| `overlays/popover` | `Popover` (`.Submit`) |
+| `data/table` | `Table`, `TableFormatsProvider`, `useTableFormats`, `sortingToFields`; needs `@tanstack/react-table` |
+| `data/filters-bar` | `FiltersBar`: search, a button per filter, "More filters", "Clear filters", and the `DateRange` of its date filters; needs `dayjs` |
+| `data/modal-selector` | `ModalSelector`, `ModalSelectorField`: one record or several from a list, in a Dialog; needs `dayjs` |
+| `data/detail` | `Detail` (`.Section`, `.Grid`, `.Item`), `DETAIL_SPAN`: the read-only content of a record |
 
 ```tsx
 <TooltipProvider>                                   {/* once, above everything */}
   <Form id={'signal'} onSubmit={handleSubmit}>
     <Form.ErrorSummary title={(count) => t('FORM.ERRORS', { count })} />
     <Form.Section title={'Address'} description={'Where the collection takes place'}>
-      <Field span={4} breakBefore>
-        <Field.Label required>Street</Field.Label>
+      <Field span={4} breakBefore required label={'Street'} error={errors.street}
+        errorSummary={'Street: write it in full'}>
         <TextInput width={'long'} />
-        <Field.Error summary={'Street: write it in full'}>{errors.street}</Field.Error>
       </Field>
     </Form.Section>
   </Form>
@@ -735,26 +832,72 @@ What is worth knowing before using them:
   function of `Form.ErrorSummary`.
 - **An icon-only button always has a tooltip.** `IconButton` takes one required `label`, which is both
   its accessible name and its tooltip, so the two cannot disagree.
-- **A button that leads somewhere is a link.** `to` takes a `LinkTarget` from `@proedis/ui/core`
-  (`{ href, go() }`): the button renders an `<a href>`, a plain click calls `go()`, the middle click and
-  a new tab still work. No router and no provider in the package.
-- **The form does not validate.** Errors come from the caller as `Field.Error`; after a submit the focus
-  goes to the summary with two or more of them, to the field with one. `noValidate` is always on.
-- **The field is made of parts**, in any order: each finds its row by its slot. Inside a `Form.Section`
-  fields share three tracks per row (labels, controls, messages), so the controls stay aligned when a
-  label wraps. A custom control reads `required`, `invalid` and `disabled` with `useFieldControl()`.
-  Out of a section, `orientation={{ base: 'vertical', md: 'horizontal' }}` puts the label beside the
-  control, on a third of the width, with the messages under the control. `Field.Label optional={t('…')}`
-  writes the word after the name of a field that may stay empty: the package writes no text.
-- **A control of your own wears `FieldShell`**: the border, the surface, the three heights, the states
-  and the focus of a TextInput, with `leading` and `trailing`. Mark its focusable element
-  `data-field-control`: the frame lights when that element has the focus, a press on the frame gives
-  it the focus, and the error summary of a `Form` focuses it.
+- **A button takes its corner from the theme.** `radius` sets one (`none`, `sm` … `3xl`, `full`); left at
+  `default` the button reads `--button-radius`, which falls back to `--control-radius`, the corner every
+  field, select and toggle shares. Four numbers give the solid fill some depth, all zero by default, so
+  an untouched theme keeps the flat button:
+
+  ```css
+  :root {
+    --button-radius: var(--radius-2xl);
+    --button-gradient: 0.12;      /* 0 to 1: a light top and a darker bottom */
+    --button-border-shade: 22%;   /* a border of the tone mixed with this much black */
+    --button-highlight: 0.3;      /* 0 to 1: a light line inside the top edge */
+    --button-glow: 0.5;           /* 0 to 1: a shadow in the colour of the tone */
+  }
+  ```
+
+  Every part is derived from the tone, so one theme serves a `primary`, a `success` and a
+  `destructive` button alike, and the focus ring still draws over the glow.
+- **A button that leads somewhere is a link.** `to` takes a `LinkTarget` from `@proedis/ui/core`, an
+  address most of the time (`to={'/rounds/14'}`) or `{ href, go() }` for a link that goes somewhere its
+  own way: the button renders an `<a href>`, the middle click and a new tab still work. An address is an
+  ordinary anchor until `LinkProvider` (`@proedis/ui/actions/link`) hands the router's `navigate` to the
+  application once; then a plain click navigates in the page. The same holds for a menu item, the name
+  of a `Person`, a cell of a table, the action of a notification.
+- **The form does not validate.** Errors come from the caller as the `error` of each `Field`; after a
+  submit the focus goes to the summary with two or more of them, to the field with one. `noValidate` is
+  always on. Its state comes from the caller too: `submitting` spins `Form.Submit` and disables
+  `Form.Cancel`, `dirty` marks it changed, and a `Dialog`, `Drawer` or `Popover` around the form reads
+  both on its own, waiting while it is sent and asking before closing it changed. `Form.Submit` takes a
+  required `loadingLabel`, since it may spin at any time. `Form.Cancel` leaves through the overlay's gate
+  in an overlay and is a reset in a page. With react-hook-form and Zod, `@proedis/form` binds all of it.
+- **Every control declares how it binds to a form** (`TextInput.binding`, a `ControlBinding` from
+  `core`): the kind of its value and how a form's value becomes its props. A form library reads it from
+  the component and imports no control; `bindable(Component, binding)` declares it on a control of your
+  own.
+- **A field is props, and the control is its one child.** Three rows: the `label` (with an `icon`
+  before it and the asterisk of `required` or the word of `optional` after it) with its `description`
+  under it; the control; one line under the control, the `hint` or, in its place, the message of a
+  status, with the `counter` at its end. The hint and every message share one size and one line height,
+  so a hint that turns into an error moves nothing.
 
   ```tsx
-  <Field>
-    <Field.Label>Opening hours</Field.Label>
-    <FieldShell leading={<Clock />}><TimeSlots data-field-control … /></FieldShell>
+  <Field label={'Plate'} description={'As on the registration'} hint={'Letters and digits'} required
+    error={errors.plate} errorSummary={'Plate: it is not in the registry'}>
+    <TextInput width={'code'} />
+  </Field>
+  ```
+
+  Besides `error`, `status` takes `warning` or `success` with its `message`: the border of the control
+  and the line take the ink of the tone, and the value stays valid. Inside a `Form.Section` fields share
+  three tracks per row (labels, controls, lines), so the controls stay aligned when a description wraps.
+  A custom control reads `required`, `invalid`, `disabled` and `status` with `useFieldControl()`. Out of
+  a section, `orientation={{ base: 'vertical', md: 'horizontal' }}` puts the label beside the control.
+  The package writes no text: `optional={t('…')}` is the word in the language of the page.
+- **A control of your own wears `FieldShell`**, the frame every bordered control of the package is:
+  TextInput, NumberInput, Select, MultiSelect, Combobox, DatePicker and the field of ModalSelector each
+  render it around their own content. The border, the surface, the three heights, the states and the
+  focus, with `leading` and `trailing`. The children sit in the row as they are: the control fills it
+  with `flex-1` and marks its focusable element `data-field-control`, so the frame lights when that
+  element has the focus, a press on the frame gives it the focus, and the error summary of a `Form`
+  focuses it. Given a `data-slot` of its own, the frame names its slots after it.
+
+  ```tsx
+  <Field label={'Opening hours'}>
+    <FieldShell data-slot={'time-slots'} leading={<Clock />}>
+      <TimeSlots data-field-control className={'flex-1'} … />
+    </FieldShell>
   </Field>
   ```
 - **Mount `TooltipProvider` once**: it groups the tooltips, so a row of icon buttons is one gesture.
@@ -814,21 +957,36 @@ What is worth knowing before using them:
   formatters, says how dates, numbers and enum labels read. The package knows no formatter.
 - **A detail lines up with its form.** `Detail.Grid` has the six columns of `Form.Section`, and a
   `Detail.Item` takes the columns of the field of its `type` (`DETAIL_SPAN`, built on `FIELD_SPAN`):
-  in edit the fields take the place of the values and nothing moves. A value that is not there reads
+  in edit the fields take the place of the values in the same columns. The rows grow, since a
+  control is taller than a line of text. `span` and `breakBefore` follow
+  the contract of the `Field` ones, a value per breakpoint included, so an override holds in both
+  modes; a map without `base` starts from the type's columns. A value that is not there reads
   "—" with `labels.empty` as its name; `copyable` adds a button that copies the text of the value and
   announces it. A section that arrives from a call of its own takes `loading`, or `error` and
   `onRetry`, and the rest of the detail stays.
-- **A section that closes is a heading with a button.** `CollapsibleSection` is closed by default and
-  remembers nothing; `status` is a mark after the title, `meta` the summary on the right, with the
-  unit, and `actions` sit outside the button. No animation of the height. `keepMounted` keeps a body
-  of fields mounted while closed; `inset` runs the header edge to edge of a card.
+- **A section that closes is a heading with a button.** `Accordion` takes its `Accordion.Item`s, closed
+  by default and remembered nowhere; several open together unless `multiple={false}`. `status` is a mark
+  after the title, `meta` the summary on the right, with the unit, and `actions` sit outside the button.
+  Four variants: `default` (rules between the items, nothing around, so it goes inside a card without a
+  line doubling the card's), `contained` (the same in a box), `filled` (the open item on a quiet
+  surface), `separated` (each item a box, the open one with a border); their look is the theme's
+  (`--accordion-radius`, `--accordion-gap` and four surfaces). The body opens on its height, at once
+  with reduced motion. `keepMounted` keeps a body of fields mounted while closed; `inset` runs the
+  headers edge to edge of a card. A single section is an Accordion with one item.
 - **A grid of boxes is one field.** `CheckboxGrid` holds item id → checked column ids, takes the rules
   between the columns as `resolve`, and the search as `visibleItems`, since only the caller knows the
-  text of its labels. Every group is a `CollapsibleSection` whose summary (`labels.groupMeta`) counts
+  text of its labels. The groups are an `Accordion` (`inset`), each summary (`labels.groupMeta`) counting
   the items ticked by hand; open, its first row carries a parent box per column, computed on the
   editable items only. Tab goes from header to header and enters each open grid once, the arrows move
   inside. `locked` columns are decided by the system, `savedValue` marks the boxes and groups that
   changed, every change is announced, `readOnly` is for consultation.
+- **A bar that says how far, or how much.** `ProgressBar` (Base UI's `Progress`) and `Meter` (its `Meter`)
+  are one implementation: `size` `xs` to `xl`, `radius` (`--progress-radius`, round), `track` (the ground,
+  `--progress-track` or the soft of the tone), the seven tones, `valuePosition` (`top`, `end`, `inside` from
+  `lg`, `floating`, `none`), `showBounds`. Numbers go through `Intl.NumberFormat` (a percentage of the
+  range by default, `format` for a unit or a currency) and `valueText` adds words around them; a change of
+  value slides, `null` runs a segment across a ProgressBar, heard through `indeterminateLabel`. A bar is
+  named by `label` or `aria-label`, by the type.
 - **The filters hold no value either.** `FiltersBar` takes each filter's value and change from the
   page: a list (one value or several), a list searched on the server (the panel of the Combobox),
   a period from the calendar alone. The buttons never shrink: the ones that do not fit go into "More
@@ -954,6 +1112,53 @@ for them. Overriding is one declaration **after** the import:
 }
 ```
 
+### Where a value goes
+
+Every variable of the package, colour, scale, size or default alike, goes in **plain CSS, in
+`:root { }` after the import** (`.dark { }` for the dark value, any other selector for a region). The
+one exception is a breakpoint, which goes in `@theme { }`. Measured, each placement compiled with
+Tailwind and read back in a browser:
+
+| Where | What happens to the variables of this package |
+| --- | --- |
+| `:root { }` after the import | every one changes, on every device |
+| `.dark { }`, `.toolbar { }` | in dark mode only, inside that element only |
+| `@theme { }` | ⚠️ half are ignored with no error: the colours, `--space-*`, `--radius-scale`, `--z-*`. A control height works on a desktop and is lost under a finger |
+| `@theme inline { }` | ⚠️ same as `@theme` |
+| `@layer base { :root { } }` | ⚠️ the colours, the scale and the radius stay the package's |
+| `@theme { --breakpoint-md: 50rem }` | the one thing that belongs there: Tailwind writes a breakpoint into each media query while compiling, so on `:root` it changes nothing |
+
+The reason: the package declares its defaults in a plain `:root`, outside any CSS layer, and its classes
+read the variable where the element is. Between two plain declarations the later one wins, hence
+*after* the import; `@theme` and `@layer base` both end up inside a layer, and a layer loses against an
+unlayered rule whatever the order. A variable the package does not declare on `:root` still works from
+`@theme`, which is exactly what makes that placement a trap: a theme half applied.
+
+### The default of every spacing prop
+
+A prop left undeclared reads a variable, so the default is the theme's to change:
+
+| Variable | Default | Moves |
+| --- | --- | --- |
+| `--stack-gap` | `md` | the gap of a `Stack` that declares none |
+| `--cluster-gap` | `sm` | the gap of a `Cluster` that declares none |
+| `--grid-gap` | `md` | the gap of a `Grid` that declares none |
+| `--split-gap` | `md` | the gap between the panes of a `Split` that declares none |
+| `--item-gap` | `0.75rem` | the gap of an `Item` that declares none, the header of a `Surface` included |
+| `--heading-gap` | `0.125rem` | the gap of a `Heading` that declares none |
+| `--surface-padding` | `lg` | the room of every part of a `Surface` |
+| `--accordion-gap` | `sm` | the room between the items of a `separated` `Accordion` |
+
+```css
+:root {
+  --stack-gap: var(--space-lg);
+}
+```
+
+Undeclared, each one falls back to its step where the component is, so a region that redeclares
+`--space-md` moves the defaults inside it. ⚠️ A value given on `:root` is resolved on `:root`: a region
+that redeclares the scale has to redeclare `--stack-gap` too. A declared prop never reads the default.
+
 Three colour families and one line colour:
 
 | Token | Read by |
@@ -964,10 +1169,12 @@ Three colour families and one line colour:
 | `--muted-foreground` | a quiet label, a divider caption, the scrollbar thumb |
 | `--border` | `Divider`, and the rules `Stack divided` draws |
 | `--radius-scale` | a unitless multiplier over the whole `--radius-*` scale |
+| `--space-xs` … `--space-2xl` | the spacing scale by name: every `gap`, `space`, `inset` and `offset` named, and the `gap-md`, `p-md`, `-mx-md`, `top-md`, `h-md` classes |
 | `--container-8xl` | the width of `Container size='xl'`, one step past Tailwind's own scale |
-| `--text-2xs` | the step below `text-xs`: the description line of `Label`, the smallest `Heading.Eyebrow` and `Heading.Description`, a `sm` `Badge` |
+| `--text-2xs` | the step below `text-xs`: the smallest `Heading.Eyebrow` and `Heading.Description`, a `sm` `Badge` |
+| `--font-heading` | the family of every title (`Heading.Title`, the titles of `EmptyState`, `Dialog`, `Drawer`, `AlertDialog`, `Popover`, `Alert`). Undeclared, it is `--font-sans`. The text is Tailwind's `--font-sans`, the fixed width `--font-mono`, and the package writes four weights, 400, 500, 600, 700 (`--font-weight-*`): load them all, or a variable font |
 
-The last three are a **configuration** rather than a colour a component reads: they exist to be
+The last four are a **configuration** rather than a colour a component reads: they exist to be
 turned. `--container-8xl` is there because Tailwind's container scale stops at `7xl` (80rem) and the
 widest page this package offers is 96rem, the width of the `2xl` breakpoint. `--text-2xs` is there
 because a three level text hierarchy does not fit in Tailwind's scale: a label, a description under
@@ -1022,7 +1229,9 @@ prevented it. So the vocabulary is named once, in a second stylesheet:
 | Raised surfaces | `--card`, `--popover`, each with its `-foreground` |
 | Action | `--primary`, `--secondary`, `--accent`, each with its `-foreground` |
 | States | `--destructive`, `--success`, `--warning`, `--info`, each with its `-foreground` |
-| Controls | `--input` (the **border** of a form control), `--input-hover`, `--placeholder`, `--ring` (the focus ring), the heights `--spacing-control-sm`, `-md`, `-lg` |
+| Controls | `--input` (the **border** of a form control), `--input-hover`, `--placeholder`, `--ring` (the focus ring), the heights `--spacing-control-sm`, `-md`, `-lg`, and `--control-radius`, the corner of every control (**optional**: undeclared it is `--radius-md`) |
+| Accordion | `--accordion-radius` (undeclared, `--radius-lg`), and the surfaces of its variants: `--accordion-filled-background`, `--accordion-item-background` (both `--muted` undeclared), `--accordion-item-open-background` (`--card`) and `--accordion-open-border` (`--border`), all **optional** |
+| Buttons | `--button-radius`, the corner of a button that declares none (undeclared, `--control-radius`), and the finish of the solid fill: `--button-gradient`, `--button-border-shade`, `--button-highlight`, `--button-glow`, all **optional** and all zero by default. Each part is derived from `--tone`, which a button sets to the colour of its own tone |
 | Soft register | `--{tone}-soft` and `--{tone}-soft-foreground` for the seven tones. **Optional**: undeclared, they fall back to a tenth of the tone (half of the surface for `muted` and `secondary`) with the tone as ink, resolved where they are used, so a subtree that redefines a tone is followed |
 | Layers | `--state-hover`, `--state-pressed`: the veil over a solid coloured fill |
 | Tooltip | `--tooltip`, `--tooltip-foreground`, `--tooltip-muted-foreground` |
@@ -1052,17 +1261,56 @@ agree: there it was being used as a fill by the one component that read it, whic
 name means. Here it is the border colour of a form control, read by a form layer that lives in
 another package. A recessed surface is `--muted`.
 
+## 🔀 Migrating to 2.0
+
+| 1.x | 2.0 |
+| --- | --- |
+| `@proedis/ui/components` | gone: `Divider`, `Label`, `ScrollArea`, `Skeleton`, `Spinner`, `VisuallyHidden`, `BusyVeil`, `LoadingBar` from `@proedis/ui/primitives`; `Badge`, `Heading`, `IconBox`, `Item`, `LabeledContent`, `Surface` and the others from `@proedis/ui/display/<name>`. The package root still exports all of them |
+| `@proedis/ui/interactive/<name>` | `@proedis/ui/<section>/<name>`: `actions/button`, `forms/text-input`, `overlays/dialog`, `data/table`, `display/person`… (see [the table](#the-components-with-behaviour)) |
+| `@proedis/ui/interactive/toast` | `@proedis/ui/feedback/notifications`, same exports |
+| `react` `>=18.0.0 <20.0.0` | `>=19.0.0 <20.0.0`: the compiled code imports `react/compiler-runtime`, and `ref` is passed as a prop |
+| `combobox-footer` on the "too many results" line of the single `Combobox` | `combobox-too-many`, as on the multiple one; `combobox-footer` is now only the footer of actions of the multiple field |
+| `resultsFor`, `onFlush` on a multiple `Combobox` | single field only: they never did anything on the multiple one |
+| `buttonVariants`, `alertVariants`, `textInputVariants` | no longer exported: the components lay themselves out through `Stack`, and a recipe on an element of your own would carry a layout no primitive gives it. A link drawn as a button is `<Button to={…}>`; any other element is `<Button render={<YourElement />}>`, which keeps the layout |
+| `<Label>` rendered as the `<label>` itself | a `span` root (`as` changes it) with the name inside, `label-text`, a `<label>` when `htmlFor` is given. The description no longer sits inside the `<label>`, where it became part of the name of the control: its id is `<textId>-description` or `descriptionId`, for the control's `aria-describedby` |
+| the slots `checkbox-label`, `radio-label`, `switch-label`, `detail-label`, `checkbox-text`, `radio-text`, `switch-text` | `label`, the root of every label of the package, with `label-text` inside; `checkbox-description`, `radio-description`, `switch-description` are `label-description`; `field-required` and `field-optional` are `label-required` and `label-optional`. A description is `text-xs` everywhere, where an option wrote `text-sm` |
+| `Field.Label`, `Field.Description`, `Field.Error`, `Field.Counter` | props of `Field`: `label` (with `required`, `optional`), `description`, `error` (with `errorSummary` for `summary`), `counter` (with `counterExceeded`). `description` now sits under the label, above the control; what sat under the control and disappeared with an error is `hint`. Slots: `field-description` and `field-error` are `field-message` |
+| `<FormSubmit>`, `<Dialog.Submit>` with no `loadingLabel` | `loadingLabel` is required: the button spins on its own while the form is `submitting` |
+| `useMediaQuery`, `usePrefersReducedMotion` from `@proedis/ui/hooks` | from `@proedis/react`, same signatures; `@proedis/ui/hooks` keeps `useBreakpoint` and `useIsMobile` |
+| `tailwindcss` `^4.0.0` | `^4.1.5`, see Compatibility |
+| a `Badge` with text renders the text as its child | the text is wrapped in `badge-label` and truncates with an ellipsis when the badge is too narrow |
+| `dirty` on a `Dialog` or `Drawer` without `discard` compiled, and did nothing | `discard` is required as soon as `dirty` can be true (`DialogDirtyProps`); `dirty={false}`, or none, needs none |
+| `EmptyState` with `kind`, `icon`, `title`, `description`, `actions` as data | a composition: `<EmptyState size tone>` with `EmptyState.Icon`, `.Title` (`as` for the heading level, the ref for the focus), `.Description`, `.Actions` holding your Buttons. `kind` is a `tone` (`first-use` primary, `error` destructive, the others muted); `headingLevel` is `as` on the Title; `EmptyStateAction`, `EmptyStateActions` and `EmptyStateKind` are gone |
+| a `Stack` or a `Split` with no `gap`: the children touch | the gap is `md`, 1rem. Declare `gap={0}` where the children must touch |
+| `Cluster` `gap` defaults to `2`, `Grid` to `4` | `sm` and `md`: the same lengths, now following the theme's `--space-*` |
+| `<Skeleton className={'size-4'} />` for a box, and a line of text 10px tall | `shape={'block'}` for a box; a line of text is as tall as a line of its `size` (20px at `sm`) with the 10px bar in its middle, inside a `skeleton` element holding a `skeleton-bar` |
+| `Divider` drawn as a 1px box filled with `--border` | drawn as a border, so `lineStyle` can dash it: a rule targeting its `background-color` targets nothing now, its `border-color` is the line |
+| `LinkTarget` as `{ href, go }` only | an address string as well, the short form; `{ href, go }` still works. A string navigates in the page under a `LinkProvider` (`@proedis/ui/actions/link`), and is a plain anchor without one. The type of the long form is `LinkDestination` |
+| `Surface.Separator` | `Surface.SectionGroup`, a `Stack` with no gap: `divided` for the lines, sections straight in the card for room |
+| `Surface` `elevation`: `flat` · `soft` · `raised`, `radius` `4xl` by default, `p-5` in the parts, a `bg-muted/40` muted footer | `elevation`: `none` · `xs` → `lg` (`default` is `--surface-shadow`, none); `radius` `lg` by default (`--surface-radius`), `4xl` gone; a 1px border by default (`border`, `--surface-border-color`); the parts padded by `--surface-padding` (24px), a part under another without its top padding; the muted footer on `bg-muted` with `text-muted-foreground` |
+| a `Heading`, an `IconBox` or an `Avatar` as a direct child of `Item` or `Surface.Header` | `Item.Heading` (which is a `Heading`) and `Item.Icon` around the visual. A plain `Heading` in the row no longer grows: the rule that made it was a descendant selector on the row |
+| `muted` solid and soft with the muted ink (`--muted-foreground`), grey on grey | the standard ink, `--foreground`: a muted button, badge or icon box no longer looks disabled. Plain muted is unchanged |
+| a button that did not move when pressed | it gives to `--button-press-scale` (0.98) on `:active`; `--button-press-scale: 1` for none |
+| `Alert`, a white card with a shadow (`md`) or a line (`sm`), the line in the tone for the severe ones | three variants: `flat` (default: no surface, no line, no room, for an alert inside a card), `soft`, `solid`; `size` sets the icon and the room of a fill. `icon` replaces the mark or, `false`, takes it away |
+| `Tabs` `items` with `TabItem`s, the panels beside them | each `Tabs.Panel` declares its tab: `<Tabs.Panel value label leading count countLabel disabled disabledReason>`; `items` is gone. The panels sit straight in `Tabs` (a fragment or a `map` is fine) |
+| `shape` on `IconBox` | `radius`: `round` is `radius={'full'}`. A `soft` box has no hairline; the glyph is half the box at every size (larger from `lg` up) and the corner scales with it; `icon-box-halo` is no longer a slot, the rings are shadows of the box (`data-halo`) |
+| `size` on `Heading.Title`, `Heading.Description`, `Heading.Eyebrow` | `size` on `Heading`, for the three together (`sm` · `md` · `lg` · `xl`, the title's steps); `data-size` moves from the parts to the root. A part that has to step out of the scale takes a size in its `className` |
+| `CollapsibleSection` from `@proedis/ui/actions/collapsible` | `Accordion` from `@proedis/ui/actions/accordion`: a section is an `Accordion.Item` in an `Accordion`, `open` / `defaultOpen` / `onOpenChange` are the item's `value` in `value` / `defaultValue` / `onValueChange` of the accordion, and the slots `collapsible-section-*` are `accordion-*`. The body opens on its height; the last item draws no rule under it |
+| `<DatePicker mode={'range'}>`, `DatePickerProps` as a union of `DateModeProps` and `RangeModeProps` | `RangeDatePicker` from `@proedis/ui/forms/range-date-picker`, with the same props but `mode`. The labels are split: `DatePickerLabels` keeps `today`, `RangeDatePickerLabels` has `pickEnd` and `rangeSummary`; `onValidityChange` is told `'date'` by one and `'from'` or `'to'` by the other |
+| `NotificationsProvider` drew the jobs panel, `JobsButton` from `feedback/notifications`, `NotificationsLabels` with the texts of the jobs | the provider draws the confirmations only: place `<JobsPanel labels={…} />` from `@proedis/ui/feedback/jobs` inside it, with `JobsPanelLabels` (`jobsRegion` is `region`); `JobsButton` is imported from `feedback/jobs`; `NotificationsLabels` keeps `confirmRegion` and `undo` |
+| `data-mode`, `data-inline`, `data-wrap`, `data-divided`, `data-fill` on the parts of a component laid out by `Stack`, `Cluster`, `Center` or `Grid` | written only on a primitive that renders as itself; a rule matching them on a component part matches nothing now |
+
 ## 🤝 Compatibility
 
 | | |
 | --- | --- |
-| React | `>=18.0.0 <20.0.0` |
-| Tailwind | `^4.1.5` — the stylesheet uses `@source`, `@source inline`, `@theme inline`, `@utility` and `@custom-variant`, and the error mark is one line tall with `h-lh` |
+| React | `>=19.0.0 <20.0.0`. The components are compiled by the React Compiler before publishing, against the `react/compiler-runtime` React 19 ships: nothing to configure, nothing else to install |
+| Tailwind | `^4.1.5` — the stylesheet uses `@source`, `@source inline`, `@theme inline`, `@utility` and `@custom-variant`, and the error mark is one line tall with `h-lh`. Measured: 4.0 does not compile the stylesheet, 4.1.0 to 4.1.4 compile it without `h-lh`, 4.1.5 generates the same classes as the latest 4.x |
 | TypeScript | `>=5.2.0`, the suite floor — the emitted declarations are compiled against it |
-| Runtime | ES2022. The package root is server-renderable; `/hooks` and `/interactive/*` are client-only |
-| Base UI | `^1.7.0`, optional, for `/interactive/*` only |
-| dayjs | `^1.11.0`, optional, for `/interactive/date-picker`, `/interactive/filters-bar`, `/interactive/modal-selector` |
-| TanStack Table | `^9.3.1`, optional, for `/interactive/table` only |
+| Runtime | ES2022. The package root is server-renderable; `/hooks`, `/display/person` and every subpath of actions, feedback, forms, overlays and data are client-only |
+| Base UI | `^1.7.0`, optional, for those same client-only subpaths |
+| dayjs | `^1.11.0`, optional, for `/forms/date-picker`, `/data/filters-bar`, `/data/modal-selector` |
+| TanStack Table | `^9.3.1`, optional, for `/data/table` only |
 
 ## 📄 License
 

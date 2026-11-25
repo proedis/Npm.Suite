@@ -40,8 +40,8 @@ Two decisions shape the surface, both taken deliberately on 2026-08-20:
   is what keeps "what a 404 means for this screen" out of the package.
 - Anything client-specific in `invalidation`. That half works against a bare `QueryClient` and must
   stay that way — it is the piece a non-Proedis frontend could adopt.
-- Mutations, forms, tables, selectors. This package is about *reading* a query and about *when the
-  cache refreshes*, nothing else.
+- Mutations, forms, tables, selectors. This package is about *reading* a query, about a *search
+  typed into a field*, and about *when the cache refreshes*, nothing else.
 - A *designed* default view. The built-in `Loader` and `ErrorView` exist so the package works
   unconfigured, and they are one element each with no class, no copy and no dependency. The moment a
   default acquires styling, consumers start styling around it instead of replacing it.
@@ -54,13 +54,19 @@ Two decisions shape the surface, both taken deliberately on 2026-08-20:
 
 ```
 src/
-  invalidation/   # gated cache invalidation — no React rendering, no client, only a QueryClient
-  suspense/       # the query boundary — React and useClientQuery, still no UI
+  invalidation/   # gated cache invalidation: no React rendering, no client, only a QueryClient
+  search/         # useSearchQuery, a search typed into a field: React and a QueryClient, no client
+  suspense/       # the query boundary: React and useClientQuery, still no UI
 ```
 
-Both are published as subpath entry points (`proedisMetadata.exports`), so a consumer can take the
-invalidation half without pulling the client. Adding a third module means adding it there **and** to
-the rollup input, which the root config derives from the same field.
+All three are published as subpath entry points (`proedisMetadata.exports`), so a consumer can take
+the invalidation or the search half without pulling the client. `search` owns what every search typed
+into a field gets wrong one at a time (the debounce, the last answer winning, "type more" through
+`limit + 1`, nothing under `minChars`, the previous items kept while the next term travels, one retry on a
+server or network error and none on a 4xx) and leaves the spinner to the component: it is what the `Combobox` of
+`@proedis/ui/forms/combobox` takes its `items`, `searching`, `searchError`, `onRetry` and `hasMore`
+from. Adding a fourth module means adding it there **and** to the rollup input, which the root config
+derives from the same field.
 
 ## Invariants
 
@@ -120,7 +126,8 @@ Things that look improvable and are not.
 ## Internal dependencies
 
 Peers, all of them. `@proedis/react` for `useSyncedRef` / `useUnmountEffect`; `@proedis/react-client`
-for `useClientQuery` and `@proedis/client` for `RequestError`, both only in `suspense/`. This package
+for `useClientQuery` and `@proedis/client` for `RequestError`, both only in `suspense/`. `search/`
+and `invalidation/` import nothing of the suite. This package
 sits **beside** `@proedis/react-client` and never below it — nothing in the suite imports it.
 
 ## Verification

@@ -1,8 +1,10 @@
 export * from './base';
 
+export * from './binding';
+
 export * from './cn';
 
-export * from './inert';
+export * from './control';
 
 export * from './link';
 

@@ -83,8 +83,14 @@ to the rollup input, which the root config derives from the same field.
   contract: an empty optional field means "absent", not "invalid", so `nullableString(s => s.min(3))`
   must accept `''` and reject `'ab'`. Moving the constraint onto the base schema — which would make
   it introspectable — silently breaks this, because `''` would then be measured against the `min`.
-  The consequence is documented in the README: a constraint inside a refine is invisible to
-  `describeField`. It is a real limit of the two halves together, not an oversight.
+  The constraint stays readable all the same: `nullableString` and `nullableNumber` build the
+  refined schema once and leave it on the `def` of the schema they return, under `CONSTRAINT_KEY`
+  (`src/constraint.ts`, the one module both halves import, so neither imports the other);
+  `unwrapSchema` collects it on the walk and `describeSchema` applies its bounds after the schema's
+  own. A key of the `def` because Zod copies the `def` on a clone: measured on zod 4.4.3, it survives
+  `.describe()` and an `.optional()` around it. The validation still runs the refinement on non-null
+  values only: measured, `''` and `null` still parse to `null`, a 121-character note and 6 axles are
+  still refused. A `refine` written outside these validators stays invisible.
 - **`applyDynamicRefine` reads `error.issues`.** Zod 4 removed the `errors` alias the Zod 3 ancestor
   used; that alone would have thrown at runtime on every failed refinement.
 - **No validator ships copy.** `requiredUid` takes its message. The Zod 3 ancestor hardcoded

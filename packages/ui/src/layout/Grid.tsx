@@ -4,27 +4,29 @@ import { splitBaseProps } from '../core/base';
 import { cn } from '../core/cn';
 import { gapClasses } from '../core/responsive';
 
-import type { PolymorphicProps } from '../core/polymorphic';
+import { DEFAULT_GAP_CLASS } from './defaultGap';
+import { layoutAttributes } from './layoutAttributes';
 
 import type { BaseProps } from '../core/base';
-
-import type { Responsive, SpacingValue } from '../core/responsive';
+import type { PolymorphicProps } from '../core/polymorphic';
+import type { Responsive, Spacing } from '../core/responsive';
 
 
 /* --------
  * Types Definition
  * -------- */
 export interface StrictGridProps extends BaseProps {
-  /** Space between cells, in Tailwind spacing steps */
-  gap?: Responsive<SpacingValue>;
+  /** Space between cells: a step of the spacing scale by name, or a Tailwind spacing step by number.
+   * Defaults to `md`, moved by the theme with `--grid-gap` */
+  gap?: Responsive<Spacing>;
 
   /**
    * `fill` keeps the empty tracks, so a row of two cards keeps the width of three.
-   * `fit` collapses them and the cards stretch.
+   * `fit` collapses them and the cards stretch. Defaults to `fill`
    */
   fill?: 'fill' | 'fit';
 
-  /** How narrow a column may get before the grid wraps, in pixels */
+  /** How narrow a column may get before the grid wraps, in pixels. Defaults to `240` */
   minColWidth?: number;
 
 }
@@ -56,7 +58,7 @@ export function Grid<E extends React.ElementType = 'div'>(props: GridProps<E>): 
     as: Component = 'div',
     className,
     fill = 'fill',
-    gap = 4,
+    gap,
     minColWidth = 240,
     style,
     ...others
@@ -71,8 +73,8 @@ export function Grid<E extends React.ElementType = 'div'>(props: GridProps<E>): 
   return (
     <Component
       data-slot={'grid'}
-      data-fill={fill}
-      className={cn('grid', gapClasses(gap), baseClasses, className)}
+      {...layoutAttributes(rest, { 'data-fill': fill })}
+      className={cn('grid', gap === undefined ? DEFAULT_GAP_CLASS.grid : gapClasses(gap), baseClasses, className)}
       style={{
         /** `min(px, 100%)` is what keeps the single column from overflowing a very narrow screen */
         gridTemplateColumns: `repeat(auto-${fill}, minmax(min(${minColWidth}px, 100%), 1fr))`,

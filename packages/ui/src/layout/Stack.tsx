@@ -11,10 +11,12 @@ import {
   justifyClasses
 } from '../core/responsive';
 
-import type { BaseProps } from '../core/base';
+import { DEFAULT_GAP_CLASS } from './defaultGap';
+import { layoutAttributes } from './layoutAttributes';
 
+import type { BaseProps } from '../core/base';
 import type { PolymorphicProps } from '../core/polymorphic';
-import type { Align, ColumnsValue, Direction, Justify, Responsive, SpacingValue } from '../core/responsive';
+import type { Align, ColumnsValue, Direction, Justify, Responsive, Spacing } from '../core/responsive';
 
 
 /* --------
@@ -33,8 +35,22 @@ export interface StrictStackProps extends BaseProps {
   /** Draw a hairline between children, following the active axis */
   divided?: boolean;
 
-  /** Space between children, in Tailwind spacing steps */
-  gap?: Responsive<SpacingValue>;
+  /**
+   * Sits in a line of text like a word: `inline-flex`, or `inline-grid` with `columns`.
+   *
+   * For an icon beside its word in a sentence, align on the `baseline` and centre the icon on its own
+   * (`self-center`). An inline box takes its baseline from its first child, and an icon has none: with
+   * `align={'center'}` the browser uses the bottom of the icon, and the word rises off the line.
+   */
+  inline?: boolean;
+
+  /**
+   * Space between children: a step of the spacing scale by name, or a Tailwind spacing step by number.
+   * Defaults to `md`: the theme moves it for every Stack that declares none with `--stack-gap`.
+   *
+   * Declare `0` for children that touch: a stack with no gap is a decision, and it reads as one.
+   */
+  gap?: Responsive<Spacing>;
 
   /** Main-axis distribution */
   justify?: Responsive<Justify>;
@@ -55,9 +71,9 @@ export type StackProps<E extends React.ElementType = 'div'> = PolymorphicProps<E
  * The workhorse: children on an axis, with a responsive direction, gap and optional dividers.
  *
  * ```tsx
- * <Stack gap={4}>…</Stack>
- * <Stack direction={{ base: 'vertical', lg: 'horizontal' }} gap={{ base: 2, lg: 6 }} divided>…</Stack>
- * <Stack columns={{ base: 1, md: 3 }} gap={4}>…</Stack>
+ * <Stack>…</Stack>                                   // gap `md`
+ * <Stack direction={{ base: 'vertical', lg: 'horizontal' }} gap={{ base: 'sm', lg: 'lg' }} divided>…</Stack>
+ * <Stack columns={{ base: 1, md: 3 }} gap={'lg'}>…</Stack>
  * ```
  *
  * Declaring `columns` turns it into a grid of equal columns; `direction` is then meaningless and
@@ -76,6 +92,7 @@ export function Stack<E extends React.ElementType = 'div'>(props: StackProps<E>)
     direction = 'vertical',
     divided = false,
     gap,
+    inline = false,
     justify,
     wrap = false,
     ...others
@@ -91,10 +108,10 @@ export function Stack<E extends React.ElementType = 'div'>(props: StackProps<E>)
 
   const classes = [
     ...(isGrid
-      ? [ 'grid', ...columnsClasses(columns) ]
-      : [ 'flex', ...directionClasses(direction), wrap && 'flex-wrap' ]),
+      ? [ inline ? 'inline-grid' : 'grid', ...columnsClasses(columns) ]
+      : [ inline ? 'inline-flex' : 'flex', ...directionClasses(direction), wrap && 'flex-wrap' ]),
 
-    ...gapClasses(gap),
+    ...(gap === undefined ? [ DEFAULT_GAP_CLASS.stack ] : gapClasses(gap)),
 
     /** In grid mode the rules ride the column axis, because there is no single direction to follow */
     ...(divided ? [ 'divide-border', ...(isGrid ? [ 'divide-x' ] : divideClasses(direction)) ] : []),
@@ -110,9 +127,12 @@ export function Stack<E extends React.ElementType = 'div'>(props: StackProps<E>)
   return (
     <Component
       data-slot={'stack'}
-      data-mode={isGrid ? 'grid' : 'flex'}
-      data-divided={divided || undefined}
-      data-wrap={wrap || undefined}
+      {...layoutAttributes(rest, {
+        'data-mode'   : isGrid ? 'grid' : 'flex',
+        'data-divided': divided || undefined,
+        'data-inline' : inline || undefined,
+        'data-wrap'   : wrap || undefined
+      })}
       className={cn(classes, baseClasses, className)}
       {...rest}
     />

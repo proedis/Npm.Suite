@@ -54,10 +54,15 @@ export type ToneFill = 'solid' | 'soft' | 'plain';
  * ⚠️ Two of the seven tones are **surfaces**, not accents. `muted` and `secondary` are already the
  * quiet register, so the default of their `soft` is their own surface at half strength: a tenth of a
  * near-white is invisible. That exception lives in the token defaults now, not in this table.
+ *
+ * ⚠️ `muted` writes with the standard ink (`text-foreground`) on its solid and soft fills (Marco,
+ * 2026-11-25): grey on grey read as a disabled control. It is the neutral tone of the package, the one a
+ * secondary action takes; `primary` and `secondary` are the application's own. Its plain row keeps the
+ * quiet ink, since a plain button has no surface to carry it and the standard ink would weigh it.
  */
 export const TONE_CLASSES: Readonly<Record<ToneFill, Readonly<Record<Tone, string>>>> = {
   solid: {
-    muted      : 'bg-muted text-muted-foreground',
+    muted      : 'bg-muted text-foreground',
     secondary  : 'bg-secondary text-secondary-foreground',
     primary    : 'bg-primary text-primary-foreground',
     success    : 'bg-success text-success-foreground',
@@ -67,7 +72,7 @@ export const TONE_CLASSES: Readonly<Record<ToneFill, Readonly<Record<Tone, strin
   },
 
   soft: {
-    muted      : 'bg-muted-soft text-muted-soft-foreground',
+    muted      : 'bg-muted-soft text-foreground',
     secondary  : 'bg-secondary-soft text-secondary-soft-foreground',
     primary    : 'bg-primary-soft text-primary-soft-foreground',
     success    : 'bg-success-soft text-success-soft-foreground',

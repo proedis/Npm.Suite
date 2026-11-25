@@ -273,7 +273,7 @@ const [ term, setTerm ] = React.useState('');
 const search = useSearchQuery({
   term,
   queryKey: (term, limit) => [ 'contracts', 'search', term, limit ],
-  queryFn : ({ term, limit, signal }) => client.get('/contracts', { query: { term, limit }, signal })
+  queryFn : ({ term, limit, signal }) => client.request<Contract[]>({ url: 'contracts', params: { term, limit } }, signal)
 });
 
 // search.items, search.hasMore, search.status, search.settledTerm, search.isPending, search.retry(), search.flush()
@@ -291,9 +291,10 @@ What every search typed into a field needs, and gets wrong one at a time:
 | Retry | once on a server error or the network, never on a 4xx |
 | A scanner's Enter | `settledTerm` says which term the items answer; `flush()` ends the debounce now |
 
-It pairs with `Combobox` of `@proedis/ui/interactive/combobox`, which takes `items`, `searching`,
-`resultsFor`, `onFlush`, `searchError`, `onRetry` and `hasMore` from it. When to show a spinner is the
-component's decision, not the hook's.
+It pairs with `Combobox` of `@proedis/ui/forms/combobox`, which takes `items`, `searching`,
+`searchError`, `onRetry` and `hasMore` from it, plus `resultsFor` and `onFlush` on the single field,
+the only one with a scanner's Enter. When to show a spinner is the component's decision, not the
+hook's.
 
 ## ⚠️ Requirements
 

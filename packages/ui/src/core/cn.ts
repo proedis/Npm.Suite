@@ -1,5 +1,4 @@
 import { clsx } from 'clsx';
-
 import { extendTailwindMerge } from 'tailwind-merge';
 
 import type { ClassValue } from 'clsx';
@@ -13,13 +12,24 @@ import type { ClassValue } from 'clsx';
  * an override exactly on the steps this package introduced. Every name declared in the stylesheets
  * for a utility a component writes belongs here.
  */
-const twMerge = extendTailwindMerge({
+const twMerge = extendTailwindMerge<'scrollbar'>({
   extend: {
     theme: {
-      spacing: [ 'control-sm', 'control-md', 'control-lg' ]
+      spacing      : [ 'control-sm', 'control-md', 'control-lg', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', 'surface' ],
+      shadow       : [ 'surface' ],
+      font         : [ 'heading' ],
+      text         : [ 'heading-eyebrow', 'heading-title', 'heading-description' ],
+      'font-weight': [ 'heading-title' ],
+      radius       : [
+        'control', 'control-inner', 'button', 'accordion', 'loading-bar', 'icon-box', 'surface', 'avatar', 'progress',
+        'list-panel', 'list-item', 'segmented', 'segmented-inner', 'tabs', 'tabs-inner', 'overlay'
+      ]
     },
     classGroups: {
-      'grid-cols': [ { 'grid-cols': [ 'field' ] } ],
+      'grid-cols': [ { 'grid-cols': [ 'field', 'field-horizontal' ] } ],
+      gap        : [ { gap: [ 'stack', 'cluster', 'grid', 'split', 'item', 'heading', 'accordion' ] } ],
+      scrollbar  : [ { scrollbar: [ 'thin', 'hover', 'none' ] } ],
+      animate    : [ { animate: [ 'loading-bar', 'nudge-x', 'nudge-y' ] } ],
       z          : [ { z: [ 'dialog', 'popover', 'toast', 'tooltip' ] } ]
     }
   }

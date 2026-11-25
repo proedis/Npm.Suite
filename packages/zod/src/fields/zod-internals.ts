@@ -44,6 +44,9 @@ export interface ZodDefLike {
   options?: ZodTypeLike[];
   out?: ZodTypeLike;
   pattern?: RegExp;
+
+  /** The refinement a validator of this package attached: see `constraint.ts` */
+  proedisConstraint?: ZodTypeLike;
   shape?: Record<string, ZodTypeLike>;
   type: string;
   values?: unknown[];

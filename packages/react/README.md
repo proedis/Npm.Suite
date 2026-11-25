@@ -74,6 +74,20 @@ const [ AuthContext, useAuthContext ] = contextBuilder<AuthContextValue>('Auth')
 const { user } = useAuthContext();   // throws outside the provider, with the name in the message
 ```
 
+### 🏗️ `optionalContextBuilder(name, defaultValue)`
+
+The same pair for a context whose provider is **optional**: outside it the hook returns `defaultValue`
+instead of throwing. It is for a component that also works on its own and reads the context only when
+something above provides it, a control inside or outside a field, a dialog nested or not. The value may
+be anything, a primitive included, which `contextBuilder` cannot take: it tells a missing provider apart
+by a falsy value.
+
+```tsx
+const [ OverlayLevelContext, useOverlayLevel ] = optionalContextBuilder('OverlayLevel', 0);
+
+const level = useOverlayLevel();   // 0 with no provider above
+```
+
 ### 🎛️ `UIComponentProps` and `UIVoidComponentProps`
 
 The prop surface every Proedis component starts from — `className`, `style`, the element type
@@ -151,6 +165,11 @@ providers at the root of an app into a single element.
 | `useClickOutside(target, callback)` | the outside-click primitive behind every dropdown |
 | `useWindowSize(options?)` | viewport size, debounced |
 | `useElementType(props, default)` | resolve the `as` prop into the element to render |
+| `useMediaQuery(query, serverSnapshot?)` | whether a media query matches, through `useSyncExternalStore`; `false` on the server and on the first client render unless told otherwise |
+| `usePrefersReducedMotion()` | whether the user asked for less motion; ⚠️ `true` on the server and on the first client render, because guessing "animate" is the worse mistake |
+| `useDelayedBusy(busy, options?)` | `{ busy, visible }`: the block at once, the look of a wait after 300ms and held at least 400, so a fast answer flashes nothing |
+| `useAnnouncer()` | `[ message, announce ]` for a live region: `announce` empties it first, so the same text twice is spoken twice; the last of two quick calls wins, an empty text is ignored, and the region stays the caller's to render |
+| `useOverflowItems(containerRef, measureRef, options)` | which items of a row fit and which go into a "More" menu, measured on a hidden copy of the row; `fitItems` is the pure half |
 | `useAutoSizer(options?)` | the room an element has, in pixels, kept up to date — see below |
 
 💡 Several of these are built on `useSyncedRef`, and that is the pattern worth internalising: keep the
@@ -160,6 +179,15 @@ changes.
 ⚠️ Read a `useSyncedRef` container from an effect, a handler or a cleanup — **not while rendering**. The
 value is written during render, which is what makes it current for the commit it belongs to, and a
 render that gets discarded leaves the container holding something that was never committed.
+
+### 🧩 `inertValue(value)`
+
+The value of the `inert` attribute for the React that is running: `true` on 19, `''` on 18, which drops
+a boolean with a warning and leaves the element live. `undefined` when `value` is false.
+
+```tsx
+<div inert={inertValue(isBusy)}>…</div>
+```
 
 ### 📐 `useAutoSizer(options?)`
 

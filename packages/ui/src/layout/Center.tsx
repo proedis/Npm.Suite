@@ -3,9 +3,10 @@ import * as React from 'react';
 import { splitBaseProps } from '../core/base';
 import { cn } from '../core/cn';
 
-import type { PolymorphicProps } from '../core/polymorphic';
+import { layoutAttributes } from './layoutAttributes';
 
 import type { BaseProps } from '../core/base';
+import type { PolymorphicProps } from '../core/polymorphic';
 
 
 /* --------
@@ -63,7 +64,7 @@ export function Center<E extends React.ElementType = 'div'>(props: CenterProps<E
   return (
     <Component
       data-slot={'center'}
-      data-inline={inline || undefined}
+      {...layoutAttributes(rest, { 'data-inline': inline || undefined })}
       className={cn(inline ? 'inline-flex' : 'flex', 'items-center justify-center', baseClasses, className)}
       style={{ ...(minHeight === undefined ? {} : { minHeight }), ...style }}
       {...rest}

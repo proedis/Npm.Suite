@@ -3,6 +3,7 @@
 import { useBreakpoint } from './useBreakpoint';
 
 import type { MediaBreakpoint } from '../core/responsive';
+
 import type { UseBreakpointOptions } from './useBreakpoint';
 
 
@@ -19,8 +20,9 @@ import type { UseBreakpointOptions } from './useBreakpoint';
  * const isNarrow = useIsMobile('lg');      // below lg
  * ```
  *
- * Server-side it answers `false`, i.e. "assume desktop", and the mobile layout arrives after
- * hydration. Reach for it only where CSS cannot do the job — a component that renders a bottom sheet
+ * Server-side, and while hydrating, it answers `true`, i.e. "assume mobile": it is the negation of
+ * `useBreakpoint`, which answers `false` there, so the first render is the mobile one and the wide
+ * layout arrives after hydration. Reach for it only where CSS cannot do the job — a component that renders a bottom sheet
  * instead of a dialog, not one that changes its padding.
  *
  * @param below - The breakpoint to stay under. Defaults to `md`.

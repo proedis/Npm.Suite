@@ -1,0 +1,48 @@
+{
+  "name": "@proedis/form",
+  "version": "0.1.0",
+  "description": "react-hook-form and Zod bound to @proedis/ui: a field gives its name, the schema gives the label, the requiredness and the bounds, the control binds itself",
+  "keywords": [
+    "proedis",
+    "react",
+    "forms",
+    "react-hook-form",
+    "zod"
+  ],
+  "license": "MIT",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "rollup --config ../../rollup.config.mjs"
+  },
+  "dependencies": {
+    "@proedis/react": "^2.1.1",
+    "@proedis/zod": "^0.1.2"
+  },
+  "devDependencies": {
+    "@hookform/resolvers": "7.0.5",
+    "@proedis/tsconfig": "^2.0.1",
+    "@proedis/ui": "^1.0.1",
+    "react-hook-form": "7.91.0",
+    "rollup": "^4.62.4"
+  },
+  "proedisMetadata": {
+    "reflectPeerDependencies": {
+      "@proedis/ui": {
+        "from": "self"
+      },
+      "@hookform/resolvers": {
+        "range": ">=5.1.0 <8.0.0"
+      },
+      "react": {
+        "range": ">=19.0.0 <20.0.0"
+      },
+      "react-hook-form": {
+        "range": "^7.55.0"
+      },
+      "zod": {
+        "range": "^4.0.0"
+      }
+    },
+    "sideEffects": false
+  }
+}

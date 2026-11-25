@@ -3,11 +3,9 @@ import * as React from 'react';
 import { splitBaseProps } from '../core/base';
 import { cn } from '../core/cn';
 
-import type { PolymorphicProps } from '../core/polymorphic';
-
 import type { BaseProps } from '../core/base';
-
-import type { SpacingValue } from '../core/responsive';
+import type { PolymorphicProps } from '../core/polymorphic';
+import type { Spacing } from '../core/responsive';
 
 
 /* --------
@@ -15,12 +13,12 @@ import type { SpacingValue } from '../core/responsive';
  * -------- */
 export interface StrictBleedProps extends BaseProps {
   /**
-   * How far to pull out on each side, in Tailwind spacing steps.
+   * How far to pull out on each side: a step of the spacing scale by name, or a Tailwind spacing step by number.
    *
    * Left undeclared it mirrors `Container`'s own padding, which is the case this component exists
    * for. Declare it to escape a padding of your own.
    */
-  inset?: SpacingValue;
+  inset?: Spacing;
 
 }
 

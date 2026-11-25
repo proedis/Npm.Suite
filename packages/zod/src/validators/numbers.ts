@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { CONSTRAINT_KEY } from '../constraint';
+
 import { applyDynamicRefine } from './refine';
 
 import type { DynamicRefine } from './refine';
@@ -27,7 +29,7 @@ import type { DynamicRefine } from './refine';
  *  `min`.
  */
 export function nullableNumber(refine?: DynamicRefine<z.ZodNumber>) {
-  return z.number().nullish().or(z.string().nullish())
+  const schema = z.number().nullish().or(z.string().nullish())
     .transform<number | null>((maybeNumber) => {
       if (typeof maybeNumber === 'number') {
         return maybeNumber;
@@ -44,4 +46,11 @@ export function nullableNumber(refine?: DynamicRefine<z.ZodNumber>) {
     .superRefine((value, context) => {
       applyDynamicRefine(value, context, z.number(), refine);
     });
+
+  /* The bounds of the refinement, readable by `describeField`: see `constraint.ts` */
+  if (refine) {
+    Object.assign(schema._zod.def, { [CONSTRAINT_KEY]: refine(z.number()) });
+  }
+
+  return schema;
 }

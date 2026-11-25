@@ -1,0 +1,17 @@
+{
+  "extends": [
+    "@proedis/tsconfig/react",
+    "@proedis/tsconfig/declaration"
+  ],
+  "include": [
+    "src"
+  ],
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "build/types",
+    "paths": {
+      "@proedis/ui": [ "../ui/build/types/index.d.ts" ],
+      "@proedis/ui/*": [ "../ui/build/types/*" ]
+    }
+  }
+}

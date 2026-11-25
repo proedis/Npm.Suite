@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { CONSTRAINT_KEY } from '../constraint';
+
 import { applyDynamicRefine } from './refine';
 
 import type { DynamicRefine } from './refine';
@@ -27,11 +29,18 @@ import type { DynamicRefine } from './refine';
  *  against a `min`.
  */
 export function nullableString(refine?: DynamicRefine<z.ZodString>) {
-  return z.string().nullish()
+  const schema = z.string().nullish()
     .transform(value => (value || null))
     .superRefine((value, context) => {
       applyDynamicRefine(value, context, z.string(), refine);
     });
+
+  /* The bounds of the refinement, readable by `describeField`: see `constraint.ts` */
+  if (refine) {
+    Object.assign(schema._zod.def, { [CONSTRAINT_KEY]: refine(z.string()) });
+  }
+
+  return schema;
 }
 
 

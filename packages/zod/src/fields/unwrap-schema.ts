@@ -27,6 +27,12 @@ export interface UnwrappedSchema {
 
   /** The first `.describe()` found, walking outside in */
   description?: string;
+
+  /**
+   * The refinement a validator of this package left on a level of the walk, `nullableString(s =>
+   * s.max(120))`: the bounds a `superRefine` would otherwise hide
+   */
+  constraint?: ZodTypeLike;
 }
 
 
@@ -69,6 +75,10 @@ export function unwrapSchema(schema: ZodTypeLike): UnwrappedSchema {
 
   /** A malformed schema must not hang the render: bail out after a sane number of levels */
   for (let depth = 0; depth < 32; depth += 1) {
+    if (result.constraint === undefined && current.def.proedisConstraint !== undefined) {
+      result.constraint = current.def.proedisConstraint;
+    }
+
     if (result.description === undefined && current.description !== undefined) {
       result.description = current.description;
     }

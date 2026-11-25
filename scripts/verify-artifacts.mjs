@@ -122,6 +122,66 @@ function collectEntryPoints(manifest) {
  * @param packageName Directory name under packages/
  * @return {string[]} The problems found, empty when the artifact is sound
  */
+/**
+ * The modules the main entry loads, followed through every relative import, must not import an
+ * optional peer. An optional peer is optional only for a consumer who never loads the code that
+ * imports it: once the package root reaches one, every consumer of the root needs it installed, and
+ * a missing one fails at runtime with every other check green. The subpaths are where those peers
+ * live; the root has to stay clear of them.
+ *
+ * Read on the ESM output, whose relative specifiers carry their extension.
+ */
+function verifyMainEntryPeers(manifest, buildPath) {
+  const optional = new Set(Object.entries(manifest.peerDependenciesMeta ?? {})
+    .filter(([ , meta ]) => meta?.optional)
+    .map(([ name ]) => name));
+  const entry = manifest.module ?? manifest.main;
+
+  if (!optional.size || !entry) {
+    return [];
+  }
+
+  const problems = new Map();
+  const start = resolve(buildPath, entry);
+  const parentOf = new Map([ [ start, null ] ]);
+  const queue = [ start ];
+
+  while (queue.length) {
+    const file = queue.shift();
+    const contents = stripComments(readFileSync(file, 'utf-8'));
+
+    STATEMENT_PATTERNS.forEach((pattern) => {
+      for (const [ , specifier ] of contents.matchAll(pattern)) {
+        if (specifier.startsWith('.')) {
+          const target = resolve(file, '..', specifier);
+
+          if (existsSync(target) && !parentOf.has(target)) {
+            parentOf.set(target, file);
+            queue.push(target);
+          }
+
+          continue;
+        }
+
+        const name = toPackageName(specifier);
+
+        if (name && optional.has(name)) {
+          const chain = [];
+
+          for (let step = file; step; step = parentOf.get(step)) {
+            chain.unshift(relative(buildPath, step));
+          }
+
+          problems.set(`${name} ${file}`, `the main entry reaches the optional peer '${name}': ${chain.join(' -> ')}`);
+        }
+      }
+    });
+  }
+
+  return [ ...problems.values() ];
+}
+
+
 function verifyPackage(packageName) {
   const packagePath = resolve(PACKAGES_DIRECTORY, packageName);
   const buildPath = join(packagePath, BUILD_DIRECTORY);
@@ -298,6 +358,11 @@ function verifyPackage(packageName) {
       + `dependencies nor peerDependencies (first seen in ${file.replace(`${packagePath}/`, '')})`
     );
   });
+
+  // ----
+  // 4. The main entry reaches no optional peer
+  // ----
+  problems.push(...verifyMainEntryPeers(manifest, buildPath));
 
   return problems;
 }

@@ -38,12 +38,14 @@
 
 /*
  * The classes the interactive components build from a value per breakpoint, which no scanner can
- * find in the source: the span and the new row of a `Field` in a form section, the layout of a group
- * of checkboxes or radios, the width of a `block` button. Each list is the whole set a prop can
- * produce: change the prop's type, change its line here.
+ * find in the source: the span and the new row of a `Field` in a form section and of a `Detail.Item`
+ * in its grid, the layout of a group of checkboxes or radios, the width of a `block` button. Each list
+ * is the whole set a prop can produce: change the prop's type, change its line here.
  */
 @source inline("{sm:,md:,lg:,xl:,2xl:,}in-data-[slot=form-section]:col-span-{1,2,3,4,6}");
 @source inline("{sm:,md:,lg:,xl:,2xl:,}in-data-[slot=form-section]:col-start-{1,auto}");
+@source inline("{sm:,md:,lg:,xl:,2xl:,}col-span-{1,2,3,4,6}");
+@source inline("{sm:,md:,lg:,xl:,2xl:,}col-start-{1,auto}");
 @source inline("{sm:,md:,lg:,xl:,2xl:,}flex-{wrap,nowrap}");
 @source inline("{sm:,md:,lg:,xl:,2xl:,}gap-x-{2,4}");
 @source inline("{sm:,md:,lg:,xl:,2xl:,}gap-y-2");
@@ -53,8 +55,8 @@
 /* The two orientations of a `Field`, each part placed again (`ORIENTATION_LAYOUT` in `Field.tsx`) */
 @source inline("{sm:,md:,lg:,xl:,2xl:,}grid-cols-{field,field-horizontal}");
 @source inline("{sm:,md:,lg:,xl:,2xl:,}*:{col-start-2,col-start-auto,col-span-2,row-start-1,row-start-auto}");
-@source inline("{sm:,md:,lg:,xl:,2xl:,}*:data-[slot=field-label]:{col-start-1,col-start-auto,col-span-1,col-span-2,row-start-1,row-start-auto,flex,block,min-h-control-md,min-h-0,items-center,self-start,self-end}");
-@source inline("{sm:,md:,lg:,xl:,2xl:,}*:data-[slot=field-{description,error}]:{col-start-1,col-start-2,row-start-2,row-start-auto}");
+@source inline("{sm:,md:,lg:,xl:,2xl:,}*:data-[slot=field-label]:{col-start-1,col-start-auto,col-span-1,col-span-2,row-start-1,row-start-auto,min-h-control-md,min-h-0,justify-center,justify-start,self-start,self-end}");
+@source inline("{sm:,md:,lg:,xl:,2xl:,}*:data-[slot=field-message]:{col-start-1,col-start-2,row-start-2,row-start-auto}");
 @source inline("{sm:,md:,lg:,xl:,2xl:,}*:data-[slot=field-counter]:{col-start-2,col-start-3,row-start-2,row-start-auto}");
 
 /* ============================================================
@@ -259,6 +261,26 @@
 }
 
 /*
+ * The line of text inside a frame. An `<input>` taller than its line centres the line itself, and
+ * Chrome rounds that centring apart from the way a flex row centres the prefix, the suffix and the
+ * icons beside it: measured on a 36px frame, the value sat 1px under its prefix at 1x and at 2x.
+ * So the input keeps the whole height of the frame (a press anywhere in it places the caret) with a
+ * padding that leaves exactly one line inside, and the browser has nothing left to centre.
+ *
+ * `frame-room-*` sits on the frame and says how tall its inside is, the control height less the two
+ * lines of the border; `frame-line` sits on the input. Both follow the height of a coarse pointer.
+ */
+@utility frame-room-sm { --frame-room: calc(var(--spacing-control-sm) - 2px); }
+@utility frame-room-md { --frame-room: calc(var(--spacing-control-md) - 2px); }
+@utility frame-room-lg { --frame-room: calc(var(--spacing-control-lg) - 2px); }
+
+@utility frame-line {
+  align-self: stretch;
+  height: auto;
+  padding-block: max(0px, calc((var(--frame-room) - 1lh) / 2));
+}
+
+/*
  * Under a finger the controls grow one step, 4px each: 36, 40 and 44px. The size of a control is
  * a decision about the pointer, not about the width of the window, so it is decided here once and
  * not with a size per breakpoint at every call site. A phone held sideways is as wide as a small
@@ -268,6 +290,52 @@
  * in its own `:root` wins on every device, and redeclares them in its own
  * `@media (pointer: coarse)` to keep a different step for touch.
  */
+/*
+ * The corners of the controls, a decision of the product like their heights. `--control-radius` is the
+ * corner of every control (a field, a select, a date picker, a toggle, a segmented control, a button),
+ * so a row of them keeps one shape; `--button-radius` lets the buttons alone differ, and falls back to
+ * it. `control-inner` is the corner of what sits inside a control's padding (the items of a segmented
+ * control): the same curve, 2px tighter, which is `rounded-sm` inside the default `rounded-md`.
+ *
+ * `inline`, with the fallback in the class, so it is resolved where the control is: undeclared, the
+ * corner is a step of the radius scale and follows `--radius-scale`. Declared on `:root` like every
+ * variable of the package:
+ *
+ *   :root { --control-radius: var(--radius-full); }   every control a pill
+ *   :root { --button-radius: var(--radius-2xl); }     the buttons only
+ */
+@theme inline {
+  --radius-control: var(--control-radius, var(--radius-md));
+  --radius-control-inner: max(0px, calc(var(--control-radius, var(--radius-md)) - 2px));
+  --radius-button: var(--button-radius, var(--control-radius, var(--radius-md)));
+}
+
+/*
+ * The Accordion, every value a product may want to move, each undeclared by default and falling back
+ * in the class like the corners above:
+ *
+ *   :root {
+ *     --accordion-radius: var(--radius-xl);                      the corner of the boxed variants
+ *     --accordion-gap: var(--space-md);                          the room between separated items
+ *     --accordion-filled-background: var(--accent);              the open item of filled
+ *     --accordion-item-background: var(--muted);                 a separated item at rest
+ *     --accordion-item-open-background: var(--card);             a separated item open
+ *     --accordion-open-border: var(--primary);                   the border of a separated item open
+ *   }
+ */
+@theme inline {
+  --radius-accordion: var(--accordion-radius, var(--radius-lg));
+  --radius-loading-bar: var(--loading-bar-radius, 0px);
+  --radius-avatar: var(--avatar-radius, calc(infinity * 1px));
+  --radius-progress: var(--progress-radius, calc(infinity * 1px));
+  --color-progress-track: var(--progress-track, var(--muted));
+  --gap-accordion: var(--accordion-gap, var(--space-sm));
+  --color-accordion-filled: var(--accordion-filled-background, var(--muted));
+  --color-accordion-item: var(--accordion-item-background, var(--muted));
+  --color-accordion-item-open: var(--accordion-item-open-background, var(--card));
+  --color-accordion-open-border: var(--accordion-open-border, var(--border));
+}
+
 @layer theme {
   @media (pointer: coarse) {
     :root,
@@ -276,6 +344,314 @@
       --spacing-control-md: 2.5rem;
       --spacing-control-lg: 2.75rem;
     }
+  }
+}
+
+/*
+ * The colour of a tone as a variable, `--tone`, on a component that paints with it: a solid fill of that
+ * tone is `var(--tone)`. It is what lets a theme derive a border, a shadow or a glow from whatever tone
+ * a button has, with one rule for all seven. Set by `Button`.
+ */
+@utility tone-muted {
+  --tone: var(--muted);
+}
+
+@utility tone-secondary {
+  --tone: var(--secondary);
+}
+
+@utility tone-primary {
+  --tone: var(--primary);
+}
+
+@utility tone-success {
+  --tone: var(--success);
+}
+
+@utility tone-warning {
+  --tone: var(--warning);
+}
+
+@utility tone-destructive {
+  --tone: var(--destructive);
+}
+
+@utility tone-info {
+  --tone: var(--info);
+}
+
+/*
+ * The finish of a solid button, every part of it off by default: the flat button stays the default,
+ * and a product turns the parts on from `:root`, each one a number, each one derived from the tone:
+ *
+ *   --button-gradient      0 to 1  a light top and a darker bottom over the fill
+ *   --button-border-shade  0% up   the border, the tone mixed with this much black
+ *   --button-highlight     0 to 1  a light line inside the top edge
+ *   --button-glow          0 to 1  a shadow in the colour of the tone, under the button
+ *
+ * The shadows go through Tailwind's own shadow variables (`--tw-inset-shadow`, `--tw-shadow`), so the
+ * focus ring, which is a shadow too, still composes with them. The gradient is a `::before` behind the
+ * content (the button isolates its stacking context), because the hover and pressed veils are the
+ * button's own background image and would replace a gradient written there.
+ */
+/*
+ * The corner of a rail of choices, SegmentedControl and Tabs, and of what is inside it: the items and the
+ * fill that slides take the rail's corner less its padding (`--rail-inset`, one step, three quarters on a
+ * small SegmentedControl), so the two stay concentric. Each has its theme variable, falling back to the
+ * corner it had; `rail-radius-*` sets one rail.
+ */
+@theme inline {
+  --radius-segmented: var(--rail-radius, var(--segmented-control-radius, var(--control-radius, var(--radius-md))));
+  --radius-segmented-inner: max(0px, calc(var(--rail-radius, var(--segmented-control-radius, var(--control-radius, var(--radius-md)))) - var(--rail-inset, calc(var(--spacing) * 1))));
+  --radius-tabs: var(--rail-radius, var(--tabs-radius, var(--radius-lg)));
+  --radius-tabs-inner: max(0px, calc(var(--rail-radius, var(--tabs-radius, var(--radius-lg))) - var(--rail-inset, calc(var(--spacing) * 1))));
+}
+
+@utility rail-radius-* {
+  --rail-radius: --value(--radius-*);
+}
+
+@utility rail-radius-none {
+  --rail-radius: 0px;
+}
+
+@utility rail-radius-full {
+  --rail-radius: calc(infinity * 1px);
+}
+
+@utility rail-inset-tight {
+  --rail-inset: calc(var(--spacing) * 0.75);
+}
+
+/*
+ * The corner of the overlays. `--overlay-radius` is the one corner of Dialog, Drawer and AlertDialog,
+ * which Marco wants equal; `--dialog-radius`, `--drawer-radius` and `--alert-dialog-radius` let one of
+ * them differ and fall back to it, and all of them fall back to `--radius-lg`:
+ *
+ *   :root { --overlay-radius: var(--radius-2xl); }    every overlay
+ *   :root { --drawer-radius: 0px; }                   the drawers alone
+ *
+ * The panel carries the variable of its component (`overlay-corner-dialog` & co.) or the step of its
+ * `radius` prop (`overlay-corner-xl`), and the panel and the waiting veil inside it read
+ * `rounded-overlay`, so the veil follows the corner it covers.
+ */
+@theme inline {
+  --radius-overlay: var(--overlay-corner, var(--overlay-radius, var(--radius-lg)));
+}
+
+@utility overlay-corner-dialog { --overlay-corner: var(--dialog-radius, var(--overlay-radius, var(--radius-lg))); }
+@utility overlay-corner-drawer { --overlay-corner: var(--drawer-radius, var(--overlay-radius, var(--radius-lg))); }
+@utility overlay-corner-alert-dialog { --overlay-corner: var(--alert-dialog-radius, var(--overlay-radius, var(--radius-lg))); }
+@utility overlay-corner-* { --overlay-corner: --value(--radius-*); }
+@utility overlay-corner-none { --overlay-corner: 0px; }
+
+/*
+ * The corner of every floating list (a menu, the list of a Select, a Combobox, a filter) and of its
+ * items, which sit 4px inside it and take its corner less those 4px: the two stay concentric whatever
+ * the theme declares. `list-panel-radius-*` sets it for one panel, its items following.
+ */
+@theme inline {
+  --radius-list-panel: var(--list-panel-radius, var(--radius-md));
+  --radius-list-item: max(0px, calc(var(--list-panel-radius, var(--radius-md)) - 4px));
+}
+
+@utility list-panel-radius-* {
+  --list-panel-radius: --value(--radius-*);
+}
+
+@utility list-panel-radius-none {
+  --list-panel-radius: 0px;
+}
+
+/*
+ * The card. Its corner, its room and its shadow are the theme's, each falling back to what the rest of
+ * the package draws a panel with (the table's card, a dialog): `lg`, the `lg` step, none. The border is
+ * on by default and its colour is the theme's too, so a product with borderless cards declares
+ * `--surface-border-color: transparent` once.
+ */
+@theme inline {
+  --radius-surface: var(--surface-radius, var(--radius-lg));
+  --padding-surface: var(--surface-padding, var(--space-lg));
+  --shadow-surface: var(--surface-shadow, 0 0 #0000);
+  --color-surface-border: var(--surface-border-color, var(--border));
+}
+
+/*
+ * The proportions of an IconBox, from one number. Every size sets `--icon-box-scale` (`md` is 1, a box of
+ * 2.5rem); the corner is the radius step times that number, so a box, its glyph (half the box, a step of
+ * the spacing scale), its corner and its halo keep the same proportions at every size. The step is what a
+ * `md` box would show: `--icon-box-radius` for the theme, `icon-box-corner-*` for one box.
+ */
+@theme inline {
+  --radius-icon-box: calc(var(--icon-box-corner, var(--icon-box-radius, var(--radius-2xl))) * var(--icon-box-scale, 1));
+}
+
+/* One utility per size, not a functional `icon-box-scale-*`: Tailwind takes a bare number only on a quarter */
+@utility icon-box-scale-xs {
+  --icon-box-scale: 0.6;
+}
+
+@utility icon-box-scale-sm {
+  --icon-box-scale: 0.8;
+}
+
+@utility icon-box-scale-md {
+  --icon-box-scale: 1;
+}
+
+@utility icon-box-scale-lg {
+  --icon-box-scale: 1.4;
+}
+
+@utility icon-box-scale-xl {
+  --icon-box-scale: 1.8;
+}
+
+@utility icon-box-scale-2xl {
+  --icon-box-scale: 2.2;
+}
+
+@utility icon-box-corner-* {
+  --icon-box-corner: --value(--radius-*);
+}
+
+/*
+ * The halo: two rings around the box, a quarter and a half of its side wide, in the colour of the tone at
+ * 15% and 5%. Drawn as shadows of the box itself, so they follow its corner and sit in no stacking order:
+ * two spans behind it at `-z-10` fell under the background of the first ancestor that had one, and never
+ * showed. The colour comes from `icon-box-halo-*`.
+ */
+@utility icon-box-halo {
+  box-shadow:
+    0 0 0 calc(2.5rem * var(--icon-box-scale, 1) * 0.25) color-mix(in oklab, var(--icon-box-halo-color, currentColor) 15%, transparent),
+    0 0 0 calc(2.5rem * var(--icon-box-scale, 1) * 0.5) color-mix(in oklab, var(--icon-box-halo-color, currentColor) 5%, transparent);
+}
+
+@utility icon-box-halo-* {
+  --icon-box-halo-color: --value(--color-*);
+}
+
+/*
+ * The three texts of a Heading, one scale for the three: the root sets the size of each through
+ * `heading-size-*` and the parts read it, so the eyebrow, the title and the description move together. A
+ * part used alone falls back on the `sm` row. Read through `text-heading-*`, a utility of the same group as
+ * `text-xl`, so a size written on a part in `className` still replaces it.
+ */
+@theme inline {
+  --text-heading-eyebrow: var(--heading-eyebrow-size, var(--text-2xs));
+  --text-heading-eyebrow--line-height: var(--heading-eyebrow-line-height, var(--text-2xs--line-height));
+  --text-heading-title: var(--heading-title-size, var(--text-sm));
+  --text-heading-description: var(--heading-description-size, var(--text-xs));
+  --font-weight-heading-title: var(--heading-title-weight, var(--font-weight-semibold));
+}
+
+@utility heading-size-sm {
+  --heading-eyebrow-size: var(--text-2xs);
+  --heading-eyebrow-line-height: var(--text-2xs--line-height);
+  --heading-title-size: var(--text-sm);
+  --heading-title-weight: var(--font-weight-semibold);
+  --heading-description-size: var(--text-xs);
+}
+
+@utility heading-size-md {
+  --heading-eyebrow-size: var(--text-2xs);
+  --heading-eyebrow-line-height: var(--text-2xs--line-height);
+  --heading-title-size: var(--text-base);
+  --heading-title-weight: var(--font-weight-semibold);
+  --heading-description-size: var(--text-sm);
+}
+
+@utility heading-size-lg {
+  --heading-eyebrow-size: var(--text-xs);
+  --heading-eyebrow-line-height: var(--text-xs--line-height);
+  --heading-title-size: var(--text-lg);
+  --heading-title-weight: var(--font-weight-semibold);
+  --heading-description-size: var(--text-sm);
+}
+
+@utility heading-size-xl {
+  --heading-eyebrow-size: var(--text-xs);
+  --heading-eyebrow-line-height: var(--text-xs--line-height);
+  --heading-title-size: var(--text-xl);
+  --heading-title-weight: var(--font-weight-bold);
+  --heading-description-size: var(--text-base);
+}
+
+/*
+ * The body of an Accordion item opens and closes on its height, which Base UI measures and writes as
+ * `--accordion-panel-height`: an opening is a functional animation, so it is animated, short, and not at
+ * all with reduced motion. A utility because a transition of `height` has no Tailwind class but an
+ * arbitrary one.
+ */
+@utility accordion-panel {
+  height: var(--accordion-panel-height);
+  overflow: hidden;
+  transition: height 150ms ease-out;
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    height: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+/*
+ * The same opening for Base UI's Collapsible, on `--collapsible-panel-height`: the checklist of a
+ * PasswordInput, which opens when the field takes the focus.
+ */
+@utility collapsible-panel {
+  height: var(--collapsible-panel-height);
+  overflow: hidden;
+  transition: height 150ms ease-out;
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    height: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+/*
+ * The press of a button: it gives under the pointer, `--button-press-scale` of its size (0.98, 1 for
+ * none), moves by `--button-press-translate` (none; `0 1px` sinks it a pixel, the two together make a
+ * key that is pushed down), and comes back when released. Two properties of their own, `scale` and
+ * `translate`, so neither replaces a transform of the caller. None under reduced motion.
+ */
+@utility button-press {
+  &:active:not([data-disabled]) {
+    scale: var(--button-press-scale, 0.98);
+    translate: var(--button-press-translate, none);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &:active:not([data-disabled]) {
+      scale: none;
+      translate: none;
+    }
+  }
+}
+
+@utility button-finish {
+  isolation: isolate;
+  border-color: color-mix(in oklab, var(--tone), black var(--button-border-shade, 0%));
+  --tw-inset-shadow: inset 0 1px 0 rgb(255 255 255 / var(--button-highlight, 0));
+  --tw-shadow: 0 8px 20px -6px color-mix(in oklab, var(--tone) calc(var(--button-glow, 0) * 100%), transparent);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow, 0 0 #0000), var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    background-image: linear-gradient(to bottom, rgb(255 255 255 / var(--button-gradient, 0)), rgb(0 0 0 / calc(var(--button-gradient, 0) / 2)));
   }
 }
 

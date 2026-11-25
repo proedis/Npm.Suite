@@ -3,9 +3,8 @@ import * as React from 'react';
 import { splitBaseProps } from '../core/base';
 import { cn } from '../core/cn';
 
-import type { PolymorphicProps } from '../core/polymorphic';
-
 import type { BaseProps } from '../core/base';
+import type { PolymorphicProps } from '../core/polymorphic';
 
 
 /* --------
@@ -15,7 +14,7 @@ export type ContainerSize = 'default' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
 
 
 export interface StrictContainerProps extends BaseProps {
-  /** Horizontal padding that grows with the viewport. On by default */
+  /** Horizontal padding that grows with the viewport. Defaults to `true` */
   padded?: boolean;
 
   /**
@@ -24,7 +23,7 @@ export interface StrictContainerProps extends BaseProps {
    * `default` is a value of its own and the one you get by saying nothing, so
    * `[data-slot='container'][data-size='default']` is exactly the set of pages nobody had an opinion
    * about — and an application's rule for it keeps working if this package ever changes its mind about
-   * which step that is.
+   * which step that is. Defaults to `default`
    */
   size?: ContainerSize;
 
