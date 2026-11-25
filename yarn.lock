@@ -1881,6 +1881,39 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@proedis/platform@workspace:apps/platform":
+  version: 0.0.0-use.local
+  resolution: "@proedis/platform@workspace:apps/platform"
+  dependencies:
+    "@base-ui/react": "npm:1.7.0"
+    "@hookform/resolvers": "npm:7.0.5"
+    "@proedis/form": "workspace:*"
+    "@proedis/react": "workspace:*"
+    "@proedis/tsconfig": "workspace:*"
+    "@proedis/ui": "workspace:*"
+    "@proedis/zod": "workspace:*"
+    "@tailwindcss/vite": "npm:4.3.5"
+    "@tanstack/react-router": "npm:1.170.46"
+    "@tanstack/react-table": "npm:9.3.1"
+    "@tanstack/router-plugin": "npm:1.169.0"
+    "@types/node": "npm:26.6.6"
+    "@types/react": "npm:^19.2.14"
+    "@types/react-dom": "npm:^19.2.3"
+    "@vitejs/plugin-react": "npm:6.3.0"
+    dayjs: "npm:^1.11.12"
+    lucide-react: "npm:1.77.0"
+    magic-string: "npm:1.4.5"
+    react: "npm:19.2.5"
+    react-dom: "npm:19.2.5"
+    react-hook-form: "npm:7.91.0"
+    shiki: "npm:4.6.0"
+    tailwindcss: "npm:4.3.5"
+    typescript: "npm:5.9.3"
+    vite: "npm:8.3.8"
+    zod: "npm:4.4.3"
+  languageName: unknown
+  linkType: soft
+
 "@proedis/react-client@npm:^4.1.1, @proedis/react-client@workspace:packages/react-client":
   version: 0.0.0-use.local
   resolution: "@proedis/react-client@workspace:packages/react-client"
@@ -1975,39 +2008,6 @@ __metadata:
   dependencies:
     "@proedis/tsconfig": "npm:^2.0.1"
     rollup: "npm:^4.62.4"
-  languageName: unknown
-  linkType: soft
-
-"@proedis/ui-docs@workspace:apps/ui-docs":
-  version: 0.0.0-use.local
-  resolution: "@proedis/ui-docs@workspace:apps/ui-docs"
-  dependencies:
-    "@base-ui/react": "npm:1.7.0"
-    "@hookform/resolvers": "npm:7.0.5"
-    "@proedis/form": "workspace:*"
-    "@proedis/react": "workspace:*"
-    "@proedis/tsconfig": "workspace:*"
-    "@proedis/ui": "workspace:*"
-    "@proedis/zod": "workspace:*"
-    "@tailwindcss/vite": "npm:4.3.5"
-    "@tanstack/react-router": "npm:1.170.46"
-    "@tanstack/react-table": "npm:9.3.1"
-    "@tanstack/router-plugin": "npm:1.169.0"
-    "@types/node": "npm:26.6.6"
-    "@types/react": "npm:^19.2.14"
-    "@types/react-dom": "npm:^19.2.3"
-    "@vitejs/plugin-react": "npm:6.3.0"
-    dayjs: "npm:^1.11.12"
-    lucide-react: "npm:1.77.0"
-    magic-string: "npm:1.4.5"
-    react: "npm:19.2.5"
-    react-dom: "npm:19.2.5"
-    react-hook-form: "npm:7.91.0"
-    shiki: "npm:4.6.0"
-    tailwindcss: "npm:4.3.5"
-    typescript: "npm:5.9.3"
-    vite: "npm:8.3.8"
-    zod: "npm:4.4.3"
   languageName: unknown
   linkType: soft
 

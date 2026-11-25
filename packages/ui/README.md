@@ -49,7 +49,7 @@ renderable from a React Server Component. Everything with behaviour lives on its
 one brings only its own optional peers.
 
 📚 Every component has a page with live examples, the accessibility, the slots and the generated API
-in the documentation site, `apps/ui-docs` in this repository: `yarn workspace @proedis/ui-docs dev`.
+in the documentation site, the UI section of `apps/platform` in this repository: `yarn workspace @proedis/platform dev`.
 
 ## 📦 Installation
 

@@ -1187,7 +1187,7 @@ documentation site surfaced):
   action) made valid for a moment to watch `tsc` fail on it.
 - **The React Compiler** at 201 functions compiled, 0 skipped; `release:verify` green on 14 artifacts,
   with the root entry reaching no optional peer.
-- **The documentation site** (`apps/ui-docs`) as a consumer of the source: 72 pages, 350 live
+- **The documentation site** (then `apps/ui-docs`, now the UI section of `apps/platform`) as a consumer of the source: 72 pages, 350 live
   examples, every slots table compared with the live DOM of its examples, every claim about types
   proved with a probe in both directions, and a sweep of every page with no console error and no
   horizontal overflow at 375px.
