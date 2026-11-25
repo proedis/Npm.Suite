@@ -67,6 +67,7 @@
       "display/surface",
       "actions/accordion",
       "actions/button",
+      "actions/copy-button",
       "actions/link",
       "actions/menu",
       "actions/segmented-control",

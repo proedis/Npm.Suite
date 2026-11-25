@@ -33,7 +33,7 @@ export interface CopyButtonLabels {
   readonly failed?: string;
 }
 
-export type CopyButtonProps = Omit<IconButtonProps, 'label' | 'icon' | 'onClick' | 'loading' | 'loadingLabel'> & {
+export type CopyButtonProps = Omit<IconButtonProps, 'label' | 'icon' | 'onClick' | 'loading' | 'loadingLabel' | 'value' | 'onCopy'> & {
   /** What to copy: the text, or a function read at the moment of the copy, which may be asynchronous */
   value: ClipboardValue;
 
@@ -86,8 +86,11 @@ export const CopyButton = React.forwardRef<HTMLButtonElement, CopyButtonProps>((
   // ----
   // Handlers
   // ----
-  const handleClick = (): void => {
-    void clipboard.copy(value).then((copied) => onCopy?.(copied));
+  const handleClick = async (): Promise<void> => {
+    /* Copied first, told after: `onCopy?.(await …)` would skip the copy itself when there is no `onCopy` */
+    const copied = await clipboard.copy(value);
+
+    onCopy?.(copied);
   };
 
 
@@ -110,7 +113,10 @@ export const CopyButton = React.forwardRef<HTMLButtonElement, CopyButtonProps>((
           ? <span data-slot={'copy-button-done'} className={cn('contents', TONE_CLASSES.plain.success)}><DoneGlyph /></span>
           : (icon ?? <CopyGlyph />)}
         className={className}
-        onClick={handleClick}
+        onClick={() => {
+          /* Never rejects: `copy` reports a refusal as `false` */
+          handleClick().catch(() => undefined);
+        }}
       />
       <VisuallyHidden>
         <span role={'status'} data-slot={'copy-button-status'}>{status === 'copied' || failed ? label : ''}</span>

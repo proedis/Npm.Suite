@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Input } from '@base-ui/react/input';
 import { cva } from 'class-variance-authority';
 
-import { optionalContextBuilder } from '@proedis/react';
+import { optionalContextBuilder, useForkRef } from '@proedis/react';
 
 import { splitBaseProps } from '../../core/base';
 import { bindable } from '../../core/binding';
@@ -16,6 +16,7 @@ import { Spinner } from '../../primitives/Spinner';
 import { isPresent } from '../../internal/presence';
 
 import { IconButton } from '../../actions/button/IconButton';
+import { CopyButton } from '../../actions/copy-button/CopyButton';
 
 import { useFieldControl } from '../field/fieldContext';
 import { FieldShell } from '../field-shell/FieldShell';
@@ -25,6 +26,7 @@ import type { BaseProps } from '../../core/base';
 import type { BoundValue } from '../../core/binding';
 
 import type { IconButtonProps } from '../../actions/button/IconButton';
+import type { CopyButtonProps } from '../../actions/copy-button/CopyButton';
 
 import type { TextControlSize } from '../text-control/textControl';
 
@@ -80,9 +82,15 @@ export type TextInputProps = StrictTextInputProps & TextInputLoadingProps & Omit
 
 export type TextInputActionProps = Omit<IconButtonProps, 'size' | 'fill' | 'tone' | 'loading' | 'loadingLabel'>;
 
+/** `value` is optional: without it the button copies what the field holds when it is pressed */
+export type TextInputCopyProps = Omit<CopyButtonProps, 'size' | 'fill' | 'tone' | 'value'> & {
+  value?: CopyButtonProps['value'];
+};
+
 interface TextInputState {
   readonly size: TextInputSize;
   readonly inert: boolean;
+  readonly disabled: boolean;
 }
 
 
@@ -110,7 +118,7 @@ const ACTION_OFFSET: Readonly<Record<TextInputSize, string>> = {
  * Context Definition
  * -------- */
 
-const [ TextInputContext, useTextInputContext ] = optionalContextBuilder<TextInputState>('TextInput', { size: 'md', inert: false });
+const [ TextInputContext, useTextInputContext ] = optionalContextBuilder<TextInputState>('TextInput', { size: 'md', inert: false, disabled: false });
 
 
 /* --------
@@ -205,6 +213,68 @@ const TextInputAction = React.forwardRef<HTMLButtonElement, TextInputActionProps
 TextInputAction.displayName = 'TextInput.Action';
 
 
+/**
+ * Copies the value of the field: the look of `TextInput.Action`, the behaviour of `CopyButton`.
+ *
+ * ```tsx
+ * <TextInput readOnly value={apiKey} trailing={<TextInput.Copy labels={{ copy: 'Copy the key', copied: 'Copied' }} />} />
+ * ```
+ *
+ * Unlike an action it stays in a read only field, the field one most often copies from: a key, a code, a
+ * link. Without `value` it copies what the field holds at the moment of the press. Hidden while disabled.
+ */
+const TextInputCopy = React.forwardRef<HTMLButtonElement, TextInputCopyProps>((props, ref) => {
+
+  // ----
+  // Props Deconstruct
+  // ----
+  const { className, value, ...rest } = props;
+
+
+  // ----
+  // Internal Hooks
+  // ----
+  const { disabled, size } = useTextInputContext();
+  const buttonRef = React.useRef<HTMLButtonElement | null>(null);
+  const forkedRef = useForkRef(ref, buttonRef);
+
+
+  // ----
+  // Component Render
+  // ----
+  if (disabled) {
+    return null;
+  }
+
+  /* The text of the field when the press happens, read from the frame the button sits in */
+  const fieldValue = (): string => buttonRef.current
+    ?.closest('[data-slot=text-input]')
+    ?.querySelector<HTMLInputElement>('[data-field-control]')
+    ?.value ?? '';
+
+  return (
+    <CopyButton
+      {...rest}
+      ref={forkedRef}
+      value={value ?? fieldValue}
+      size={size === 'sm' ? 'sm' : 'md'}
+      fill={'plain'}
+      tone={'muted'}
+      data-slot={'text-input-copy'}
+      className={cn(
+        'size-6 cursor-pointer rounded-sm',
+        'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:ring-0',
+        ACTION_OFFSET[size],
+        className
+      )}
+    />
+  );
+
+});
+
+TextInputCopy.displayName = 'TextInput.Copy';
+
+
 /* --------
  * Component Definition
  * -------- */
@@ -246,7 +316,7 @@ const TextInputBase = React.forwardRef<HTMLInputElement, TextInputProps>((props,
   const isInvalid = invalid || field.invalid;
 
   const state = React.useMemo<TextInputState>(
-    () => ({ size, inert: isDisabled || readOnly }),
+    () => ({ size, inert: isDisabled || readOnly, disabled: isDisabled }),
     [ size, isDisabled, readOnly ]
   );
 
@@ -339,7 +409,7 @@ TextInputBase.displayName = 'TextInput';
  * `text-input-trailing`, `text-input-prefix`, `text-input-suffix`, `text-input-spinner`,
  * `text-input-action`.
  */
-export const TextInput = bindable(Object.assign(TextInputBase, { Action: TextInputAction }), {
+export const TextInput = bindable(Object.assign(TextInputBase, { Action: TextInputAction, Copy: TextInputCopy }), {
   kind: 'text',
   bind: (field: BoundValue<string>) => ({
     name    : field.name,

@@ -115,6 +115,27 @@ export function ClearGlyph(): React.ReactNode {
 }
 
 
+/** Two sheets, the second over the first: copy */
+export function CopyGlyph(): React.ReactNode {
+  return (
+    <Stroke>
+      <rect x={8} y={8} width={13} height={13} rx={2} />
+      <path d={'M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3'} />
+    </Stroke>
+  );
+}
+
+
+/** The tick at the size of an icon, where a copy or an action says it is done */
+export function DoneGlyph(): React.ReactNode {
+  return (
+    <Stroke>
+      <path d={'M20 6 9 17l-5-5'} />
+    </Stroke>
+  );
+}
+
+
 /** The mark of a tone, with the slot of the part it is when it is one */
 export function ToneGlyph(props: { tone: ToneGlyphTone; className?: string; slot?: string }): React.ReactNode {
   const { className, slot, tone } = props;
