@@ -26,7 +26,7 @@ import { pageAt } from '@/nav';
  * Constants Definition
  * -------- */
 
-const PAGE = pageAt('/forms/bound-field');
+const PAGE = pageAt('/form-binding/bound-field');
 
 const LINK = 'font-medium text-primary hover:underline';
 
@@ -82,7 +82,7 @@ function BoundFieldPage(): React.ReactNode {
           title={'What the schema gives'}
           lead={(
             <React.Fragment>
-              Inside a <Link to={'/forms/bound-form'} className={LINK}>BoundForm</Link> with a schema, each field
+              Inside a <Link to={'/form-binding/bound-form'} className={LINK}>BoundForm</Link> with a schema, each field
               reads its part of it. Not one label, asterisk, counter or bound below is written on a field: the schema
               under the form says all of it, once. Submit the form empty for the summary.
             </React.Fragment>
@@ -233,6 +233,6 @@ function BoundFieldPage(): React.ReactNode {
  * Route
  * -------- */
 
-export const Route = createFileRoute('/forms/bound-field')({
+export const Route = createFileRoute('/form-binding/bound-field')({
   component: BoundFieldPage
 });

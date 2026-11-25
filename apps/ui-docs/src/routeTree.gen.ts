@@ -35,8 +35,8 @@ import { Route as FeedbackAlertRouteImport } from './routes/feedback/alert'
 import { Route as FeedbackEmptyStateRouteImport } from './routes/feedback/empty-state'
 import { Route as FeedbackNotificationsRouteImport } from './routes/feedback/notifications'
 import { Route as FeedbackProgressBarRouteImport } from './routes/feedback/progress-bar'
-import { Route as FormsBoundFieldRouteImport } from './routes/forms/bound-field'
-import { Route as FormsBoundFormRouteImport } from './routes/forms/bound-form'
+import { Route as FormBindingBoundFieldRouteImport } from './routes/form-binding/bound-field'
+import { Route as FormBindingBoundFormRouteImport } from './routes/form-binding/bound-form'
 import { Route as FormsCheckboxRouteImport } from './routes/forms/checkbox'
 import { Route as FormsCheckboxGridRouteImport } from './routes/forms/checkbox-grid'
 import { Route as FormsComboboxRouteImport } from './routes/forms/combobox'
@@ -220,14 +220,14 @@ const FeedbackProgressBarRoute = FeedbackProgressBarRouteImport.update({
   path: '/feedback/progress-bar',
   getParentRoute: () => rootRouteImport,
 } as any)
-const FormsBoundFieldRoute = FormsBoundFieldRouteImport.update({
-  id: '/forms/bound-field',
-  path: '/forms/bound-field',
+const FormBindingBoundFieldRoute = FormBindingBoundFieldRouteImport.update({
+  id: '/form-binding/bound-field',
+  path: '/form-binding/bound-field',
   getParentRoute: () => rootRouteImport,
 } as any)
-const FormsBoundFormRoute = FormsBoundFormRouteImport.update({
-  id: '/forms/bound-form',
-  path: '/forms/bound-form',
+const FormBindingBoundFormRoute = FormBindingBoundFormRouteImport.update({
+  id: '/form-binding/bound-form',
+  path: '/form-binding/bound-form',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FormsCheckboxRoute = FormsCheckboxRouteImport.update({
@@ -520,8 +520,8 @@ export interface FileRoutesByFullPath {
   '/feedback/empty-state': typeof FeedbackEmptyStateRoute
   '/feedback/notifications': typeof FeedbackNotificationsRoute
   '/feedback/progress-bar': typeof FeedbackProgressBarRoute
-  '/forms/bound-field': typeof FormsBoundFieldRoute
-  '/forms/bound-form': typeof FormsBoundFormRoute
+  '/form-binding/bound-field': typeof FormBindingBoundFieldRoute
+  '/form-binding/bound-form': typeof FormBindingBoundFormRoute
   '/forms/checkbox': typeof FormsCheckboxRoute
   '/forms/checkbox-grid': typeof FormsCheckboxGridRoute
   '/forms/combobox': typeof FormsComboboxRoute
@@ -602,8 +602,8 @@ export interface FileRoutesByTo {
   '/feedback/empty-state': typeof FeedbackEmptyStateRoute
   '/feedback/notifications': typeof FeedbackNotificationsRoute
   '/feedback/progress-bar': typeof FeedbackProgressBarRoute
-  '/forms/bound-field': typeof FormsBoundFieldRoute
-  '/forms/bound-form': typeof FormsBoundFormRoute
+  '/form-binding/bound-field': typeof FormBindingBoundFieldRoute
+  '/form-binding/bound-form': typeof FormBindingBoundFormRoute
   '/forms/checkbox': typeof FormsCheckboxRoute
   '/forms/checkbox-grid': typeof FormsCheckboxGridRoute
   '/forms/combobox': typeof FormsComboboxRoute
@@ -685,8 +685,8 @@ export interface FileRoutesById {
   '/feedback/empty-state': typeof FeedbackEmptyStateRoute
   '/feedback/notifications': typeof FeedbackNotificationsRoute
   '/feedback/progress-bar': typeof FeedbackProgressBarRoute
-  '/forms/bound-field': typeof FormsBoundFieldRoute
-  '/forms/bound-form': typeof FormsBoundFormRoute
+  '/form-binding/bound-field': typeof FormBindingBoundFieldRoute
+  '/form-binding/bound-form': typeof FormBindingBoundFormRoute
   '/forms/checkbox': typeof FormsCheckboxRoute
   '/forms/checkbox-grid': typeof FormsCheckboxGridRoute
   '/forms/combobox': typeof FormsComboboxRoute
@@ -769,8 +769,8 @@ export interface FileRouteTypes {
     | '/feedback/empty-state'
     | '/feedback/notifications'
     | '/feedback/progress-bar'
-    | '/forms/bound-field'
-    | '/forms/bound-form'
+    | '/form-binding/bound-field'
+    | '/form-binding/bound-form'
     | '/forms/checkbox'
     | '/forms/checkbox-grid'
     | '/forms/combobox'
@@ -851,8 +851,8 @@ export interface FileRouteTypes {
     | '/feedback/empty-state'
     | '/feedback/notifications'
     | '/feedback/progress-bar'
-    | '/forms/bound-field'
-    | '/forms/bound-form'
+    | '/form-binding/bound-field'
+    | '/form-binding/bound-form'
     | '/forms/checkbox'
     | '/forms/checkbox-grid'
     | '/forms/combobox'
@@ -933,8 +933,8 @@ export interface FileRouteTypes {
     | '/feedback/empty-state'
     | '/feedback/notifications'
     | '/feedback/progress-bar'
-    | '/forms/bound-field'
-    | '/forms/bound-form'
+    | '/form-binding/bound-field'
+    | '/form-binding/bound-form'
     | '/forms/checkbox'
     | '/forms/checkbox-grid'
     | '/forms/combobox'
@@ -1016,8 +1016,8 @@ export interface RootRouteChildren {
   FeedbackEmptyStateRoute: typeof FeedbackEmptyStateRoute
   FeedbackNotificationsRoute: typeof FeedbackNotificationsRoute
   FeedbackProgressBarRoute: typeof FeedbackProgressBarRoute
-  FormsBoundFieldRoute: typeof FormsBoundFieldRoute
-  FormsBoundFormRoute: typeof FormsBoundFormRoute
+  FormBindingBoundFieldRoute: typeof FormBindingBoundFieldRoute
+  FormBindingBoundFormRoute: typeof FormBindingBoundFormRoute
   FormsCheckboxRoute: typeof FormsCheckboxRoute
   FormsCheckboxGridRoute: typeof FormsCheckboxGridRoute
   FormsComboboxRoute: typeof FormsComboboxRoute
@@ -1256,18 +1256,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FeedbackProgressBarRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/forms/bound-field': {
-      id: '/forms/bound-field'
-      path: '/forms/bound-field'
-      fullPath: '/forms/bound-field'
-      preLoaderRoute: typeof FormsBoundFieldRouteImport
+    '/form-binding/bound-field': {
+      id: '/form-binding/bound-field'
+      path: '/form-binding/bound-field'
+      fullPath: '/form-binding/bound-field'
+      preLoaderRoute: typeof FormBindingBoundFieldRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/forms/bound-form': {
-      id: '/forms/bound-form'
-      path: '/forms/bound-form'
-      fullPath: '/forms/bound-form'
-      preLoaderRoute: typeof FormsBoundFormRouteImport
+    '/form-binding/bound-form': {
+      id: '/form-binding/bound-form'
+      path: '/form-binding/bound-form'
+      fullPath: '/form-binding/bound-form'
+      preLoaderRoute: typeof FormBindingBoundFormRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forms/checkbox': {
@@ -1664,8 +1664,8 @@ const rootRouteChildren: RootRouteChildren = {
   FeedbackEmptyStateRoute: FeedbackEmptyStateRoute,
   FeedbackNotificationsRoute: FeedbackNotificationsRoute,
   FeedbackProgressBarRoute: FeedbackProgressBarRoute,
-  FormsBoundFieldRoute: FormsBoundFieldRoute,
-  FormsBoundFormRoute: FormsBoundFormRoute,
+  FormBindingBoundFieldRoute: FormBindingBoundFieldRoute,
+  FormBindingBoundFormRoute: FormBindingBoundFormRoute,
   FormsCheckboxRoute: FormsCheckboxRoute,
   FormsCheckboxGridRoute: FormsCheckboxGridRoute,
   FormsComboboxRoute: FormsComboboxRoute,

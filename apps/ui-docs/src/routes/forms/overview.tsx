@@ -46,7 +46,7 @@ function FormsOverviewPage(): React.ReactNode {
               [ 'Each control', 'One kind of value: TextInput, NumberInput, Select, DatePicker…', 'FieldShell, and a binding it declares' ],
               [ <Link key={'k'} to={'/forms/field'} className={LINK}>Field</Link>, 'The label above a control, the line under it, the state handed down', 'Label, one control' ],
               [ <Link key={'k'} to={'/forms/form'} className={LINK}>Form</Link>, 'Sections on a grid, the error summary, the footer, Submit and Cancel, the focus after a submit', 'Fields' ],
-              [ <React.Fragment key={'k'}><Link to={'/forms/bound-form'} className={LINK}>BoundForm</Link>, <Link to={'/forms/bound-field'} className={LINK}>BoundField</Link></React.Fragment>, 'The values, the errors and the schema of react-hook-form and Zod, bound by name', 'Form, Field, the bindings' ]
+              [ <React.Fragment key={'k'}><Link to={'/form-binding/bound-form'} className={LINK}>BoundForm</Link>, <Link to={'/form-binding/bound-field'} className={LINK}>BoundField</Link></React.Fragment>, 'The values, the errors and the schema of react-hook-form and Zod, bound by name', 'Form, Field, the bindings' ]
             ]}
           />
           <Prose>

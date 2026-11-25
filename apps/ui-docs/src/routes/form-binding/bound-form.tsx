@@ -22,7 +22,7 @@ import { pageAt } from '@/nav';
  * Constants Definition
  * -------- */
 
-const PAGE = pageAt('/forms/bound-form');
+const PAGE = pageAt('/form-binding/bound-form');
 
 const LINK = 'font-medium text-primary hover:underline';
 
@@ -41,7 +41,7 @@ function BoundFormPage(): React.ReactNode {
             The <Link to={'/forms/form'} className={LINK}>Form</Link> of <InlineCode>@proedis/ui</InlineCode>, bound to
             a react-hook-form form and, when it has one, to a Zod schema. It submits through{' '}
             <InlineCode>handleSubmit</InlineCode>, hands the form its state, and gives every{' '}
-            <Link to={'/forms/bound-field'} className={LINK}>BoundField</Link> inside it the schema to read. From the
+            <Link to={'/form-binding/bound-field'} className={LINK}>BoundField</Link> inside it the schema to read. From the
             package <InlineCode>@proedis/form</InlineCode>, so <InlineCode>@proedis/ui</InlineCode> itself depends on no
             form library.
           </React.Fragment>
@@ -225,6 +225,6 @@ function BoundFormPage(): React.ReactNode {
  * Route
  * -------- */
 
-export const Route = createFileRoute('/forms/bound-form')({
+export const Route = createFileRoute('/form-binding/bound-form')({
   component: BoundFormPage
 });

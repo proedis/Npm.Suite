@@ -225,8 +225,6 @@ export const NAV: readonly NavGroup[] = [
     items      : [
       { title: 'Overview', to: '/forms/overview', description: 'The six pieces of a form, what each one does, and which one to reach for.', icon: BookOpen, ready: true },
       { title: 'Form', to: '/forms/form', subpath: '@proedis/ui/forms/form', peers: BASE_UI, description: 'Header, error summary, sections on a grid of six, footer, Submit and Cancel.', icon: FileText, ready: true },
-      { title: 'BoundForm', to: '/forms/bound-form', subpath: '@proedis/form', description: 'The Form bound to react-hook-form and a Zod schema, with useSchemaForm.', icon: FileCheck2, ready: true },
-      { title: 'BoundField', to: '/forms/bound-field', subpath: '@proedis/form', description: 'A Field bound by name: value, error, label and bounds from the form and its schema.', icon: Link2, ready: true },
       { title: 'Field', to: '/forms/field', subpath: '@proedis/ui/forms/field', peers: BASE_UI, description: 'The label above a control, the hint or the message under it, the state handed down.', icon: FormInput, ready: true },
       { title: 'FieldShell', to: '/forms/field-shell', subpath: '@proedis/ui/forms/field-shell', peers: BASE_UI, description: 'The frame of every bordered control, the package’s and yours.', icon: Frame, ready: true },
       { title: 'TextInput', to: '/forms/text-input', subpath: '@proedis/ui/forms/text-input', peers: BASE_UI, description: 'The single line text field, with its actions.', icon: TextCursorInput, ready: true },
@@ -243,6 +241,14 @@ export const NAV: readonly NavGroup[] = [
       { title: 'Radio', to: '/forms/radio', subpath: '@proedis/ui/forms/radio', peers: BASE_UI, description: 'One choice in view, classic or as cards.', icon: CircleDot, ready: true },
       { title: 'Switch', to: '/forms/switch', subpath: '@proedis/ui/forms/switch', peers: BASE_UI, description: 'On or off, at once.', icon: ToggleLeft, ready: true },
       { title: 'FileUpload', to: '/forms/file-upload', subpath: '@proedis/ui/forms/file-upload', peers: BASE_UI, description: 'Attaching files in a form, and the attachments of an element.', icon: Paperclip, ready: true }
+    ]
+  },
+  {
+    title      : 'Form binding',
+    description: '@proedis/form: react-hook-form and Zod bound to the forms of the package, a field naming its value and the schema giving the rest.',
+    items      : [
+      { title: 'BoundForm', to: '/form-binding/bound-form', subpath: '@proedis/form', description: 'The Form bound to react-hook-form and a Zod schema, with useSchemaForm.', icon: FileCheck2, ready: true },
+      { title: 'BoundField', to: '/form-binding/bound-field', subpath: '@proedis/form', description: 'A Field bound by name: value, error, label and bounds from the form and its schema.', icon: Link2, ready: true }
     ]
   },
   {
