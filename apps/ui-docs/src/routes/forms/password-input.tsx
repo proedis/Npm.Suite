@@ -15,6 +15,7 @@ import { SlotsInspector } from '@/docs/SlotsInspector';
 import { PropsTable } from '@/docs/Tables';
 import basic from '@/examples/forms/password-input/basic.tsx?example';
 import newPassword from '@/examples/forms/password-input/new-password.tsx?example';
+import rules from '@/examples/forms/password-input/rules.tsx?example';
 import signIn from '@/examples/forms/password-input/sign-in.tsx?example';
 import { pageAt } from '@/nav';
 
@@ -48,8 +49,8 @@ function PasswordInputPage(): React.ReactNode {
           </React.Fragment>
         )}
         imports={tsx`
-          import { PasswordInput } from '@proedis/ui/forms/password-input';
-          import type { PasswordInputLabels, PasswordInputProps } from '@proedis/ui/forms/password-input';
+          import { checkPassword, PasswordInput, passwordRules } from '@proedis/ui/forms/password-input';
+          import type { PasswordInputLabels, PasswordRule, PasswordStrength } from '@proedis/ui/forms/password-input';
         `}
       />
 
@@ -111,6 +112,40 @@ function PasswordInputPage(): React.ReactNode {
         </Section>
 
         <Section
+          title={'Rules and strength'}
+          lead={(
+            <React.Fragment>
+              <InlineCode>rules</InlineCode> opens a checklist under the field when it takes the focus, ticks each rule as
+              it is met, and stays open after the field while a rule still fails, so the reason of the error stays in
+              sight; with an error on the field the missing rules turn to the destructive tone.{' '}
+              <InlineCode>strength</InlineCode> draws a meter of as many segments as levels, from the destructive tone to
+              the success one, with the word of the level beside it.
+            </React.Fragment>
+          )}
+        >
+          <Example of={rules} />
+          <Prose>
+            <p>
+              Every text is yours. A rule carries its own label (<InlineCode>passwordRules.minLength(12, t(…))</InlineCode>
+              {' '}and its siblings <InlineCode>uppercase</InlineCode>, <InlineCode>lowercase</InlineCode>,{' '}
+              <InlineCode>digit</InlineCode>, <InlineCode>symbol</InlineCode>, <InlineCode>maxLength</InlineCode>,{' '}
+              <InlineCode>notEqual</InlineCode>, or an object <InlineCode>{'{ id, label, test }'}</InlineCode> of your
+              own); the levels of the meter are its words; <InlineCode>labels.met</InlineCode> and{' '}
+              <InlineCode>labels.unmet</InlineCode>, required by the type as soon as there are rules, are what a screen
+              reader says before each line. The meter scores the share of the rules that pass; give{' '}
+              <InlineCode>strength.score</InlineCode> for an estimator of your own.
+            </p>
+          </Prose>
+          <CodeBlock
+            title={'schema.ts'}
+            snippet={tsx`
+              // The same rules validate the form: the checklist and the error cannot disagree
+              const password = z.string().refine((value) => checkPassword(value, RULES).ok, { message: t('password.weak') });
+            `}
+          />
+        </Section>
+
+        <Section
           title={'In context'}
           lead={'A sign in: the large size, a block button, and the password manager doing its part.'}
         >
@@ -132,6 +167,21 @@ function PasswordInputPage(): React.ReactNode {
               { slot: 'text-input-control', part: 'The input, of type password or text' },
               { slot: 'text-input-trailing', part: 'Where the action sits' },
               { slot: 'text-input-action', part: 'The show and hide button' }
+            ]}
+          />
+          <Prose>
+            <p>
+              With rules or a meter, the field sits in a column with them, and every part below has a slot.
+            </p>
+          </Prose>
+          <SlotsInspector of={rules}
+            rows={[
+              { slot: 'password-input', part: 'The column of the field, the meter and the checklist' },
+              { slot: 'password-input-meter', part: 'The meter and its word', attributes: [ 'data-level', 'data-tone' ] },
+              { slot: 'password-input-meter-step', part: 'A segment', attributes: [ 'data-filled' ] },
+              { slot: 'password-input-meter-label', part: 'The word of the level' },
+              { slot: 'password-input-checklist', part: 'The checklist, which opens', attributes: [ 'data-open' ] },
+              { slot: 'password-input-rule', part: 'A rule', attributes: [ 'data-rule', 'data-met' ] }
             ]}
           />
         </Section>
