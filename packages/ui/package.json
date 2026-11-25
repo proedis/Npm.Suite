@@ -1,6 +1,6 @@
 {
   "name": "@proedis/ui",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "The interface layer of a Proedis frontend: layout primitives, the components that read the token contract, and the machinery behind both",
   "keywords": [
     "proedis",
@@ -16,14 +16,14 @@
     "build": "rollup --config ../../rollup.config.mjs && cpy 'src/**/*.css' build/esm && cpy 'src/**/*.css' build/cjs"
   },
   "dependencies": {
-    "@proedis/react": "^2.1.1",
+    "@proedis/react": "^2.2.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
     "@base-ui/react": "1.7.0",
-    "@proedis/tsconfig": "^2.0.1",
+    "@proedis/tsconfig": "^2.1.0",
     "@tanstack/react-table": "9.3.1",
     "cpy-cli": "5.0.0",
     "dayjs": "^1.11.12",
