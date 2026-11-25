@@ -14,10 +14,10 @@ export default function Example(): React.ReactNode {
   return (
     <Surface className={'w-full max-w-lg border border-border'}>
       <Surface.Header inset>
-        <Heading>
+        <Item.Heading>
           <Heading.Title>Collection round 14</Heading.Title>
           <Heading.Description>Monday, north district, 38 stops</Heading.Description>
-        </Heading>
+        </Item.Heading>
         <Item.Actions>
           <IconButton label={'Edit'} icon={<Pencil />} />
           <Menu

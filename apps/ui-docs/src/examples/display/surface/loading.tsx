@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import { Button } from '@proedis/ui/actions/button';
 import { Heading } from '@proedis/ui/display/heading';
+import { Item } from '@proedis/ui/display/item';
 import { LabeledContent } from '@proedis/ui/display/labeled-content';
 import { Surface } from '@proedis/ui/display/surface';
 import { Stack } from '@proedis/ui/layout';
@@ -18,9 +19,9 @@ export default function Example(): React.ReactNode {
   return (
     <Surface loading={loading} loadingLabel={'Refreshing the totals'} className={'w-full max-w-md'}>
       <Surface.Header>
-        <Heading size={'lg'}>
+        <Item.Heading size={'lg'}>
           <Heading.Title>Totals of the day</Heading.Title>
-        </Heading>
+        </Item.Heading>
       </Surface.Header>
       <Surface.Section>
         <Stack columns={3} gap={4}>

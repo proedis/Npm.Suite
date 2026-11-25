@@ -11,11 +11,11 @@ import { Item } from '@proedis/ui/display/item';
 export default function Example(): React.ReactNode {
   return (
     <Item direction={'vertical'} gap={6} className={'max-w-sm py-6 text-center'}>
-      <IconBox size={'2xl'} tone={'primary'} halo><Inbox /></IconBox>
-      <Heading size={'xl'} gap={2}>
+      <Item.Icon><IconBox size={'2xl'} tone={'primary'} halo><Inbox /></IconBox></Item.Icon>
+      <Item.Heading size={'xl'} gap={2}>
         <Heading.Title>No results</Heading.Title>
         <Heading.Description lines={2}>Try removing a filter, or search the archived orders too.</Heading.Description>
-      </Heading>
+      </Item.Heading>
       <Item.Actions>
         <Button fill={'soft'}>Clear the filters</Button>
       </Item.Actions>

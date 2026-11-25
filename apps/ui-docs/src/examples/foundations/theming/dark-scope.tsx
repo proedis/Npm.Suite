@@ -15,11 +15,11 @@ function Card(props: { caption: string }): React.ReactNode {
     <Stack gap={4} className={'rounded-xl border border-border bg-background p-5 text-foreground'}>
       <p className={'text-xs text-muted-foreground'}>{props.caption}</p>
       <Item>
-        <IconBox fill={'soft'} tone={'primary'}><Truck /></IconBox>
-        <Heading>
+        <Item.Icon><IconBox fill={'soft'} tone={'primary'}><Truck /></IconBox></Item.Icon>
+        <Item.Heading>
           <Heading.Title>FT-234-KL</Heading.Title>
           <Heading.Description>Last stop 12:04</Heading.Description>
-        </Heading>
+        </Item.Heading>
         <Item.Actions>
           <Badge fill={'soft'} tone={'success'} dot>In service</Badge>
         </Item.Actions>

@@ -20,11 +20,11 @@ export default function Example(): React.ReactNode {
       <div ref={ref}>
         <Surface className={'border border-border'}>
           <Surface.Header inset>
-            <IconBox fill={'soft'} tone={'primary'}><Truck /></IconBox>
-            <Heading>
+            <Item.Icon><IconBox fill={'soft'} tone={'primary'}><Truck /></IconBox></Item.Icon>
+            <Item.Heading>
               <Heading.Title>FT-234-KL</Heading.Title>
               <Heading.Description>Compactor, 18 t</Heading.Description>
-            </Heading>
+            </Item.Heading>
             <Item.Actions>
               <IconButton label={'Edit'} icon={<Pencil />} />
             </Item.Actions>

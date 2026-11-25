@@ -13,11 +13,11 @@ import { Item } from '@proedis/ui/display/item';
 export default function Example(): React.ReactNode {
   return (
     <Item className={'w-full max-w-sm rounded-xl border border-border p-3'}>
-      <IconBox fill={'plain'}><MapPin /></IconBox>
-      <Heading>
+      <Item.Icon><IconBox fill={'plain'}><MapPin /></IconBox></Item.Icon>
+      <Item.Heading>
         <Heading.Title lines={1}>Via Vittorio Emanuele II 104, courtyard on the left of the caretaker’s lodge</Heading.Title>
         <Heading.Description lines={1}>Bulky items, a sofa and two chairs, to be collected before noon</Heading.Description>
-      </Heading>
+      </Item.Heading>
       <Item.Actions>
         <Badge tone={'warning'}>Late</Badge>
         <Button size={'sm'} fill={'soft'}>Assign</Button>

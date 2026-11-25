@@ -12,7 +12,7 @@ import { LabeledContent } from '@proedis/ui/display/labeled-content';
 export default function Example(): React.ReactNode {
   return (
     <Item className={'w-full max-w-sm rounded-xl border border-border p-4'}>
-      <IconBox tone={'success'}><Scale /></IconBox>
+      <Item.Icon><IconBox tone={'success'}><Scale /></IconBox></Item.Icon>
       <LabeledContent>
         <LabeledContent.Label>Collected this week</LabeledContent.Label>
         <LabeledContent.Value className={'text-lg'}>7,830 kg</LabeledContent.Value>

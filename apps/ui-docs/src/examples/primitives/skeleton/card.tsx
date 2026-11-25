@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { Heading } from '@proedis/ui/display/heading';
+import { Item } from '@proedis/ui/display/item';
 import { Surface } from '@proedis/ui/display/surface';
 import { Stack } from '@proedis/ui/layout';
 import { Label, Skeleton } from '@proedis/ui/primitives';
@@ -11,10 +12,10 @@ export default function Example(): React.ReactNode {
   return (
     <Surface className={'w-full max-w-md border border-border'} aria-busy>
       <Surface.Header>
-        <Heading size={'lg'}>
+        <Item.Heading size={'lg'}>
           <Heading.Title>Vehicle</Heading.Title>
           <Skeleton className={'mt-1.5 w-32'} />
-        </Heading>
+        </Item.Heading>
         <Skeleton shape={'pill'} />
       </Surface.Header>
       <Surface.Section>

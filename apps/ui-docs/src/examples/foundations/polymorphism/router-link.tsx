@@ -12,11 +12,11 @@ export default function Example(): React.ReactNode {
   return (
     /* The router's own Link as the element: a real anchor, with the router's navigation on click */
     <Item as={Link} to={'/foundations/tones'} interactive inset className={'w-full max-w-md rounded-xl border border-border'}>
-      <IconBox fill={'soft'} tone={'primary'}><Palette /></IconBox>
-      <Heading>
+      <Item.Icon><IconBox fill={'soft'} tone={'primary'}><Palette /></IconBox></Item.Icon>
+      <Item.Heading>
         <Heading.Title>Tones</Heading.Title>
         <Heading.Description>Seven tones, three fills</Heading.Description>
-      </Heading>
+      </Item.Heading>
       <Item.Trailing><ChevronRight className={'size-4'} /></Item.Trailing>
     </Item>
   );

@@ -28,11 +28,11 @@ export default function Example(): React.ReactNode {
       {VEHICLES.map((vehicle) => (
         <Surface key={vehicle.plate} radius={'xl'} className={'border border-border'}>
           <Surface.Header inset align={'start'}>
-            <IconBox size={'sm'} fill={'soft'} tone={'secondary'}><Truck /></IconBox>
-            <Heading>
+            <Item.Icon><IconBox size={'sm'} fill={'soft'} tone={'secondary'}><Truck /></IconBox></Item.Icon>
+            <Item.Heading>
               <Heading.Title className={'font-mono'}>{vehicle.plate}</Heading.Title>
               <Heading.Description>{vehicle.model}</Heading.Description>
-            </Heading>
+            </Item.Heading>
             <Item.Trailing>
               <Badge size={'sm'} fill={'soft'} tone={vehicle.tone}>{vehicle.state}</Badge>
             </Item.Trailing>

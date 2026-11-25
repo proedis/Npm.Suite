@@ -16,11 +16,11 @@ export default function Example(): React.ReactNode {
       align={{ base: 'start', sm: 'center' }}
       className={'w-full max-w-lg rounded-xl border border-border p-4'}
     >
-      <IconBox tone={'primary'}><Truck /></IconBox>
-      <Heading>
+      <Item.Icon><IconBox tone={'primary'}><Truck /></IconBox></Item.Icon>
+      <Item.Heading>
         <Heading.Title>FT-234-KL needs a service</Heading.Title>
         <Heading.Description>The last one was 14,800 km ago</Heading.Description>
-      </Heading>
+      </Item.Heading>
       <Item.Actions>
         <Button size={'sm'} fill={'plain'} tone={'muted'}>Later</Button>
         <Button size={'sm'}>Book it</Button>

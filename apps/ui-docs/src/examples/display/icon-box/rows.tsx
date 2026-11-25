@@ -13,25 +13,25 @@ export default function Example(): React.ReactNode {
   return (
     <Stack gap={4} className={'w-full max-w-sm'}>
       <Item>
-        <IconBox tone={'primary'}><Truck /></IconBox>
-        <Heading>
+        <Item.Icon><IconBox tone={'primary'}><Truck /></IconBox></Item.Icon>
+        <Item.Heading>
           <Heading.Title>FT-234-KL</Heading.Title>
           <Heading.Description>Compactor, 18 t</Heading.Description>
-        </Heading>
+        </Item.Heading>
       </Item>
       <Item>
-        <IconBox fill={'plain'}><MapPin /></IconBox>
-        <Heading>
+        <Item.Icon><IconBox fill={'plain'}><MapPin /></IconBox></Item.Icon>
+        <Item.Heading>
           <Heading.Title>North district</Heading.Title>
           <Heading.Description>38 stops</Heading.Description>
-        </Heading>
+        </Item.Heading>
       </Item>
       <Item>
-        <IconBox fill={'plain'}><CalendarClock /></IconBox>
-        <Heading>
+        <Item.Icon><IconBox fill={'plain'}><CalendarClock /></IconBox></Item.Icon>
+        <Item.Heading>
           <Heading.Title>Monday, 07:00</Heading.Title>
           <Heading.Description>Weekly</Heading.Description>
-        </Heading>
+        </Item.Heading>
       </Item>
     </Stack>
   );

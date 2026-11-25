@@ -4,6 +4,7 @@ import { Plus, Search } from 'lucide-react';
 
 import { Button } from '@proedis/ui/actions/button';
 import { Heading } from '@proedis/ui/display/heading';
+import { Item } from '@proedis/ui/display/item';
 import { Surface } from '@proedis/ui/display/surface';
 import { EmptyState } from '@proedis/ui/feedback/empty-state';
 import { SearchInput } from '@proedis/ui/forms/search-input';
@@ -15,10 +16,10 @@ export default function Example(): React.ReactNode {
   return (
     <Surface className={'w-full max-w-xl border border-border'}>
       <Surface.Header inset>
-        <Heading>
+        <Item.Heading>
           <Heading.Title>Vehicles</Heading.Title>
           <Heading.Description>North depot</Heading.Description>
-        </Heading>
+        </Item.Heading>
         <Button size={'sm'} leading={<Plus />}>New vehicle</Button>
       </Surface.Header>
       <Surface.Section>

@@ -12,11 +12,11 @@ import { Item } from '@proedis/ui/display/item';
 export default function Example(): React.ReactNode {
   return (
     <Item direction={'vertical'} gap={5} className={'max-w-sm text-center'}>
-      <IconBox size={'xl'} tone={'primary'} halo><Route /></IconBox>
-      <Heading size={'lg'} gap={1.5}>
+      <Item.Icon><IconBox size={'xl'} tone={'primary'} halo><Route /></IconBox></Item.Icon>
+      <Item.Heading size={'lg'} gap={1.5}>
         <Heading.Title>No round yet</Heading.Title>
         <Heading.Description>A round groups the stops a vehicle covers in one shift.</Heading.Description>
-      </Heading>
+      </Item.Heading>
       <Item.Actions>
         <Button>Plan a round</Button>
       </Item.Actions>

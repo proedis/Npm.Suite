@@ -25,10 +25,10 @@ export default function Example(): React.ReactNode {
         <React.Fragment key={route.code}>
           {index > 0 && <Divider />}
           <Item inset>
-            <Heading>
+            <Item.Heading>
               <Heading.Title>{`${route.code}, ${route.zone}`}</Heading.Title>
               <Heading.Description>{`${route.stops} stops`}</Heading.Description>
-            </Heading>
+            </Item.Heading>
             <Item.Actions>
               <Badge fill={'soft'} tone={route.state === 'In progress' ? 'info' : 'muted'}>{route.state}</Badge>
               <Menu

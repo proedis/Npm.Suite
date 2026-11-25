@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { Heading } from '@proedis/ui/display/heading';
+import { Item } from '@proedis/ui/display/item';
 import { Surface } from '@proedis/ui/display/surface';
 
 
@@ -16,9 +17,9 @@ export default function Example(): React.ReactNode {
   return (
     <Surface className={'w-full max-w-md'}>
       <Surface.Header>
-        <Heading size={'lg'}>
+        <Item.Heading size={'lg'}>
           <Heading.Title>Collected today</Heading.Title>
-        </Heading>
+        </Item.Heading>
       </Surface.Header>
       <Surface.Separator />
       <Surface.Section flush>

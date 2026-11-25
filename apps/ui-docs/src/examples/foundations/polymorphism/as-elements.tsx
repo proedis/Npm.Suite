@@ -16,10 +16,10 @@ export default function Example(): React.ReactNode {
       <div ref={ref}>
         <Surface as={'article'} className={'border border-border'}>
           <Surface.Header inset>
-            <Heading>
+            <Item.Heading>
               <Heading.Title as={'h3'}>Round 14</Heading.Title>
               <Heading.Description>North district, 38 stops</Heading.Description>
-            </Heading>
+            </Item.Heading>
           </Surface.Header>
           <Stack as={'ul'} gap={1} className={'px-2 pb-2'}>
             <Item as={'li'} inset>Via Roma 12</Item>

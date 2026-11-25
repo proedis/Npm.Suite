@@ -16,14 +16,14 @@ export default function Example(): React.ReactNode {
   return (
     <Surface as={'article'} aria-labelledby={'vehicle-card'} className={'w-full max-w-lg'}>
       <Surface.Header>
-        <IconBox tone={'primary'}><Truck /></IconBox>
-        <Heading size={'lg'}>
+        <Item.Icon><IconBox tone={'primary'}><Truck /></IconBox></Item.Icon>
+        <Item.Heading size={'lg'}>
           <Stack direction={'horizontal'} align={'center'} gap={2}>
             <Heading.Title as={'h3'} id={'vehicle-card'} lines={1}>FT-234-KL</Heading.Title>
             <Badge tone={'success'} dot>In service</Badge>
           </Stack>
           <Heading.Description>Compactor, round 14, north district</Heading.Description>
-        </Heading>
+        </Item.Heading>
         <Item.Actions>
           <IconButton label={'More actions on FT-234-KL'} icon={<Ellipsis />} />
         </Item.Actions>

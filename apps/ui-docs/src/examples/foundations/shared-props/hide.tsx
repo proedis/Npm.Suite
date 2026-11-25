@@ -19,18 +19,18 @@ export default function Example(): React.ReactNode {
     <Stack gap={6} className={'w-full'}>
       {/* Two halves of one layout: exactly one of them is on screen at any width */}
       <Item hideBelow={'lg'} inset className={'rounded-xl border border-border'}>
-        <IconBox fill={'soft'} tone={'primary'}><Monitor /></IconBox>
-        <Heading>
+        <Item.Icon><IconBox fill={'soft'} tone={'primary'}><Monitor /></IconBox></Item.Icon>
+        <Item.Heading>
           <Heading.Title>The desktop half</Heading.Title>
           <Heading.Description>With hideBelow lg: shown from lg up</Heading.Description>
-        </Heading>
+        </Item.Heading>
       </Item>
       <Item hideFrom={'lg'} inset className={'rounded-xl border border-border'}>
-        <IconBox fill={'soft'} tone={'info'}><Smartphone /></IconBox>
-        <Heading>
+        <Item.Icon><IconBox fill={'soft'} tone={'info'}><Smartphone /></IconBox></Item.Icon>
+        <Item.Heading>
           <Heading.Title>The mobile half</Heading.Title>
           <Heading.Description>With hideFrom lg: shown below lg</Heading.Description>
-        </Heading>
+        </Item.Heading>
       </Item>
 
       {/* Resize the window: each badge appears at its own breakpoint */}

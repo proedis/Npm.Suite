@@ -24,10 +24,10 @@ export default function Example(): React.ReactNode {
         {ORDERS.map((order) => (
           <li key={order.code}>
             <Item as={'button'} type={'button'} interactive inset className={'w-full text-start'}>
-              <Heading>
+              <Item.Heading>
                 <Heading.Title>Order {order.code}</Heading.Title>
                 <Heading.Description>{order.place}</Heading.Description>
-              </Heading>
+              </Item.Heading>
               <Badge tone={order.tone}>{order.state}</Badge>
               <Item.Trailing><ChevronRight className={'size-4'} /></Item.Trailing>
             </Item>

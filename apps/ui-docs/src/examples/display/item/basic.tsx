@@ -11,12 +11,12 @@ import { Item } from '@proedis/ui/display/item';
 export default function Example(): React.ReactNode {
   return (
     <Item className={'w-full max-w-md'}>
-      <IconBox tone={'primary'}><Truck /></IconBox>
-      <Heading>
+      <Item.Icon><IconBox tone={'primary'}><Truck /></IconBox></Item.Icon>
+      <Item.Heading>
         <Heading.Eyebrow>In service</Heading.Eyebrow>
         <Heading.Title>FT-234-KL</Heading.Title>
         <Heading.Description>Last stop 12:04</Heading.Description>
-      </Heading>
+      </Item.Heading>
       <Item.Actions>
         <IconButton label={'Edit FT-234-KL'} icon={<Pencil />} />
       </Item.Actions>

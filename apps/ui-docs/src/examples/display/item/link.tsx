@@ -12,11 +12,11 @@ import { Item } from '@proedis/ui/display/item';
 export default function Example(): React.ReactNode {
   return (
     <Item as={Link} to={'/'} interactive inset className={'w-full max-w-md rounded-xl border border-border'}>
-      <IconBox tone={'primary'}><BookOpen /></IconBox>
-      <Heading>
+      <Item.Icon><IconBox tone={'primary'}><BookOpen /></IconBox></Item.Icon>
+      <Item.Heading>
         <Heading.Title>Back to the overview</Heading.Title>
         <Heading.Description>Every section of the package</Heading.Description>
-      </Heading>
+      </Item.Heading>
       <Item.Trailing><ArrowRight className={'size-4'} /></Item.Trailing>
     </Item>
   );

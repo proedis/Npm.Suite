@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
 
 import itemProps from 'virtual:ui-props/StrictItemProps';
 import themeDoc from 'virtual:ui-theme/display/item';
@@ -64,17 +64,20 @@ function ItemPage(): React.ReactNode {
           title={'Anatomy'}
           lead={(
             <React.Fragment>
-              Any child goes in the row. Three of them have a role: a <InlineCode>Heading</InlineCode> or a{' '}
-              <InlineCode>LabeledContent</InlineCode> takes the free space, <InlineCode>Item.Actions</InlineCode> holds the
-              controls at the end and never shrinks, <InlineCode>Item.Trailing</InlineCode> is the quiet affordance at the
-              very end, a chevron, a count, a unit, tight against the edge.
+              Four parts, each with a slot of its own. <InlineCode>Item.Icon</InlineCode> holds the leading visual,
+              whatever it is: an <InlineCode>IconBox</InlineCode>, an <InlineCode>Avatar</InlineCode>, a{' '}
+              <InlineCode>Spinner</InlineCode>. <InlineCode>Item.Heading</InlineCode> is the text, and it is a{' '}
+              <InlineCode>Heading</InlineCode>: its props, its <InlineCode>size</InlineCode>, its parts through{' '}
+              <InlineCode>Heading.Title</InlineCode> & co. <InlineCode>Item.Actions</InlineCode> holds the controls at the
+              end and never shrinks, <InlineCode>Item.Trailing</InlineCode> is the quiet affordance at the very end, a
+              chevron, a count, a unit, tight against the edge.
             </React.Fragment>
           )}
         >
           <Prose>
             <p>
-              The leading visual needs no slot: <InlineCode>IconBox</InlineCode>, <InlineCode>Spinner</InlineCode> and{' '}
-              <InlineCode>Avatar</InlineCode> already refuse to shrink, so anything from the package can be a direct child.
+              A <InlineCode>LabeledContent</InlineCode> can stand in for the heading as a direct child: it takes the free
+              space the same way.
             </p>
           </Prose>
         </Section>
@@ -83,16 +86,17 @@ function ItemPage(): React.ReactNode {
           title={'Truncation'}
           lead={(
             <React.Fragment>
-              The heading grows and has <InlineCode>min-w-0</InlineCode>, the actions do not shrink: the pressure of a long
-              title lands on the title, which truncates, and never on the buttons. Drag the preview narrower to see it.
+              <InlineCode>Item.Heading</InlineCode> grows and has <InlineCode>min-w-0</InlineCode>, the actions do not
+              shrink: the pressure of a long title lands on the title, which truncates, and never on the buttons. Drag the
+              preview narrower to see it.
             </React.Fragment>
           )}
         >
           <Example of={truncation} resizable />
           <Callout>
-            The plumbing is a descendant rule on the item, so it beats a class on the heading itself: a{' '}
-            <InlineCode>grow-0</InlineCode> on the heading loses. That is the price of nobody having to remember the
-            plumbing; the way out is a <InlineCode>className</InlineCode> on the item.
+            The two classes are the heading’s own, so a class on it still wins: <InlineCode>className={'{\'grow-0\'}'}</InlineCode>{' '}
+            on an <InlineCode>Item.Heading</InlineCode> stops it growing. A plain <InlineCode>Heading</InlineCode> placed
+            in the row does not grow: use the part.
           </Callout>
         </Section>
 
@@ -170,6 +174,8 @@ function ItemPage(): React.ReactNode {
           <SlotsInspector of={basic}
             rows={[
               { slot: 'item', part: 'The row', attributes: [ 'data-inset', 'data-interactive' ] },
+              { slot: 'item-icon', part: 'The box of the leading visual' },
+              { slot: 'item-heading', part: 'The text, a Heading', attributes: [ 'data-size', 'data-gap' ] },
               { slot: 'item-actions', part: 'The controls at the end' },
               { slot: 'item-trailing', part: 'The affordance at the very end' }
             ]}
@@ -180,12 +186,22 @@ function ItemPage(): React.ReactNode {
           <SubSection title={'Item'} id={'api-item'}>
             <PropsTable props={PROPS} rest={'Polymorphic, a div by default: every other prop goes to the element.'} />
           </SubSection>
-          <SubSection title={'Item.Actions and Item.Trailing'} id={'api-item-parts'}>
+          <SubSection title={'Item.Heading'} id={'api-item-heading'}>
             <Prose>
               <p>
-                No props of their own beyond the shared ones. Both are polymorphic: <InlineCode>Item.Actions</InlineCode> is a
-                horizontal row with a gap, a <InlineCode>div</InlineCode> by default; <InlineCode>Item.Trailing</InlineCode> is
-                quiet, with no gap, a <InlineCode>span</InlineCode> by default.
+                Every prop of <InlineCode>Heading</InlineCode>: see{' '}
+                <Link to={'/display/heading'} className={'font-medium text-foreground underline underline-offset-2'}>Heading</Link>.
+              </p>
+            </Prose>
+          </SubSection>
+          <SubSection title={'Item.Icon, Item.Actions and Item.Trailing'} id={'api-item-parts'}>
+            <Prose>
+              <p>
+                No props of their own beyond the shared ones. All three are polymorphic: <InlineCode>Item.Icon</InlineCode>{' '}
+                centres what it holds and never shrinks, a <InlineCode>span</InlineCode> by default;{' '}
+                <InlineCode>Item.Actions</InlineCode> is a horizontal row with a gap, a <InlineCode>div</InlineCode> by
+                default; <InlineCode>Item.Trailing</InlineCode> is quiet, with no gap, a <InlineCode>span</InlineCode> by
+                default.
               </p>
             </Prose>
           </SubSection>

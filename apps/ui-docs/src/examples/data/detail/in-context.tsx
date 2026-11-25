@@ -16,10 +16,10 @@ export default function Example(): React.ReactNode {
   return (
     <Surface className={'w-full border border-border'}>
       <Surface.Header inset>
-        <Heading>
+        <Item.Heading>
           <Heading.Title>RD-24017</Heading.Title>
           <Heading.Description>Collection round, Borgo Po</Heading.Description>
-        </Heading>
+        </Item.Heading>
         <Item.Actions>
           <Badge dot tone={'info'}>Running</Badge>
           <Button fill={'soft'} size={'sm'} leading={<Pencil />}>Edit</Button>

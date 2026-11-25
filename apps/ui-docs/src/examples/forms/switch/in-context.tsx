@@ -20,10 +20,10 @@ export default function Example(): React.ReactNode {
       <Stack gap={0} divided>
         {SETTINGS.map((setting) => (
           <Item key={setting.id} inset>
-            <Heading>
+            <Item.Heading>
               <Heading.Title as={'h3'} id={`setting-${setting.id}`}>{setting.title}</Heading.Title>
               <Heading.Description>{setting.description}</Heading.Description>
-            </Heading>
+            </Item.Heading>
             <Item.Actions>
               <Switch defaultChecked={setting.on} aria-labelledby={`setting-${setting.id}`} />
             </Item.Actions>
