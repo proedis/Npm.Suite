@@ -24,13 +24,15 @@ export type RovingKeyboardEvent = React.KeyboardEvent<HTMLElement> & { preventBa
  * ← → move to the previous or next item and loop, Home and End to the first and last. Every item that
  * matches `selector` inside the group counts, disabled ones included.
  */
-export function handleRovingKeyDown(event: RovingKeyboardEvent, selector: string): void {
-  const steps: Record<string, number | 'first' | 'last'> = {
-    ArrowLeft : -1,
-    ArrowRight: 1,
-    Home      : 'first',
-    End       : 'last'
-  };
+export function handleRovingKeyDown(
+  event: RovingKeyboardEvent,
+  selector: string,
+  orientation: 'horizontal' | 'vertical' = 'horizontal'
+): void {
+  const vertical = orientation === 'vertical';
+  const steps: Record<string, number | 'first' | 'last'> = vertical
+    ? { ArrowUp: -1, ArrowDown: 1, Home: 'first', End: 'last' }
+    : { ArrowLeft: -1, ArrowRight: 1, Home: 'first', End: 'last' };
 
   const step = steps[event.key];
 
@@ -45,7 +47,8 @@ export function handleRovingKeyDown(event: RovingKeyboardEvent, selector: string
     return;
   }
 
-  const rtl = getComputedStyle(event.currentTarget).direction === 'rtl';
+  /* Right to left turns the arrows of a row, never the ones of a column */
+  const rtl = !vertical && getComputedStyle(event.currentTarget).direction === 'rtl';
   let next: number;
 
   if (step === 'first') {

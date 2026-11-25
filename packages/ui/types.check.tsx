@@ -482,13 +482,19 @@ const namedRadioGroup = <RadioGroup aria-labelledby={'title'} hideFrom={'lg'}><R
 const switchWithTitle = <Switch title={'Saved at once'} onBlur={() => undefined}>Notify</Switch>;
 
 
-const namedTabs = <Tabs aria-label={'Sections'} defaultValue={'a'} labels={{ overflow: 'More' }} items={[ { value: 'a', label: 'A' } ]} />;
+const namedTabs = <Tabs aria-label={'Sections'} defaultValue={'a'} labels={{ overflow: 'More' }}><Tabs.Panel value={'a'} label={'A'} /></Tabs>;
 
 /** @ts-expect-error a tab list always has a name */
-const namelessTabs = <Tabs defaultValue={'a'} labels={{ overflow: 'More' }} items={[ { value: 'a', label: 'A' } ]} />;
+const namelessTabs = <Tabs defaultValue={'a'} labels={{ overflow: 'More' }}><Tabs.Panel value={'a'} label={'A'} /></Tabs>;
 
 /** @ts-expect-error one tab is always open: `value` or `defaultValue` */
-const closedTabs = <Tabs aria-label={'Sections'} labels={{ overflow: 'More' }} items={[ { value: 'a', label: 'A' } ]} />;
+const closedTabs = <Tabs aria-label={'Sections'} labels={{ overflow: 'More' }}><Tabs.Panel value={'a'} label={'A'} /></Tabs>;
+
+/** @ts-expect-error a panel declares its tab: it has a label */
+const panelWithoutLabel = <Tabs.Panel value={'a'} />;
+
+/** @ts-expect-error the tabs are the panels now: items is gone */
+const tabsItems = <Tabs aria-label={'S'} defaultValue={'a'} labels={{ overflow: 'More' }} items={[]} />;
 
 
 /** @ts-expect-error `loading` asks for `loadingLabel`, through `IconButton` as through `Button` */
@@ -614,7 +620,7 @@ export const CHECKED = [
   responsiveGroups, wrongOrientation, responsiveBlock, wrongHide, pillButton, radiusInPixels,
   besideOnDesktop, wrongFieldOrientation, ownControl, wrongShellSize,
   namedToggle, namelessToggle, namedGroup, namelessGroup, chosenView, emptyView, namelessItem,
-  formLibraryBox, namedRadioGroup, switchWithTitle, namedTabs, namelessTabs, closedTabs,
+  formLibraryBox, namedRadioGroup, switchWithTitle, namedTabs, namelessTabs, closedTabs, panelWithoutLabel, tabsItems,
   silentIconButton, silentPassword, namelessArrows, namelessConfirm,
   dirtyWithoutPrompt, dirtyWithPrompt, neverDirty, drawerDirtyWithoutPrompt,
   composedEmptyState, emptyStateKind, emptyStateIconSize,

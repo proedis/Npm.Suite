@@ -16,6 +16,7 @@ import { Stack } from '../../layout/Stack';
 import { CONTROL_HEIGHT } from '../../internal/control';
 import { isPresent } from '../../internal/presence';
 
+import { RAIL_SURFACE } from '../rail/rail';
 import { handleRovingKeyDown } from '../roving/roving';
 import { FOCUS_INSIDE, PRESSABLE_BASE, PRESSABLE_CONTENT, PRESSABLE_OFF } from '../toggle/toggleStyles';
 import { Tooltip } from '../tooltip/Tooltip';
@@ -25,6 +26,8 @@ import type { BoundValue } from '../../core/binding';
 import type { ControlSize } from '../../core/control';
 import type { SpacingValue } from '../../core/responsive';
 
+import type { RailVariant } from '../rail/rail';
+
 
 /* --------
  * Types Definition
@@ -32,11 +35,24 @@ import type { SpacingValue } from '../../core/responsive';
 
 export type SegmentedControlSize = ControlSize;
 
+export type SegmentedControlVariant = RailVariant;
+
+export type SegmentedControlOrientation = 'horizontal' | 'vertical';
+
 export interface StrictSegmentedControlProps extends BaseProps {
   onValueChange?: (value: string) => void;
 
   /** `sm` in a card header or a bar, `md` in a page header, `lg` next to large fields. Defaults to `md` */
   size?: SegmentedControlSize;
+
+  /**
+   * `contained`, a grey rail with an inner line; `elevated`, a white rail raised like the one of Tabs;
+   * `plain`, no rail, only the fill that slides. Defaults to `contained`
+   */
+  variant?: SegmentedControlVariant;
+
+  /** `vertical` stacks the items in a column, each as wide as the widest. Defaults to `horizontal` */
+  orientation?: SegmentedControlOrientation;
 
   /** The whole control, with the reason, repeated in the tooltip of every item */
   disabled?: boolean;
@@ -103,6 +119,7 @@ interface RailLayout {
 
 interface SegmentedContextValue {
   size: SegmentedControlSize;
+  orientation: SegmentedControlOrientation;
   disabled: boolean;
   disabledReason?: React.ReactNode;
 
@@ -121,23 +138,42 @@ interface SegmentedContextValue {
  * -------- */
 
 /**
- * The rail: `muted` with a 1px inner line, the items in equal columns as wide as the longest. Its
- * height is the control's, so the items are what the padding leaves: 32 in 40, 28 in 36, 26 in 32.
+ * The rail: its surface is the variant's (`RAIL_SURFACE`), the items in equal tracks as long as the
+ * longest. In a row its height is the control's, so the items are what the padding leaves: 32 in 40, 28
+ * in 36, 26 in 32; in a column each item has that height itself.
  */
-/* eslint-disable no-restricted-syntax -- the gap of the rail, a grid of implicit columns (see RAIL) */
+/* eslint-disable no-restricted-syntax -- the gap of the rail, a grid of implicit tracks (see RAIL) */
 const RAIL_SIZES: Readonly<Record<SegmentedControlSize, string>> = {
-  lg: `${CONTROL_HEIGHT.lg} gap-1 p-1`,
-  md: `${CONTROL_HEIGHT.md} gap-1 p-1`,
-  sm: `${CONTROL_HEIGHT.sm} gap-0.75 p-0.75`
+  lg: 'gap-1 p-1',
+  md: 'gap-1 p-1',
+  sm: 'gap-0.75 p-0.75'
 };
 /* eslint-enable no-restricted-syntax */
 
+const RAIL_HEIGHT: Readonly<Record<SegmentedControlSize, string>> = {
+  lg: CONTROL_HEIGHT.lg,
+  md: CONTROL_HEIGHT.md,
+  sm: CONTROL_HEIGHT.sm
+};
+
+/** In a column the rail has no height: each item takes the one it would have in a row */
+const ITEM_HEIGHT_IN_COLUMN: Readonly<Record<SegmentedControlSize, string>> = {
+  lg: 'h-8',
+  md: 'h-7',
+  sm: 'h-6.5'
+};
+
 /**
- * As many equal columns as there are items, as wide as the longest, with no count to give: a grid that
- * flows into implicit columns (`grid-flow-col auto-cols-fr`), which `columns` cannot say
+ * As many equal tracks as there are items, as long as the longest, with no count to give: a grid that
+ * flows into implicit columns, or rows in a column (`grid-flow-*`, `auto-*-fr`), which `columns` cannot say
  */
-// eslint-disable-next-line no-restricted-syntax -- implicit columns from the items, not a column count
-const RAIL = 'relative inline-grid shrink-0 grid-flow-col auto-cols-fr items-stretch rounded-control bg-muted inset-ring inset-ring-border';
+// eslint-disable-next-line no-restricted-syntax -- implicit tracks from the items, not a count
+const RAIL = 'relative inline-grid shrink-0 items-stretch rounded-control';
+
+const RAIL_FLOW: Readonly<Record<SegmentedControlOrientation, string>> = {
+  horizontal: 'grid-flow-col auto-cols-fr has-data-icon-only:auto-cols-auto',
+  vertical  : 'grid-flow-row auto-rows-fr'
+};
 
 /** The item, and an active area reaching half the gap and the rail's edge: a click between two never misses */
 const ITEM_SIZES: Readonly<Record<SegmentedControlSize, string>> = {
@@ -225,6 +261,7 @@ function SegmentedControlItem(props: SegmentedControlItemProps, ref: React.Forwa
   // Style Computation
   // ----
   const size = context?.size ?? 'md';
+  const vertical = context?.orientation === 'vertical';
   const isDisabled = disabled || (context?.disabled ?? false);
   const reason = context?.disabled ? context.disabledReason ?? disabledReason : disabled ? disabledReason : undefined;
   const iconOnly = !isPresent(children);
@@ -271,7 +308,8 @@ function SegmentedControlItem(props: SegmentedControlItemProps, ref: React.Forwa
         PRESSABLE_OFF,
         ITEM_ON,
         ITEM_SIZES[size],
-        'h-full rounded-control-inner after:absolute',
+        vertical ? cn(ITEM_HEIGHT_IN_COLUMN[size], 'justify-start') : 'h-full',
+        'rounded-control-inner after:absolute',
         FOCUS_INSIDE,
         'data-pressed:cursor-default data-pressed:focus-visible:outline-offset-1',
         className
@@ -331,7 +369,12 @@ function SegmentedControlItem(props: SegmentedControlItemProps, ref: React.Forwa
  * their tooltip; the chosen item is never disabled. A group with `aria-pressed` buttons, not a
  * `radiogroup` (the arrows would choose) nor a `tablist` (it asks for panels).
  *
- * Parts with a slot: `segmented-control` (with `data-size`, `data-disabled`), `segmented-control-indicator`
+ * Three variants, the ones of Tabs: `contained` (the grey rail), `elevated` (a white rail raised like a
+ * card) and `plain` (no rail, only the fill that slides). `orientation={'vertical'}` stacks the items in
+ * a column, the arrows going up and down.
+ *
+ * Parts with a slot: `segmented-control` (with `data-size`, `data-variant`, `data-orientation`,
+ * `data-disabled`), `segmented-control-indicator`
  * (the fill that slides under the chosen item), `segmented-control-item`
  * (with `data-value`, `data-pressed`, `data-disabled`, `data-icon-only`), `segmented-control-content`,
  * `segmented-control-leading`.
@@ -348,8 +391,10 @@ const SegmentedControlRoot = React.forwardRef<HTMLDivElement, SegmentedControlPr
     disabled = false,
     disabledReason,
     onValueChange,
+    orientation = 'horizontal',
     size = 'md',
     value,
+    variant = 'contained',
     ...others
   } = props;
 
@@ -419,15 +464,15 @@ const SegmentedControlRoot = React.forwardRef<HTMLDivElement, SegmentedControlPr
       mutations?.disconnect();
       resize?.disconnect();
     };
-  }, [ size ]);
+  }, [ size, orientation ]);
 
 
   // ----
   // Memoized Data
   // ----
   const context = React.useMemo<SegmentedContextValue>(
-    () => ({ size, disabled, disabledReason, tabStop: layout.tabStop, value: chosen, focusInside }),
-    [ size, disabled, disabledReason, layout.tabStop, chosen, focusInside ]
+    () => ({ size, orientation, disabled, disabledReason, tabStop: layout.tabStop, value: chosen, focusInside }),
+    [ size, orientation, disabled, disabledReason, layout.tabStop, chosen, focusInside ]
   );
 
 
@@ -476,19 +521,25 @@ const SegmentedControlRoot = React.forwardRef<HTMLDivElement, SegmentedControlPr
         }}
         onKeyDown={(event: React.KeyboardEvent<HTMLDivElement>) => {
           rest.onKeyDown?.(event);
-          handleRovingKeyDown(event, '[data-slot=segmented-control-item]');
+          handleRovingKeyDown(event, '[data-slot=segmented-control-item]', orientation);
         }}
+        orientation={orientation}
         aria-disabled={disabled || undefined}
+        aria-orientation={orientation}
         data-slot={'segmented-control'}
         data-size={size}
+        data-variant={variant}
+        data-orientation={orientation}
         data-disabled={disabled || undefined}
         className={cn(
           RAIL,
-          'has-data-icon-only:auto-cols-auto',
+          RAIL_FLOW[orientation],
+          RAIL_SURFACE[variant],
 
           /* Transparent until the system draws borders itself: then it becomes the frame */
           'outline-1 outline-transparent',
           RAIL_SIZES[size],
+          orientation === 'horizontal' && RAIL_HEIGHT[size],
           baseClasses,
           className
         )}

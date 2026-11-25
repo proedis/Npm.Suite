@@ -171,8 +171,20 @@ Three choices of tranche 3 that look improvable and are not:
   veil. The discard prompt of `dirty` is rendered inside its dialog for that reason.
 - **The jobs panel of the notifications is a list of ours**, not a second Base UI toast viewport: its
   rows would be dialogs that Esc closes, swipe, and stop at three. The confirmation is Base UI's toast.
-- **Tabs take their tabs as data** (`items`), not as children: "More" measures them, reorders them and
-  draws them again as menu items, which children wrapped in fragments would not allow.
+- **Each `Tabs.Panel` declares its tab** (Marco, 2026-11-25, in place of an `items` array beside the
+  panels): `value`, `label`, `leading`, `count`, `disabled`. Tabs reads them from its children while
+  rendering (`collectTabs`, `React.Children`, fragments opened), never from a registry filled by effects,
+  so the first render and a render on the server already have every tab, and "More" can measure, reorder
+  and redraw them as menu items. The cost is the one children always have: a panel inside a component of
+  the caller is not seen, so the panels sit straight in Tabs (written one by one or from a `map`).
+- **SegmentedControl and Tabs share one look and keep two meanings** (Marco, 2026-11-25). The surfaces of
+  the rail are `RAIL_SURFACE` in `actions/rail`, three variants: `contained` (the grey rail, the default of
+  SegmentedControl), `elevated` (the white raised rail, the default of Tabs), `plain` (no rail, only the
+  sliding fill). The geometry stays each component's. SegmentedControl is a group of `aria-pressed`
+  buttons for a choice among views, Tabs a `tablist` that commands panels, and a screen reader is told the
+  difference. SegmentedControl also takes `orientation`: a column of rows (`grid-flow-row auto-rows-fr`),
+  each item at the height it has in a row, the arrows up and down (`handleRovingKeyDown` takes the
+  orientation and does not flip a column under right to left).
 
 Choices of tranche 4 that look improvable and are not:
 

@@ -19,10 +19,13 @@ import { CONTROL_HEIGHT } from '../../internal/control';
 import { Button } from '../button/Button';
 import { ChevronGlyph } from '../list-panel/listPanel';
 import { Menu } from '../menu/Menu';
+import { RAIL_SURFACE } from '../rail/rail';
 import { Tooltip } from '../tooltip/Tooltip';
 
 import type { BaseProps } from '../../core/base';
 import type { SpacingValue } from '../../core/responsive';
+
+import type { RailVariant } from '../rail/rail';
 
 
 /* --------
@@ -31,6 +34,9 @@ import type { SpacingValue } from '../../core/responsive';
 
 export type TabsSize = 'sm' | 'md';
 
+export type TabsVariant = RailVariant;
+
+/** A tab, as its panel declares it */
 export interface TabItem {
   readonly value: string;
 
@@ -57,17 +63,24 @@ export interface TabsLabels {
 }
 
 export interface StrictTabsProps extends BaseProps {
-  /** The tabs, in their fixed order: the first is the most read */
-  items: readonly TabItem[];
-
   onValueChange?: (value: string) => void;
 
   /** `sm` in a drawer or a card, `md` in a page. Defaults to `md` */
   size?: TabsSize;
 
+  /**
+   * `elevated`, a white rail raised like a card; `contained`, the grey rail of a SegmentedControl;
+   * `plain`, no rail, only the fill that slides. Defaults to `elevated`
+   */
+  variant?: TabsVariant;
+
   labels: TabsLabels;
 
-  /** The panels: `Tabs.Panel` */
+  /**
+   * The panels, `Tabs.Panel`, in the order of their tabs: the first is the most read. Each one declares its
+   * tab. They are read as children, so they sit straight in `Tabs` (a fragment is fine), never inside a
+   * component of yours
+   */
   children?: React.ReactNode;
 
   className?: string;
@@ -89,17 +102,16 @@ export type TabsProps = StrictTabsProps & TabsValueProps & TabsNameProps & Omit<
   keyof StrictTabsProps | 'value' | 'defaultValue' | 'aria-label' | 'aria-labelledby' | 'ref' | 'onChange'
 >;
 
-export interface StrictTabsPanelProps extends BaseProps {
-  value: string;
+/** A panel declares its own tab: the props of `TabItem`, the content as children */
+export interface StrictTabsPanelProps extends BaseProps, TabItem {
   children?: React.ReactNode;
   className?: string;
 }
 
-export type TabsPanelProps = StrictTabsPanelProps & Omit<React.ComponentProps<'div'>, keyof StrictTabsPanelProps | 'ref'>;
+export type TabsPanelProps = StrictTabsPanelProps & Omit<React.ComponentProps<'div'>, keyof StrictTabsPanelProps | 'ref' | 'title'>;
 
 interface TabsContextValue {
   value: string | undefined;
-  items: readonly TabItem[];
   hidden: ReadonlySet<string>;
 }
 
@@ -108,7 +120,7 @@ interface TabsContextValue {
  * Constants Definition
  * -------- */
 
-/** No height of its own: a tab at the height of a control, and one step of padding around it */
+/** No height of its own: a tab at the height of a control, and one step of padding around it. Its surface is the variant's */
 const RAIL: Readonly<Record<TabsSize, string>> = {
   md: 'rounded-lg p-1',
   sm: 'rounded-md p-1'
@@ -167,7 +179,7 @@ const PILL = [
   'group-data-active/tab:bg-card group-data-active/tab:text-primary-soft-foreground'
 ].join(' ');
 
-const [ TabsContext, useTabsContext ] = optionalContextBuilder<TabsContextValue>('Tabs', { value: undefined, items: [], hidden: new Set() });
+const [ TabsContext, useTabsContext ] = optionalContextBuilder<TabsContextValue>('Tabs', { value: undefined, hidden: new Set() });
 
 
 /* --------
@@ -229,6 +241,91 @@ function TabContent(props: { item: TabItem; size: TabsSize }): React.ReactNode {
 
 
 /* --------
+ * Parts
+ * -------- */
+
+/** A panel: mounted the first time its tab opens, then kept */
+const TabsPanel = React.forwardRef<HTMLDivElement, TabsPanelProps>((props, ref) => {
+  /* The props of the tab are read by Tabs from the element; the panel itself renders none of them */
+  const {
+    children,
+    className,
+    count: _count,
+    countLabel: _countLabel,
+    disabled: _disabled,
+    disabledReason: _disabledReason,
+    label,
+    leading: _leading,
+    value,
+    ...others
+  } = props;
+
+  const { baseClasses, rest } = splitBaseProps(others);
+  const { hidden, value: active } = useTabsContext();
+
+  const isActive = active === value;
+  const [ visited, setVisited ] = React.useState(isActive);
+
+  if (isActive && !visited) {
+    setVisited(true);
+  }
+
+  /* The tab of a panel in "More" is not in the list: the panel takes its name from it */
+  const name = hidden.has(value) && typeof label === 'string' ? label : undefined;
+
+  return (
+    <TabsPrimitive.Panel
+      {...rest}
+      ref={ref}
+      value={value}
+      keepMounted={visited}
+      aria-label={name}
+      data-slot={'tabs-panel'}
+      data-visited={visited || undefined}
+      className={cn('outline-none focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring', baseClasses, className)}
+    >
+      {visited ? children : null}
+    </TabsPrimitive.Panel>
+  );
+});
+
+TabsPanel.displayName = 'Tabs.Panel';
+
+
+/**
+ * The tabs, read from the panels among the children while rendering: no registry filled by effects, so
+ * the first render, and a render on the server, already has every tab. A fragment is opened; a panel
+ * inside a component of the caller is not seen, which is why the panels sit straight in `Tabs`.
+ */
+function collectTabs(children: React.ReactNode): TabItem[] {
+  const items: TabItem[] = [];
+
+  const visit = (node: React.ReactNode): void => {
+    React.Children.forEach(node, (child) => {
+      if (!React.isValidElement(child)) {
+        return;
+      }
+
+      if (child.type === React.Fragment) {
+        visit((child.props as { children?: React.ReactNode }).children);
+        return;
+      }
+
+      if (child.type === TabsPanel) {
+        const { count, countLabel, disabled, disabledReason, label, leading, value } = child.props as TabsPanelProps;
+
+        items.push({ value, label, leading, count, countLabel, disabled, disabledReason });
+      }
+    });
+  };
+
+  visit(children);
+
+  return items;
+}
+
+
+/* --------
  * Component Definition
  * -------- */
 
@@ -238,14 +335,9 @@ function TabContent(props: { item: TabItem; size: TabsSize }): React.ReactNode {
  * `primary`. Above the panel, in a detail page, a drawer or a card.
  *
  * ```tsx
- * <Tabs
- *   aria-labelledby={titleId}
- *   items={[ { value: 'data', label: 'Data' }, { value: 'moves', label: 'Movements', count: 12, countLabel: '12 movements' } ]}
- *   value={tab} onValueChange={setTab}
- *   labels={{ overflow: 'More' }}
- * >
- *   <Tabs.Panel value={'data'}>…</Tabs.Panel>
- *   <Tabs.Panel value={'moves'}>…</Tabs.Panel>
+ * <Tabs aria-labelledby={titleId} value={tab} onValueChange={setTab} labels={{ overflow: 'More' }}>
+ *   <Tabs.Panel value={'data'} label={'Data'}>…</Tabs.Panel>
+ *   <Tabs.Panel value={'moves'} label={'Movements'} count={12} countLabel={'12 movements'}>…</Tabs.Panel>
  * </Tabs>
  * ```
  *
@@ -255,8 +347,13 @@ function TabContent(props: { item: TabItem; size: TabsSize }): React.ReactNode {
  * chosen there takes the last visible place, and the open one is never in the menu. A panel mounts
  * the first time it opens and is kept, with its filters and scroll.
  *
- * The tabs are data rather than children: the overflow measures them, reorders them and draws them
- * again as menu items, which children wrapped in fragments or components would not allow.
+ * Each panel declares its tab (`label`, `leading`, `count`, `disabled`), and Tabs reads them from its
+ * children while rendering: the overflow measures the tabs, reorders them and draws them again as menu
+ * items, so they are data, but the data sits on the panel it opens. The panels must be children of
+ * Tabs itself (a fragment is fine): one inside a component of the caller is not seen.
+ *
+ * Three variants, the ones of SegmentedControl: `elevated` (the default, a white rail raised like a
+ * card), `contained` (a grey rail) and `plain` (no rail).
  *
  * ⚠️ The row takes the whole width it is given, and that width has to come from the parent. Inside
  * a container that sizes to its content (a centred column, an `inline-flex`, a cell of an auto table)
@@ -264,7 +361,7 @@ function TabContent(props: { item: TabItem; size: TabsSize }): React.ReactNode {
  * shrinks with it, and the row stays narrower than it could be. Give such a container a width.
  *
  * Parts with a slot: `tabs` (the root, where `className` lands), `tabs-row`, `tabs-rail` (with
- * `data-size`), `tabs-list`, `tabs-indicator`, `tabs-tab`, `tabs-tab-content`, `tabs-tab-leading`,
+ * `data-size`, `data-variant`), `tabs-list`, `tabs-indicator`, `tabs-tab`, `tabs-tab-content`, `tabs-tab-leading`,
  * `tabs-tab-count`, `tabs-more`, `tabs-panel`, and `tabs-measure`, the hidden copy whose tabs carry
  * `tabs-tab` too.
  */
@@ -279,13 +376,15 @@ const TabsRoot = React.forwardRef<HTMLDivElement, TabsProps>((props, ref) => {
     children,
     className,
     defaultValue,
-    items,
     labels,
     onValueChange,
     size = 'md',
     value: valueProp,
+    variant = 'elevated',
     ...others
   } = props;
+
+  const items = collectTabs(children);
 
   const { baseClasses, rest } = splitBaseProps(others);
 
@@ -321,11 +420,10 @@ const TabsRoot = React.forwardRef<HTMLDivElement, TabsProps>((props, ref) => {
   // ----
   // Memoized Data
   // ----
-  const context = React.useMemo<TabsContextValue>(() => ({
+  const context: TabsContextValue = {
     value,
-    items,
     hidden: new Set(overflow.map((index) => items[index].value))
-  }), [ value, items, overflow ]);
+  };
 
 
   // ----
@@ -410,11 +508,12 @@ const TabsRoot = React.forwardRef<HTMLDivElement, TabsProps>((props, ref) => {
           <Stack
             data-slot={'tabs-rail'}
             data-size={size}
+            data-variant={variant}
             inline
             direction={'horizontal'}
             align={'center'}
             gap={1}
-            className={cn('max-w-full bg-card shadow-sm', RAIL[size])}
+            className={cn('max-w-full', RAIL_SURFACE[variant], RAIL[size])}
           >
             <TabsPrimitive.List
               activateOnFocus={false}
@@ -514,41 +613,6 @@ const TabsRoot = React.forwardRef<HTMLDivElement, TabsProps>((props, ref) => {
 });
 
 TabsRoot.displayName = 'Tabs';
-
-
-/** A panel: mounted the first time its tab opens, then kept */
-const TabsPanel = React.forwardRef<HTMLDivElement, TabsPanelProps>((props, ref) => {
-  const { children, className, value, ...others } = props;
-  const { baseClasses, rest } = splitBaseProps(others);
-  const { hidden, items, value: active } = useTabsContext();
-
-  const isActive = active === value;
-  const [ visited, setVisited ] = React.useState(isActive);
-
-  if (isActive && !visited) {
-    setVisited(true);
-  }
-
-  /* The tab of a panel in "More" is not in the list: the panel takes its name from it */
-  const label = hidden.has(value) ? items.find((item) => item.value === value)?.label : undefined;
-
-  return (
-    <TabsPrimitive.Panel
-      {...rest}
-      ref={ref}
-      value={value}
-      keepMounted={visited}
-      aria-label={typeof label === 'string' ? label : undefined}
-      data-slot={'tabs-panel'}
-      data-visited={visited || undefined}
-      className={cn('outline-none focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring', baseClasses, className)}
-    >
-      {visited ? children : null}
-    </TabsPrimitive.Panel>
-  );
-});
-
-TabsPanel.displayName = 'Tabs.Panel';
 
 
 export const Tabs = Object.assign(TabsRoot, {
