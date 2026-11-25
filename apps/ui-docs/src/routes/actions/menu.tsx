@@ -26,6 +26,7 @@ import groups from '@/examples/actions/menu/groups.tsx?example';
 import inContext from '@/examples/actions/menu/in-context.tsx?example';
 import links from '@/examples/actions/menu/links.tsx?example';
 import placement from '@/examples/actions/menu/placement.tsx?example';
+import radius from '@/examples/actions/menu/radius.tsx?example';
 import submenu from '@/examples/actions/menu/submenu.tsx?example';
 import { pageAt } from '@/nav';
 
@@ -166,6 +167,20 @@ function MenuPage(): React.ReactNode {
           )}
         >
           <Example of={placement} />
+        </Section>
+
+        <Section
+          title={'Radius'}
+          lead={(
+            <React.Fragment>
+              <InlineCode>radius</InlineCode> sets the corner of the menu and of its submenus; the items sit 4px inside it
+              and take its corner less those 4px, so the two stay concentric. <InlineCode>default</InlineCode> is the
+              theme’s <InlineCode>--list-panel-radius</InlineCode>, the corner of every floating list of the package,
+              the lists of Select and Combobox included.
+            </React.Fragment>
+          )}
+        >
+          <Example of={radius} />
         </Section>
 
         <Section
