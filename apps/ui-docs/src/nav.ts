@@ -1,4 +1,5 @@
 import {
+  Timer,
   AlignVerticalSpaceAround,
   AppWindow,
   BadgeCheck,
@@ -242,6 +243,7 @@ export const NAV: readonly NavGroup[] = [
       { title: 'Combobox', to: '/forms/combobox', subpath: '@proedis/ui/forms/combobox', peers: BASE_UI, description: 'One record or several, among results from the server.', icon: TextSearch, ready: true },
       { title: 'DatePicker', to: '/forms/date-picker', subpath: '@proedis/ui/forms/date-picker', peers: BASE_UI_DAYJS, description: 'A date, typed or picked from a calendar.', icon: CalendarDays, ready: true },
       { title: 'RangeDatePicker', to: '/forms/range-date-picker', subpath: '@proedis/ui/forms/range-date-picker', peers: BASE_UI_DAYJS, description: 'A period in one field, typed or picked from one calendar.', icon: CalendarRange, ready: true },
+      { title: 'DurationInput', to: '/forms/duration-input', subpath: '@proedis/ui/forms/duration-input', peers: BASE_UI, description: 'A duration typed in hours, minutes and seconds, as seconds or a TimeSpan.', icon: Timer, ready: true },
       { title: 'Checkbox', to: '/forms/checkbox', subpath: '@proedis/ui/forms/checkbox', peers: BASE_UI, description: 'A box, and a group with the parent box computed from its options.', icon: SquareCheck, ready: true },
       { title: 'CheckboxGrid', to: '/forms/checkbox-grid', subpath: '@proedis/ui/forms/checkbox-grid', peers: BASE_UI, description: 'A grid of boxes in groups that open and close.', icon: Grid2x2Check, ready: true },
       { title: 'Radio', to: '/forms/radio', subpath: '@proedis/ui/forms/radio', peers: BASE_UI, description: 'One choice in view, classic or as cards.', icon: CircleDot, ready: true },

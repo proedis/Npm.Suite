@@ -72,8 +72,8 @@ function DurationInputPage(): React.ReactNode {
           lead={(
             <React.Fragment>
               The value is whole seconds, a number, so a schema’s bounds reach the control through its binding.{' '}
-              <InlineCode>durationFromTimeSpan</InlineCode> reads what an API sends, <InlineCode>'01:30:00'</InlineCode>{' '}
-              or <InlineCode>'1.02:00:00'</InlineCode> past a day, and <InlineCode>durationToTimeSpan</InlineCode> writes it
+              <InlineCode>durationFromTimeSpan</InlineCode> reads what an API sends, <InlineCode>01:30:00</InlineCode>{' '}
+              or <InlineCode>1.02:00:00</InlineCode> past a day, and <InlineCode>durationToTimeSpan</InlineCode> writes it
               back.
             </React.Fragment>
           )}

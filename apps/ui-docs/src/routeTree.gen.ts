@@ -42,6 +42,7 @@ import { Route as FormsCheckboxRouteImport } from './routes/forms/checkbox'
 import { Route as FormsCheckboxGridRouteImport } from './routes/forms/checkbox-grid'
 import { Route as FormsComboboxRouteImport } from './routes/forms/combobox'
 import { Route as FormsDatePickerRouteImport } from './routes/forms/date-picker'
+import { Route as FormsDurationInputRouteImport } from './routes/forms/duration-input'
 import { Route as FormsFieldRouteImport } from './routes/forms/field'
 import { Route as FormsFieldShellRouteImport } from './routes/forms/field-shell'
 import { Route as FormsFileUploadRouteImport } from './routes/forms/file-upload'
@@ -257,6 +258,11 @@ const FormsComboboxRoute = FormsComboboxRouteImport.update({
 const FormsDatePickerRoute = FormsDatePickerRouteImport.update({
   id: '/forms/date-picker',
   path: '/forms/date-picker',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FormsDurationInputRoute = FormsDurationInputRouteImport.update({
+  id: '/forms/duration-input',
+  path: '/forms/duration-input',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FormsFieldRoute = FormsFieldRouteImport.update({
@@ -551,6 +557,7 @@ export interface FileRoutesByFullPath {
   '/forms/checkbox-grid': typeof FormsCheckboxGridRoute
   '/forms/combobox': typeof FormsComboboxRoute
   '/forms/date-picker': typeof FormsDatePickerRoute
+  '/forms/duration-input': typeof FormsDurationInputRoute
   '/forms/field': typeof FormsFieldRoute
   '/forms/field-shell': typeof FormsFieldShellRoute
   '/forms/file-upload': typeof FormsFileUploadRoute
@@ -637,6 +644,7 @@ export interface FileRoutesByTo {
   '/forms/checkbox-grid': typeof FormsCheckboxGridRoute
   '/forms/combobox': typeof FormsComboboxRoute
   '/forms/date-picker': typeof FormsDatePickerRoute
+  '/forms/duration-input': typeof FormsDurationInputRoute
   '/forms/field': typeof FormsFieldRoute
   '/forms/field-shell': typeof FormsFieldShellRoute
   '/forms/file-upload': typeof FormsFileUploadRoute
@@ -724,6 +732,7 @@ export interface FileRoutesById {
   '/forms/checkbox-grid': typeof FormsCheckboxGridRoute
   '/forms/combobox': typeof FormsComboboxRoute
   '/forms/date-picker': typeof FormsDatePickerRoute
+  '/forms/duration-input': typeof FormsDurationInputRoute
   '/forms/field': typeof FormsFieldRoute
   '/forms/field-shell': typeof FormsFieldShellRoute
   '/forms/file-upload': typeof FormsFileUploadRoute
@@ -812,6 +821,7 @@ export interface FileRouteTypes {
     | '/forms/checkbox-grid'
     | '/forms/combobox'
     | '/forms/date-picker'
+    | '/forms/duration-input'
     | '/forms/field'
     | '/forms/field-shell'
     | '/forms/file-upload'
@@ -898,6 +908,7 @@ export interface FileRouteTypes {
     | '/forms/checkbox-grid'
     | '/forms/combobox'
     | '/forms/date-picker'
+    | '/forms/duration-input'
     | '/forms/field'
     | '/forms/field-shell'
     | '/forms/file-upload'
@@ -984,6 +995,7 @@ export interface FileRouteTypes {
     | '/forms/checkbox-grid'
     | '/forms/combobox'
     | '/forms/date-picker'
+    | '/forms/duration-input'
     | '/forms/field'
     | '/forms/field-shell'
     | '/forms/file-upload'
@@ -1071,6 +1083,7 @@ export interface RootRouteChildren {
   FormsCheckboxGridRoute: typeof FormsCheckboxGridRoute
   FormsComboboxRoute: typeof FormsComboboxRoute
   FormsDatePickerRoute: typeof FormsDatePickerRoute
+  FormsDurationInputRoute: typeof FormsDurationInputRoute
   FormsFieldRoute: typeof FormsFieldRoute
   FormsFieldShellRoute: typeof FormsFieldShellRoute
   FormsFileUploadRoute: typeof FormsFileUploadRoute
@@ -1355,6 +1368,13 @@ declare module '@tanstack/react-router' {
       path: '/forms/date-picker'
       fullPath: '/forms/date-picker'
       preLoaderRoute: typeof FormsDatePickerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forms/duration-input': {
+      id: '/forms/duration-input'
+      path: '/forms/duration-input'
+      fullPath: '/forms/duration-input'
+      preLoaderRoute: typeof FormsDurationInputRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forms/field': {
@@ -1751,6 +1771,7 @@ const rootRouteChildren: RootRouteChildren = {
   FormsCheckboxGridRoute: FormsCheckboxGridRoute,
   FormsComboboxRoute: FormsComboboxRoute,
   FormsDatePickerRoute: FormsDatePickerRoute,
+  FormsDurationInputRoute: FormsDurationInputRoute,
   FormsFieldRoute: FormsFieldRoute,
   FormsFieldShellRoute: FormsFieldShellRoute,
   FormsFileUploadRoute: FormsFileUploadRoute,
