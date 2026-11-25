@@ -14,6 +14,7 @@ import { refineProps } from '@/docs/refineProps';
 import { tsx } from '@/docs/snippet';
 import { SlotsInspector } from '@/docs/SlotsInspector';
 import { DocTable, PropsTable } from '@/docs/Tables';
+import anatomy from '@/examples/feedback/progress-bar/anatomy.tsx?example';
 import basic from '@/examples/feedback/progress-bar/basic.tsx?example';
 import bounds from '@/examples/feedback/progress-bar/bounds.tsx?example';
 import live from '@/examples/feedback/progress-bar/live.tsx?example';
@@ -196,7 +197,7 @@ function ProgressBarPage(): React.ReactNode {
         </Section>
 
         <Section title={'Slots and data attributes'}>
-          <SlotsInspector of={live}
+          <SlotsInspector of={anatomy}
             rows={[
               {
                 slot      : 'progress-bar',
