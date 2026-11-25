@@ -161,7 +161,13 @@ const softMuted = <IconBox><svg /></IconBox>;
 
 const solidDestructive = <IconBox fill={'solid'} tone={'destructive'} size={'lg'}><svg /></IconBox>;
 
-const emptyState = <IconBox size={'2xl'} tone={'primary'} halo shape={'round'} hideBelow={'md'}><svg /></IconBox>;
+const emptyState = <IconBox size={'2xl'} tone={'primary'} halo radius={'full'} hideBelow={'md'}><svg /></IconBox>;
+
+/** @ts-expect-error the corner is a radius now: shape is gone */
+const iconBoxShape = <IconBox shape={'round'}><svg /></IconBox>;
+
+/** @ts-expect-error a radius is a step of the scale, not a length */
+const iconBoxRadiusLength = <IconBox radius={12}><svg /></IconBox>;
 
 /** @ts-expect-error 'danger' is what one frontend calls it; the token, and therefore the tone, is 'destructive' */
 const wrongToneName = <IconBox tone={'danger'}><svg /></IconBox>;
@@ -527,7 +533,8 @@ export const CHECKED = [
   card, noOpinion, modalSurface, wrongLoadingLabel, wrongSeparator, wrongSeparatorSpace,
   headerIsAnItem, listRow, buttonRow, emptyStateRow, divWithType, itemWrongGap, itemWrongTone,
   pair, partSize, headingWrongSize, headingAs, wrongLines, wrongGapValue, flatPart,
-  softMuted, solidDestructive, emptyState, wrongToneName, wrongFill, spinner, wrongSpinnerLabel,
+  softMuted, solidDestructive, emptyState, iconBoxShape, iconBoxRadiusLength,
+  wrongToneName, wrongFill, spinner, wrongSpinnerLabel,
   anchorStack, sectionStack, plainStack, wrongAttribute, wrongAttributeToo,
   scaleRespected, outsideTheScale, outsideTheColumns, outsideTheScaleResponsive,
   baseIsNotABreakpoint, unknownBreakpoint, asAWrapper, labelDefault, quietLabel, labelWithItsLine,

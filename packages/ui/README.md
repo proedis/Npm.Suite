@@ -578,15 +578,15 @@ Three independent axes: **how** it is filled, **which** tone, **how big**.
 <IconBox><Truck /></IconBox>                                      // soft · muted · 40px
 <IconBox fill={'solid'} tone={'destructive'}><Trash /></IconBox>
 <IconBox size={'2xl'} tone={'primary'} halo><Inbox /></IconBox>   // an empty state
-<IconBox shape={'round'} fill={'plain'}><Check /></IconBox>
+<IconBox radius={'full'} fill={'plain'}><Check /></IconBox>
 ```
 
 | Axis | Values |
 | --- | --- |
-| `fill` | `solid` (the tone carries the surface) · `soft` (a tenth of it, plus a hairline) · `plain` (no surface, same footprint) |
+| `fill` | `solid` (the tone carries the surface) · `soft` (a tenth of it, nothing around) · `plain` (no surface, same footprint) |
 | `tone` | `muted` · `secondary` · `primary` · `success` · `warning` · `destructive` · `info` |
-| `size` | `sm` 32 · `md` 40 · `lg` 56 · `xl` 72 · `2xl` 88 — box, radius and glyph move together |
-| `shape` | `square` (the radius its size gives it) · `round` |
+| `size` | `xs` 24 · `sm` 32 · `md` 40 · `lg` 56 · `xl` 72 · `2xl` 88, one scale for the box, the glyph (half of it), the corner and the halo |
+| `radius` | `default` (the theme's `--icon-box-radius`, `2xl` undeclared) · `none` · `xs` … `3xl` · `full`. A step is what a `md` box shows, scaled with the size |
 
 `Tone` is exported from `@proedis/ui/core` and is **the** tone vocabulary of the package: every
 component that offers a tone offers these seven, and each name is the name of the token pair behind it.
@@ -598,8 +598,8 @@ The icon arrives as a **child**, which is what keeps an icon library out of this
 is **non-interactive by design**: no hover, no press, no focus. A clickable icon is a button with an
 icon in it, and it needs a focus ring and an accessible name that a frame has no business owning.
 
-`halo` draws two concentric rings echoing the tone, for an empty state. They are `scale-150` and
-`scale-200` of the box rather than a measured geometry, so they follow whatever the size scale says.
+`halo` draws two rings around the box in its tone, for an empty state: a quarter and a half of the side
+wide, as shadows of the box, so they follow its size and its corner and no background covers them.
 
 #### Retuning a variant, without wrapping the component
 
@@ -617,7 +617,7 @@ in the application:
 
 It wins with no `!important` and no specificity contest: Tailwind emits its utilities inside
 `@layer utilities`, and an unlayered rule beats any layered one. The attributes are `data-fill`,
-`data-tone`, `data-size` and `data-shape`, and they always carry the **resolved** value, defaults
+`data-tone`, `data-size`, `data-radius` and `data-halo`, and they always carry the **resolved** value, defaults
 included.
 
 Knobs sit one level above that and cost nothing: `size-*` resolves through `--spacing`, every named
@@ -1245,6 +1245,7 @@ another package. A recessed surface is `--muted`.
 | `Cluster` `gap` defaults to `2`, `Grid` to `4`, `Surface.Separator` `space` to `6` | `sm`, `md` and `lg`: the same lengths, now following the theme's `--space-*` |
 | `<Skeleton className={'size-4'} />` for a box, and a line of text 10px tall | `shape={'block'}` for a box; a line of text is as tall as a line of its `size` (20px at `sm`) with the 10px bar in its middle, inside a `skeleton` element holding a `skeleton-bar` |
 | `Divider` drawn as a 1px box filled with `--border` | drawn as a border, so `lineStyle` can dash it: a rule targeting its `background-color` targets nothing now, its `border-color` is the line |
+| `shape` on `IconBox` | `radius`: `round` is `radius={'full'}`. A `soft` box has no hairline; the glyph is half the box at every size (larger from `lg` up) and the corner scales with it; `icon-box-halo` is no longer a slot, the rings are shadows of the box (`data-halo`) |
 | `size` on `Heading.Title`, `Heading.Description`, `Heading.Eyebrow` | `size` on `Heading`, for the three together (`sm` · `md` · `lg` · `xl`, the title's steps); `data-size` moves from the parts to the root. A part that has to step out of the scale takes a size in its `className` |
 | `CollapsibleSection` from `@proedis/ui/actions/collapsible` | `Accordion` from `@proedis/ui/actions/accordion`: a section is an `Accordion.Item` in an `Accordion`, `open` / `defaultOpen` / `onOpenChange` are the item's `value` in `value` / `defaultValue` / `onValueChange` of the accordion, and the slots `collapsible-section-*` are `accordion-*`. The body opens on its height; the last item draws no rule under it |
 | `data-mode`, `data-inline`, `data-wrap`, `data-divided`, `data-fill` on the parts of a component laid out by `Stack`, `Cluster`, `Center` or `Grid` | written only on a primitive that renders as itself; a rule matching them on a component part matches nothing now |

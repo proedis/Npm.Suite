@@ -23,10 +23,10 @@ import type { Tone } from '../../core/tone';
  * has, and `cva` resolves its defaults internally where the caller cannot see them.
  */
 const DEFAULT_VARIANTS = {
-  fill : 'soft',
-  shape: 'square',
-  size : 'md',
-  tone : 'muted'
+  fill  : 'soft',
+  radius: 'default',
+  size  : 'md',
+  tone  : 'muted'
 } as const;
 
 
@@ -55,10 +55,10 @@ const iconBoxVariants = cva(
   ),
   {
     variants: {
-      /** The hairline of the tinted family lives here, so every `soft` tone gets it once */
+      /** A `soft` box is its tint and nothing else: no hairline around it */
       fill: {
         solid: '',
-        soft : 'ring-1 ring-border ring-inset',
+        soft : '',
         plain: 'bg-transparent'
       },
 
@@ -78,20 +78,39 @@ const iconBoxVariants = cva(
       } satisfies Record<Tone, string>,
 
       /**
-       * Box side, corner radius and glyph size move together: a 32px box with a 32px radius is a
-       * circle by accident, and a 88px box with a 12px radius reads as a panel. The radius comes from
-       * the named scale, so it follows `--radius-scale` like everything else.
+       * One number per size, `--icon-box-scale`, and everything follows it: the side (2.5rem times it, the
+       * `size-*` step it equals), the glyph (half the side), the corner (`rounded-icon-box`, the radius step
+       * times it) and the halo (a quarter and a half of the side). The proportions are the same at every
+       * size, which is what a table of hand-picked steps had lost: the glyph went from 58% of the box to
+       * 39%, the corner from a third to more than two fifths.
        *
        * The glyph class is skipped when the child already sets its own `size-*`, which is the escape
        * hatch for an icon that has to be optically corrected.
        */
       size: {
-        xs   : 'size-6 rounded-lg [&_svg:not([class*=size-])]:size-3.5',
-        sm   : 'size-8 rounded-xl [&_svg:not([class*=size-])]:size-4',
-        md   : 'size-10 rounded-2xl [&_svg:not([class*=size-])]:size-5',
-        lg   : 'size-14 rounded-3xl [&_svg:not([class*=size-])]:size-6',
-        xl   : 'size-18 rounded-3xl [&_svg:not([class*=size-])]:size-7',
-        '2xl': 'size-22 rounded-4xl [&_svg:not([class*=size-])]:size-9'
+        xs   : 'icon-box-scale-xs size-6 [&_svg:not([class*=size-])]:size-3',
+        sm   : 'icon-box-scale-sm size-8 [&_svg:not([class*=size-])]:size-4',
+        md   : 'icon-box-scale-md size-10 [&_svg:not([class*=size-])]:size-5',
+        lg   : 'icon-box-scale-lg size-14 [&_svg:not([class*=size-])]:size-7',
+        xl   : 'icon-box-scale-xl size-18 [&_svg:not([class*=size-])]:size-9',
+        '2xl': 'icon-box-scale-2xl size-22 [&_svg:not([class*=size-])]:size-11'
+      },
+
+      /**
+       * The corner, as the step a `md` box would show, scaled with the size. `default` is the theme's
+       * (`--icon-box-radius`, `2xl` undeclared); `none` and `full` are absolutes, the same at every size.
+       */
+      radius: {
+        default: 'rounded-icon-box',
+        none   : 'rounded-none',
+        xs     : 'rounded-icon-box icon-box-corner-xs',
+        sm     : 'rounded-icon-box icon-box-corner-sm',
+        md     : 'rounded-icon-box icon-box-corner-md',
+        lg     : 'rounded-icon-box icon-box-corner-lg',
+        xl     : 'rounded-icon-box icon-box-corner-xl',
+        '2xl'  : 'rounded-icon-box icon-box-corner-2xl',
+        '3xl'  : 'rounded-icon-box icon-box-corner-3xl',
+        full   : 'rounded-full'
       }
     },
 
@@ -104,35 +123,18 @@ const iconBoxVariants = cva(
 
 
 /**
- * The concentric rings, scaled from the box instead of measured against it.
- *
- * Both source implementations compute the halo geometry in pixels from the box side, in an inline
- * style, which is why both had to make the geometry the source of truth and pass it around.
- * `scale-150` / `scale-200` derive the same rings from whatever the box already is, so the halo needs
- * no geometry, no inline style and no per-size table — and it keeps working if the size scale moves.
+ * The colour of the halo, per tone: the tone itself, but the ink for `muted` and `secondary`, whose
+ * colour is a surface a ring at 15% would not show on.
  */
-const haloVariants = cva('pointer-events-none absolute inset-0 -z-10 rounded-full', {
-  variants       : {
-    ring: {
-      inner: 'scale-150 opacity-15',
-      outer: 'scale-200 opacity-5'
-    },
-
-    /** The ring echoes the tone, not the ink: on a solid fill the glyph is the foreground colour */
-    tone: {
-      muted      : 'bg-muted-foreground',
-      secondary  : 'bg-secondary-foreground',
-      primary    : 'bg-primary',
-      success    : 'bg-success',
-      warning    : 'bg-warning',
-      destructive: 'bg-destructive',
-      info       : 'bg-info'
-    } satisfies Record<Tone, string>
-  },
-  defaultVariants: {
-    tone: 'muted'
-  }
-});
+const HALO: Readonly<Record<Tone, string>> = {
+  muted      : 'icon-box-halo-muted-foreground',
+  secondary  : 'icon-box-halo-secondary-foreground',
+  primary    : 'icon-box-halo-primary',
+  success    : 'icon-box-halo-success',
+  warning    : 'icon-box-halo-warning',
+  destructive: 'icon-box-halo-destructive',
+  info       : 'icon-box-halo-info'
+};
 
 
 /* --------
@@ -146,18 +148,15 @@ export type IconBoxFill = NonNullable<VariantProps<typeof iconBoxVariants>['fill
 
 export type IconBoxSize = NonNullable<VariantProps<typeof iconBoxVariants>['size']>;
 
-export type IconBoxShape = 'square' | 'round';
+export type IconBoxRadius = NonNullable<VariantProps<typeof iconBoxVariants>['radius']>;
 
 
 export interface StrictIconBoxProps extends BaseProps, VariantProps<typeof iconBoxVariants> {
   /** The icon, as a child. Anything that renders an `svg` */
   children?: React.ReactNode;
 
-  /** Two concentric rings behind the box, echoing its tone. For an empty state, not for a header */
+  /** Two rings around the box, echoing its tone. For an empty state, not for a header */
   halo?: boolean;
-
-  /** `round` overrides the radius the size would give it. Defaults to `square` */
-  shape?: IconBoxShape;
 }
 
 export type IconBoxProps<E extends React.ElementType = 'span'> = PolymorphicProps<E, StrictIconBoxProps>;
@@ -174,7 +173,7 @@ export type IconBoxProps<E extends React.ElementType = 'span'> = PolymorphicProp
  * <IconBox><Truck /></IconBox>                                  // soft, muted, 40px
  * <IconBox tone={'destructive'} fill={'solid'}><Trash /></IconBox>
  * <IconBox size={'2xl'} tone={'primary'} halo><Inbox /></IconBox>  // an empty state
- * <IconBox shape={'round'} fill={'plain'}><Check /></IconBox>
+ * <IconBox radius={'full'} fill={'plain'}><Check /></IconBox>
  * ```
  *
  * ⚠️ **Non-interactive by design**, and both frontends this draws on say the same thing in the same
@@ -200,7 +199,7 @@ export function IconBox<E extends React.ElementType = 'span'>(props: IconBoxProp
     className,
     fill = DEFAULT_VARIANTS.fill,
     halo = false,
-    shape = DEFAULT_VARIANTS.shape,
+    radius = DEFAULT_VARIANTS.radius,
     size = DEFAULT_VARIANTS.size,
     tone = DEFAULT_VARIANTS.tone,
     ...others
@@ -213,15 +212,9 @@ export function IconBox<E extends React.ElementType = 'span'>(props: IconBoxProp
   // Layout Computation
   // ----
 
-  /**
-   * `rounded-full` is appended **after** the variants rather than declared as one, so the override of
-   * the size's radius is resolved by `tailwind-merge` on an order this file controls. Inside a single
-   * `cva` call the order of two conflicting variants is the order of the config keys, which is a
-   * subtlety nobody should have to know to read this.
-   */
   const classes = cn(
-    iconBoxVariants({ fill, size, tone }),
-    shape === 'round' && 'rounded-full',
+    iconBoxVariants({ fill, radius, size, tone }),
+    halo && cn('icon-box-halo', HALO[tone ?? DEFAULT_VARIANTS.tone]),
     baseClasses,
     className
   );
@@ -250,7 +243,8 @@ export function IconBox<E extends React.ElementType = 'span'>(props: IconBoxProp
       as={Component}
       data-slot={'icon-box'}
       data-fill={fill}
-      data-shape={shape}
+      data-halo={halo || undefined}
+      data-radius={radius}
       data-size={size}
       data-tone={tone}
       inline
@@ -260,12 +254,6 @@ export function IconBox<E extends React.ElementType = 'span'>(props: IconBoxProp
       className={classes}
       {...rest}
     >
-      {halo && (
-        <React.Fragment>
-          <span aria-hidden data-slot={'icon-box-halo'} className={haloVariants({ ring: 'outer', tone })} />
-          <span aria-hidden data-slot={'icon-box-halo'} className={haloVariants({ ring: 'inner', tone })} />
-        </React.Fragment>
-      )}
       {children}
     </Stack>
   );

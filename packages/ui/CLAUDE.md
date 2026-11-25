@@ -608,8 +608,8 @@ narrower stylesheet is the one you have to ask for.
   inline type specifier, which is what keeps `import/order` and the house rule (type imports last)
   from contradicting each other.
   ⚠️ Two things about `cva` here. Defaults live in `defaultVariants`, never in the destructure, so
-  there is one source. And a variant that has to **override** another (`shape: 'round'` beating the
-  radius that `size` sets) is appended outside the `cva` call, where `tailwind-merge` resolves it on
+  there is one source. And a variant that has to **override** another (a `rounded-*` of a caller
+  beating the radius a variant sets) is appended outside the `cva` call, where `tailwind-merge` resolves it on
   an order the file controls — inside one call the winner is the order of the config keys, which is a
   subtlety nobody should need to know to read the file.
 - **An outline width carries its style, on the same variant.** In Tailwind 4 `outline-none` sets
@@ -681,12 +681,12 @@ narrower stylesheet is the one you have to ask for.
   2. Would an application plausibly write a rule for **the unspecified case**?
   3. Would that rule survive this package changing its mind about which option the default is?
 
-  The six that pass: `Surface.elevation`, `Surface.radius`, `Container.size`, `Label.emphasis`, and
-  `Button.radius` and `Accordion.radius`, whose `default` is not a step at all but the theme's corner
-  (`rounded-button`, `rounded-accordion`).
+  The ones that pass: `Surface.elevation`, `Surface.radius`, `Container.size`, `Label.emphasis`, and
+  `Button.radius`, `Accordion.radius`, `IconBox.radius` and `LoadingBar.radius`, whose `default` is not
+  a step at all but the theme's corner (`rounded-button`, `rounded-accordion`, `rounded-icon-box`,
+  `rounded-loading-bar`).
 
-  What fails, and why it is worth knowing rather than re-deriving: `IconBox`'s `fill` / `tone` / `size`
-  / `shape` and `Spinner.size` and every `Heading` size are **steps**, so they fail (1) and
+  What fails, and why it is worth knowing rather than re-deriving: `IconBox`'s `fill` / `tone` / `size` and `Spinner.size` and every `Heading` size are **steps**, so they fail (1) and
   `data-size="md"` is worth more than `data-size="default"` because it says what the thing is;
   `gap` on `Heading` and `Item` is a step of `--spacing`, same reason; `Divider.orientation`,
   `ScrollArea.orientation`, `Sticky.position`, `Split.side`, `SafeArea.sides`, `Item.direction` and
@@ -750,6 +750,17 @@ narrower stylesheet is the one you have to ask for.
   component builds its variants *from* the table rather than interpolating class names at runtime.
   ⚠️ `IconBox` was refactored onto it and its 15 render cases plus the 35 slot cases stayed green
   unchanged, which is what says the extraction was behaviour-neutral rather than hopeful.
+- **An IconBox is one number per size.** `--icon-box-scale` (0.6 to 2.2, `md` 1) sets the side (the
+  `size-*` step it equals), the glyph (half the side), the corner (`rounded-icon-box`, the radius step
+  times the scale) and the halo (a quarter and a half of the side). Marco asked for the proportions to be
+  the same at every size (2026-11-25); the table of hand-picked steps it replaced had the glyph from 58%
+  of the box down to 39% and the corner from a third to more than two fifths. Measured: glyph 0.50 and
+  corner 0.40 of the side at all six sizes. ⚠️ One utility per size (`icon-box-scale-xs` & co.), not a
+  functional `icon-box-scale-*`: Tailwind generates a bare number only on a quarter, so 0.6 produced no
+  CSS while 1 did, and the radius silently stayed the `md` one. `radius` is the step a `md` box would
+  show, scaled; `none` and `full` are absolutes. The halo is two shadows of the box itself: the two
+  spans it used to be sat at `-z-10` and went under the background of the first ancestor that had one,
+  which is why it never showed. `soft` has no hairline any more.
 - **`Badge` is static, and the `×` is not coming back.** Both references say a badge communicates
   rather than being clicked; one of them then puts a removable `×` button inside it. That is the `Item`
   trap again: a control inside a label needs the label not to be a control, and needs its own name,

@@ -378,6 +378,61 @@
  * arbitrary one.
  */
 /*
+ * The proportions of an IconBox, from one number. Every size sets `--icon-box-scale` (`md` is 1, a box of
+ * 2.5rem); the corner is the radius step times that number, so a box, its glyph (half the box, a step of
+ * the spacing scale), its corner and its halo keep the same proportions at every size. The step is what a
+ * `md` box would show: `--icon-box-radius` for the theme, `icon-box-corner-*` for one box.
+ */
+@theme inline {
+  --radius-icon-box: calc(var(--icon-box-corner, var(--icon-box-radius, var(--radius-2xl))) * var(--icon-box-scale, 1));
+}
+
+/* One utility per size, not a functional `icon-box-scale-*`: Tailwind takes a bare number only on a quarter */
+@utility icon-box-scale-xs {
+  --icon-box-scale: 0.6;
+}
+
+@utility icon-box-scale-sm {
+  --icon-box-scale: 0.8;
+}
+
+@utility icon-box-scale-md {
+  --icon-box-scale: 1;
+}
+
+@utility icon-box-scale-lg {
+  --icon-box-scale: 1.4;
+}
+
+@utility icon-box-scale-xl {
+  --icon-box-scale: 1.8;
+}
+
+@utility icon-box-scale-2xl {
+  --icon-box-scale: 2.2;
+}
+
+@utility icon-box-corner-* {
+  --icon-box-corner: --value(--radius-*);
+}
+
+/*
+ * The halo: two rings around the box, a quarter and a half of its side wide, in the colour of the tone at
+ * 15% and 5%. Drawn as shadows of the box itself, so they follow its corner and sit in no stacking order:
+ * two spans behind it at `-z-10` fell under the background of the first ancestor that had one, and never
+ * showed. The colour comes from `icon-box-halo-*`.
+ */
+@utility icon-box-halo {
+  box-shadow:
+    0 0 0 calc(2.5rem * var(--icon-box-scale, 1) * 0.25) color-mix(in oklab, var(--icon-box-halo-color, currentColor) 15%, transparent),
+    0 0 0 calc(2.5rem * var(--icon-box-scale, 1) * 0.5) color-mix(in oklab, var(--icon-box-halo-color, currentColor) 5%, transparent);
+}
+
+@utility icon-box-halo-* {
+  --icon-box-halo-color: --value(--color-*);
+}
+
+/*
  * The three texts of a Heading, one scale for the three: the root sets the size of each through
  * `heading-size-*` and the parts read it, so the eyebrow, the title and the description move together. A
  * part used alone falls back on the `sm` row. Read through `text-heading-*`, a utility of the same group as

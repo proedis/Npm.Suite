@@ -19,7 +19,7 @@ const twMerge = extendTailwindMerge<'scrollbar'>({
       font         : [ 'heading' ],
       text         : [ 'heading-eyebrow', 'heading-title', 'heading-description' ],
       'font-weight': [ 'heading-title' ],
-      radius       : [ 'control', 'control-inner', 'button', 'accordion', 'loading-bar' ]
+      radius       : [ 'control', 'control-inner', 'button', 'accordion', 'loading-bar', 'icon-box' ]
     },
     classGroups: {
       'grid-cols': [ { 'grid-cols': [ 'field', 'field-horizontal' ] } ],
