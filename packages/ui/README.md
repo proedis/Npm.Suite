@@ -34,7 +34,7 @@ import { Dialog } from '@proedis/ui/overlays/dialog';
 | **layout** | `@proedis/ui/layout` | *where things are*: `Box` · `Stack` · `Cluster` · `Grid` · `Center` · `Container` · `Split` · `Spacer` · `Sticky` · `AspectRatio` · `Bleed` · `SafeArea` |
 | **primitives** | `@proedis/ui/primitives` | the small pieces with a look: `BusyVeil` · `Divider` · `Label` · `LoadingBar` · `ScrollArea` · `Skeleton` · `Spinner` · `VisuallyHidden` |
 | **display** | `@proedis/ui/display/<name>` | what things look like: `Badge` · `BadgeCounter` · `Heading` · `IconBox` · `Item` · `LabeledContent` · `Surface`, and `Person` on Base UI |
-| **actions** | `@proedis/ui/actions/<name>` | what a user presses: `Button` · `IconButton` · `CollapsibleSection` · `Menu` · `SegmentedControl` · `Tabs` · `Toggle` · `Tooltip` |
+| **actions** | `@proedis/ui/actions/<name>` | what a user presses: `Accordion` · `Button` · `IconButton` · `Menu` · `SegmentedControl` · `Tabs` · `Toggle` · `Tooltip` |
 | **feedback** | `@proedis/ui/feedback/<name>` | what the interface says back: `Alert` · `EmptyState` · notifications |
 | **forms** | `@proedis/ui/forms/<name>` | `Form`, `Field` and every control |
 | **overlays** | `@proedis/ui/overlays/<name>` | `Dialog` · `Drawer` · `AlertDialog` · `Popover` |
@@ -730,8 +730,8 @@ its own peers; none of them is re-exported by the root barrel. Every module is c
 | Subpath | Exports |
 | --- | --- |
 | `display/person` | `Avatar`, `AvatarGroup`, `Person` |
+| `actions/accordion` | `Accordion` (`.Item`): sections that open and close from their header, in four variants |
 | `actions/button` | `Button`, `IconButton` |
-| `actions/collapsible` | `CollapsibleSection`: a section that opens and closes from its header |
 | `actions/menu` | `Menu` (`.Item`, `.Group`, `.Separator`, `.RadioGroup`, `.RadioItem`, `.CheckboxItem`, `.Submenu`) |
 | `actions/segmented-control` | `SegmentedControl` (`.Item`) |
 | `actions/tabs` | `Tabs` (`.Panel`), with "More" for the tabs that do not fit |
@@ -920,13 +920,18 @@ What is worth knowing before using them:
   "—" with `labels.empty` as its name; `copyable` adds a button that copies the text of the value and
   announces it. A section that arrives from a call of its own takes `loading`, or `error` and
   `onRetry`, and the rest of the detail stays.
-- **A section that closes is a heading with a button.** `CollapsibleSection` is closed by default and
-  remembers nothing; `status` is a mark after the title, `meta` the summary on the right, with the
-  unit, and `actions` sit outside the button. No animation of the height. `keepMounted` keeps a body
-  of fields mounted while closed; `inset` runs the header edge to edge of a card.
+- **A section that closes is a heading with a button.** `Accordion` takes its `Accordion.Item`s, closed
+  by default and remembered nowhere; several open together unless `multiple={false}`. `status` is a mark
+  after the title, `meta` the summary on the right, with the unit, and `actions` sit outside the button.
+  Four variants: `default` (rules between the items, nothing around, so it goes inside a card without a
+  line doubling the card's), `contained` (the same in a box), `filled` (the open item on a quiet
+  surface), `separated` (each item a box, the open one with a border); their look is the theme's
+  (`--accordion-radius`, `--accordion-gap` and four surfaces). The body opens on its height, at once
+  with reduced motion. `keepMounted` keeps a body of fields mounted while closed; `inset` runs the
+  headers edge to edge of a card. A single section is an Accordion with one item.
 - **A grid of boxes is one field.** `CheckboxGrid` holds item id → checked column ids, takes the rules
   between the columns as `resolve`, and the search as `visibleItems`, since only the caller knows the
-  text of its labels. Every group is a `CollapsibleSection` whose summary (`labels.groupMeta`) counts
+  text of its labels. The groups are an `Accordion` (`inset`), each summary (`labels.groupMeta`) counting
   the items ticked by hand; open, its first row carries a parent box per column, computed on the
   editable items only. Tab goes from header to header and enters each open grid once, the arrows move
   inside. `locked` columns are decided by the system, `savedValue` marks the boxes and groups that
@@ -1091,6 +1096,7 @@ A prop left undeclared reads a variable, so the default is the theme's to change
 | `--item-gap` | `0.75rem` | the gap of an `Item` that declares none, the header of a `Surface` included |
 | `--heading-gap` | `0.125rem` | the gap of a `Heading` that declares none |
 | `--separator-space` | `lg` | the room of a `Surface.Separator` of type gap that declares no `space` |
+| `--accordion-gap` | `sm` | the room between the items of a `separated` `Accordion` |
 
 ```css
 :root {
@@ -1173,6 +1179,7 @@ prevented it. So the vocabulary is named once, in a second stylesheet:
 | Action | `--primary`, `--secondary`, `--accent`, each with its `-foreground` |
 | States | `--destructive`, `--success`, `--warning`, `--info`, each with its `-foreground` |
 | Controls | `--input` (the **border** of a form control), `--input-hover`, `--placeholder`, `--ring` (the focus ring), the heights `--spacing-control-sm`, `-md`, `-lg`, and `--control-radius`, the corner of every control (**optional**: undeclared it is `--radius-md`) |
+| Accordion | `--accordion-radius` (undeclared, `--radius-lg`), and the surfaces of its variants: `--accordion-filled-background`, `--accordion-item-background` (both `--muted` undeclared), `--accordion-item-open-background` (`--card`) and `--accordion-open-border` (`--border`), all **optional** |
 | Buttons | `--button-radius`, the corner of a button that declares none (undeclared, `--control-radius`), and the finish of the solid fill: `--button-gradient`, `--button-border-shade`, `--button-highlight`, `--button-glow`, all **optional** and all zero by default. Each part is derived from `--tone`, which a button sets to the colour of its own tone |
 | Soft register | `--{tone}-soft` and `--{tone}-soft-foreground` for the seven tones. **Optional**: undeclared, they fall back to a tenth of the tone (half of the surface for `muted` and `secondary`) with the tone as ink, resolved where they are used, so a subtree that redefines a tone is followed |
 | Layers | `--state-hover`, `--state-pressed`: the veil over a solid coloured fill |
@@ -1227,6 +1234,7 @@ another package. A recessed surface is `--muted`.
 | `Cluster` `gap` defaults to `2`, `Grid` to `4`, `Surface.Separator` `space` to `6` | `sm`, `md` and `lg`: the same lengths, now following the theme's `--space-*` |
 | `<Skeleton className={'size-4'} />` for a box, and a line of text 10px tall | `shape={'block'}` for a box; a line of text is as tall as a line of its `size` (20px at `sm`) with the 10px bar in its middle, inside a `skeleton` element holding a `skeleton-bar` |
 | `Divider` drawn as a 1px box filled with `--border` | drawn as a border, so `lineStyle` can dash it: a rule targeting its `background-color` targets nothing now, its `border-color` is the line |
+| `CollapsibleSection` from `@proedis/ui/actions/collapsible` | `Accordion` from `@proedis/ui/actions/accordion`: a section is an `Accordion.Item` in an `Accordion`, `open` / `defaultOpen` / `onOpenChange` are the item's `value` in `value` / `defaultValue` / `onValueChange` of the accordion, and the slots `collapsible-section-*` are `accordion-*`. The body opens on its height; the last item draws no rule under it |
 | `data-mode`, `data-inline`, `data-wrap`, `data-divided`, `data-fill` on the parts of a component laid out by `Stack`, `Cluster`, `Center` or `Grid` | written only on a primitive that renders as itself; a rule matching them on a component part matches nothing now |
 
 ## 🤝 Compatibility

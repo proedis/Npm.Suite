@@ -290,6 +290,28 @@
   --radius-button: var(--button-radius, var(--control-radius, var(--radius-md)));
 }
 
+/*
+ * The Accordion, every value a product may want to move, each undeclared by default and falling back
+ * in the class like the corners above:
+ *
+ *   :root {
+ *     --accordion-radius: var(--radius-xl);                      the corner of the boxed variants
+ *     --accordion-gap: var(--space-md);                          the room between separated items
+ *     --accordion-filled-background: var(--accent);              the open item of filled
+ *     --accordion-item-background: var(--muted);                 a separated item at rest
+ *     --accordion-item-open-background: var(--card);             a separated item open
+ *     --accordion-open-border: var(--primary);                   the border of a separated item open
+ *   }
+ */
+@theme inline {
+  --radius-accordion: var(--accordion-radius, var(--radius-lg));
+  --gap-accordion: var(--accordion-gap, var(--space-sm));
+  --color-accordion-filled: var(--accordion-filled-background, var(--muted));
+  --color-accordion-item: var(--accordion-item-background, var(--muted));
+  --color-accordion-item-open: var(--accordion-item-open-background, var(--card));
+  --color-accordion-open-border: var(--accordion-open-border, var(--border));
+}
+
 @layer theme {
   @media (pointer: coarse) {
     :root,
@@ -348,6 +370,27 @@
  * content (the button isolates its stacking context), because the hover and pressed veils are the
  * button's own background image and would replace a gradient written there.
  */
+/*
+ * The body of an Accordion item opens and closes on its height, which Base UI measures and writes as
+ * `--accordion-panel-height`: an opening is a functional animation, so it is animated, short, and not at
+ * all with reduced motion. A utility because a transition of `height` has no Tailwind class but an
+ * arbitrary one.
+ */
+@utility accordion-panel {
+  height: var(--accordion-panel-height);
+  overflow: hidden;
+  transition: height 150ms ease-out;
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    height: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
 @utility button-finish {
   isolation: isolate;
   border-color: color-mix(in oklab, var(--tone), black var(--button-border-shade, 0%));

@@ -13,7 +13,7 @@ import { Stack } from '../../layout/Stack';
 
 import { CheckGlyph, DashGlyph } from '../../internal/glyphs';
 
-import { CollapsibleSection } from '../../actions/collapsible/CollapsibleSection';
+import { Accordion } from '../../actions/accordion/Accordion';
 import { Tooltip } from '../../actions/tooltip/Tooltip';
 
 import { CHECKBOX_BOX } from '../choice/choice';
@@ -21,7 +21,7 @@ import { CHECKBOX_BOX } from '../choice/choice';
 
 import type { BaseProps } from '../../core/base';
 
-import type { CollapsibleSectionHeadingLevel } from '../../actions/collapsible/CollapsibleSection';
+import type { AccordionHeadingLevel } from '../../actions/accordion/Accordion';
 
 
 /* --------
@@ -167,7 +167,7 @@ export interface CheckboxGridProps extends BaseProps, Omit<React.ComponentProps<
   readOnly?: boolean;
 
   /** The level of the headings of the groups. Defaults to 3 */
-  headingLevel?: CollapsibleSectionHeadingLevel;
+  headingLevel?: AccordionHeadingLevel;
 
   labels: CheckboxGridLabels;
 }
@@ -206,9 +206,9 @@ const HEADER_TRACKS = 'sticky top-0 z-2 grid h-8 items-center border-y border-bo
 const CELL_FOCUS = 'has-focus-visible:outline-2 has-focus-visible:outline-solid has-focus-visible:-outline-offset-2 has-focus-visible:outline-ring';
 
 /** The header of an open group stays put under the header of the columns */
-const STICKY_HEADER = 'data-open:[&>[data-slot=collapsible-section-header]]:sticky '
-  + 'data-open:[&>[data-slot=collapsible-section-header]]:z-1 '
-  + '[&>[data-slot=collapsible-section-header]]:bg-card';
+const STICKY_HEADER = 'data-open:[&>[data-slot=accordion-header]]:sticky '
+  + 'data-open:[&>[data-slot=accordion-header]]:z-1 '
+  + '[&>[data-slot=accordion-header]]:bg-card';
 
 
 /* --------
@@ -281,8 +281,8 @@ function withColumn(value: CheckboxGridValue, itemIds: readonly string[], column
  * -------- */
 
 /**
- * Boxes divided in sections that open and close: rows of items, columns of choices. Every group is a
- * `CollapsibleSection` whose summary says the state of the group; open, its first row carries the
+ * Boxes divided in sections that open and close: rows of items, columns of choices. The groups are an
+ * `Accordion` (`inset`), each summary saying the state of its group; open, its first row carries the
  * parent boxes, then the items. It is the value of a form: saved with the button.
  *
  * ```tsx
@@ -312,7 +312,8 @@ function withColumn(value: CheckboxGridValue, itemIds: readonly string[], column
  * the nearest scrolling ancestor.
  *
  * Slots: `checkbox-grid` (with `data-read-only`, `data-searching`), `checkbox-grid-header`,
- * `checkbox-grid-column-header`, each group a `collapsible-section` (with `data-modified`),
+ * `checkbox-grid-column-header`, `checkbox-grid-groups` (the `Accordion`), each group an `accordion-item`
+ * (with `data-modified`),
  * `checkbox-grid-modified`, `checkbox-grid-body`, `checkbox-grid-all`, `checkbox-grid-item`,
  * `checkbox-grid-item-name`, `checkbox-grid-cell` (with `data-parent`, `data-locked`, `data-changed`),
  * `checkbox-grid-box`, `checkbox-grid-indicator`, `checkbox-grid-changed`, `checkbox-grid-text`, `checkbox-grid-status`.
@@ -770,35 +771,44 @@ export function CheckboxGrid(props: CheckboxGridProps): React.ReactNode {
         </div>
       )}
 
-      {shownGroups.map(({ group, items, open, complete }) => {
-        const isModified = !readOnly && groupChanged(group);
+      <Accordion
+        inset
+        headingLevel={headingLevel}
+        value={shownGroups.filter((entry) => entry.open).map((entry) => entry.group.id)}
+        onValueChange={(next) => {
+          /* The accordion reports the whole set: one group moves at a time, the one whose state differs */
+          const moved = shownGroups.find((entry) => next.includes(entry.group.id) !== entry.open);
 
-        return (
-          <CollapsibleSection
-            key={group.id}
-            inset
-            headingLevel={headingLevel}
-            open={open}
-            onOpenChange={(next) => setGroupOpen(group.id, next)}
-            title={group.label}
-            status={isModified && (
-              <Stack as={'span'} data-slot={'checkbox-grid-modified'} direction={'horizontal'} align={'center'} gap={1.5}>
-                <span aria-hidden={'true'} className={'size-1.5 rounded-full bg-primary'} />
-                {labels.modified}
-              </Stack>
-            )}
-            meta={labels.groupMeta({ group, selected: selectedCount(group, columns, currentValue), total: group.items.length })}
-            data-modified={isModified || undefined}
-            className={cn(
-              'first:border-t-0 [[data-slot=checkbox-grid-header]+&]:border-t-0',
-              STICKY_HEADER,
-              hasHeader ? '[&>[data-slot=collapsible-section-header]]:top-8' : '[&>[data-slot=collapsible-section-header]]:top-0'
-            )}
-          >
-            {readOnly ? renderReadOnly(group, items) : renderGrid(group, items, complete)}
-          </CollapsibleSection>
-        );
-      })}
+          if (moved) {
+            setGroupOpen(moved.group.id, !moved.open);
+          }
+        }}
+        data-slot={'checkbox-grid-groups'}
+        className={'*:last:border-b *:last:border-border'}
+      >
+        {shownGroups.map(({ group, items, complete }) => {
+          const isModified = !readOnly && groupChanged(group);
+
+          return (
+            <Accordion.Item
+              key={group.id}
+              value={group.id}
+              title={group.label}
+              status={isModified && (
+                <Stack as={'span'} data-slot={'checkbox-grid-modified'} direction={'horizontal'} align={'center'} gap={1.5}>
+                  <span aria-hidden={'true'} className={'size-1.5 rounded-full bg-primary'} />
+                  {labels.modified}
+                </Stack>
+              )}
+              meta={labels.groupMeta({ group, selected: selectedCount(group, columns, currentValue), total: group.items.length })}
+              data-modified={isModified || undefined}
+              className={cn(STICKY_HEADER, hasHeader ? '[&>[data-slot=accordion-header]]:top-8' : '[&>[data-slot=accordion-header]]:top-0')}
+            >
+              {readOnly ? renderReadOnly(group, items) : renderGrid(group, items, complete)}
+            </Accordion.Item>
+          );
+        })}
+      </Accordion>
 
       <span id={lockedId} hidden>{labels.locked}</span>
       {labels.changed && <span id={changedId} hidden>{labels.changed}</span>}

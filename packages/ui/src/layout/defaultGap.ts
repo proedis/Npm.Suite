@@ -17,5 +17,8 @@ export const DEFAULT_GAP_CLASS = {
   grid   : 'gap-grid',
   split  : 'gap-split',
   item   : 'gap-item',
-  heading: 'gap-heading'
+  heading: 'gap-heading',
+
+  /** Declared in theme.css with the other values of the Accordion, whose separated items it spaces */
+  accordion: 'gap-accordion'
 } as const;

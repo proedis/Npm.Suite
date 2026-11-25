@@ -198,17 +198,44 @@ Choices of tranche 4 that look improvable and are not:
 - **A Dialog gives the first focus to a field of its toolbar before one of its body**: a search on top
   is the field a selector opens on.
 
-Choices of the detail and the collapsible sections (M3-01 of Cantieri Digitali Next) that look
+Choices of the detail and the sections that open (M3-01 of Cantieri Digitali Next) that look
 improvable and are not:
 
 - **`Detail.Grid` is a grid of its own, not `Form.Section`.** It is a `<dl>`, and the spans are scoped to
   nothing: a `Detail.Item` is always in one. Same six columns, same `@max-lg` rule, same three tracks
   per row (the third empty), so a detail and its form line up; `DETAIL_SPAN` extends `FIELD_SPAN`
   rather than repeating it.
-- **`CollapsibleSection` is Base UI's `Collapsible`, not `Accordion`**: several sections open together
-  need no group. It mirrors the open state only to report `data-open` on its root.
-- **`CheckboxGrid` is sections, each with a grid of its own, not one treegrid.** The headers are the
-  real `CollapsibleSection` (`inset`), so they are headings and Tab stops; the body of an open group is
+- **`Accordion` replaced `CollapsibleSection`** (Marco, 2026-11-25). The section drew a rule above
+  itself and one under the last, so inside a box with a border of its own (the Customization of every
+  documentation page) two lines met at each edge; and it had one look. The Accordion is Base UI's, with
+  four variants (`default`, `contained`, `filled`, `separated`), and **it never draws the border of
+  the container it sits in**: `default` draws the rules between its items only (`divided` on its
+  Stack), `contained` draws the box itself. A single section is an Accordion with one item.
+- **`multiple` is `true` by default**, against Base UI's `false`: the sections of a form or a detail
+  are read together, and that is what CollapsibleSection did. A list of questions says
+  `multiple={false}`.
+- **The body opens on its height** (`accordion-panel` in `theme.css`, on Base UI's
+  `--accordion-panel-height` and its starting and ending styles), a functional animation, none under
+  reduced motion. The old section did not animate because a body can be dozens of rows long; 150ms
+  on a measured height costs nothing at that length.
+- **No arrows between the headers.** Base UI 1.7 dropped them (`loopFocus` is deprecated and does
+  nothing), the pattern leaves them optional, and every header is a stop of Tab. Do not write them
+  back in the docs without writing them in the component.
+- **The look of the boxed variants is the theme's**: `rounded-accordion`, `gap-accordion` and four
+  `--color-accordion-*` in `@theme inline`, each with its fallback inside the class (`--radius-lg`,
+  the `sm` step, `--muted`, `--card`, `--border`), so a product turns them once from `:root`.
+  `radius` has a `default` member for the reason `Button.radius` has one.
+- **The hover belongs to the header row, not to the button**, and it is a layer over the background
+  (a one colour gradient), never the background. The button stops where the actions start, so a hover
+  on it ended 8px short of the edge of a boxed item and missed its corner, in every variant: Marco
+  caught it on `filled`. The layer is what keeps an opaque header opaque: the sticky headers of a
+  CheckboxGrid carry `bg-card` over rows that scroll under them, and a translucent background in its
+  place let them show through. `default` bleeds the row by its padding on both sides; a rounded item
+  (`filled`, `separated`) clips what it holds, like the root of `contained`, so the row follows the
+  inner edge of the corner, a pixel tighter inside the border of `separated`, with no radius of its own.
+- **`CheckboxGrid` is sections, each with a grid of its own, not one treegrid.** The headers are an
+  `Accordion` (`inset`, controlled from `openGroups` or the search), so they are headings and Tab
+  stops; the rule under the last group is the grid's own (`*:last:border-b`), not the accordion's; the body of an open group is
   a `grid` with its own moving tab index, on the boxes themselves so the state is what gets announced.
   Base UI has no grid, so that index is written here. A closed group has no parent boxes on purpose
   (design system, proposal R1-1): to act on a group, open it. The box is `CHECKBOX_BOX` from
@@ -654,8 +681,9 @@ narrower stylesheet is the one you have to ask for.
   2. Would an application plausibly write a rule for **the unspecified case**?
   3. Would that rule survive this package changing its mind about which option the default is?
 
-  The five that pass: `Surface.elevation`, `Surface.radius`, `Container.size`, `Label.emphasis`, and
-  `Button.radius`, whose `default` is not a step at all but the theme's corner (`rounded-button`).
+  The six that pass: `Surface.elevation`, `Surface.radius`, `Container.size`, `Label.emphasis`, and
+  `Button.radius` and `Accordion.radius`, whose `default` is not a step at all but the theme's corner
+  (`rounded-button`, `rounded-accordion`).
 
   What fails, and why it is worth knowing rather than re-deriving: `IconBox`'s `fill` / `tone` / `size`
   / `shape` and `Spinner.size` and every `Heading` size are **steps**, so they fail (1) and
@@ -1138,6 +1166,28 @@ What was run for the outline of the focus:
 - **The markup snapshots**, against the build of the radius commit: 3,100 `outline-solid` classes
   added across the five variants, nothing removed, no other attribute moved. Tailwind's compiler
   places `in-data-[variant=card]:focus-visible:outline-none` after `focus-visible:outline-solid`.
+
+What was run for the `Accordion`:
+
+- **In the browser**, on its page: the four variants, `contained` with a 1px border and an 8px corner,
+  `filled` with the open item on `--muted` and the closed ones transparent, `separated` 8px apart with
+  the open item on `--card` with a `--border` border and the closed ones on `--muted` with a
+  transparent one; `radius` at 0, 6, 8 and 16px; the variables declared on one root moving that one
+  only (16px apart, 16px corner, a primary border). The panel through Base UI's sequence on opening
+  (starting style, the measured height, then `auto`) and on closing (the height, ending style, 0,
+  unmounted), and the reduced motion rule in the compiled CSS. `multiple={false}` leaving one item
+  open; a `disabled` item not opening; the name of a trigger made of title and summary. Under the
+  real pointer, the hovered header as wide as its item in every variant (inside the 1px border of
+  `separated`, at 16px with `2xl`), the open one squared at the bottom by the clip, and the sticky header
+  of a CheckboxGrid keeping its `card` under the hover. 76 pages of the site loaded with no error.
+- **CheckboxGrid on it**: two groups open together, the header of an open group sticky at 32px under
+  the columns on the card, the trigger padded 24px, the body with no padding, a rule under every group
+  the last included; with a search, a group closed and opened again through the search's own state.
+- **The Customization of every page**, now a `contained` Accordion: one border, rules inside, none
+  doubled.
+- React Compiler at 203 functions, 0 skipped; `tsc`, `types.check.tsx`, the whole lint, the build and
+  `release:verify` on 15 artifacts green; `actions/accordion` in `exports` and `typesVersions`,
+  `actions/collapsible` in neither.
 
 ## Two defects the build surfaced
 
