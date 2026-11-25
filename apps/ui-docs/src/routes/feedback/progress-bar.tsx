@@ -33,11 +33,11 @@ import { pageAt } from '@/nav';
 const PAGE = pageAt('/feedback/progress-bar');
 
 const PROPS = refineProps(progressBarProps, {
-  min      : { default: '0' },
-  max      : { default: '100' },
-  tone     : { default: 'primary' },
-  radius   : { default: 'default' },
-  track    : { default: 'default' },
+  min       : { default: '0' },
+  max       : { default: '100' },
+  tone      : { default: 'primary' },
+  radius    : { default: 'default' },
+  track     : { default: 'default' },
   showBounds: { default: 'false' }
 });
 
@@ -201,7 +201,10 @@ function ProgressBarPage(): React.ReactNode {
               {
                 slot      : 'progress-bar',
                 part      : 'The root',
-                attributes: [ 'data-tone', 'data-size', 'data-radius', 'data-track', 'data-value-position', 'data-bounds', 'data-progressing', 'data-complete', 'data-indeterminate' ]
+                attributes: [
+                  'data-tone', 'data-size', 'data-radius', 'data-track', 'data-value-position', 'data-bounds',
+                  'data-progressing', 'data-complete', 'data-indeterminate'
+                ]
               },
               { slot: 'progress-bar-header', part: 'The row of the label and of a value on top' },
               { slot: 'progress-bar-label', part: 'The label' },
@@ -218,7 +221,10 @@ function ProgressBarPage(): React.ReactNode {
             ]}
           />
           <Prose>
-            <p>A <InlineCode>Meter</InlineCode> writes <InlineCode>meter</InlineCode> in place of <InlineCode>progress-bar</InlineCode> in every slot.</p>
+            <p>
+              A <InlineCode>Meter</InlineCode> writes <InlineCode>meter</InlineCode> in place of{' '}
+              <InlineCode>progress-bar</InlineCode> in every slot.
+            </p>
           </Prose>
         </Section>
 

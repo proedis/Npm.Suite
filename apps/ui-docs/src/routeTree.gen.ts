@@ -34,6 +34,7 @@ import { Route as DisplaySurfaceRouteImport } from './routes/display/surface'
 import { Route as FeedbackAlertRouteImport } from './routes/feedback/alert'
 import { Route as FeedbackEmptyStateRouteImport } from './routes/feedback/empty-state'
 import { Route as FeedbackNotificationsRouteImport } from './routes/feedback/notifications'
+import { Route as FeedbackProgressBarRouteImport } from './routes/feedback/progress-bar'
 import { Route as FormsBoundFieldRouteImport } from './routes/forms/bound-field'
 import { Route as FormsBoundFormRouteImport } from './routes/forms/bound-form'
 import { Route as FormsCheckboxRouteImport } from './routes/forms/checkbox'
@@ -212,6 +213,11 @@ const FeedbackEmptyStateRoute = FeedbackEmptyStateRouteImport.update({
 const FeedbackNotificationsRoute = FeedbackNotificationsRouteImport.update({
   id: '/feedback/notifications',
   path: '/feedback/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeedbackProgressBarRoute = FeedbackProgressBarRouteImport.update({
+  id: '/feedback/progress-bar',
+  path: '/feedback/progress-bar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FormsBoundFieldRoute = FormsBoundFieldRouteImport.update({
@@ -513,6 +519,7 @@ export interface FileRoutesByFullPath {
   '/feedback/alert': typeof FeedbackAlertRoute
   '/feedback/empty-state': typeof FeedbackEmptyStateRoute
   '/feedback/notifications': typeof FeedbackNotificationsRoute
+  '/feedback/progress-bar': typeof FeedbackProgressBarRoute
   '/forms/bound-field': typeof FormsBoundFieldRoute
   '/forms/bound-form': typeof FormsBoundFormRoute
   '/forms/checkbox': typeof FormsCheckboxRoute
@@ -594,6 +601,7 @@ export interface FileRoutesByTo {
   '/feedback/alert': typeof FeedbackAlertRoute
   '/feedback/empty-state': typeof FeedbackEmptyStateRoute
   '/feedback/notifications': typeof FeedbackNotificationsRoute
+  '/feedback/progress-bar': typeof FeedbackProgressBarRoute
   '/forms/bound-field': typeof FormsBoundFieldRoute
   '/forms/bound-form': typeof FormsBoundFormRoute
   '/forms/checkbox': typeof FormsCheckboxRoute
@@ -676,6 +684,7 @@ export interface FileRoutesById {
   '/feedback/alert': typeof FeedbackAlertRoute
   '/feedback/empty-state': typeof FeedbackEmptyStateRoute
   '/feedback/notifications': typeof FeedbackNotificationsRoute
+  '/feedback/progress-bar': typeof FeedbackProgressBarRoute
   '/forms/bound-field': typeof FormsBoundFieldRoute
   '/forms/bound-form': typeof FormsBoundFormRoute
   '/forms/checkbox': typeof FormsCheckboxRoute
@@ -759,6 +768,7 @@ export interface FileRouteTypes {
     | '/feedback/alert'
     | '/feedback/empty-state'
     | '/feedback/notifications'
+    | '/feedback/progress-bar'
     | '/forms/bound-field'
     | '/forms/bound-form'
     | '/forms/checkbox'
@@ -840,6 +850,7 @@ export interface FileRouteTypes {
     | '/feedback/alert'
     | '/feedback/empty-state'
     | '/feedback/notifications'
+    | '/feedback/progress-bar'
     | '/forms/bound-field'
     | '/forms/bound-form'
     | '/forms/checkbox'
@@ -921,6 +932,7 @@ export interface FileRouteTypes {
     | '/feedback/alert'
     | '/feedback/empty-state'
     | '/feedback/notifications'
+    | '/feedback/progress-bar'
     | '/forms/bound-field'
     | '/forms/bound-form'
     | '/forms/checkbox'
@@ -1003,6 +1015,7 @@ export interface RootRouteChildren {
   FeedbackAlertRoute: typeof FeedbackAlertRoute
   FeedbackEmptyStateRoute: typeof FeedbackEmptyStateRoute
   FeedbackNotificationsRoute: typeof FeedbackNotificationsRoute
+  FeedbackProgressBarRoute: typeof FeedbackProgressBarRoute
   FormsBoundFieldRoute: typeof FormsBoundFieldRoute
   FormsBoundFormRoute: typeof FormsBoundFormRoute
   FormsCheckboxRoute: typeof FormsCheckboxRoute
@@ -1234,6 +1247,13 @@ declare module '@tanstack/react-router' {
       path: '/feedback/notifications'
       fullPath: '/feedback/notifications'
       preLoaderRoute: typeof FeedbackNotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feedback/progress-bar': {
+      id: '/feedback/progress-bar'
+      path: '/feedback/progress-bar'
+      fullPath: '/feedback/progress-bar'
+      preLoaderRoute: typeof FeedbackProgressBarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forms/bound-field': {
@@ -1643,6 +1663,7 @@ const rootRouteChildren: RootRouteChildren = {
   FeedbackAlertRoute: FeedbackAlertRoute,
   FeedbackEmptyStateRoute: FeedbackEmptyStateRoute,
   FeedbackNotificationsRoute: FeedbackNotificationsRoute,
+  FeedbackProgressBarRoute: FeedbackProgressBarRoute,
   FormsBoundFieldRoute: FormsBoundFieldRoute,
   FormsBoundFormRoute: FormsBoundFormRoute,
   FormsCheckboxRoute: FormsCheckboxRoute,

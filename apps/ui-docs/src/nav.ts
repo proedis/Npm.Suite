@@ -7,6 +7,7 @@ import {
   Box,
   Brackets,
   CalendarDays,
+  ChartNoAxesGantt,
   ChevronsUpDown,
   CircleDot,
   CircleUser,
@@ -214,7 +215,8 @@ export const NAV: readonly NavGroup[] = [
     items      : [
       { title: 'Alert', to: '/feedback/alert', subpath: '@proedis/ui/feedback/alert', peers: BASE_UI, description: 'A state that lasts on a page, and what to do about it.', icon: MessageSquareWarning, ready: true },
       { title: 'EmptyState', to: '/feedback/empty-state', subpath: '@proedis/ui/feedback/empty-state', peers: BASE_UI, description: 'First use, no results, a failed load, an item that is not there.', icon: Inbox, ready: true },
-      { title: 'Notifications', to: '/feedback/notifications', subpath: '@proedis/ui/feedback/notifications', peers: BASE_UI, description: 'Toasts and the jobs panel, called from anywhere.', icon: Bell, ready: true }
+      { title: 'Notifications', to: '/feedback/notifications', subpath: '@proedis/ui/feedback/notifications', peers: BASE_UI, description: 'Toasts and the jobs panel, called from anywhere.', icon: Bell, ready: true },
+      { title: 'ProgressBar', to: '/feedback/progress-bar', subpath: '@proedis/ui/feedback/progress-bar', peers: BASE_UI, description: 'How far a piece of work has gone, and Meter for a quantity in a range.', icon: ChartNoAxesGantt, ready: true }
     ]
   },
   {
