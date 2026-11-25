@@ -154,12 +154,29 @@ being public, turns provenance on. No secret lives anywhere. `setup-node` gets n
 would write an empty `_authToken` into `.npmrc`. The build happens in the workflow, after the bump, which
 is what `createPackageJson` needs.
 
-What npm must know, once per package on npmjs.com (Settings → Trusted publishing → GitHub Actions):
-the organization `proedis`, the repository `Npm.Suite`, the workflow `publish.yml`, the environment
-`npm`. A package that is not on the registry yet cannot be configured: its first version is published
-from a machine, with a one time password, and configured right after (`@proedis/form` was the case when
-this was set up). With every package configured, "Require two-factor authentication and disallow
-tokens" in the same settings makes a stolen token useless for publishing.
+What npm must know, once per package: the repository `proedis/Npm.Suite`, the workflow `publish.yml`,
+the environment `npm`. It is set from the terminal, all the packages in one loop, by whoever owns them:
+
+```bash
+npx -y npm@11 trust github <package> --repo proedis/Npm.Suite --file publish.yml --env npm --allow-publish --yes
+npx -y npm@11 trust list <package>
+```
+
+`npm trust` arrived in npm 11 and is not in the npm 10 of this machine; npm 12 has it too but asks for
+Node 22.22 or later, hence `npm@11`. It needs an interactive `npm login` session (a token that bypasses
+the second factor is refused); the first call asks for the second factor, and ticking the five minute
+skip there lets the other packages through. All fifteen were configured that way on 2026-11-25, and npm
+records `createPackage` and `createStagedPackage` for each.
+
+A package that is not on the registry yet cannot be configured: its first version is published from a
+machine, after `npm login`, and configured right after. That first publish may land in npm's staged
+publishing, as `@proedis/form` did: the registry then holds a `0.0.0-stage` placeholder as `latest`
+while the real version waits for approval on npmjs.com; the placeholder is enough to configure the
+package, and the workflow publishes the real version. A publish that answers `404 Not Found` on a `PUT`
+is an authentication failure, not a missing package: `npm whoami` says so with a `401`.
+
+With every package configured, "Require two-factor authentication and disallow tokens" in the settings of
+each package makes a stolen token useless for publishing.
 
 **Never run any of the release scripts, `git push`, or `lerna publish` unless explicitly asked.**
 
