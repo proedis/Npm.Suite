@@ -14,8 +14,12 @@ Before the first line:
   meets one of them.
 - **A component with behaviour** (from `actions` on, and `display/person`) also does everything listed
   under "What every component with behaviour does" in `packages/ui/CLAUDE.md`: no user-facing string,
-  a slot on every part, the ref and the spread on a trigger, the root and the control apart, a required
-  name in the type, `Responsive<T>` only for layout props.
+  an icon-only control named by a tooltip, a native `<button>` only where a `Button` cannot be the
+  element, a slot on every part, the ref and the spread on a trigger, the root and the control apart,
+  a required name in the type, `Responsive<T>` only for layout props.
+- **Motion and colour** follow two invariants of the whole package: an animation is functional or
+  absent and reduced motion turns it off; dark is a set of token values, so no `dark:` and no raw
+  colour in a component.
 
 The "invariants above" this recipe refers to are the ones in `packages/ui/CLAUDE.md`.
 

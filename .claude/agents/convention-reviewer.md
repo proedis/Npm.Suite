@@ -48,6 +48,10 @@ to code that otherwise compiles:
 - the order of sections in `@proedis/ui` (an import against it), a hand-written `flex`, `grid` or
   `gap-*` instead of a layout primitive, a control height outside `internal/control.ts`;
 - a user-facing string inside a component, even a default `aria-label`;
+- an icon-only control without its name as a tooltip; a native `<button>` where a `Button` could be
+  the element;
+- a transition or an animation without its reduced motion switch, or one that is decoration;
+- a `dark:` class or a raw colour (`bg-white`, a palette shade, a hex) inside a component;
 - a variant not reported as a `data-*` attribute, or reported unresolved; a part without its
   `data-slot`;
 - a class built from a prop with no safelist entry or no union type; an arbitrary value;

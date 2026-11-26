@@ -168,6 +168,17 @@ What every component with behaviour does, on top of the recipe of the `ui-compon
 
 - **No user-facing string**, not even a default `aria-label`: texts come in as props (`label`,
   `labels`, `loadingLabel`, a `title` function for anything with a count).
+- **An icon-only control shows its name as a tooltip** (Marco, 2026-11-26). A button holding only a
+  glyph is an `IconButton`, whose `label` is both its `aria-label` and the content of its `Tooltip`;
+  `Toggle` and `SegmentedControl.Item` do the same when they hold only an icon (`showsTooltip`). A
+  glyph with an `aria-label` and no tooltip has a name for a screen reader and none for the pointer:
+  the icon is then a shortcut only for who already knows it.
+- **A native `<button>` is allowed inside the package where a `Button` cannot be the element**
+  (Marco, 2026-11-26), and never in an application: text inside a sentence (the choose action of
+  `FileUpload`), a name in a row that opens or previews something (`AttachmentList`, `Person`), the
+  trigger a frame of the package draws around itself (`ModalSelectorField` inside `FieldShell`). It is
+  always `type={'button'}`, carries its `data-slot` and a visible focus of its own, and it is never a
+  way around the look of `Button`: what looks like a button is one.
 - **Every part has its `data-slot`, every resolved variant and state its `data-*`.** That is the
   surface a product's skin targets with unlayered rules, so a rename is a major.
 - **A component that can be a trigger takes its ref, and spreads the rest of its props.** A tooltip or
@@ -268,6 +279,20 @@ narrower stylesheet is the one you have to ask for.
   under React 19.2.5 in the workspace and under 18.3.1 from the packed tarball outside it. Re-verified
   with `target: '19'` when the range was narrowed: the packed tarball installed outside the workspace
   against React 19.0.0 and 19.2.5.
+- **An animation is functional or absent, and reduced motion turns it off** (Marco, 2026-11-26).
+  Functional is what shows a change the eye has to follow: an overlay, a menu or a list opening and
+  closing, a veil, the press of a button, a panel growing to its height, a value moving, a spinner.
+  Decorative motion (content entering, movement for its own sake) does not ship here. Every transition
+  and animation carries its off switch on the same element (`motion-reduce:transition-none`,
+  `motion-reduce:animate-none`) or in the `prefers-reduced-motion` block of its utility in
+  `theme.css`. Where the motion is the information, the reduced form keeps a still state that says
+  the same thing, as `Spinner` and `LoadingBar` do.
+- **Dark is a set of token values, never a variant in a component** (Marco, 2026-11-26). `.dark` in
+  `ui.css` and `theme.css` redeclares the tokens and every component paints through them, so a dark
+  theme, a brand wrapper or a section redeclaring one token is followed with nothing to write. A
+  `dark:` class or a raw colour in a component (`bg-white`, `text-gray-500`, a hex, an `oklch()`)
+  fixes an appearance no product can reach: there are none today, and the count stays at zero. The
+  `dark` custom variant declared in `ui.css` is for the applications.
 - **Classes, never inline styles, for anything a class can express.** An inline style beats a class,
   so `<Stack gap={4} className={'gap-8'} />` would stop working — and that override, resolved by
   `tailwind-merge` inside `cn`, is what makes these primitives bearable to use. Inline `style` is
