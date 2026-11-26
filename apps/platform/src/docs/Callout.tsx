@@ -5,6 +5,8 @@ import { Info, TriangleAlert } from 'lucide-react';
 import { cn } from '@proedis/ui/core';
 import { Stack } from '@proedis/ui/layout';
 
+import { useDocsTarget } from './target';
+
 
 /* --------
  * Types Definition
@@ -35,8 +37,26 @@ export function Callout(props: CalloutProps): React.ReactNode {
 
 
   // ----
+  // Internal Hooks
+  // ----
+  const { mode } = useDocsTarget();
+
+
+  // ----
   // Component Render
   // ----
+  /** In text a quote led by its kind: on screen the colour and the icon say it, and neither survives the text */
+  if (mode === 'text') {
+    const kind = tone === 'warning' ? '⚠️ Warning' : 'Note';
+
+    return (
+      <blockquote>
+        <p><strong>{kind}</strong>{title && <React.Fragment>: {title}</React.Fragment>}</p>
+        <div>{children}</div>
+      </blockquote>
+    );
+  }
+
   return (
     <Stack
       direction={'horizontal'}

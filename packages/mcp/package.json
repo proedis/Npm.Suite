@@ -32,6 +32,9 @@
     "noMain": true,
     "buildFormats": [
       "cjs"
+    ],
+    "generated": [
+      "data/index.json"
     ]
   },
   "engines": {

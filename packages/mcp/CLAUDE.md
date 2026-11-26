@@ -34,7 +34,8 @@ src/
 
 - **The build is two steps and the order matters.** `rollup` empties `build/` (and with it `build/data`), then
   `llms.mjs --mcp build/data` renders the site and writes the data. Running rollup alone leaves a package that fails at
-  start with "The documentation data is missing": that message is the check, keep it.
+  start with "The documentation data is missing", and `release:verify` refuses it before that: `data/index.json`
+  is declared in `proedisMetadata.generated`. Keep both.
 - **`schemaVersion` couples this package to `llms.mjs`.** `types.ts` describes what the script writes; a change to the
   shape of `index.json` or `docs/<id>.json` bumps `SCHEMA_VERSION` in both, in the same commit.
 - **The lerna cascade is what keeps the data current.** `@proedis/ui` and `@proedis/form` are devDependencies only so

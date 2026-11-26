@@ -122,6 +122,11 @@ the most likely way to break a package silently.
   chained inside `build` rather than living in a `postbuild` hook — Yarn Berry does not run
   `pre`/`post` scripts, and `lerna run` delegates to the package manager.
 
+- `generated: string[]` — files a build step writes from somewhere other than `src`, relative to
+  `build/`, which `release:verify` requires to exist. Only `mcp` sets it (`data/index.json`, rendered
+  from the documentation site by the second half of its `build`): a rollup-only build compiles and
+  publishes a server that fails at start, with every other check green.
+
 Rollup externals (`scripts/utils/getExternalDependenciesFromPackage.mjs`) = `dependencies` +
 `peerDependencies` + `reflectPeerDependencies` (each also matched as a `name/**` subpath regex,
 and it understands both metadata forms). Consequence: **anything only in `devDependencies` gets

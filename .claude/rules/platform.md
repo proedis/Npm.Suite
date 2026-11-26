@@ -96,7 +96,8 @@ renders every written page of `NAV` through the site's own router with `prerende
 `DocsTargetContext` set to `text` (`src/docs/target.ts`). In that target what only works on a screen
 renders the content it shows: `Example` its source, `CodeBlock` a fenced block (a file name as the
 comment of its first line), `SlotsInspector` the table of the slots, `Customization` every group open,
-`PropsTable` one fact per cell, `Guidance` a line, a heading without its anchor, `DocsLayout` and the
+`PropsTable` one fact per cell, `Guidance` a line, `Callout` a quote led by its kind (a warning is
+only a colour and an icon on screen), a heading without its anchor, `DocsLayout` and the
 root the page alone. turndown converts the article, with a rule of its own for tables, links inside the
 site pointing at the `.md` of their page, and the files of the site an example imports (`@/examples/…`)
 appended under "Files the examples import". The same render hands the data of `PropsTable`,

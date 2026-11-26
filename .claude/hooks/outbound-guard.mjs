@@ -17,13 +17,15 @@ import { readFileSync } from 'node:fs';
 
 const OUTBOUND = [
   [ /\bgit(?:\s+(?:-C|-c)\s+\S+|\s+--?[\w-]+(?:=\S+)?)*\s+push\b/, 'git push' ],
-  [ /\b(?:npm|pnpm)\s+(?:[^\s;&|]+\s+)*?(?:publish|unpublish|deprecate|dist-tag|trust|owner|access)\b/, 'npm registry' ],
+  /* `npm@11` too: the release rules configure trusted publishing through `npx -y npm@11 trust` */
+  [ /\b(?:npm|pnpm)(?:@[\w.-]+)?\s+(?:[^\s;&|]+\s+)*?(?:publish|unpublish|deprecate|dist-tag|trust|owner|access)\b/, 'npm registry' ],
   [ /\byarn\s+npm\s+publish\b/, 'yarn npm publish' ],
   [ /\blerna\s+(?:publish|version)\b/, 'lerna publish / version' ],
   [ /\brelease:(?:version|finalize|publish)\b/, 'release script' ],
   [ /\bgh\s+workflow\s+run\b/, 'GitHub workflow run' ],
   [ /\bgh\s+release\s+(?:create|edit|upload|delete)\b/, 'GitHub release' ],
-  [ /\bgh\s+pr\s+(?:create|merge|edit|comment|review|close|ready)\b/, 'GitHub pull request' ]
+  [ /\bgh\s+pr\s+(?:create|merge|edit|comment|review|close|ready)\b/, 'GitHub pull request' ],
+  [ /\bgh\s+api\b(?=[^;&|]*\s(?:-X|--method)[\s=]*(?:POST|PUT|PATCH|DELETE)\b)/i, 'GitHub API write' ]
 ];
 
 

@@ -63,12 +63,12 @@ function instructions(data: DocsData, notice: string | undefined): string {
  * -------- */
 
 function main(argv: readonly string[]): void {
-  const data = new DocsData();
-
   if (argv.includes('--help') || argv.includes('-h')) {
     process.stdout.write(HELP);
     return;
   }
+
+  const data = new DocsData();
 
   if (argv.includes('--version') || argv.includes('-v')) {
     const docs = Object.entries(data.index.packages).map(([ name, version ]) => `${name} ${version}`).join(', ');
