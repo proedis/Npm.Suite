@@ -259,7 +259,7 @@ function writeText(rendered, versions) {
     '',
     '> The interface layer a Proedis frontend starts from: layout primitives, the components that read a token contract, the components with behaviour on Base UI, and the form binding of `@proedis/form`.',
     '',
-    `This documents \`@proedis/ui\` ${versions['@proedis/ui']} and \`@proedis/form\` ${versions['@proedis/form']}. Each link is the page as Markdown; every page in one file: ${SITE}/llms-full.txt.`,
+    `This documents \`@proedis/ui\` ${versions['@proedis/ui']} and \`@proedis/form\` ${versions['@proedis/form']}. Each link is the page as Markdown; every page in one file: ${SITE}/llms-full.txt. The MCP server \`@proedis/mcp\` serves the same pages to a coding agent, with props and theme variables as data.`,
     ...groups.flatMap((group) => [
       '',
       `## ${group}`,

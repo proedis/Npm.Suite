@@ -105,6 +105,10 @@ what `--mcp <dir>` writes for the MCP server. The site gets `build/llms.txt`, `b
 `build/llms/<id>.md`, served by nginx as text and Markdown. Their links are absolute, on
 `https://platform.container.proedis.com` (the address of the site, Marco, 2026-11-26), which
 `PLATFORM_SITE_URL` replaces.
+**zod is pinned at the version the rest of the workspace resolves** (4.6.7 since `@proedis/mcp`, whose SDK
+asks for a newer one). The site compiles `@proedis/form`, which takes zod's types from the copy hoisted at the root:
+with the site on another version the two are different types, and every bound example stops compiling. Move them
+together.
 ⚠️ A component of the docs that only works on a screen needs its text branch, or its content leaves the
 text without anything failing: a closed accordion item, for one, renders nothing on the server. After
 touching one, read the `.md` of a page that uses it (`yarn workspace @proedis/platform llms`).

@@ -1,0 +1,40 @@
+{
+  "name": "@proedis/mcp",
+  "version": "0.1.0",
+  "description": "MCP server for the documentation of @proedis/ui and @proedis/form: search, pages, props and theme variables, for the version the project installs",
+  "keywords": [
+    "proedis",
+    "mcp",
+    "model-context-protocol",
+    "llm",
+    "documentation",
+    "react"
+  ],
+  "license": "MIT",
+  "bin": {
+    "proedis-mcp": "./cjs/index.js"
+  },
+  "scripts": {
+    "build": "rollup --config ../../rollup.config.mjs && node ../../apps/platform/scripts/llms.mjs --mcp build/data"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "^2.4.0",
+    "zod": "^4.2.0"
+  },
+  "devDependencies": {
+    "@proedis/form": "^1.0.0",
+    "@proedis/tsconfig": "^2.1.0",
+    "@proedis/ui": "^2.0.0",
+    "@types/node": "26.6.6",
+    "rollup": "^4.62.4"
+  },
+  "proedisMetadata": {
+    "noMain": true,
+    "buildFormats": [
+      "cjs"
+    ]
+  },
+  "engines": {
+    "node": ">=22.13.0"
+  }
+}
