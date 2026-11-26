@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as UiRouteRouteImport } from './routes/ui/route'
 import { Route as PreviewSplatRouteImport } from './routes/preview/$'
 import { Route as UiIndexRouteImport } from './routes/ui/index'
+import { Route as UiAiRouteImport } from './routes/ui/ai'
 import { Route as UiActionsAccordionRouteImport } from './routes/ui/actions/accordion'
 import { Route as UiActionsButtonRouteImport } from './routes/ui/actions/button'
 import { Route as UiActionsCopyButtonRouteImport } from './routes/ui/actions/copy-button'
@@ -116,6 +117,11 @@ const PreviewSplatRoute = PreviewSplatRouteImport.update({
 const UiIndexRoute = UiIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => UiRouteRoute,
+} as any)
+const UiAiRoute = UiAiRouteImport.update({
+  id: '/ai',
+  path: '/ai',
   getParentRoute: () => UiRouteRoute,
 } as any)
 const UiActionsAccordionRoute = UiActionsAccordionRouteImport.update({
@@ -548,6 +554,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ui': typeof UiRouteRouteWithChildren
   '/preview/$': typeof PreviewSplatRoute
+  '/ui/ai': typeof UiAiRoute
   '/ui/': typeof UiIndexRoute
   '/ui/actions/accordion': typeof UiActionsAccordionRoute
   '/ui/actions/button': typeof UiActionsButtonRoute
@@ -637,6 +644,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/preview/$': typeof PreviewSplatRoute
+  '/ui/ai': typeof UiAiRoute
   '/ui': typeof UiIndexRoute
   '/ui/actions/accordion': typeof UiActionsAccordionRoute
   '/ui/actions/button': typeof UiActionsButtonRoute
@@ -728,6 +736,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/ui': typeof UiRouteRouteWithChildren
   '/preview/$': typeof PreviewSplatRoute
+  '/ui/ai': typeof UiAiRoute
   '/ui/': typeof UiIndexRoute
   '/ui/actions/accordion': typeof UiActionsAccordionRoute
   '/ui/actions/button': typeof UiActionsButtonRoute
@@ -820,6 +829,7 @@ export interface FileRouteTypes {
     | '/'
     | '/ui'
     | '/preview/$'
+    | '/ui/ai'
     | '/ui/'
     | '/ui/actions/accordion'
     | '/ui/actions/button'
@@ -909,6 +919,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/preview/$'
+    | '/ui/ai'
     | '/ui'
     | '/ui/actions/accordion'
     | '/ui/actions/button'
@@ -999,6 +1010,7 @@ export interface FileRouteTypes {
     | '/'
     | '/ui'
     | '/preview/$'
+    | '/ui/ai'
     | '/ui/'
     | '/ui/actions/accordion'
     | '/ui/actions/button'
@@ -1120,6 +1132,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/ui/'
       preLoaderRoute: typeof UiIndexRouteImport
+      parentRoute: typeof UiRouteRoute
+    }
+    '/ui/ai': {
+      id: '/ui/ai'
+      path: '/ai'
+      fullPath: '/ui/ai'
+      preLoaderRoute: typeof UiAiRouteImport
       parentRoute: typeof UiRouteRoute
     }
     '/ui/actions/accordion': {
@@ -1714,6 +1733,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface UiRouteRouteChildren {
+  UiAiRoute: typeof UiAiRoute
   UiIndexRoute: typeof UiIndexRoute
   UiActionsAccordionRoute: typeof UiActionsAccordionRoute
   UiActionsButtonRoute: typeof UiActionsButtonRoute
@@ -1802,6 +1822,7 @@ interface UiRouteRouteChildren {
 }
 
 const UiRouteRouteChildren: UiRouteRouteChildren = {
+  UiAiRoute: UiAiRoute,
   UiIndexRoute: UiIndexRoute,
   UiActionsAccordionRoute: UiActionsAccordionRoute,
   UiActionsButtonRoute: UiActionsButtonRoute,

@@ -1,5 +1,6 @@
 import {
   Timer,
+  Bot,
   AlignVerticalSpaceAround,
   AppWindow,
   BadgeCheck,
@@ -135,7 +136,8 @@ export const NAV: readonly NavGroup[] = [
     title      : 'Getting started',
     description: 'What the package is, how to install it, and the first component on screen.',
     items      : [
-      { title: 'Overview', to: '/ui', description: 'The package, its sections and how to start.', icon: Compass, ready: true }
+      { title: 'Overview', to: '/ui', description: 'The package, its sections and how to start.', icon: Compass, ready: true },
+      { title: 'AI and agents', to: '/ui/ai', description: 'llms.txt, the MCP server and the skills: Proedis UI for a coding agent.', icon: Bot, ready: true }
     ]
   },
   {

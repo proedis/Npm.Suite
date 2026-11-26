@@ -1,0 +1,13 @@
+{
+  "name": "proedis-ui",
+  "version": "0.1.0",
+  "description": "Proedis UI for your coding agent: the documentation of @proedis/ui and @proedis/form over MCP, and three skills for laying out a screen, building a form and theming a product",
+  "author": {
+    "name": "Proedis S.r.l.",
+    "url": "https://proedis.net"
+  },
+  "homepage": "https://platform.container.proedis.com/ui/ai",
+  "repository": "https://github.com/proedis/Npm.Suite",
+  "license": "MIT",
+  "keywords": [ "proedis", "react", "design-system", "mcp", "forms", "tailwind" ]
+}

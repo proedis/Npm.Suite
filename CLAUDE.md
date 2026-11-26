@@ -110,6 +110,7 @@ its `paths`. The text is the one that used to sit here, moved, not rewritten.
 | `client.md` | `client`, `react-client`, `react-native-client` |
 | `modeler.md`, `react-hooks.md`, `cli.md` | their package |
 | `platform.md` | `apps/platform/**`, the captain definitions |
+| `plugin.md` | `plugins/**`, `.claude-plugin/**` |
 | `ui/<section>.md` | one section of `@proedis/ui`, with its documentation pages and examples |
 
 **`packages/<name>/CLAUDE.md`**: the inside of a package and what must not change in it, for `ui`,
@@ -120,6 +121,9 @@ its `paths`. The text is the one that used to sit here, moved, not rewritten.
 - `ui-component`: a new component of `@proedis/ui`, from the source to its documentation page.
 - `verify-change`: the smallest verification that covers what changed, before the full gate.
 - `release-prep`: the first half of a release, stopping before the bump.
+
+**`plugins/proedis-ui`** and **`.claude-plugin/marketplace.json`**: the Claude Code plugin for the applications
+that consume the suite, the MCP server and three skills (`.claude/rules/plugin.md`). Not a workspace, never on npm.
 
 **`.claude/agents/convention-reviewer.md`**: reviews a diff against the rules of this repository,
 the ones written here and in the files above, and nothing else.
