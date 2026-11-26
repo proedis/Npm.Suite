@@ -14,7 +14,7 @@
  * Usage: node scripts/llms.mjs [--out build] [--mcp <dir>] [--only /ui/forms/text-input]
  * --out writes the text for the site (llms.txt and the rest), --mcp the data of the MCP server; either
  * one alone, or both from one render.
- * PLATFORM_SITE_URL, when set, makes every link absolute (https://platform.example, no trailing slash).
+ * PLATFORM_SITE_URL replaces the address of the site in every link (https://platform.container.proedis.com).
  */
 
 import fs from 'node:fs';
@@ -49,7 +49,8 @@ const MCP = ARGS.mcp ? path.resolve(process.cwd(), ARGS.mcp) : undefined;
 
 /** The modules of the site an example imports besides the package: a fixture, a helper, a set of labels */
 const SITE_IMPORT = /from '@\/(examples\/[^']+)'/g;
-const SITE = (process.env.PLATFORM_SITE_URL ?? '').replace(/\/$/, '');
+/** Where the site is served: every link of the text is absolute, so a file read anywhere still points home */
+const SITE = (process.env.PLATFORM_SITE_URL ?? 'https://platform.container.proedis.com').replace(/\/$/, '');
 
 /** The groups of the navigation that are not a section of the package */
 const GUIDE_GROUPS = new Set([ 'Getting started', 'Foundations' ]);

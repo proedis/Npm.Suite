@@ -102,8 +102,9 @@ site pointing at the `.md` of their page, and the files of the site an example i
 appended under "Files the examples import". The same render hands the data of `PropsTable`,
 `Customization` and `SlotsInspector` to a collector, filed under the heading of their section, which is
 what `--mcp <dir>` writes for the MCP server. The site gets `build/llms.txt`, `build/llms-full.txt` and
-`build/llms/<id>.md`, served by nginx as text and Markdown; `PLATFORM_SITE_URL` makes their links
-absolute.
+`build/llms/<id>.md`, served by nginx as text and Markdown. Their links are absolute, on
+`https://platform.container.proedis.com` (the address of the site, Marco, 2026-11-26), which
+`PLATFORM_SITE_URL` replaces.
 ⚠️ A component of the docs that only works on a screen needs its text branch, or its content leaves the
 text without anything failing: a closed accordion item, for one, renders nothing on the server. After
 touching one, read the `.md` of a page that uses it (`yarn workspace @proedis/platform llms`).
