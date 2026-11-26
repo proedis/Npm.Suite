@@ -28,7 +28,9 @@ its prefix (`/ui/forms/text-input`): the router types every address, so a link w
 compile.
 
 **It is kept out of search engines**, by decision: `noindex, nofollow` in a meta of `index.html`, in an
-`X-Robots-Tag` header from nginx, and a `robots.txt` that disallows everything.
+`X-Robots-Tag` header from nginx, and a `robots.txt` that disallows everything but the text for
+language models (`/llms.txt`, `/llms-full.txt`, `/llms/`, Marco, 2026-11-26): an agent a person points
+at it may read it, while the header still keeps it out of every index.
 
 **Deployed on CapRover from the repository.** `apps/platform/Dockerfile` builds from the root of the
 monorepo (the site compiles the source of the workspace packages, so the context is the whole repository,

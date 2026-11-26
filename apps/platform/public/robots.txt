@@ -1,2 +1,7 @@
+# Kept out of search engines, by decision: every page also answers X-Robots-Tag noindex.
+# The documentation for language models stays readable by an agent a person points at it.
 User-agent: *
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /llms/
 Disallow: /
