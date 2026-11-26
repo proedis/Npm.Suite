@@ -7,6 +7,7 @@ import { ScrollArea } from '@proedis/ui/primitives';
 
 import { InlineCode } from './InlineCode';
 import { Markdown } from './Markdown';
+import { useDocsTarget } from './target';
 
 import type { PropDoc } from './propDoc';
 
@@ -110,6 +111,17 @@ export function PropsTable(props: PropsTableProps): React.ReactNode {
 
 
   // ----
+  // Internal Hooks
+  // ----
+  const { collector, heading, mode } = useDocsTarget();
+
+  /* Text mode renders once, on the server, to collect: on screen there is no collector */
+  if (collector) {
+    collector.props.push({ heading: heading ?? '', props: docs });
+  }
+
+
+  // ----
   // Memoized Data
   // ----
   const own = React.useMemo(() => docs.filter((prop) => !prop.shared), [ docs ]);
@@ -121,37 +133,56 @@ export function PropsTable(props: PropsTableProps): React.ReactNode {
   // ----
   return (
     <Stack gap={3}>
-      <DocTable
-        head={[ 'Prop', 'Type', 'Default' ]}
-        rows={own.map((prop) => [
-          <Stack key={'name'} gap={2} className={'min-w-56 max-w-md'}>
-            <Cluster gap={1.5}>
-              <code className={'font-mono text-sm font-semibold text-foreground'}>{prop.name}</code>
-              {prop.required && <span className={'text-xs font-medium text-destructive'}>required</span>}
-              {prop.dataAttribute && (
-                <code
-                  title={`Reported on the element as ${prop.dataAttribute}, which a stylesheet can target`}
-                  className={'rounded-sm bg-primary-soft px-1.5 py-0.5 font-mono text-2xs text-primary-soft-foreground'}
-                >
-                  {prop.dataAttribute}
-                </code>
-              )}
-            </Cluster>
-            {prop.description && <div className={'text-sm/6'}><Markdown text={prop.description} /></div>}
-          </Stack>,
-          <Stack key={'type'} gap={1.5} className={'min-w-40'}>
-            <code className={'font-mono text-xs text-primary'}>{prop.type}</code>
-            {prop.values && (
-              <Cluster gap={1}>
-                {prop.values.map((value) => <InlineCode key={value} className={'text-xs'}>{value}</InlineCode>)}
+      {mode === 'text' && (
+        /* In text one fact per cell: a line of markdown cannot stack a name over its description */
+        <DocTable
+          head={[ 'Prop', 'Type', 'Default', 'Description' ]}
+          rows={own.map((prop) => [
+            <React.Fragment key={'name'}>
+              <code>{prop.name}</code>
+              {prop.required && ' (required)'}
+              {prop.dataAttribute && <React.Fragment>, reported as <code>{prop.dataAttribute}</code></React.Fragment>}
+            </React.Fragment>,
+            <code key={'type'}>{prop.values ? prop.values.join(' | ') : prop.type}</code>,
+            formatDefault(prop) ? <code key={'default'}>{formatDefault(prop)}</code> : '',
+            <Markdown key={'description'} text={prop.description} />
+          ])}
+        />
+      )}
+
+      {mode === 'web' && (
+        <DocTable
+          head={[ 'Prop', 'Type', 'Default' ]}
+          rows={own.map((prop) => [
+            <Stack key={'name'} gap={2} className={'min-w-56 max-w-md'}>
+              <Cluster gap={1.5}>
+                <code className={'font-mono text-sm font-semibold text-foreground'}>{prop.name}</code>
+                {prop.required && <span className={'text-xs font-medium text-destructive'}>required</span>}
+                {prop.dataAttribute && (
+                  <code
+                    title={`Reported on the element as ${prop.dataAttribute}, which a stylesheet can target`}
+                    className={'rounded-sm bg-primary-soft px-1.5 py-0.5 font-mono text-2xs text-primary-soft-foreground'}
+                  >
+                    {prop.dataAttribute}
+                  </code>
+                )}
               </Cluster>
-            )}
-          </Stack>,
-          formatDefault(prop)
-            ? <code key={'default'} className={'font-mono text-xs whitespace-nowrap text-foreground'}>{formatDefault(prop)}</code>
-            : <span key={'default'} aria-label={'none'}>–</span>
-        ])}
-      />
+              {prop.description && <div className={'text-sm/6'}><Markdown text={prop.description} /></div>}
+            </Stack>,
+            <Stack key={'type'} gap={1.5} className={'min-w-40'}>
+              <code className={'font-mono text-xs text-primary'}>{prop.type}</code>
+              {prop.values && (
+                <Cluster gap={1}>
+                  {prop.values.map((value) => <InlineCode key={value} className={'text-xs'}>{value}</InlineCode>)}
+                </Cluster>
+              )}
+            </Stack>,
+            formatDefault(prop)
+              ? <code key={'default'} className={'font-mono text-xs whitespace-nowrap text-foreground'}>{formatDefault(prop)}</code>
+              : <span key={'default'} aria-label={'none'}>–</span>
+          ])}
+        />
+      )}
 
       {(rest || shared.length > 0) && (
         <Stack gap={1} className={'text-sm/6 text-muted-foreground'}>

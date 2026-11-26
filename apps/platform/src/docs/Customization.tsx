@@ -8,6 +8,7 @@ import { Cluster, Stack } from '@proedis/ui/layout';
 import { InlineCode } from './InlineCode';
 import { Prose, Section } from './Page';
 import { DocTable } from './Tables';
+import { useDocsTarget } from './target';
 import { describeVariable, GROUP_LEADS, GROUP_TITLES } from './themeVariables';
 
 import type { ThemeDoc, ThemeVariable, ThemeVariableGroup } from './themeDoc';
@@ -136,6 +137,23 @@ export function Customization(props: CustomizationProps): React.ReactNode {
 
 
   // ----
+  // Internal Hooks
+  // ----
+  const { collector, mode } = useDocsTarget();
+
+  /* Text mode renders once, on the server, to collect: on screen there is no collector */
+  if (collector) {
+    collector.theme.push(...theme.variables);
+  }
+
+  /** The variables of one group, the families of colour folded into one row each */
+  const groups = GROUPS.flatMap((group) => {
+    const variables = theme.variables.filter((variable) => variable.group === group);
+    return variables.length ? [ { group, variables, families: group === 'Colour' ? familiesOf(variables) : undefined } ] : [];
+  });
+
+
+  // ----
   // Component Render
   // ----
   return (
@@ -152,33 +170,32 @@ export function Customization(props: CustomizationProps): React.ReactNode {
         </React.Fragment>
       )}
     >
-      {theme.variables.length > 0 && (
+      {/* In text every group is open: a closed item of an accordion renders nothing on the server */}
+      {mode === 'text' && groups.map(({ families, group, variables }) => (
+        <React.Fragment key={group}>
+          <h3>{GROUP_TITLES[group]}</h3>
+          <p>{GROUP_LEADS[group]}</p>
+          {families ? <FamilyTable families={families} /> : <ThemeTable variables={variables} />}
+        </React.Fragment>
+      ))}
+
+      {mode === 'web' && groups.length > 0 && (
         <Accordion variant={'contained'} radius={'xl'}>
-          {GROUPS.map((group) => {
-            const variables = theme.variables.filter((variable) => variable.group === group);
-
-            if (!variables.length) {
-              return null;
-            }
-
-            const families = group === 'Colour' ? familiesOf(variables) : undefined;
-
-            return (
-              <Accordion.Item
-                key={group}
-                value={group}
-                title={GROUP_TITLES[group]}
-                meta={families ? `${count(families.length, 'family', 'families')}, ${count(variables.length, 'variable', 'variables')}` : count(variables.length, 'variable', 'variables')}
-              >
-                <Stack gap={'sm'}>
-                  <p className={'text-sm text-muted-foreground'}>{GROUP_LEADS[group]}</p>
-                  {families
-                    ? <FamilyTable families={families} />
-                    : <ThemeTable variables={variables} />}
-                </Stack>
-              </Accordion.Item>
-            );
-          })}
+          {groups.map(({ families, group, variables }) => (
+            <Accordion.Item
+              key={group}
+              value={group}
+              title={GROUP_TITLES[group]}
+              meta={families ? `${count(families.length, 'family', 'families')}, ${count(variables.length, 'variable', 'variables')}` : count(variables.length, 'variable', 'variables')}
+            >
+              <Stack gap={'sm'}>
+                <p className={'text-sm text-muted-foreground'}>{GROUP_LEADS[group]}</p>
+                {families
+                  ? <FamilyTable families={families} />
+                  : <ThemeTable variables={variables} />}
+              </Stack>
+            </Accordion.Item>
+          ))}
         </Accordion>
       )}
       {children && <Prose>{children}</Prose>}

@@ -87,6 +87,25 @@ queries, and only a viewport of its own makes one fire for a box narrower than t
 reports its content height by `postMessage`, follows the site theme through the `storage` event, and is
 drawn scaled when wider than the column. Not for an overlay, which the frame would confine.
 
+**The text for language models is the site in another target** (2026-11-26). `scripts/llms.mjs` runs
+after `vite build`: it starts Vite in middleware mode, loads `src/llms/render.tsx` through
+`ssrLoadModule`, so the virtual modules of props, theme and examples answer exactly as on screen, and
+renders every written page of `NAV` through the site's own router with `prerenderToNodeStream`, inside
+`DocsTargetContext` set to `text` (`src/docs/target.ts`). In that target what only works on a screen
+renders the content it shows: `Example` its source, `CodeBlock` a fenced block (a file name as the
+comment of its first line), `SlotsInspector` the table of the slots, `Customization` every group open,
+`PropsTable` one fact per cell, `Guidance` a line, a heading without its anchor, `DocsLayout` and the
+root the page alone. turndown converts the article, with a rule of its own for tables, links inside the
+site pointing at the `.md` of their page, and the files of the site an example imports (`@/examples/…`)
+appended under "Files the examples import". The same render hands the data of `PropsTable`,
+`Customization` and `SlotsInspector` to a collector, filed under the heading of their section, which is
+what `--mcp <dir>` writes for the MCP server. The site gets `build/llms.txt`, `build/llms-full.txt` and
+`build/llms/<id>.md`, served by nginx as text and Markdown; `PLATFORM_SITE_URL` makes their links
+absolute.
+⚠️ A component of the docs that only works on a screen needs its text branch, or its content leaves the
+text without anything failing: a closed accordion item, for one, renders nothing on the server. After
+touching one, read the `.md` of a page that uses it (`yarn workspace @proedis/platform llms`).
+
 `src/nav.ts` is the one list of pages: sidebar, pager and overview read it, and a page not yet written
 is listed with `ready: false`, greyed and not linked. A page names itself with `pageAt(route)`.
 

@@ -1229,6 +1229,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@mixmark-io/domino@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "@mixmark-io/domino@npm:2.2.0"
+  checksum: 10c0/aa468a15f9217d425220fe6a4b3f9416cbe8e566ee14efc191c6d5cc04fe39338b16a90bbac190f28d44e69465db5f2cf95f479c621ce38060ca6b2a3d346e9d
+  languageName: node
+  linkType: hard
+
 "@napi-rs/lzma-linux-x64-gnu@npm:1.5.1":
   version: 1.5.1
   resolution: "@napi-rs/lzma-linux-x64-gnu@npm:1.5.1"
@@ -1899,6 +1906,7 @@ __metadata:
     "@types/node": "npm:26.6.6"
     "@types/react": "npm:^19.2.14"
     "@types/react-dom": "npm:^19.2.3"
+    "@types/turndown": "npm:5.0.6"
     "@vitejs/plugin-react": "npm:6.3.0"
     dayjs: "npm:^1.11.12"
     lucide-react: "npm:1.77.0"
@@ -1908,6 +1916,7 @@ __metadata:
     react-hook-form: "npm:7.91.0"
     shiki: "npm:4.6.0"
     tailwindcss: "npm:4.3.5"
+    turndown: "npm:7.2.5"
     typescript: "npm:5.9.3"
     vite: "npm:8.3.8"
     zod: "npm:4.4.3"
@@ -3220,6 +3229,13 @@ __metadata:
   dependencies:
     "@types/node": "npm:*"
   checksum: 10c0/a271d327ec1d8df4043adb62170af6a26578ae1f667b1f114c2c4aa0eb38f40c15434f01afe4187cbfba360ff060830c6021fcb51d7b7147cea900712cb4495d
+  languageName: node
+  linkType: hard
+
+"@types/turndown@npm:5.0.6":
+  version: 5.0.6
+  resolution: "@types/turndown@npm:5.0.6"
+  checksum: 10c0/cc5648c115b67ba413782fd0a8ae273ad6b87940df770ab9a5fefe0303c368704013fca2a55dd08f46a2132a747912fd47f96a83162c47fd189babf1352ac4be
   languageName: node
   linkType: hard
 
@@ -10999,6 +11015,15 @@ __metadata:
     debug: "npm:^4.4.3"
     make-fetch-happen: "npm:^15.0.1"
   checksum: 10c0/38330b0b2d16f7f58eccd49b3a6ff0f87dd20743d6f2c26c2621089d8d83d807808e0e660c5be891122538d32db250e3e88267da4421537253e7aa99a45e5800
+  languageName: node
+  linkType: hard
+
+"turndown@npm:7.2.5":
+  version: 7.2.5
+  resolution: "turndown@npm:7.2.5"
+  dependencies:
+    "@mixmark-io/domino": "npm:^2.2.0"
+  checksum: 10c0/4daceb07c10f9695eb1625b466a82395318e27f99ef4aa9424c9cbf0b7ade4102d00702dacf7a0eb6579a44bb745b063a89f3106b0954ad849bfb27a6e6ddfcb
   languageName: node
   linkType: hard
 

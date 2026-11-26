@@ -5,6 +5,7 @@ import { Stack } from '@proedis/ui/layout';
 import { ScrollArea } from '@proedis/ui/primitives';
 
 import { CopyButton } from './CopyButton';
+import { useDocsTarget } from './target';
 
 import type { Snippet } from './snippet';
 
@@ -44,8 +45,27 @@ export function CodeBlock(props: CodeBlockProps): React.ReactNode {
 
 
   // ----
+  // Internal Hooks
+  // ----
+  const { mode } = useDocsTarget();
+
+
+  // ----
   // Component Render
   // ----
+  /** In text a fenced block: the language on the fence, a file name as the comment of its first line */
+  if (mode === 'text') {
+    const named = typeof title === 'string' && /\.\w+$/.test(title);
+    const lang = snippet.lang ?? (named ? title.slice(title.lastIndexOf('.') + 1) : 'tsx');
+    const comment = lang === 'css' ? `/* ${title} */` : `// ${title}`;
+
+    return (
+      <pre>
+        <code className={`language-${lang}`}>{named ? `${comment}\n${snippet.code}` : snippet.code}</code>
+      </pre>
+    );
+  }
+
   return (
     <div
       data-slot={'code-block'}

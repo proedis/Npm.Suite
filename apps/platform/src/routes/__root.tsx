@@ -5,6 +5,7 @@ import { createRootRoute, Outlet, useLocation } from '@tanstack/react-router';
 import { TooltipProvider } from '@proedis/ui/actions/tooltip';
 
 import { PREVIEW_PREFIX } from '@/docs/frame';
+import { useDocsTarget } from '@/docs/target';
 import { PlatformHeader } from '@/platform/PlatformHeader';
 
 
@@ -22,6 +23,7 @@ function RootComponent(): React.ReactNode {
   // Internal Hooks
   // ----
   const { pathname } = useLocation();
+  const { mode } = useDocsTarget();
 
 
   // ----
@@ -39,7 +41,7 @@ function RootComponent(): React.ReactNode {
   // ----
   // Component Render
   // ----
-  if (pathname.startsWith(PREVIEW_PREFIX)) {
+  if (pathname.startsWith(PREVIEW_PREFIX) || mode === 'text') {
     return (
       <TooltipProvider>
         <Outlet />
