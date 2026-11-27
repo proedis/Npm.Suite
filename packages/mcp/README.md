@@ -79,8 +79,10 @@ The server tells the agent how to work at connection time: find a page, read its
 ### The tools
 
 Every tool is read only, and every answer is JSON in a text block. A name can be the component (`TextInput`), its
-subpath (`@proedis/ui/forms/text-input`, or `forms/text-input`) or the id of its page (`ui-forms-text-input`). A name
-that matches nothing is an error with the closest names, never a guess.
+subpath (`@proedis/ui/forms/text-input`, or `forms/text-input`), the id of its page (`ui-forms-text-input`), or a part
+documented on another page (`IconButton` on Button's, `Menu.Item` on Menu's, where `get_item_props` answers with that
+part alone). A name several pages share (`@proedis/ui/layout`, `Overview`) is an error that lists them, and one that
+matches nothing an error with the closest names: never a guess.
 
 | Tool | Input | Answer |
 | --- | --- | --- |

@@ -56,7 +56,9 @@ function failure(message: string): ToolResult {
 
 /**
  * The page a name points at: its id, its name, its subpath in full or below the package, then a name
- * that starts with the one asked for. Nothing found is an answer with the closest names, not a guess.
+ * that starts with the one asked for. The first of those that matches decides: one page is the answer,
+ * several are an error that lists them (twelve primitives share `@proedis/ui/layout`, three pages are
+ * an "Overview"), and none is an error with the closest names. Never a guess.
  */
 function resolveItem(items: readonly IndexItem[], name: string): IndexItem | string {
   const wanted = compact(name);
@@ -64,13 +66,26 @@ function resolveItem(items: readonly IndexItem[], name: string): IndexItem | str
     item.subpath !== null && (compact(item.subpath) === wanted || compact(item.subpath.replace(/^@proedis\/(ui|form)\/?/, '')) === wanted)
   );
 
-  const found = items.find((item) => item.id === name)
-    ?? items.find((item) => compact(item.name) === wanted)
-    ?? items.find(bySubpath)
-    ?? items.find((item) => compact(item.name).startsWith(wanted));
+  const tiers: ((item: IndexItem) => boolean)[] = [
+    (item) => item.id === name,
+    (item) => compact(item.name) === wanted,
+    bySubpath,
+    /* A part documented on another page: IconButton on Button's, Menu.Item on Menu's */
+    (item) => item.propsOf.some((part) => compact(part) === wanted),
+    (item) => compact(item.name).startsWith(wanted)
+  ];
 
-  if (found) {
-    return found;
+  for (const tier of tiers) {
+    const found = items.filter(tier);
+
+    if (found.length === 1) {
+      return found[0];
+    }
+
+    if (found.length > 1) {
+      const list = found.map((item) => `${item.name} (${item.group}, id ${item.id})`).join('; ');
+      return `"${name}" names ${found.length} pages: ${list}. Ask again with the name of one, or its id.`;
+    }
   }
 
   const close = items
@@ -79,6 +94,12 @@ function resolveItem(items: readonly IndexItem[], name: string): IndexItem | str
     .slice(0, 8);
 
   return `No page named "${name}".${close.length ? ` Closest: ${close.join(', ')}.` : ''} list_items gives every name.`;
+}
+
+/** The part of a page a name points at, when the name is one of its parts rather than the page */
+function partNamed(item: IndexItem, name: string): string | undefined {
+  const wanted = compact(name);
+  return compact(item.name) === wanted ? undefined : item.propsOf.find((part) => compact(part) === wanted);
 }
 
 /** What the catalogue says of a page, without its headings */
@@ -135,7 +156,16 @@ export function registerTools(server: McpServer, context: ToolContext): void {
       && (!text || `${item.name} ${item.subpath ?? ''} ${item.description}`.toLowerCase().includes(text))
     ));
 
-    return reply({ packages: data.index.packages, count: listed.length, items: listed.map(brief) }, versions);
+    /* Compact on purpose: the whole catalogue in one answer a client does not truncate. A page's outline has the rest */
+    const rows = listed.map((item) => ({
+      id         : item.id,
+      name       : item.name,
+      group      : item.group,
+      subpath    : item.subpath,
+      description: item.description
+    }));
+
+    return reply({ packages: data.index.packages, count: listed.length, items: rows }, versions);
   });
 
   server.registerTool('get_item_doc', {
@@ -200,14 +230,15 @@ export function registerTools(server: McpServer, context: ToolContext): void {
     }
 
     const { props } = data.doc(item.id);
-    const tables = part ? props.filter((table) => compact(table.heading) === compact(part)) : props;
+    const wantedPart = part ?? partNamed(item, name);
+    const tables = wantedPart ? props.filter((table) => compact(table.heading) === compact(wantedPart)) : props;
 
     if (!props.length) {
       return failure(`${item.name} documents no table of props: read its page with get_item_doc.`);
     }
 
     if (!tables.length) {
-      return failure(`No part "${part}" on ${item.name}. Parts: ${props.map((table) => table.heading).join(', ')}.`);
+      return failure(`No part "${wantedPart}" on ${item.name}. Parts: ${props.map((table) => table.heading).join(', ')}.`);
     }
 
     return reply({

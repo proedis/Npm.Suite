@@ -45,7 +45,11 @@ src/
 - **The version check reads files, not the resolver.** It walks up from the working directory to
   `node_modules/<name>/package.json`, because a package's `exports` map may refuse `require.resolve` on its manifest.
   A major or minor difference adds a `versionNotice`; a patch does not.
-- **A name that matches nothing is an error with the closest names**, never the nearest page silently.
+- **A name resolves to one page or to an error, never to a guess.** In order: the id, the name, the subpath, a part
+  documented on another page (`IconButton`, `Menu.Item`), a prefix of the name. The first tier that matches decides,
+  and when it matches several pages (twelve primitives share `@proedis/ui/layout`, three pages are an "Overview")
+  the answer lists them. It used to answer Box for every layout primitive: a sweep over every name of every page
+  caught it (2026-11-27), 53 shared names now answered with their list.
 - **The reference sections are weighted down in search** (`api`, `customization`, `slots-and-data-attributes`): their
   tables name every prop and slot, so they match almost any query on the component and would crowd out the section
   that explains it. Measured on twelve realistic queries before and after: the right page in the first three for ten.
@@ -54,5 +58,6 @@ src/
 
 What was run when it was written: `tsc`, `eslint`, the package build, `release:verify` on the 16 artifacts; a
 JSON-RPC session over stdio against `build/cjs/index.js` (initialize on the 2025 handshake, `tools/list`, each tool,
-an unknown name, an unknown section); the tarball from `npm pack` installed outside the workspace with the SDK from the
+an unknown name, an unknown section); a sweep of every page (each name, each of the 916 sections by slug and by
+heading, each of the 138 tables of props, the search of each name in the first three results); the tarball from `npm pack` installed outside the workspace with the SDK from the
 registry, `--version`, and the same session with a fake `@proedis/ui` 1.9.0 installed, which gave the notice.
