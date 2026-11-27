@@ -99,8 +99,10 @@ comment of its first line), `SlotsInspector` the table of the slots, `Customizat
 `PropsTable` one fact per cell, `Guidance` a line, `Callout` a quote led by its kind (a warning is
 only a colour and an icon on screen), a heading without its anchor, `DocsLayout` and the
 root the page alone. turndown converts the article, with a rule of its own for tables, links inside the
-site pointing at the `.md` of their page, and the files of the site an example imports (`@/examples/…`)
-appended under "Files the examples import". The same render hands the data of `PropsTable`,
+site pointing at the `.md` of their page, and the files of the site an example imports appended under
+"Files the examples import", relative imports included (`../labels`) and the files those import in turn: an
+example's block opens with its path (`// @/examples/data/detail/basic.tsx`), which is what the generator
+resolves them from. The same render hands the data of `PropsTable`,
 `Customization` and `SlotsInspector` to a collector, filed under the heading of their section, which is
 what `--mcp <dir>` writes for the MCP server. The site gets `build/llms.txt`, `build/llms-full.txt` and
 `build/llms/<id>.md`, served by nginx as text and Markdown. Their links are absolute, on

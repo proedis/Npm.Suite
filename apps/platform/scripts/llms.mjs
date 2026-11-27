@@ -127,27 +127,57 @@ function splitSections(markdown) {
 }
 
 
+/** A fenced block of an example, opened by the comment that names its file: `// @/examples/forms/select/basic.tsx` */
+const EXAMPLE_BLOCK = /```\w*\n\/\/ @\/(examples\/[^\n]+)\n([\s\S]*?)```/g;
+
+/** A module of the site, without its extension, or `undefined` when no file has that path */
+function siteFile(module) {
+  return [ '', '.tsx', '.ts' ].map((ext) => path.join(APP, 'src', `${module}${ext}`)).find((candidate) => fs.existsSync(candidate) && fs.statSync(candidate).isFile());
+}
+
+/** The modules of the site a piece of code imports, as `examples/…` paths, relative imports resolved from its file */
+function importsOf(code, file) {
+  const absolute = [ ...code.matchAll(SITE_IMPORT) ].map((match) => match[1]);
+  const relative = file
+    ? [ ...code.matchAll(/from '(\.\.?\/[^']+)'/g) ].map((match) => path.posix.join(path.posix.dirname(file), match[1]))
+    : [];
+
+  return [ ...absolute, ...relative ].map((module) => module.replace(/\.(tsx?|ts)$/, ''));
+}
+
 /**
- * The files of the site the examples of a page import, appended to it: an example that imports
- * `@/examples/layout/Block` is only readable with `Block` beside it.
+ * The files of the site the examples of a page import, appended to it, and the files those import in
+ * turn: an example that imports `../labels` or `@/examples/layout/Block` is only readable with it beside it.
  */
 function withSiteImports(markdown) {
-  const modules = [ ...new Set([ ...markdown.matchAll(SITE_IMPORT) ].map((match) => match[1])) ];
+  const found = new Map();
+  const queue = [ ...markdown.matchAll(EXAMPLE_BLOCK) ].flatMap((match) => importsOf(match[2], match[1]));
+  queue.push(...importsOf(markdown.replace(EXAMPLE_BLOCK, ''), undefined));
 
-  if (!modules.length) {
-    return markdown;
-  }
+  while (queue.length) {
+    const module = queue.shift();
 
-  const files = modules.map((module) => {
-    const file = [ '.tsx', '.ts' ].map((ext) => path.join(APP, 'src', `${module}${ext}`)).find((candidate) => fs.existsSync(candidate));
+    if (found.has(module)) {
+      continue;
+    }
+
+    const file = siteFile(module);
 
     if (!file) {
       throw new Error(`An example imports @/${module}, which is not a file of the site`);
     }
 
-    const lang = path.extname(file).slice(1);
-    return `\`\`\`${lang}\n// @/${module}\n${fs.readFileSync(file, 'utf8').trim()}\n\`\`\``;
-  });
+    const code = fs.readFileSync(file, 'utf8').trim();
+    const relativeFile = path.relative(path.join(APP, 'src'), file).split(path.sep).join('/');
+    found.set(module, { code, lang: path.extname(file).slice(1), file: relativeFile });
+    queue.push(...importsOf(code, relativeFile));
+  }
+
+  if (!found.size) {
+    return markdown;
+  }
+
+  const files = [ ...found.values() ].map(({ code, file, lang }) => `\`\`\`${lang}\n// @/${file}\n${code}\n\`\`\``);
 
   return [ markdown, '', '## Files the examples import', '', 'Modules of the documentation site, not of the package: shown so every example above can be read whole.', '', ...files.flatMap((file) => [ file, '' ]) ].join('\n').trim();
 }

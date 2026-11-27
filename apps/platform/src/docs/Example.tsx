@@ -64,7 +64,8 @@ export function Example(props: ExampleProps): React.ReactNode {
   // ----
   /** In text the example is its source: the preview is what the source draws */
   if (mode === 'text') {
-    return <CodeBlock snippet={of} title={of.file} />;
+    /* The path of the file, not its name: the text build resolves the relative imports of the example from it */
+    return <CodeBlock snippet={of} title={`@/examples/${of.id.slice(0, of.id.lastIndexOf('/') + 1)}${of.file}`} />;
   }
 
   return (
