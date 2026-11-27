@@ -81,10 +81,7 @@ step runs first and a red verify after it would leave tags on the remote for a r
 published. Why the steps cannot be reordered, how trusted publishing authenticates and how `npm trust`
 is configured: `.claude/rules/release.md`. The `release-prep` skill runs the first half and stops.
 
-**Never run any of the release scripts, `git push`, or `lerna publish` unless explicitly asked.** The
-hook `.claude/hooks/outbound-guard.mjs` asks for a confirmation on every command that leaves the
-machine (push, publish, version, a workflow run, a release, a pull request), whatever form it is
-written in.
+**Never run any of the release scripts, `git push`, or `lerna publish` unless explicitly asked.**
 
 ### Source-first resolution in-repo
 
