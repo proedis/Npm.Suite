@@ -42,8 +42,11 @@ component has no CSS behind it, and nothing reports it.
 
 1. **Containers are primitives.** A column, a row or a grid of equal columns is a `Stack`; a row that wraps (tags,
    actions, filters) is a `Cluster`; as many columns as fit is a `Grid`; a fixed rail beside a flexible pane is a
-   `Split`; the page column is a `Container`. Never `className={'flex flex-col gap-4'}`: the props say the same thing
-   where a reader scans for it.
+   `Split`; the page column is a `Container`. Not `className={'flex flex-col gap-4'}` for what a primitive covers: the
+   props say the same thing where a reader scans for it, and follow the theme. Four layouts are beyond the
+   primitives on purpose: named grid tracks or a subgrid, columns counted from the data, a different gap across and
+   along, a display switched by a container query. Write those with classes, using the theme's values, and keep a
+   card a `Surface` and a row an `Item` inside them.
 2. **Space by name.** `gap`, and every spacing prop, takes `xs`, `sm`, `md`, `lg`, `xl`, `2xl`. Each name is a variable
    of the theme (`--space-md`), so a product retunes every `md` at once. `Stack`, `Grid` and `Split` default to `md`,
    `Cluster` to `sm`; write `gap={0}` when the children must touch. The same names work in classes: `gap-md`, `p-md`,
@@ -96,6 +99,13 @@ export function RoundsPage(): React.ReactNode {
 }
 ```
 
+## Patterns
+
+The documentation composes whole screens from these pieces, each with its example and the reasons behind it:
+a page (header, figures, the list it is about), a list of records (rows with actions, or rows that open their
+record), a record to read (Detail in a card or in a Drawer), a form in a drawer, empty and loading states. Start
+from the pattern closest to the screen you are building.
+
 ## Pitfalls
 
 - **No arbitrary values.** `size-[18px]`, `text-[13px]`, `max-w-[96rem]` have no name, so no theme can reach them.
@@ -114,5 +124,6 @@ export function RoundsPage(): React.ReactNode {
 ## Looking things up
 
 When the Proedis UI MCP server is connected (`@proedis/mcp`): `search_docs` to find a component, `get_item_doc` for its
-outline and then one section, `get_item_props` for its API. Without it, the documentation for language models is at
+outline and then one section, `get_item_props` for its API. The patterns are pages too: `list_items` with group
+`Patterns`, and the overview of the primitives is `ui-layout-overview`. Without it, the documentation for language models is at
 https://platform.container.proedis.com/llms.txt, one Markdown file per page.

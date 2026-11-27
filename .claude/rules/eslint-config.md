@@ -58,3 +58,8 @@ Equivalence with Orbit's own flat config is verified by diffing `eslint --print-
 rule, not by eyeballing the rule lists: zero rules active in Orbit are missing here, and the option
 differences are all `@stylistic` writing schema defaults in full where core leaves them implicit.
 
+**The layout rules stay in this repository** (Marco, 2026-11-27). `suite/ui-layout` (inside `@proedis/ui`) and
+`suite/platform-layout` (the site) are blocks of the root `eslint.config.mjs`, not of the published config: an
+application reaches for the layout primitives first, as the Layout overview of the documentation says, and writes
+the few layouts they do not cover (named tracks, columns counted from the data, a gap per axis, a container query)
+with classes. Do not move them into `eslint-config-proedis`.

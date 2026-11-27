@@ -157,6 +157,7 @@ export const NAV: readonly NavGroup[] = [
     title      : 'Layout',
     description: 'Where things are. No colour, no opinion: every component of the package lays out through these.',
     items      : [
+      { title: 'Overview', to: '/ui/layout/overview', description: 'Which primitive to reach for, a screen in primitives, and where they stop.', icon: BookOpen, ready: true },
       { title: 'Box', to: '/ui/layout/box', subpath: '@proedis/ui/layout', description: 'An element with the shared props and nothing else.', icon: Box, ready: true },
       { title: 'Stack', to: '/ui/layout/stack', subpath: '@proedis/ui/layout', description: 'A column or a row with a gap, or equal columns: the container everything else is.', icon: Rows3, ready: true },
       { title: 'Cluster', to: '/ui/layout/cluster', subpath: '@proedis/ui/layout', description: 'A row that wraps, centred on its line: tags, actions, filters.', icon: LayoutList, ready: true },
@@ -280,6 +281,17 @@ export const NAV: readonly NavGroup[] = [
       { title: 'FiltersBar', to: '/ui/data/filters-bar', subpath: '@proedis/ui/data/filters-bar', peers: BASE_UI_DAYJS, description: 'The filters of a list, with More for those that do not fit.', icon: ListFilter, ready: true },
       { title: 'ModalSelector', to: '/ui/data/modal-selector', subpath: '@proedis/ui/data/modal-selector', peers: BASE_UI_DAYJS, description: 'Choosing records from a long list, in a dialog.', icon: Filter, ready: true },
       { title: 'Detail', to: '/ui/data/detail', subpath: '@proedis/ui/data/detail', peers: BASE_UI, description: 'The fields of one record, on the grid of its form.', icon: Grid3x3, ready: true }
+    ]
+  },
+  {
+    title      : 'Patterns',
+    description: 'Screens composed from the components: a page, a list, a record, a form beside a list, the empty and loading states.',
+    items      : [
+      { title: 'A page', to: '/ui/patterns/page', description: 'Header and actions, figures, the list the page is about.', icon: PanelsTopLeft, ready: true },
+      { title: 'A list of records', to: '/ui/patterns/list', description: 'Rows in a card, with their own actions or opening their record.', icon: LayoutList, ready: true },
+      { title: 'A record to read', to: '/ui/patterns/detail', description: 'The values of a record in a card, or in a drawer beside its list.', icon: FileText, ready: true },
+      { title: 'A form in a drawer', to: '/ui/patterns/form-in-drawer', description: 'Creating and editing beside the list, the form telling the drawer its state.', icon: PanelRight, ready: true },
+      { title: 'Empty and loading', to: '/ui/patterns/empty-and-loading', description: 'The three states of a list, and content being refreshed.', icon: Loader, ready: true }
     ]
   },
   {
