@@ -14,7 +14,7 @@ import type { BaseProps } from '../../core/base';
 import type { PolymorphicProps } from '../../core/polymorphic';
 import type { Align, Direction, Responsive, Spacing } from '../../core/responsive';
 
-import type { HeadingProps } from '../heading/Heading';
+import type { HeadingProps, StrictHeadingProps } from '../heading/Heading';
 
 
 /* --------
@@ -103,6 +103,9 @@ export interface StrictItemIconProps extends BaseProps {
 
 export type ItemIconProps<E extends React.ElementType = 'span'> = PolymorphicProps<E, StrictItemIconProps>;
 
+
+/** The heading of a row is a `Heading`: the same own props */
+export type StrictItemHeadingProps = StrictHeadingProps;
 
 export type ItemHeadingProps<E extends React.ElementType = 'div'> = HeadingProps<E>;
 

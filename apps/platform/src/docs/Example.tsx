@@ -5,6 +5,7 @@ import { Stack } from '@proedis/ui/layout';
 
 import { CodeBlock } from './CodeBlock';
 import { ResizableFrame } from './ResizableFrame';
+import { useDocsTarget } from './target';
 
 import type { ExampleModule } from './exampleModule';
 
@@ -53,8 +54,20 @@ export function Example(props: ExampleProps): React.ReactNode {
 
 
   // ----
+  // Internal Hooks
+  // ----
+  const { mode } = useDocsTarget();
+
+
+  // ----
   // Component Render
   // ----
+  /** In text the example is its source: the preview is what the source draws */
+  if (mode === 'text') {
+    /* The path of the file, not its name: the text build resolves the relative imports of the example from it */
+    return <CodeBlock snippet={of} title={`@/examples/${of.id.slice(0, of.id.lastIndexOf('/') + 1)}${of.file}`} />;
+  }
+
   return (
     <div data-slot={'example'} data-resizable={resizable || undefined}>
       {resizable ? (

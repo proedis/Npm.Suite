@@ -25,7 +25,7 @@ import type { MenuRadius } from './menuPanel';
  * Types Definition
  * -------- */
 
-export interface MenuProps {
+export interface StrictMenuProps {
   /** Normally an icon button with the ⋯. It must forward its ref; it stays pressed while the menu is open */
   trigger: React.ReactElement;
 
@@ -50,8 +50,10 @@ export interface MenuProps {
   children: React.ReactNode;
   className?: string;
 }
+export type MenuProps = StrictMenuProps;
 
-export interface MenuItemProps {
+
+export interface StrictMenuItemProps {
   /** The label */
   children: React.ReactNode;
 
@@ -78,14 +80,18 @@ export interface MenuItemProps {
 
   className?: string;
 }
+export type MenuItemProps = StrictMenuItemProps;
 
-export interface MenuGroupProps {
+
+export interface StrictMenuGroupProps {
   /** The small title, only when groups act on different things, and saying on what */
   label?: React.ReactNode;
   children: React.ReactNode;
 }
+export type MenuGroupProps = StrictMenuGroupProps;
 
-export interface MenuRadioGroupProps {
+
+export interface StrictMenuRadioGroupProps {
   value: string;
   onValueChange: (value: string) => void;
 
@@ -94,27 +100,34 @@ export interface MenuRadioGroupProps {
 
   children: React.ReactNode;
 }
+export type MenuRadioGroupProps = StrictMenuRadioGroupProps;
 
-export interface MenuRadioItemProps {
+
+export interface StrictMenuRadioItemProps {
   value: string;
   children: React.ReactNode;
   disabled?: boolean;
 }
+export type MenuRadioItemProps = StrictMenuRadioItemProps;
 
-export interface MenuCheckboxItemProps {
+
+export interface StrictMenuCheckboxItemProps {
   checked: boolean;
   onCheckedChange: (checked: boolean) => void;
   children: React.ReactNode;
   disabled?: boolean;
 }
+export type MenuCheckboxItemProps = StrictMenuCheckboxItemProps;
 
-export interface MenuSubmenuProps {
+
+export interface StrictMenuSubmenuProps {
   /** The item that opens it */
   label: React.ReactNode;
   icon?: React.ReactNode;
   disabled?: boolean;
   children: React.ReactNode;
 }
+export type MenuSubmenuProps = StrictMenuSubmenuProps;
 
 
 /* --------

@@ -45,3 +45,6 @@ yarn-error.log*
 
 # internal unversioned folder
 .unversioned
+
+# claude code: personal settings stay local
+.claude/settings.local.json

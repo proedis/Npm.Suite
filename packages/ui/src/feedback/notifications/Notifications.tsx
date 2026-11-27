@@ -31,11 +31,12 @@ export interface NotificationsLabels {
   readonly undo: string;
 }
 
-export interface NotificationsProviderProps {
+export interface StrictNotificationsProviderProps {
   notifications: Notifications;
   labels: NotificationsLabels;
   children?: React.ReactNode;
 }
+export type NotificationsProviderProps = StrictNotificationsProviderProps;
 
 
 /* --------

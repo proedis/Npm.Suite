@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "proedis-ui": {
+      "command": "npx",
+      "args": [ "-y", "@proedis/mcp" ]
+    }
+  }
+}

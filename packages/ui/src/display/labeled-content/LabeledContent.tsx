@@ -10,7 +10,7 @@ import { Label } from '../../primitives/Label';
 import type { BaseProps } from '../../core/base';
 import type { PolymorphicProps } from '../../core/polymorphic';
 
-import type { LabelProps } from '../../primitives/Label';
+import type { LabelProps, StrictLabelProps } from '../../primitives/Label';
 
 
 /* --------
@@ -24,6 +24,9 @@ export interface StrictLabeledContentProps extends BaseProps {
 export type LabeledContentProps<E extends React.ElementType = 'div'> =
   PolymorphicProps<E, StrictLabeledContentProps>;
 
+
+/** The label of the pair is a `Label`: the same own props */
+export type StrictLabeledContentLabelProps = StrictLabelProps;
 
 export type LabeledContentLabelProps<E extends React.ElementType = 'span'> = LabelProps<E>;
 

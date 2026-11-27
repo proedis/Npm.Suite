@@ -1229,6 +1229,32 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@mixmark-io/domino@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "@mixmark-io/domino@npm:2.2.0"
+  checksum: 10c0/aa468a15f9217d425220fe6a4b3f9416cbe8e566ee14efc191c6d5cc04fe39338b16a90bbac190f28d44e69465db5f2cf95f479c621ce38060ca6b2a3d346e9d
+  languageName: node
+  linkType: hard
+
+"@modelcontextprotocol/core@npm:2.4.0":
+  version: 2.4.0
+  resolution: "@modelcontextprotocol/core@npm:2.4.0"
+  dependencies:
+    zod: "npm:^4.2.0"
+  checksum: 10c0/4dd07f18c7eee3f3cf7bcea9a7dd11799f13ce2255fda9ae77aff9978a21d16ee4026f63e5a3e13d5d91209acc3e7d6b97d459c1ff1b78f3b872eb0597b3dd53
+  languageName: node
+  linkType: hard
+
+"@modelcontextprotocol/server@npm:^2.4.0":
+  version: 2.4.0
+  resolution: "@modelcontextprotocol/server@npm:2.4.0"
+  dependencies:
+    "@modelcontextprotocol/core": "npm:2.4.0"
+    zod: "npm:^4.2.0"
+  checksum: 10c0/e52966e6f115296c6dbfd08550e81773f5f71fb4809c7411b11fcc619b3bd621b07f296a5571de777ea2351eca7003e6b3f4d172fe8c21563be1205b1ee4f0ec
+  languageName: node
+  linkType: hard
+
 "@napi-rs/lzma-linux-x64-gnu@npm:1.5.1":
   version: 1.5.1
   resolution: "@napi-rs/lzma-linux-x64-gnu@npm:1.5.1"
@@ -1847,7 +1873,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@proedis/form@workspace:*, @proedis/form@workspace:packages/form":
+"@proedis/form@npm:^1.0.0, @proedis/form@workspace:*, @proedis/form@workspace:packages/form":
   version: 0.0.0-use.local
   resolution: "@proedis/form@workspace:packages/form"
   dependencies:
@@ -1867,6 +1893,22 @@ __metadata:
   dependencies:
     "@proedis/tsconfig": "npm:^2.1.0"
     rollup: "npm:^4.62.4"
+  languageName: unknown
+  linkType: soft
+
+"@proedis/mcp@workspace:packages/mcp":
+  version: 0.0.0-use.local
+  resolution: "@proedis/mcp@workspace:packages/mcp"
+  dependencies:
+    "@modelcontextprotocol/server": "npm:^2.4.0"
+    "@proedis/form": "npm:^1.0.0"
+    "@proedis/tsconfig": "npm:^2.1.0"
+    "@proedis/ui": "npm:^2.0.0"
+    "@types/node": "npm:26.6.6"
+    rollup: "npm:^4.62.4"
+    zod: "npm:^4.2.0"
+  bin:
+    proedis-mcp: ./cjs/index.js
   languageName: unknown
   linkType: soft
 
@@ -1899,6 +1941,7 @@ __metadata:
     "@types/node": "npm:26.6.6"
     "@types/react": "npm:^19.2.14"
     "@types/react-dom": "npm:^19.2.3"
+    "@types/turndown": "npm:5.0.6"
     "@vitejs/plugin-react": "npm:6.3.0"
     dayjs: "npm:^1.11.12"
     lucide-react: "npm:1.77.0"
@@ -1908,9 +1951,10 @@ __metadata:
     react-hook-form: "npm:7.91.0"
     shiki: "npm:4.6.0"
     tailwindcss: "npm:4.3.5"
+    turndown: "npm:7.2.5"
     typescript: "npm:5.9.3"
     vite: "npm:8.3.8"
-    zod: "npm:4.4.3"
+    zod: "npm:4.6.7"
   languageName: unknown
   linkType: soft
 
@@ -3220,6 +3264,13 @@ __metadata:
   dependencies:
     "@types/node": "npm:*"
   checksum: 10c0/a271d327ec1d8df4043adb62170af6a26578ae1f667b1f114c2c4aa0eb38f40c15434f01afe4187cbfba360ff060830c6021fcb51d7b7147cea900712cb4495d
+  languageName: node
+  linkType: hard
+
+"@types/turndown@npm:5.0.6":
+  version: 5.0.6
+  resolution: "@types/turndown@npm:5.0.6"
+  checksum: 10c0/cc5648c115b67ba413782fd0a8ae273ad6b87940df770ab9a5fefe0303c368704013fca2a55dd08f46a2132a747912fd47f96a83162c47fd189babf1352ac4be
   languageName: node
   linkType: hard
 
@@ -11002,6 +11053,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"turndown@npm:7.2.5":
+  version: 7.2.5
+  resolution: "turndown@npm:7.2.5"
+  dependencies:
+    "@mixmark-io/domino": "npm:^2.2.0"
+  checksum: 10c0/4daceb07c10f9695eb1625b466a82395318e27f99ef4aa9424c9cbf0b7ade4102d00702dacf7a0eb6579a44bb745b063a89f3106b0954ad849bfb27a6e6ddfcb
+  languageName: node
+  linkType: hard
+
 "type-check@npm:^0.4.0, type-check@npm:~0.4.0":
   version: 0.4.0
   resolution: "type-check@npm:0.4.0"
@@ -11830,17 +11890,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zod@npm:4.4.3, zod@npm:^3.25.0 || ^4.0.0":
-  version: 4.4.3
-  resolution: "zod@npm:4.4.3"
-  checksum: 10c0/7ea31b558e88f9faf44f31dd185e2e1cbf51fed3081787fb96cc2534749b50c0acfc6da7f0922a7353ed092dd358c7d50c28ea96c94d04af64191bd33152eca3
-  languageName: node
-  linkType: hard
-
-"zod@npm:^4.5.4":
+"zod@npm:4.6.7, zod@npm:^4.2.0, zod@npm:^4.5.4":
   version: 4.6.7
   resolution: "zod@npm:4.6.7"
   checksum: 10c0/4ce2eb14034317b7254e347ca37b5ad591cf8333147030cf05b9b5d31692d45073f7f2747aa50cf8c6b29012194d2b22978cecc89969cf34a0d18e89d0ee7d7b
+  languageName: node
+  linkType: hard
+
+"zod@npm:^3.25.0 || ^4.0.0":
+  version: 4.4.3
+  resolution: "zod@npm:4.4.3"
+  checksum: 10c0/7ea31b558e88f9faf44f31dd185e2e1cbf51fed3081787fb96cc2534749b50c0acfc6da7f0922a7353ed092dd358c7d50c28ea96c94d04af64191bd33152eca3
   languageName: node
   linkType: hard
 

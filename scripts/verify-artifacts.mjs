@@ -265,6 +265,18 @@ function verifyPackage(packageName) {
     });
   }
 
+  /**
+   * 'generated' lists files a build step writes from somewhere other than 'src' (the MCP
+   * server renders its data from the documentation site), relative to the build directory.
+   * Nothing else would notice a build that skipped that step: the code compiles, and the
+   * package fails only once installed.
+   */
+  (sourceManifest.proedisMetadata?.generated ?? []).forEach((file) => {
+    if (!existsSync(join(buildPath, file))) {
+      problems.push(`generated file '${file}' is missing from the build: the step that writes it did not run`);
+    }
+  });
+
   // ----
   // 1d. Documentation and license must reach the tarball
   // ----

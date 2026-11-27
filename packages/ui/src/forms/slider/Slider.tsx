@@ -17,7 +17,7 @@ import type { CommonSliderProps } from './sliderField';
 
 export type { CommonSliderProps, SliderVariant } from './sliderField';
 
-export interface SliderProps extends CommonSliderProps {
+export interface StrictSliderProps extends CommonSliderProps {
   value?: number;
   defaultValue?: number;
 
@@ -27,6 +27,7 @@ export interface SliderProps extends CommonSliderProps {
   /** The value once the pointer is released or the key is up: where a request belongs */
   onValueCommitted?: (value: number) => void;
 }
+export type SliderProps = StrictSliderProps;
 
 
 /* --------

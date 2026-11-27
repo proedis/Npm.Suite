@@ -15,7 +15,7 @@ import type { BaseProps } from '../../core/base';
 
 export type BadgeCounterTone = 'info' | 'destructive';
 
-export interface BadgeCounterProps extends BaseProps {
+export interface StrictBadgeCounterProps extends BaseProps {
   /** At 0 nothing renders */
   count: number;
 
@@ -27,6 +27,7 @@ export interface BadgeCounterProps extends BaseProps {
 
   className?: string;
 }
+export type BadgeCounterProps = StrictBadgeCounterProps;
 
 
 /* --------

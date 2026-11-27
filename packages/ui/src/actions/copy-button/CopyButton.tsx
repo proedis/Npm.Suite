@@ -33,7 +33,7 @@ export interface CopyButtonLabels {
   readonly failed?: string;
 }
 
-export type CopyButtonProps = Omit<IconButtonProps, 'label' | 'icon' | 'onClick' | 'loading' | 'loadingLabel' | 'value' | 'onCopy'> & {
+export interface StrictCopyButtonProps {
   /** What to copy: the text, or a function read at the moment of the copy, which may be asynchronous */
   value: ClipboardValue;
 
@@ -48,7 +48,10 @@ export type CopyButtonProps = Omit<IconButtonProps, 'label' | 'icon' | 'onClick'
 
   /** Told after each attempt, with whether it worked */
   onCopy?: (copied: boolean) => void;
-};
+}
+
+export type CopyButtonProps = StrictCopyButtonProps
+  & Omit<IconButtonProps, 'label' | 'icon' | 'onClick' | 'loading' | 'loadingLabel' | 'value' | 'onCopy'>;
 
 
 /* --------

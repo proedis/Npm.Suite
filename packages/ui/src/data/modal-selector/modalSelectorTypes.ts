@@ -175,7 +175,7 @@ export interface ModalSelectorCommonProps<TData> {
   labels: ModalSelectorLabels;
 }
 
-export interface SingleModalSelectorProps<TData> extends ModalSelectorCommonProps<TData> {
+export interface StrictSingleModalSelectorProps<TData> extends ModalSelectorCommonProps<TData> {
   multiple?: false;
 
   /** The value it opens on, and its whole row: the footer shows it even when no search finds it */
@@ -185,8 +185,10 @@ export interface SingleModalSelectorProps<TData> extends ModalSelectorCommonProp
   /** A promise keeps the dialog open behind the veil until it settles; a rejection shows `confirmError` */
   onConfirm: (value: string, row: TData) => void | Promise<unknown>;
 }
+export type SingleModalSelectorProps<TData> = StrictSingleModalSelectorProps<TData>;
 
-export interface MultipleModalSelectorProps<TData> extends ModalSelectorCommonProps<TData> {
+
+export interface StrictMultipleModalSelectorProps<TData> extends ModalSelectorCommonProps<TData> {
   multiple: true;
 
   /** The values it opens on, and their whole rows */
@@ -202,5 +204,9 @@ export interface MultipleModalSelectorProps<TData> extends ModalSelectorCommonPr
   /** The prompt when closing with choices not confirmed */
   discard: DialogDiscard;
 }
+export type MultipleModalSelectorProps<TData> = StrictMultipleModalSelectorProps<TData>;
+
+
+export type StrictModalSelectorProps<TData> = StrictSingleModalSelectorProps<TData> | StrictMultipleModalSelectorProps<TData>;
 
 export type ModalSelectorProps<TData> = SingleModalSelectorProps<TData> | MultipleModalSelectorProps<TData>;

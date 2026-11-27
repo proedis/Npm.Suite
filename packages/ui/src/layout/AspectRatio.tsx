@@ -9,10 +9,11 @@ import type { BaseProps } from '../core/base';
 /* --------
  * Types Definition
  * -------- */
-export interface AspectRatioProps extends React.ComponentProps<'div'>, BaseProps {
+export interface StrictAspectRatioProps extends BaseProps {
   /** Width over height: `16 / 9`, `1`, `4 / 3` */
   ratio?: number;
 }
+export type AspectRatioProps = StrictAspectRatioProps & React.ComponentProps<'div'>;
 
 
 /* --------

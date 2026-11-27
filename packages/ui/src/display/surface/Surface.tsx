@@ -15,9 +15,9 @@ import type { BaseProps } from '../../core/base';
 import type { PolymorphicProps } from '../../core/polymorphic';
 import type { Justify, Responsive } from '../../core/responsive';
 
-import type { StackProps } from '../../layout/Stack';
+import type { StackProps, StrictStackProps } from '../../layout/Stack';
 
-import type { ItemProps } from '../item/Item';
+import type { ItemProps, StrictItemProps } from '../item/Item';
 
 
 /* --------
@@ -113,6 +113,9 @@ export interface StrictSurfaceProps extends BaseProps, VariantProps<typeof surfa
 export type SurfaceProps<E extends React.ElementType = 'div'> = PolymorphicProps<E, StrictSurfaceProps>;
 
 
+/** The header of a card is an `Item`: the same own props */
+export type StrictSurfaceHeaderProps = StrictItemProps;
+
 export type SurfaceHeaderProps<E extends React.ElementType = 'div'> = ItemProps<E>;
 
 
@@ -124,6 +127,9 @@ export interface StrictSurfaceSectionProps extends BaseProps {
 export type SurfaceSectionProps<E extends React.ElementType = 'div'> =
   PolymorphicProps<E, StrictSurfaceSectionProps>;
 
+
+/** A group of sections is a `Stack`: the same own props */
+export type StrictSurfaceSectionGroupProps = StrictStackProps;
 
 export type SurfaceSectionGroupProps<E extends React.ElementType = 'div'> = StackProps<E>;
 

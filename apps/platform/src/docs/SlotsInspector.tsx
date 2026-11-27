@@ -9,6 +9,8 @@ import { Label, ScrollArea } from '@proedis/ui/primitives';
 
 import { CodeBlock } from './CodeBlock';
 import { InlineCode } from './InlineCode';
+import { SlotsTable } from './Tables';
+import { useDocsTarget } from './target';
 
 import type { ExampleModule } from './exampleModule';
 import type { SlotRow } from './Tables';
@@ -213,7 +215,7 @@ function useBoxes(preview: React.RefObject<HTMLElement | null>, slot: string | n
  *
  * Everything is read from the DOM of the example, so it cannot drift from the component.
  */
-export function SlotsInspector(props: SlotsInspectorProps): React.ReactNode {
+function LiveSlotsInspector(props: SlotsInspectorProps): React.ReactNode {
 
   // ----
   // Props Deconstruct
@@ -476,6 +478,25 @@ export function SlotsInspector(props: SlotsInspectorProps): React.ReactNode {
     </Stack>
   );
 
+}
+
+LiveSlotsInspector.displayName = 'LiveSlotsInspector';
+
+
+/**
+ * On screen the live inspector. In text the table of the parts, the same rows, and the rows are
+ * handed to the text build as data.
+ */
+export function SlotsInspector(props: SlotsInspectorProps): React.ReactNode {
+  const { collector, mode } = useDocsTarget();
+
+  if (mode === 'text') {
+    /* Text mode renders once, on the server, to collect: nothing here runs on screen */
+    collector?.slots.push(...props.rows);
+    return <SlotsTable rows={props.rows} />;
+  }
+
+  return <LiveSlotsInspector {...props} />;
 }
 
 SlotsInspector.displayName = 'SlotsInspector';

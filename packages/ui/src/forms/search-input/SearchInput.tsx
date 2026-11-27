@@ -25,10 +25,7 @@ export interface SearchInputLabels {
 }
 
 /** The loading pair is put back as the union of `TextInput`: an `Omit` over it flattens it */
-export type SearchInputProps = Omit<
-  TextInputProps,
-  'type' | 'leading' | 'trailing' | 'value' | 'defaultValue' | 'onChange' | 'loading' | 'loadingLabel'
-> & TextInputLoadingProps & {
+export interface StrictSearchInputProps {
   /** The texts of the clear action: the package writes none */
   labels: SearchInputLabels;
 
@@ -40,7 +37,12 @@ export type SearchInputProps = Omit<
 
   /** Every change of the query: typing, the clear action, Esc */
   onValueChange?: (value: string) => void;
-};
+}
+
+export type SearchInputProps = StrictSearchInputProps & TextInputLoadingProps & Omit<
+  TextInputProps,
+  'type' | 'leading' | 'trailing' | 'value' | 'defaultValue' | 'onChange' | 'loading' | 'loadingLabel'
+>;
 
 
 /* --------

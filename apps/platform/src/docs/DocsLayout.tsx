@@ -7,6 +7,7 @@ import { ScrollArea } from '@proedis/ui/primitives';
 
 import { Pager } from './Pager';
 import { Sidebar } from './Sidebar';
+import { useDocsTarget } from './target';
 import { Toc } from './Toc';
 
 import type { NavGroup } from '@/nav';
@@ -39,11 +40,17 @@ export function DocsLayout(props: { nav: readonly NavGroup[]; children: React.Re
   // Internal Hooks
   // ----
   const { pathname } = useLocation();
+  const { mode } = useDocsTarget();
 
 
   // ----
   // Component Render
   // ----
+  /** In text the page alone: the rail, the pager and the outline are ways around a screen */
+  if (mode === 'text') {
+    return <article data-slot={'docs-page'}>{props.children}</article>;
+  }
+
   return (
     <Container size={'xl'}>
       <Split

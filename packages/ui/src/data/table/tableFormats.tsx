@@ -24,10 +24,11 @@ export interface TableFormats {
   readonly enumLabel: (value: unknown) => string;
 }
 
-export interface TableFormatsProviderProps {
+export interface StrictTableFormatsProviderProps {
   formats: TableFormats;
   children?: React.ReactNode;
 }
+export type TableFormatsProviderProps = StrictTableFormatsProviderProps;
 
 
 /* --------

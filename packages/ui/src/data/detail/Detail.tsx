@@ -69,12 +69,14 @@ export interface DetailLabels {
   retry: string;
 }
 
-export interface DetailProps extends BaseProps, Omit<React.ComponentProps<'div'>, 'ref'> {
+export interface StrictDetailProps extends BaseProps {
   /** The texts of service, once for the whole detail */
   labels: DetailLabels;
 }
+export type DetailProps = StrictDetailProps & Omit<React.ComponentProps<'div'>, keyof StrictDetailProps | 'ref'>;
 
-export interface DetailSectionProps extends BaseProps, Omit<React.ComponentProps<'div'>, 'title' | 'ref'> {
+
+export interface StrictDetailSectionProps extends BaseProps {
   /** Without it the section is the only one of its detail, named by its container */
   title?: React.ReactNode;
 
@@ -90,10 +92,14 @@ export interface DetailSectionProps extends BaseProps, Omit<React.ComponentProps
   /** Loads the section again. Without it the error has no button */
   onRetry?: () => void;
 }
+export type DetailSectionProps = StrictDetailSectionProps & Omit<React.ComponentProps<'div'>, keyof StrictDetailSectionProps | 'ref'>;
 
-export type DetailGridProps = BaseProps & Omit<React.ComponentProps<'dl'>, 'ref'>;
 
-export interface DetailItemProps extends BaseProps, Omit<React.ComponentProps<'div'>, 'children' | 'ref'> {
+export interface StrictDetailGridProps extends BaseProps {}
+
+export type DetailGridProps = StrictDetailGridProps & Omit<React.ComponentProps<'dl'>, 'ref'>;
+
+export interface StrictDetailItemProps extends BaseProps {
   /** The label above the value. Always given: with `hideLabel` it is still the accessible name */
   label: React.ReactNode;
 
@@ -126,6 +132,8 @@ export interface DetailItemProps extends BaseProps, Omit<React.ComponentProps<'d
    */
   children?: React.ReactNode;
 }
+export type DetailItemProps = StrictDetailItemProps & Omit<React.ComponentProps<'div'>, keyof StrictDetailItemProps | 'children' | 'ref'>;
+
 
 interface DetailState {
   readonly labels: DetailLabels;

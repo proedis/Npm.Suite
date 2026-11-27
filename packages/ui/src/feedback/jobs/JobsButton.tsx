@@ -50,7 +50,7 @@ export interface JobsButtonLabels {
   readonly time: (time: Date) => string;
 }
 
-export interface JobsButtonProps extends BaseProps {
+export interface StrictJobsButtonProps extends BaseProps {
   /** The icon of the button, as a node */
   icon: React.ReactNode;
   labels: JobsButtonLabels;
@@ -58,6 +58,7 @@ export interface JobsButtonProps extends BaseProps {
   /** Classes for the wrapper of the button and its badge, last so they win */
   className?: string;
 }
+export type JobsButtonProps = StrictJobsButtonProps;
 
 
 /* --------

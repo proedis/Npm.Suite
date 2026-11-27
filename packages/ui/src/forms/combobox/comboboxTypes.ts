@@ -61,7 +61,7 @@ export interface ComboboxLabels {
 }
 
 /** What the two variants share: the search and the states of a field */
-export interface ComboboxSearchProps extends BaseProps {
+export interface StrictComboboxSearchProps extends BaseProps {
   /** The results of the current search */
   items: readonly ComboboxItem[];
 
@@ -97,6 +97,8 @@ export interface ComboboxSearchProps extends BaseProps {
   /** Classes for the frame, last so they win */
   className?: string;
 }
+export type ComboboxSearchProps = StrictComboboxSearchProps;
+
 
 export interface StrictSingleComboboxProps extends ComboboxSearchProps {
   multiple?: false;
@@ -162,5 +164,7 @@ export type MultipleComboboxProps = StrictMultipleComboboxProps & Omit<
   React.ComponentProps<'button'>,
   keyof StrictMultipleComboboxProps | 'ref' | 'children' | 'value' | 'defaultValue' | 'onChange' | 'type'
 >;
+
+export type StrictComboboxProps = StrictSingleComboboxProps | StrictMultipleComboboxProps;
 
 export type ComboboxProps = SingleComboboxProps | MultipleComboboxProps;

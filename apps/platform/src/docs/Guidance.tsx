@@ -5,6 +5,8 @@ import { Check, X } from 'lucide-react';
 import { Stack } from '@proedis/ui/layout';
 import { IconBox } from '@proedis/ui/display/icon-box';
 
+import { useDocsTarget } from './target';
+
 
 /* --------
  * Types Definition
@@ -45,8 +47,24 @@ export function Guidance(props: GuidanceProps): React.ReactNode {
 
 
   // ----
+  // Internal Hooks
+  // ----
+  const { mode } = useDocsTarget();
+
+
+  // ----
   // Component Render
   // ----
+  /** In text the mark is a word in front of the rule */
+  if (mode === 'text') {
+    return (
+      <React.Fragment>
+        <p><strong>{isDo ? 'Do' : 'Avoid'}</strong>: {title}</p>
+        {children && <p>{children}</p>}
+      </React.Fragment>
+    );
+  }
+
   return (
     <Stack gap={3} className={'rounded-xl border border-border bg-card p-5'}>
       <Stack direction={'horizontal'} align={'center'} gap={2}>

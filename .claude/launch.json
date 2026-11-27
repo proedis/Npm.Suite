@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "platform",
+      "runtimeExecutable": "corepack",
+      "runtimeArgs": [ "yarn", "workspace", "@proedis/platform", "dev" ],
+      "port": 3200
+    }
+  ]
+}

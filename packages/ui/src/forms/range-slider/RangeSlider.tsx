@@ -28,7 +28,7 @@ export interface RangeSliderLabels {
   readonly end: string;
 }
 
-export interface RangeSliderProps extends Omit<CommonSliderProps, 'valueText'> {
+export interface StrictRangeSliderProps extends Omit<CommonSliderProps, 'valueText'> {
   value?: SliderRange;
   defaultValue?: SliderRange;
 
@@ -44,6 +44,7 @@ export interface RangeSliderProps extends Omit<CommonSliderProps, 'valueText'> {
   /** The names of the two thumbs, required: each is a control of its own */
   labels: RangeSliderLabels;
 }
+export type RangeSliderProps = StrictRangeSliderProps;
 
 
 /* --------

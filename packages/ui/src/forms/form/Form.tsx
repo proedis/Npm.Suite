@@ -17,7 +17,7 @@ import { FormErrorRegistryContext, FormSectionContext, useFormHostContext } from
 
 import type { BaseProps } from '../../core/base';
 
-import type { ButtonProps } from '../../actions/button/Button';
+import type { ButtonProps, StrictButtonProps } from '../../actions/button/Button';
 
 import type { FormErrorEntry, FormErrorRegistry } from '../field/fieldContext';
 
@@ -45,15 +45,19 @@ export interface StrictFormProps extends BaseProps {
 export type FormProps = StrictFormProps & Omit<React.ComponentProps<'form'>, keyof StrictFormProps | 'noValidate' | 'ref'>;
 
 /** The submit button of a form, wherever it sits: `loadingLabel` is required, since any submit may spin */
-export type FormSubmitProps = Omit<ButtonProps, 'type' | 'loading' | 'loadingLabel'> & {
+export interface StrictFormSubmitProps {
   /** Spins without the form saying so: a submit that is not the form's own */
   loading?: boolean;
 
   /** What the spinner says while the form is sent: "Saving" */
   loadingLabel: string;
-};
+}
+
+export type FormSubmitProps = StrictFormSubmitProps & Omit<ButtonProps, 'type' | 'loading' | 'loadingLabel'>;
 
 /** The way out of a form: through the overlay's gate in a dialog or a drawer, a reset in a page */
+export type StrictFormCancelProps = StrictButtonProps;
+
 export type FormCancelProps = Omit<ButtonProps, 'type'>;
 
 export interface StrictFormHeaderProps extends BaseProps {

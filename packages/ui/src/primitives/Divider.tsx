@@ -23,7 +23,7 @@ export type DividerLineWidth = 1 | 2 | 4;
 
 export type DividerLineStyle = 'solid' | 'dashed' | 'dotted' | 'double';
 
-export interface DividerProps extends Omit<React.ComponentProps<'div'>, 'children'>, BaseProps {
+export interface StrictDividerProps extends BaseProps {
   /** A caption between two rules. Horizontal only: “oppure”, “or”, a section name */
   label?: React.ReactNode;
 
@@ -45,6 +45,7 @@ export interface DividerProps extends Omit<React.ComponentProps<'div'>, 'childre
    */
   spacing?: Responsive<Spacing>;
 }
+export type DividerProps = StrictDividerProps & Omit<React.ComponentProps<'div'>, keyof StrictDividerProps | 'children'>;
 
 
 /* --------

@@ -54,7 +54,7 @@ export type AvatarIdentity =
   /** The reference is there but the person cannot be read: deleted, of another tenant, not visible */
   | { kind: 'unknown'; name: string };
 
-export type AvatarProps = AvatarIdentity & BaseProps & {
+export type StrictAvatarProps = AvatarIdentity & BaseProps & {
   /** Defaults to 24 */
   size?: AvatarSize;
 
@@ -75,6 +75,9 @@ export type AvatarProps = AvatarIdentity & BaseProps & {
 
   className?: string;
 };
+
+/** An avatar extends nothing: the two names are one type, kept so every component reads the same way */
+export type AvatarProps = StrictAvatarProps;
 
 export interface StrictPersonProps extends BaseProps {
   /** The circle; decorative here */

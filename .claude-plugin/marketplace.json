@@ -1,0 +1,18 @@
+{
+  "name": "proedis",
+  "owner": {
+    "name": "Proedis S.r.l.",
+    "url": "https://proedis.net"
+  },
+  "metadata": {
+    "description": "Claude Code plugins for the Proedis frontend packages"
+  },
+  "plugins": [
+    {
+      "name": "proedis-ui",
+      "source": "./plugins/proedis-ui",
+      "description": "Proedis UI for your coding agent: the documentation over MCP (@proedis/mcp) and three skills, layout, forms and theming",
+      "category": "development"
+    }
+  ]
+}

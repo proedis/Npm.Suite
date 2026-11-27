@@ -17,7 +17,7 @@ export type TooltipSide = 'top' | 'right' | 'bottom' | 'left';
 
 export type TooltipAlign = 'center' | 'start';
 
-export interface TooltipProps {
+export interface StrictTooltipProps {
   /**
    * The first line, or a list of values one per line. Empty, nothing is rendered and the control
    * stands alone: a tooltip with no content is an empty box on hover.
@@ -61,8 +61,10 @@ export interface TooltipProps {
 
   className?: string;
 }
+export type TooltipProps = StrictTooltipProps;
 
-export interface TooltipProviderProps {
+
+export interface StrictTooltipProviderProps {
   /** How long the pointer rests before the first tooltip opens. Defaults to 400ms */
   delay?: number;
 
@@ -75,6 +77,7 @@ export interface TooltipProviderProps {
 
   children?: React.ReactNode;
 }
+export type TooltipProviderProps = StrictTooltipProviderProps;
 
 
 /* --------

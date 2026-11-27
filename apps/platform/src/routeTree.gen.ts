@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as UiRouteRouteImport } from './routes/ui/route'
 import { Route as PreviewSplatRouteImport } from './routes/preview/$'
 import { Route as UiIndexRouteImport } from './routes/ui/index'
+import { Route as UiAiRouteImport } from './routes/ui/ai'
 import { Route as UiActionsAccordionRouteImport } from './routes/ui/actions/accordion'
 import { Route as UiActionsButtonRouteImport } from './routes/ui/actions/button'
 import { Route as UiActionsCopyButtonRouteImport } from './routes/ui/actions/copy-button'
@@ -80,6 +81,7 @@ import { Route as UiLayoutCenterRouteImport } from './routes/ui/layout/center'
 import { Route as UiLayoutClusterRouteImport } from './routes/ui/layout/cluster'
 import { Route as UiLayoutContainerRouteImport } from './routes/ui/layout/container'
 import { Route as UiLayoutGridRouteImport } from './routes/ui/layout/grid'
+import { Route as UiLayoutOverviewRouteImport } from './routes/ui/layout/overview'
 import { Route as UiLayoutSafeAreaRouteImport } from './routes/ui/layout/safe-area'
 import { Route as UiLayoutSpacerRouteImport } from './routes/ui/layout/spacer'
 import { Route as UiLayoutSplitRouteImport } from './routes/ui/layout/split'
@@ -89,6 +91,11 @@ import { Route as UiOverlaysAlertDialogRouteImport } from './routes/ui/overlays/
 import { Route as UiOverlaysDialogRouteImport } from './routes/ui/overlays/dialog'
 import { Route as UiOverlaysDrawerRouteImport } from './routes/ui/overlays/drawer'
 import { Route as UiOverlaysPopoverRouteImport } from './routes/ui/overlays/popover'
+import { Route as UiPatternsDetailRouteImport } from './routes/ui/patterns/detail'
+import { Route as UiPatternsEmptyAndLoadingRouteImport } from './routes/ui/patterns/empty-and-loading'
+import { Route as UiPatternsFormInDrawerRouteImport } from './routes/ui/patterns/form-in-drawer'
+import { Route as UiPatternsListRouteImport } from './routes/ui/patterns/list'
+import { Route as UiPatternsPageRouteImport } from './routes/ui/patterns/page'
 import { Route as UiPrimitivesBusyVeilRouteImport } from './routes/ui/primitives/busy-veil'
 import { Route as UiPrimitivesDividerRouteImport } from './routes/ui/primitives/divider'
 import { Route as UiPrimitivesLabelRouteImport } from './routes/ui/primitives/label'
@@ -116,6 +123,11 @@ const PreviewSplatRoute = PreviewSplatRouteImport.update({
 const UiIndexRoute = UiIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => UiRouteRoute,
+} as any)
+const UiAiRoute = UiAiRouteImport.update({
+  id: '/ai',
+  path: '/ai',
   getParentRoute: () => UiRouteRoute,
 } as any)
 const UiActionsAccordionRoute = UiActionsAccordionRouteImport.update({
@@ -457,6 +469,11 @@ const UiLayoutGridRoute = UiLayoutGridRouteImport.update({
   path: '/layout/grid',
   getParentRoute: () => UiRouteRoute,
 } as any)
+const UiLayoutOverviewRoute = UiLayoutOverviewRouteImport.update({
+  id: '/layout/overview',
+  path: '/layout/overview',
+  getParentRoute: () => UiRouteRoute,
+} as any)
 const UiLayoutSafeAreaRoute = UiLayoutSafeAreaRouteImport.update({
   id: '/layout/safe-area',
   path: '/layout/safe-area',
@@ -500,6 +517,32 @@ const UiOverlaysDrawerRoute = UiOverlaysDrawerRouteImport.update({
 const UiOverlaysPopoverRoute = UiOverlaysPopoverRouteImport.update({
   id: '/overlays/popover',
   path: '/overlays/popover',
+  getParentRoute: () => UiRouteRoute,
+} as any)
+const UiPatternsDetailRoute = UiPatternsDetailRouteImport.update({
+  id: '/patterns/detail',
+  path: '/patterns/detail',
+  getParentRoute: () => UiRouteRoute,
+} as any)
+const UiPatternsEmptyAndLoadingRoute =
+  UiPatternsEmptyAndLoadingRouteImport.update({
+    id: '/patterns/empty-and-loading',
+    path: '/patterns/empty-and-loading',
+    getParentRoute: () => UiRouteRoute,
+  } as any)
+const UiPatternsFormInDrawerRoute = UiPatternsFormInDrawerRouteImport.update({
+  id: '/patterns/form-in-drawer',
+  path: '/patterns/form-in-drawer',
+  getParentRoute: () => UiRouteRoute,
+} as any)
+const UiPatternsListRoute = UiPatternsListRouteImport.update({
+  id: '/patterns/list',
+  path: '/patterns/list',
+  getParentRoute: () => UiRouteRoute,
+} as any)
+const UiPatternsPageRoute = UiPatternsPageRouteImport.update({
+  id: '/patterns/page',
+  path: '/patterns/page',
   getParentRoute: () => UiRouteRoute,
 } as any)
 const UiPrimitivesBusyVeilRoute = UiPrimitivesBusyVeilRouteImport.update({
@@ -548,6 +591,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ui': typeof UiRouteRouteWithChildren
   '/preview/$': typeof PreviewSplatRoute
+  '/ui/ai': typeof UiAiRoute
   '/ui/': typeof UiIndexRoute
   '/ui/actions/accordion': typeof UiActionsAccordionRoute
   '/ui/actions/button': typeof UiActionsButtonRoute
@@ -616,6 +660,7 @@ export interface FileRoutesByFullPath {
   '/ui/layout/cluster': typeof UiLayoutClusterRoute
   '/ui/layout/container': typeof UiLayoutContainerRoute
   '/ui/layout/grid': typeof UiLayoutGridRoute
+  '/ui/layout/overview': typeof UiLayoutOverviewRoute
   '/ui/layout/safe-area': typeof UiLayoutSafeAreaRoute
   '/ui/layout/spacer': typeof UiLayoutSpacerRoute
   '/ui/layout/split': typeof UiLayoutSplitRoute
@@ -625,6 +670,11 @@ export interface FileRoutesByFullPath {
   '/ui/overlays/dialog': typeof UiOverlaysDialogRoute
   '/ui/overlays/drawer': typeof UiOverlaysDrawerRoute
   '/ui/overlays/popover': typeof UiOverlaysPopoverRoute
+  '/ui/patterns/detail': typeof UiPatternsDetailRoute
+  '/ui/patterns/empty-and-loading': typeof UiPatternsEmptyAndLoadingRoute
+  '/ui/patterns/form-in-drawer': typeof UiPatternsFormInDrawerRoute
+  '/ui/patterns/list': typeof UiPatternsListRoute
+  '/ui/patterns/page': typeof UiPatternsPageRoute
   '/ui/primitives/busy-veil': typeof UiPrimitivesBusyVeilRoute
   '/ui/primitives/divider': typeof UiPrimitivesDividerRoute
   '/ui/primitives/label': typeof UiPrimitivesLabelRoute
@@ -637,6 +687,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/preview/$': typeof PreviewSplatRoute
+  '/ui/ai': typeof UiAiRoute
   '/ui': typeof UiIndexRoute
   '/ui/actions/accordion': typeof UiActionsAccordionRoute
   '/ui/actions/button': typeof UiActionsButtonRoute
@@ -705,6 +756,7 @@ export interface FileRoutesByTo {
   '/ui/layout/cluster': typeof UiLayoutClusterRoute
   '/ui/layout/container': typeof UiLayoutContainerRoute
   '/ui/layout/grid': typeof UiLayoutGridRoute
+  '/ui/layout/overview': typeof UiLayoutOverviewRoute
   '/ui/layout/safe-area': typeof UiLayoutSafeAreaRoute
   '/ui/layout/spacer': typeof UiLayoutSpacerRoute
   '/ui/layout/split': typeof UiLayoutSplitRoute
@@ -714,6 +766,11 @@ export interface FileRoutesByTo {
   '/ui/overlays/dialog': typeof UiOverlaysDialogRoute
   '/ui/overlays/drawer': typeof UiOverlaysDrawerRoute
   '/ui/overlays/popover': typeof UiOverlaysPopoverRoute
+  '/ui/patterns/detail': typeof UiPatternsDetailRoute
+  '/ui/patterns/empty-and-loading': typeof UiPatternsEmptyAndLoadingRoute
+  '/ui/patterns/form-in-drawer': typeof UiPatternsFormInDrawerRoute
+  '/ui/patterns/list': typeof UiPatternsListRoute
+  '/ui/patterns/page': typeof UiPatternsPageRoute
   '/ui/primitives/busy-veil': typeof UiPrimitivesBusyVeilRoute
   '/ui/primitives/divider': typeof UiPrimitivesDividerRoute
   '/ui/primitives/label': typeof UiPrimitivesLabelRoute
@@ -728,6 +785,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/ui': typeof UiRouteRouteWithChildren
   '/preview/$': typeof PreviewSplatRoute
+  '/ui/ai': typeof UiAiRoute
   '/ui/': typeof UiIndexRoute
   '/ui/actions/accordion': typeof UiActionsAccordionRoute
   '/ui/actions/button': typeof UiActionsButtonRoute
@@ -796,6 +854,7 @@ export interface FileRoutesById {
   '/ui/layout/cluster': typeof UiLayoutClusterRoute
   '/ui/layout/container': typeof UiLayoutContainerRoute
   '/ui/layout/grid': typeof UiLayoutGridRoute
+  '/ui/layout/overview': typeof UiLayoutOverviewRoute
   '/ui/layout/safe-area': typeof UiLayoutSafeAreaRoute
   '/ui/layout/spacer': typeof UiLayoutSpacerRoute
   '/ui/layout/split': typeof UiLayoutSplitRoute
@@ -805,6 +864,11 @@ export interface FileRoutesById {
   '/ui/overlays/dialog': typeof UiOverlaysDialogRoute
   '/ui/overlays/drawer': typeof UiOverlaysDrawerRoute
   '/ui/overlays/popover': typeof UiOverlaysPopoverRoute
+  '/ui/patterns/detail': typeof UiPatternsDetailRoute
+  '/ui/patterns/empty-and-loading': typeof UiPatternsEmptyAndLoadingRoute
+  '/ui/patterns/form-in-drawer': typeof UiPatternsFormInDrawerRoute
+  '/ui/patterns/list': typeof UiPatternsListRoute
+  '/ui/patterns/page': typeof UiPatternsPageRoute
   '/ui/primitives/busy-veil': typeof UiPrimitivesBusyVeilRoute
   '/ui/primitives/divider': typeof UiPrimitivesDividerRoute
   '/ui/primitives/label': typeof UiPrimitivesLabelRoute
@@ -820,6 +884,7 @@ export interface FileRouteTypes {
     | '/'
     | '/ui'
     | '/preview/$'
+    | '/ui/ai'
     | '/ui/'
     | '/ui/actions/accordion'
     | '/ui/actions/button'
@@ -888,6 +953,7 @@ export interface FileRouteTypes {
     | '/ui/layout/cluster'
     | '/ui/layout/container'
     | '/ui/layout/grid'
+    | '/ui/layout/overview'
     | '/ui/layout/safe-area'
     | '/ui/layout/spacer'
     | '/ui/layout/split'
@@ -897,6 +963,11 @@ export interface FileRouteTypes {
     | '/ui/overlays/dialog'
     | '/ui/overlays/drawer'
     | '/ui/overlays/popover'
+    | '/ui/patterns/detail'
+    | '/ui/patterns/empty-and-loading'
+    | '/ui/patterns/form-in-drawer'
+    | '/ui/patterns/list'
+    | '/ui/patterns/page'
     | '/ui/primitives/busy-veil'
     | '/ui/primitives/divider'
     | '/ui/primitives/label'
@@ -909,6 +980,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/preview/$'
+    | '/ui/ai'
     | '/ui'
     | '/ui/actions/accordion'
     | '/ui/actions/button'
@@ -977,6 +1049,7 @@ export interface FileRouteTypes {
     | '/ui/layout/cluster'
     | '/ui/layout/container'
     | '/ui/layout/grid'
+    | '/ui/layout/overview'
     | '/ui/layout/safe-area'
     | '/ui/layout/spacer'
     | '/ui/layout/split'
@@ -986,6 +1059,11 @@ export interface FileRouteTypes {
     | '/ui/overlays/dialog'
     | '/ui/overlays/drawer'
     | '/ui/overlays/popover'
+    | '/ui/patterns/detail'
+    | '/ui/patterns/empty-and-loading'
+    | '/ui/patterns/form-in-drawer'
+    | '/ui/patterns/list'
+    | '/ui/patterns/page'
     | '/ui/primitives/busy-veil'
     | '/ui/primitives/divider'
     | '/ui/primitives/label'
@@ -999,6 +1077,7 @@ export interface FileRouteTypes {
     | '/'
     | '/ui'
     | '/preview/$'
+    | '/ui/ai'
     | '/ui/'
     | '/ui/actions/accordion'
     | '/ui/actions/button'
@@ -1067,6 +1146,7 @@ export interface FileRouteTypes {
     | '/ui/layout/cluster'
     | '/ui/layout/container'
     | '/ui/layout/grid'
+    | '/ui/layout/overview'
     | '/ui/layout/safe-area'
     | '/ui/layout/spacer'
     | '/ui/layout/split'
@@ -1076,6 +1156,11 @@ export interface FileRouteTypes {
     | '/ui/overlays/dialog'
     | '/ui/overlays/drawer'
     | '/ui/overlays/popover'
+    | '/ui/patterns/detail'
+    | '/ui/patterns/empty-and-loading'
+    | '/ui/patterns/form-in-drawer'
+    | '/ui/patterns/list'
+    | '/ui/patterns/page'
     | '/ui/primitives/busy-veil'
     | '/ui/primitives/divider'
     | '/ui/primitives/label'
@@ -1120,6 +1205,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/ui/'
       preLoaderRoute: typeof UiIndexRouteImport
+      parentRoute: typeof UiRouteRoute
+    }
+    '/ui/ai': {
+      id: '/ui/ai'
+      path: '/ai'
+      fullPath: '/ui/ai'
+      preLoaderRoute: typeof UiAiRouteImport
       parentRoute: typeof UiRouteRoute
     }
     '/ui/actions/accordion': {
@@ -1591,6 +1683,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UiLayoutGridRouteImport
       parentRoute: typeof UiRouteRoute
     }
+    '/ui/layout/overview': {
+      id: '/ui/layout/overview'
+      path: '/layout/overview'
+      fullPath: '/ui/layout/overview'
+      preLoaderRoute: typeof UiLayoutOverviewRouteImport
+      parentRoute: typeof UiRouteRoute
+    }
     '/ui/layout/safe-area': {
       id: '/ui/layout/safe-area'
       path: '/layout/safe-area'
@@ -1654,6 +1753,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UiOverlaysPopoverRouteImport
       parentRoute: typeof UiRouteRoute
     }
+    '/ui/patterns/detail': {
+      id: '/ui/patterns/detail'
+      path: '/patterns/detail'
+      fullPath: '/ui/patterns/detail'
+      preLoaderRoute: typeof UiPatternsDetailRouteImport
+      parentRoute: typeof UiRouteRoute
+    }
+    '/ui/patterns/empty-and-loading': {
+      id: '/ui/patterns/empty-and-loading'
+      path: '/patterns/empty-and-loading'
+      fullPath: '/ui/patterns/empty-and-loading'
+      preLoaderRoute: typeof UiPatternsEmptyAndLoadingRouteImport
+      parentRoute: typeof UiRouteRoute
+    }
+    '/ui/patterns/form-in-drawer': {
+      id: '/ui/patterns/form-in-drawer'
+      path: '/patterns/form-in-drawer'
+      fullPath: '/ui/patterns/form-in-drawer'
+      preLoaderRoute: typeof UiPatternsFormInDrawerRouteImport
+      parentRoute: typeof UiRouteRoute
+    }
+    '/ui/patterns/list': {
+      id: '/ui/patterns/list'
+      path: '/patterns/list'
+      fullPath: '/ui/patterns/list'
+      preLoaderRoute: typeof UiPatternsListRouteImport
+      parentRoute: typeof UiRouteRoute
+    }
+    '/ui/patterns/page': {
+      id: '/ui/patterns/page'
+      path: '/patterns/page'
+      fullPath: '/ui/patterns/page'
+      preLoaderRoute: typeof UiPatternsPageRouteImport
+      parentRoute: typeof UiRouteRoute
+    }
     '/ui/primitives/busy-veil': {
       id: '/ui/primitives/busy-veil'
       path: '/primitives/busy-veil'
@@ -1714,6 +1848,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface UiRouteRouteChildren {
+  UiAiRoute: typeof UiAiRoute
   UiIndexRoute: typeof UiIndexRoute
   UiActionsAccordionRoute: typeof UiActionsAccordionRoute
   UiActionsButtonRoute: typeof UiActionsButtonRoute
@@ -1782,6 +1917,7 @@ interface UiRouteRouteChildren {
   UiLayoutClusterRoute: typeof UiLayoutClusterRoute
   UiLayoutContainerRoute: typeof UiLayoutContainerRoute
   UiLayoutGridRoute: typeof UiLayoutGridRoute
+  UiLayoutOverviewRoute: typeof UiLayoutOverviewRoute
   UiLayoutSafeAreaRoute: typeof UiLayoutSafeAreaRoute
   UiLayoutSpacerRoute: typeof UiLayoutSpacerRoute
   UiLayoutSplitRoute: typeof UiLayoutSplitRoute
@@ -1791,6 +1927,11 @@ interface UiRouteRouteChildren {
   UiOverlaysDialogRoute: typeof UiOverlaysDialogRoute
   UiOverlaysDrawerRoute: typeof UiOverlaysDrawerRoute
   UiOverlaysPopoverRoute: typeof UiOverlaysPopoverRoute
+  UiPatternsDetailRoute: typeof UiPatternsDetailRoute
+  UiPatternsEmptyAndLoadingRoute: typeof UiPatternsEmptyAndLoadingRoute
+  UiPatternsFormInDrawerRoute: typeof UiPatternsFormInDrawerRoute
+  UiPatternsListRoute: typeof UiPatternsListRoute
+  UiPatternsPageRoute: typeof UiPatternsPageRoute
   UiPrimitivesBusyVeilRoute: typeof UiPrimitivesBusyVeilRoute
   UiPrimitivesDividerRoute: typeof UiPrimitivesDividerRoute
   UiPrimitivesLabelRoute: typeof UiPrimitivesLabelRoute
@@ -1802,6 +1943,7 @@ interface UiRouteRouteChildren {
 }
 
 const UiRouteRouteChildren: UiRouteRouteChildren = {
+  UiAiRoute: UiAiRoute,
   UiIndexRoute: UiIndexRoute,
   UiActionsAccordionRoute: UiActionsAccordionRoute,
   UiActionsButtonRoute: UiActionsButtonRoute,
@@ -1870,6 +2012,7 @@ const UiRouteRouteChildren: UiRouteRouteChildren = {
   UiLayoutClusterRoute: UiLayoutClusterRoute,
   UiLayoutContainerRoute: UiLayoutContainerRoute,
   UiLayoutGridRoute: UiLayoutGridRoute,
+  UiLayoutOverviewRoute: UiLayoutOverviewRoute,
   UiLayoutSafeAreaRoute: UiLayoutSafeAreaRoute,
   UiLayoutSpacerRoute: UiLayoutSpacerRoute,
   UiLayoutSplitRoute: UiLayoutSplitRoute,
@@ -1879,6 +2022,11 @@ const UiRouteRouteChildren: UiRouteRouteChildren = {
   UiOverlaysDialogRoute: UiOverlaysDialogRoute,
   UiOverlaysDrawerRoute: UiOverlaysDrawerRoute,
   UiOverlaysPopoverRoute: UiOverlaysPopoverRoute,
+  UiPatternsDetailRoute: UiPatternsDetailRoute,
+  UiPatternsEmptyAndLoadingRoute: UiPatternsEmptyAndLoadingRoute,
+  UiPatternsFormInDrawerRoute: UiPatternsFormInDrawerRoute,
+  UiPatternsListRoute: UiPatternsListRoute,
+  UiPatternsPageRoute: UiPatternsPageRoute,
   UiPrimitivesBusyVeilRoute: UiPrimitivesBusyVeilRoute,
   UiPrimitivesDividerRoute: UiPrimitivesDividerRoute,
   UiPrimitivesLabelRoute: UiPrimitivesLabelRoute,
