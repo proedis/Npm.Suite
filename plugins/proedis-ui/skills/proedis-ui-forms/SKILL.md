@@ -21,12 +21,16 @@ Written for `@proedis/ui` 2 and `@proedis/form` 1. Six pieces, each built on the
 ## A record form, bound to a schema
 
 ```bash
-yarn add @proedis/form @proedis/ui react-hook-form @hookform/resolvers zod
+yarn add @proedis/form @proedis/ui @base-ui/react react-hook-form @hookform/resolvers zod
 ```
 
+`@proedis/zod` comes with `@proedis/form` (a dependency of it): import its helpers without adding it.
+
 1. **Write the schema once, with the label in `.describe()`.** Requiredness, bounds and messages live next to the
-   rules that check them. `nullableString` and `nullableNumber` from `@proedis/zod` edit a string or a number and
-   submit `null` when the field is left empty.
+   rules that check them. `nullableString(refine?)` and `nullableNumber(refine?)` from `@proedis/zod` edit a string
+   or a number and submit `null` when the field is left empty; the optional `refine` receives the inner schema and
+   returns it with its rules, `nullableString((text) => text.max(120, 'At most 120 characters'))`, and those bounds
+   still reach the field (its counter, its limits).
 2. **`useSchemaForm(schema, options)`** is `useForm` with the schema as its resolver; every option but `resolver`
    passes through. Put every text in `defaultValues`, empty strings included; a number, a choice or a date may be left
    out.

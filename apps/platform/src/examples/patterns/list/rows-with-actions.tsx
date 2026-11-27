@@ -48,10 +48,12 @@ export default function Example(): React.ReactNode {
               <Item.Actions>
                 <Badge dot tone={vehicle.tone}>{vehicle.status}</Badge>
                 <Menu aria-label={`Actions on ${vehicle.plate}`} trigger={<IconButton label={'Actions'} icon={<Ellipsis />} />}>
-                  <Menu.Item icon={<Pencil />}>Edit</Menu.Item>
-                  <Menu.Item icon={<Copy />}>Duplicate</Menu.Item>
+                  <Menu.Item icon={<Pencil />} onSelect={() => window.console.info('Edit', vehicle.plate)}>Edit</Menu.Item>
+                  <Menu.Item icon={<Copy />} onSelect={() => window.console.info('Duplicate', vehicle.plate)}>Duplicate</Menu.Item>
                   <Menu.Separator />
-                  <Menu.Item icon={<Trash2 />} tone={'destructive'}>Retire the vehicle</Menu.Item>
+                  <Menu.Item icon={<Trash2 />} tone={'destructive'} onSelect={() => window.console.info('Retire', vehicle.plate)}>
+                    Retire the vehicle
+                  </Menu.Item>
                 </Menu>
               </Item.Actions>
             </Item>

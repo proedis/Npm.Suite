@@ -53,6 +53,12 @@ function ListPatternPage(): React.ReactNode {
               <InlineCode>Item.Actions</InlineCode>. A long model truncates; the actions never leave the row.
             </p>
             <p>
+              Each item runs its action with <InlineCode>onSelect</InlineCode>, called once the menu has closed, so a
+              dialog it opens finds the focus back on the row&apos;s control. The action to add a record sits in the
+              card&apos;s header when the list is one card among others; when the list is what the page is about, it moves
+              to the header of the page, as in <Link to={'/ui/patterns/page'} className={LINK}>A page</Link>.
+            </p>
+            <p>
               The menu names the record it acts on (<InlineCode>Actions on FT-234-KL</InlineCode>), so a screen reader
               hears which of three identical buttons it is on. Its trigger is an <InlineCode>IconButton</InlineCode>, which
               shows the same name as a tooltip.
