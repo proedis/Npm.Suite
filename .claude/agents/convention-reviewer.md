@@ -47,6 +47,8 @@ to code that otherwise compiles:
 
 - the order of sections in `@proedis/ui` (an import against it), a hand-written `flex`, `grid` or
   `gap-*` instead of a layout primitive, a control height outside `internal/control.ts`;
+- a public `<Name>Props` of `@proedis/ui` without its `Strict<Name>Props`, or a Strict type that holds
+  props the component only forwards;
 - a user-facing string inside a component, even a default `aria-label`;
 - an icon-only control without its name as a tooltip; a native `<button>` where a `Button` could be
   the element;

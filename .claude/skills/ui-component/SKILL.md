@@ -23,7 +23,8 @@ Before the first line:
 
 The "invariants above" this recipe refers to are the ones in `packages/ui/CLAUDE.md`.
 
-The shape is the same in all of them, and every step of it is load-bearing. In order:
+The steps below are the shape of the static tier (layout, primitives, display), and every one of them is
+load-bearing. A component on Base UI follows *A component with behaviour* further down. In order:
 
 1. **Declare what the component owns, then compose the element onto it.**
    ```ts
@@ -34,10 +35,12 @@ The shape is the same in all of them, and every step of it is load-bearing. In o
    Two names, and the second one carries the default type argument so `ThingProps` keeps working with
    no argument. Do **not** put `as` in the own props: it is `PolymorphicProps`' job now.
 
-   A component that owns its internal structure and has no `as` — `AspectRatio`, `Divider`,
-   `LabeledContent` — declares `React.ComponentProps<'div'>` directly and is right to, because then
-   the type is not a claim about an element it might not render. `Omit<…, 'children'>` when it owns
-   its children too, as `Divider` does. And a component for which the shared props are contradictory
+   A component that owns its internal structure and has no `as` — `AspectRatio`, `Divider` — forwards
+   `React.ComponentProps<'div'>` directly and is right to, because then the type is not a claim about an
+   element it might not render: `DividerProps = StrictDividerProps & Omit<React.ComponentProps<'div'>,
+   keyof StrictDividerProps | 'children'>`, the `Omit` of `children` when it owns them. Whatever the
+   shape, the pair `Strict<Name>Props` and `<Name>Props` is always there: the build fails without it (see
+   the invariant in `packages/ui/CLAUDE.md` for every case). And a component for which the shared props are contradictory
    skips `BaseProps`: so far only `VisuallyHidden`.
 
 2. **Sign it generic, and cast once at the destructure.**
@@ -133,6 +136,45 @@ starts compiling, `tsc` fails on the unused directive, which is what makes a wid
 instead of silent. Add a pair of cases there for any new prop whose type is the point: one that must
 compile, one that must not. And check that the negative one **does** fail before believing it, by
 making it valid for a moment: a type test that cannot fail is worth nothing.
+
+## A component with behaviour
+
+Everything from `actions` on runs on Base UI. The model to read before writing one is `Toggle`
+(`actions/toggle/Toggle.tsx`), small and complete; for a control of a form, `TextInput`. In order:
+
+1. **`'use client'` on the first line**, and the primitive from its own subpath
+   (`import { Toggle as TogglePrimitive } from '@base-ui/react/toggle'`): `@base-ui/react` is an optional
+   peer, and this subpath is the only one that brings it.
+2. **The props, in their pair.** `StrictXProps extends BaseProps` with the own props and their JSDoc
+   (defaults in a ``Defaults to `x` `` sentence, which the documentation reads). Two props that only make
+   sense together are a fragment, a union: `ToggleNameProps` makes `aria-label` required when there is no
+   visible text, `ButtonLoadingProps` makes `loadingLabel` required with `loading`. Then
+   `XProps = StrictXProps & XNameProps & Omit<Primitive.Props, keyof StrictXProps | …>`. Each fragment gets a
+   pair of cases in `types.check.tsx`, one that compiles and one that must not.
+3. **The ref is a prop**, spread with the rest onto the primitive: on React 19 a component that spreads
+   its props forwards the ref with them. The `forwardRef` of the existing components predates the 19
+   floor and is not rewritten for its own sake; new code does not add one.
+4. **Destructure, then `splitBaseProps(others)`.** A group above the component (a `ToggleGroup`, a
+   `Field`, an overlay) reaches it through a context made with `optionalContextBuilder` of
+   `@proedis/react`, `null` or a default outside it: never `React.createContext`, and a group's value wins
+   over the prop only where the group owns the decision (`size ?? group?.size ?? 'md'`).
+5. **Render the primitive with a layout primitive as its element**: `render={<Stack as={'button'} inline
+   direction={'horizontal'} align={'center'} gap={0} />}`. Its `data-slot` is the component's (`toggle`),
+   every resolved variant and state is a `data-*` (`data-size={resolvedSize}`, a boolean as
+   `data-pending={isPending || undefined}`), and the classes go `cn(own…, baseClasses, className)`.
+6. **Inside, every container is a `Stack`, `Cluster` or `Grid` with a `data-slot` of its own**
+   (`toggle-content`, `toggle-leading`); a height comes from `CONTROL_HEIGHT`, never an `h-control-*`
+   written here; an icon-only state renders its name in a `Tooltip`, as `Toggle` does when it holds only
+   an icon.
+7. **A compound attaches its parts** as properties of the root (`Surface.Header = SurfaceHeader`), each
+   with a dotted `displayName` (`'Surface.Header'`) and its own pair of props types.
+8. **A control of a form** reads its field with `useFieldControl` (required, invalid, disabled, status,
+   the label's id), draws its frame with `FieldShell`, marks the element that takes the focus with
+   `data-field-control`, and declares its binding with `bindable` in the same commit (see *Outside the
+   source*).
+
+Every label it shows or announces is a prop (`labels`, `loadingLabel`, `aria-label`), and the section's rule
+in `.claude/rules/ui/` is read before step 1.
 
 ## Outside the source
 
