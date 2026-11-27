@@ -1873,14 +1873,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@proedis/form@npm:^1.0.0, @proedis/form@workspace:*, @proedis/form@workspace:packages/form":
+"@proedis/form@npm:^1.0.1, @proedis/form@workspace:*, @proedis/form@workspace:packages/form":
   version: 0.0.0-use.local
   resolution: "@proedis/form@workspace:packages/form"
   dependencies:
     "@hookform/resolvers": "npm:7.0.5"
     "@proedis/react": "npm:^2.2.0"
     "@proedis/tsconfig": "npm:^2.1.0"
-    "@proedis/ui": "npm:^2.0.0"
+    "@proedis/ui": "npm:^2.0.1"
     "@proedis/zod": "npm:^0.2.0"
     react-hook-form: "npm:7.91.0"
     rollup: "npm:^4.62.4"
@@ -1901,9 +1901,9 @@ __metadata:
   resolution: "@proedis/mcp@workspace:packages/mcp"
   dependencies:
     "@modelcontextprotocol/server": "npm:^2.4.0"
-    "@proedis/form": "npm:^1.0.0"
+    "@proedis/form": "npm:^1.0.1"
     "@proedis/tsconfig": "npm:^2.1.0"
-    "@proedis/ui": "npm:^2.0.0"
+    "@proedis/ui": "npm:^2.0.1"
     "@types/node": "npm:26.6.6"
     rollup: "npm:^4.62.4"
     zod: "npm:^4.2.0"
@@ -2055,7 +2055,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@proedis/ui@npm:^2.0.0, @proedis/ui@workspace:*, @proedis/ui@workspace:packages/ui":
+"@proedis/ui@npm:^2.0.1, @proedis/ui@workspace:*, @proedis/ui@workspace:packages/ui":
   version: 0.0.0-use.local
   resolution: "@proedis/ui@workspace:packages/ui"
   dependencies:

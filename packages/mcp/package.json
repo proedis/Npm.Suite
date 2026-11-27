@@ -22,9 +22,9 @@
     "zod": "^4.2.0"
   },
   "devDependencies": {
-    "@proedis/form": "^1.0.0",
+    "@proedis/form": "^1.0.1",
     "@proedis/tsconfig": "^2.1.0",
-    "@proedis/ui": "^2.0.0",
+    "@proedis/ui": "^2.0.1",
     "@types/node": "26.6.6",
     "rollup": "^4.62.4"
   },
