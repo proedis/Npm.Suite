@@ -13,7 +13,7 @@
   "license": "MIT",
   "main": "src/index.ts",
   "scripts": {
-    "build": "rollup --config ../../rollup.config.mjs && cpy 'src/**/*.css' build/esm && cpy 'src/**/*.css' build/cjs"
+    "build": "rollup --config ../../rollup.config.mjs && cpy 'src/**/*.css' build/esm && cpy 'src/**/*.css' build/cjs && node scripts/strict-props.mjs"
   },
   "dependencies": {
     "@proedis/react": "^2.2.0",

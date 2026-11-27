@@ -68,10 +68,7 @@ export type PasswordInputChecklistProps =
   | { rules: readonly PasswordRule[]; labels: PasswordInputLabels & PasswordChecklistLabels };
 
 /** The loading pair is put back as the union of `TextInput`: an `Omit` over it flattens it */
-export type PasswordInputProps = Omit<
-  TextInputProps,
-  'type' | 'trailing' | 'autoComplete' | 'loading' | 'loadingLabel' | 'labels'
-> & TextInputLoadingProps & PasswordInputChecklistProps & {
+export interface StrictPasswordInputProps {
   /**
    * Required, and only the two that mean something here: a password manager fills a sign-in field
    * and offers to generate a new one, and it can only tell which is which from this.
@@ -80,7 +77,12 @@ export type PasswordInputProps = Omit<
 
   /** The meter under the field. None by default */
   strength?: PasswordStrength;
-};
+}
+
+export type PasswordInputProps = StrictPasswordInputProps & TextInputLoadingProps & PasswordInputChecklistProps & Omit<
+  TextInputProps,
+  'type' | 'trailing' | 'autoComplete' | 'loading' | 'loadingLabel' | 'labels'
+>;
 
 
 /* --------

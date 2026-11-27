@@ -35,7 +35,7 @@ import { pageAt } from '@/nav';
 const PAGE = pageAt('/ui/forms/combobox');
 
 /** The search props both variants share are documented once, on the single field */
-const MULTIPLE_OWN = multipleProps.filter((prop) => prop.from !== 'ComboboxSearchProps');
+const MULTIPLE_OWN = multipleProps.filter((prop) => prop.from !== 'StrictComboboxSearchProps');
 
 
 /* --------

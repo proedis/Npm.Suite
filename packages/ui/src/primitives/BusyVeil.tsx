@@ -11,7 +11,7 @@ import { Spinner } from './Spinner';
  * Types Definition
  * -------- */
 
-export interface BusyVeilProps {
+export interface StrictBusyVeilProps {
   /**
    * From `useDelayedBusy`. After a press of the user, `{ delay: 0 }`: the veil at once, held at least
    * 400ms, as the overlays do; the default 300ms delay is for a wait nobody asked for
@@ -23,6 +23,7 @@ export interface BusyVeilProps {
 
   className?: string;
 }
+export type BusyVeilProps = StrictBusyVeilProps;
 
 
 /* --------

@@ -25,8 +25,8 @@ import { TEXT_CONTROL_TEXT } from '../text-control/textControl';
 import type { BaseProps } from '../../core/base';
 import type { BoundValue } from '../../core/binding';
 
-import type { IconButtonProps } from '../../actions/button/IconButton';
-import type { CopyButtonProps } from '../../actions/copy-button/CopyButton';
+import type { IconButtonProps, StrictIconButtonProps } from '../../actions/button/IconButton';
+import type { CopyButtonProps, StrictCopyButtonProps } from '../../actions/copy-button/CopyButton';
 
 import type { TextControlSize } from '../text-control/textControl';
 
@@ -80,12 +80,18 @@ export type TextInputProps = StrictTextInputProps & TextInputLoadingProps & Omit
   keyof StrictTextInputProps | 'size' | 'width' | 'children' | 'ref'
 >;
 
-export type TextInputActionProps = Omit<IconButtonProps, 'size' | 'fill' | 'tone' | 'loading' | 'loadingLabel'>;
+/** An action is an `IconButton` whose size, fill and tone are the field's */
+export type StrictTextInputActionProps = StrictIconButtonProps;
+
+export type TextInputActionProps = StrictTextInputActionProps
+  & Omit<IconButtonProps, 'size' | 'fill' | 'tone' | 'loading' | 'loadingLabel'>;
 
 /** `value` is optional: without it the button copies what the field holds when it is pressed */
-export type TextInputCopyProps = Omit<CopyButtonProps, 'size' | 'fill' | 'tone' | 'value'> & {
+export type StrictTextInputCopyProps = Omit<StrictCopyButtonProps, 'value'> & {
   value?: CopyButtonProps['value'];
 };
+
+export type TextInputCopyProps = StrictTextInputCopyProps & Omit<CopyButtonProps, 'size' | 'fill' | 'tone' | 'value'>;
 
 interface TextInputState {
   readonly size: TextInputSize;

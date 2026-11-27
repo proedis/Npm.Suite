@@ -93,7 +93,9 @@ type SevereAlertProps = CommonAlertProps & {
 };
 
 /** The native props of a `<div>` reach the root; its role is the component's, from `live` and the tone */
-export type AlertProps = (MildAlertProps | SevereAlertProps) & BaseProps & Omit<
+export type StrictAlertProps = (MildAlertProps | SevereAlertProps) & BaseProps;
+
+export type AlertProps = StrictAlertProps & Omit<
   React.ComponentProps<'div'>,
   keyof CommonAlertProps | 'title' | 'role' | 'ref'
 >;

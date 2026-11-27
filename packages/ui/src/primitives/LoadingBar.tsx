@@ -17,7 +17,7 @@ export type LoadingBarLineWidth = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 /** The corner of the bar and of its segment: the theme's (`--loading-bar-radius`, square undeclared), or a step */
 export type LoadingBarRadius = 'default' | 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'full';
 
-export interface LoadingBarProps extends BaseProps {
+export interface StrictLoadingBarProps extends BaseProps {
   className?: string;
 
   /** The tone of the track and of the segment: the soft fill and the solid fill of it. Defaults to `primary` */
@@ -29,6 +29,7 @@ export interface LoadingBarProps extends BaseProps {
   /** The corner of the bar and of the segment running in it, `full` for a bar round at both ends. Defaults to `default` */
   radius?: LoadingBarRadius;
 }
+export type LoadingBarProps = StrictLoadingBarProps;
 
 
 /* --------

@@ -59,10 +59,13 @@ interface CommonPopoverProps {
 }
 
 /** A title, which brings a header, or a name for a popover without one */
-export type PopoverProps = CommonPopoverProps & (
+export type StrictPopoverProps = CommonPopoverProps & (
   | { title: React.ReactNode; 'aria-label'?: string }
   | { title?: undefined; 'aria-label': string }
 );
+
+/** A popover extends nothing: the two names are one type, kept so every component reads the same way */
+export type PopoverProps = StrictPopoverProps;
 
 
 /* --------

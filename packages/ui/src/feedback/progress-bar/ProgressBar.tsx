@@ -96,6 +96,8 @@ export type ProgressBarProps = StrictProgressBarProps
   & Omit<React.ComponentProps<'div'>, keyof ProgressBarOwnProps | 'aria-label' | 'aria-labelledby' | 'children'>;
 
 /** The same bar for a quantity in a range, which is never indeterminate */
+export type StrictMeterProps = Omit<StrictProgressBarProps, 'value' | 'indeterminateLabel'> & { value: number };
+
 export type MeterProps = Omit<ProgressBarProps, 'value' | 'indeterminateLabel'> & { value: number };
 
 type ProgressKind = 'progress-bar' | 'meter';

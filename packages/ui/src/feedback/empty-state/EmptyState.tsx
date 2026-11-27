@@ -16,7 +16,7 @@ import type { BaseProps } from '../../core/base';
 import type { PolymorphicProps } from '../../core/polymorphic';
 import type { Tone } from '../../core/tone';
 
-import type { IconBoxProps } from '../../display/icon-box/IconBox';
+import type { IconBoxProps, StrictIconBoxProps } from '../../display/icon-box/IconBox';
 
 
 /* --------
@@ -45,6 +45,9 @@ export interface StrictEmptyStateProps extends BaseProps {
 export type EmptyStateProps = StrictEmptyStateProps & Omit<React.ComponentProps<'div'>, keyof StrictEmptyStateProps>;
 
 /** The props of an IconBox but its size, which is the empty state's; its tone defaults to the empty state's */
+/** The icon of an empty state is an `IconBox` whose size is the empty state's */
+export type StrictEmptyStateIconProps = Omit<StrictIconBoxProps, 'size'>;
+
 export type EmptyStateIconProps = Omit<IconBoxProps<'span'>, 'size' | 'as'>;
 
 export interface StrictEmptyStateTitleProps extends BaseProps {
@@ -57,9 +60,13 @@ export interface StrictEmptyStateTitleProps extends BaseProps {
  */
 export type EmptyStateTitleProps<E extends React.ElementType = 'div'> = PolymorphicProps<E, StrictEmptyStateTitleProps>;
 
-export type EmptyStateDescriptionProps = BaseProps & React.ComponentProps<'p'>;
+export interface StrictEmptyStateDescriptionProps extends BaseProps {}
 
-export type EmptyStateActionsProps = BaseProps & React.ComponentProps<'div'>;
+export type EmptyStateDescriptionProps = StrictEmptyStateDescriptionProps & React.ComponentProps<'p'>;
+
+export interface StrictEmptyStateActionsProps extends BaseProps {}
+
+export type EmptyStateActionsProps = StrictEmptyStateActionsProps & React.ComponentProps<'div'>;
 
 interface EmptyStateSettings {
   readonly size: EmptyStateSize;

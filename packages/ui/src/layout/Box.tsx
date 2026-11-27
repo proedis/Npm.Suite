@@ -10,7 +10,10 @@ import type { PolymorphicProps } from '../core/polymorphic';
 /* --------
  * Types Definition
  * -------- */
-export type BoxProps<E extends React.ElementType = 'div'> = PolymorphicProps<E, BaseProps>;
+/** `Box` is the shared props and nothing else: they are all it owns */
+export interface StrictBoxProps extends BaseProps {}
+
+export type BoxProps<E extends React.ElementType = 'div'> = PolymorphicProps<E, StrictBoxProps>;
 
 
 /* --------

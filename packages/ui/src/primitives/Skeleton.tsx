@@ -20,7 +20,7 @@ export type SkeletonShape = 'text' | 'block' | 'pill' | 'field' | 'item';
 /** The text a `text` skeleton stands for, by Tailwind's size names */
 export type SkeletonTextSize = 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl';
 
-export interface SkeletonProps extends BaseProps {
+export interface StrictSkeletonProps extends BaseProps {
   /**
    * `text`, a line of text of `size`; `block`, a rectangle sized by `className`; `pill`, a badge;
    * `field`, a field at the height of an `md` control; `item`, the row of an `Item`: a square, a title
@@ -40,6 +40,7 @@ export interface SkeletonProps extends BaseProps {
   /** The width goes here, as a class: `w-1/2`, `w-24`. Last, so it wins */
   className?: string;
 }
+export type SkeletonProps = StrictSkeletonProps;
 
 
 /* --------

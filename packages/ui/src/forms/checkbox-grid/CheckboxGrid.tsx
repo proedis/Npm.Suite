@@ -129,7 +129,7 @@ export interface CheckboxGridLabels {
   readOnlyValue?: (item: CheckboxGridItem, checked: readonly CheckboxGridColumn[]) => React.ReactNode;
 }
 
-export interface CheckboxGridProps extends BaseProps, Omit<React.ComponentProps<'div'>, 'defaultValue' | 'onChange'> {
+export interface StrictCheckboxGridProps extends BaseProps {
   readonly groups: readonly CheckboxGridGroup[];
   readonly columns: readonly CheckboxGridColumn[];
 
@@ -171,6 +171,8 @@ export interface CheckboxGridProps extends BaseProps, Omit<React.ComponentProps<
 
   labels: CheckboxGridLabels;
 }
+export type CheckboxGridProps = StrictCheckboxGridProps & Omit<React.ComponentProps<'div'>, keyof StrictCheckboxGridProps | 'defaultValue' | 'onChange'>;
+
 
 interface RowModel {
   readonly key: string;

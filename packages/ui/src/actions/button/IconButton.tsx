@@ -17,14 +17,7 @@ import type { ButtonLoadingProps, ButtonProps } from './Button';
  * Types Definition
  * -------- */
 
-/**
- * `loading` and `loadingLabel` are taken out and put back as the union of `Button`: an `Omit` over that
- * union flattens it, and `loading` without `loadingLabel` compiled again.
- */
-export type IconButtonProps = Omit<
-  ButtonProps,
-  'children' | 'leading' | 'trailing' | 'block' | 'aria-label' | 'loading' | 'loadingLabel'
-> & ButtonLoadingProps & {
+export interface StrictIconButtonProps {
   /**
    * The name of the button, required: it is both the accessible name and the text of its tooltip.
    * One prop for the two, so they cannot disagree and neither can be forgotten.
@@ -39,7 +32,16 @@ export type IconButtonProps = Omit<
 
   /** Where the tooltip prefers to open. Defaults to `top` */
   tooltipSide?: TooltipSide;
-};
+}
+
+/**
+ * `loading` and `loadingLabel` are taken out and put back as the union of `Button`: an `Omit` over that
+ * union flattens it, and `loading` without `loadingLabel` compiled again.
+ */
+export type IconButtonProps = StrictIconButtonProps & ButtonLoadingProps & Omit<
+  ButtonProps,
+  'children' | 'leading' | 'trailing' | 'block' | 'aria-label' | 'loading' | 'loadingLabel'
+>;
 
 
 /* --------

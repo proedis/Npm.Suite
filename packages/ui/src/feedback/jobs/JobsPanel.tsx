@@ -51,9 +51,11 @@ export interface JobsPanelLabels {
   readonly progress: (value: number) => string;
 }
 
-export interface JobsPanelProps {
+export interface StrictJobsPanelProps {
   labels: JobsPanelLabels;
 }
+export type JobsPanelProps = StrictJobsPanelProps;
+
 
 interface JobsPanelViewProps {
   notifications: Notifications;

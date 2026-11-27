@@ -11,12 +11,15 @@ import type { LinkNavigate } from '../../core/link';
  * Types Definition
  * -------- */
 
-export interface LinkProviderProps {
+export interface StrictLinkProviderProps {
   /** The router's navigation: a plain click on a link given as a string calls it instead of loading a page */
   navigate: LinkNavigate;
 
   children?: React.ReactNode;
 }
+
+/** A provider extends nothing: the two names are one type, kept so every component reads the same way */
+export type LinkProviderProps = StrictLinkProviderProps;
 
 
 /* --------

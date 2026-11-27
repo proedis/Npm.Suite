@@ -759,7 +759,9 @@ their **look** is a neutral default every application retunes from its own style
 They run on [Base UI](https://base-ui.com), an **optional** peer: a project that never imports from
 these subpaths installs nothing new. One subpath per component, under its section, so each brings only
 its own peers; none of them is re-exported by the root barrel. Every module is client-only
-(`'use client'`). Each subpath also exports the types of its props, labels and values.
+(`'use client'`). Each subpath also exports the types of its props, labels and values: every component and
+every part in two, `Strict<Name>Props` with only what it declares itself and `<Name>Props` with what it forwards
+as well, so a wrapper of yours extends the first without inheriting every native prop.
 
 | Subpath | Exports |
 | --- | --- |

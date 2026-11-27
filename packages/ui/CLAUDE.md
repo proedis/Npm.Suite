@@ -245,8 +245,9 @@ narrower stylesheet is the one you have to ask for.
 ## Where the rest lives
 
 - **Writing a new component** is a procedure, and it is the `ui-component` skill
-  (`.claude/skills/ui-component/SKILL.md`): the seven steps, the four things that fail quietly, the
-  verification, and what a component needs outside its source (subpath, binding, README, the page).
+  (`.claude/skills/ui-component/SKILL.md`): the seven steps of the static tier, the eight of a component
+  with behaviour on Base UI, the four things that fail quietly, the verification, and what a component
+  needs outside its source (subpath, binding, README, the page).
 - **The choices of one section** that look improvable and are not live in `.claude/rules/ui/`, one file
   per section (`layout` with `primitives`, `display`, `actions`, `feedback`, `forms`, `overlays`,
   `data`), loaded when a file of that section or of its documentation is touched. Read the section's
@@ -257,6 +258,27 @@ narrower stylesheet is the one you have to ask for.
 
 ## Invariants
 
+- **Every component and every part exports two props types, `Strict<Name>Props` and `<Name>Props`**
+  (Marco, 2026-11-27: it must be respected, because the two together are what makes the package easy to
+  use from outside). `Strict<Name>Props` holds only what the component declares itself, with `BaseProps`
+  when it takes the shared props; `<Name>Props` is it joined with what the component forwards and with
+  its constraint fragments. An application wraps a component on the first without dragging in every native
+  or Base UI prop, and reaches for the second when it forwards everything. The shapes, by case:
+  - polymorphic: `interface StrictXProps extends BaseProps {…}`, `XProps<E> = PolymorphicProps<E, StrictXProps>`;
+  - forwarding to an element or to Base UI: `XProps = StrictXProps & XLoadingProps & Omit<Native, keyof StrictXProps | …>`;
+  - forwarding nothing (a provider, a menu item): `type XProps = StrictXProps`, two names for one type;
+  - a part that **is** another component: `type StrictPartProps = StrictOtherProps`;
+  - single and multiple: `StrictXProps = StrictSingleXProps | StrictMultipleXProps`.
+
+  `Strict<Name>Props` is an `interface` wherever it is an object shape, a `type` only for a union or an
+  alias. What is **not** a component's props needs no Strict, and is named so the check can tell: the
+  constraint fragments (`…LoadingProps`, `…NameProps`, `…ValueProps` and the others listed in
+  `scripts/strict-props.mjs`) and the building blocks (`BaseProps`, `PolymorphicProps`, the `Common…Props`
+  of a family). ⚠️ Enforced, not remembered: the build of the package ends with
+  `scripts/strict-props.mjs`, which reads every published entry point through the compiler and fails on a
+  `<Name>Props` with no `Strict` beside it. Before it, 52 of them had none (2026-11-27), all added without
+  removing or changing a type: the exports compared before and after, the documentation regenerated
+  identical.
 - **Every context comes from a builder of `@proedis/react`, never from `React.createContext`.**
   `optionalContextBuilder(name, default)` where the component works without the provider (a control
   outside a `Field`, a dialog not nested, a `Checkbox` outside a group), and that is twenty of the
