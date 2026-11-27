@@ -60,6 +60,10 @@ component has no CSS behind it, and nothing reports it.
 5. **A card is a `Surface`, a row is an `Item`.** `Surface.Header` (an Item), `Surface.Section`, `Surface.Footer`;
    `Item.Icon` and `Item.Heading` for the leading visual and the title. They own the truncation and the padding a
    hand-written card gets wrong.
+6. **Actions on a row: primary visible, secondary in the menu, three things to press at most.** The actions used on
+   most rows are `IconButton`s in `Item.Actions` (their `label` is the tooltip, name the record in it); the others,
+   and every destructive one, are items of a `Menu` whose `aria-label` names the record. Up to three icon buttons, or
+   two and the trigger of the menu.
 
 ```tsx
 import * as React from 'react';

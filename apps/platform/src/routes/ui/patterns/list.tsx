@@ -8,6 +8,7 @@ import { InlineCode } from '@/docs/InlineCode';
 import { PageBody, PageHeader, Prose, Section } from '@/docs/Page';
 import { DocTable } from '@/docs/Tables';
 import rowsAsButtons from '@/examples/display/item/list.tsx?example';
+import primaryActions from '@/examples/patterns/list/primary-actions.tsx?example';
 import rowsWithActions from '@/examples/patterns/list/rows-with-actions.tsx?example';
 import { pageAt } from '@/nav';
 
@@ -67,6 +68,28 @@ function ListPatternPage(): React.ReactNode {
         </Section>
 
         <Section
+          title={'Primary and secondary actions'}
+          lead={(
+            <React.Fragment>
+              A row shows its primary actions and keeps the secondary ones in its menu, and it never shows more than
+              three things to press: up to three icon buttons, or two and the trigger of the menu.
+            </React.Fragment>
+          )}
+        >
+          <Example of={primaryActions} />
+          <Prose>
+            <p>
+              <strong>Primary</strong> is what a reader does on most rows, most of the time: edit a vehicle, find it on
+              the map. Those are <InlineCode>IconButton</InlineCode>s on the row, each named by its{' '}
+              <InlineCode>label</InlineCode>, which is also its tooltip, with the record in
+              it: <InlineCode>Edit FT-234-KL</InlineCode>. <strong>Secondary</strong> is everything else, and goes in the menu
+              so that the row stays light: duplicating, and a destructive action, which always sits last after a
+              separator. With no primary action at all, the row holds the menu alone, as in the first example.
+            </p>
+          </Prose>
+        </Section>
+
+        <Section
           title={'Rows that open their record'}
           lead={'When nothing inside the row is a control, the whole row is the button: a larger target, and one stop of Tab per record.'}
         >
@@ -98,6 +121,12 @@ function ListPatternPage(): React.ReactNode {
             </Guidance>
             <Guidance kind={'do'} title={'Name the record in the menu'}>
               The label of every row&apos;s menu says on what it acts, not only &quot;Actions&quot;.
+            </Guidance>
+            <Guidance kind={'do'} title={'Primary on the row, secondary in the menu'}>
+              The actions used on most rows are icon buttons; the rest, and every destructive one, are items of the menu.
+            </Guidance>
+            <Guidance kind={'dont'} title={'More than three things to press on a row'}>
+              Three icon buttons, or two and the menu, at most. A fourth action is secondary by definition.
             </Guidance>
             <Guidance kind={'dont'} title={'A card per record'}>
               A card per row multiplies borders and shadows. One card, rows divided by a line.
